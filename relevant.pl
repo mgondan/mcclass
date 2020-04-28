@@ -18,10 +18,11 @@
 % Apply rule to term
 %
 % Some special compounds
-step(Rule, Code, instead_of(Err, A, Wrong, Instead) >> To, Flags, Feedback) :-
+step(Rule, Code, instead_of(Err, A, Wrong, Of, Correct) >> To, Flags, Feedback) :-
     !,
     step(Rule, Code, A >> B, Flags, Feedback),
-    To = instead_of(Err, B, Wrong, Instead).
+    solution(Of, Solution, _),
+    To = instead_of(Err, B, Wrong, Solution, Correct).
 
 step(Rule, Code, denoting(Symbol, A, Label) >> To, Flags, Feedback) :-
     !, 
@@ -145,12 +146,11 @@ relevant(Mistakes, Traps, Relevant, Irrelevant) :-
 %
 % Math expressions
 %
-mathex(fix, instead_of(_, _, _, Correct), Out) :-
+mathex(fix, instead_of(_, _, _, Correct, _), Out) :-
     !,
-    solution(Correct, Solution, _),
-    mathex(fix, Solution, Out).
+    mathex(fix, Correct, Out).
 
-mathex(show, instead_of(_, Wrong, _, _), Out) :-
+mathex(show, instead_of(_, Wrong, _, _, _), Out) :-
     !,
     mathex(show, Wrong, Out).
 

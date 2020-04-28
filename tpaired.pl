@@ -93,7 +93,7 @@ buggy(groups_t, From >> To, Flags, Feed) :-
     From = paired_tratio(D, [T0, EOT], S, [S_T0, S_EOT], N, Mu),
     Inst = groups_t(T0, S_T0, N, EOT, S_EOT, N),
     Of   = paired_t(D, Mu, S, N),
-    To   = instead_of(groups_t, Inst, Inst, Of),
+    To   = instead_of(groups_t, Inst, Inst, Of, Of),
     Feed = ["The result matches a ",
             span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for independent ",
             "groups. Please use the ",
@@ -117,7 +117,7 @@ expert(groups_t, From >> To, Flags, Feed, Hint) :-
 buggy(school, From >> To, Flags, Feed) :-
     From = 1/A + 1/B,
     Inst = frac(1, A + B),
-    To   = instead_of(school, Inst, Inst, From),
+    To   = instead_of(school, Inst, Inst, From, From),
     Feed = ["Please remember school math: ", 
             \mml(Flags, color(school, color("black", From) \= color("black", Inst)))].
 

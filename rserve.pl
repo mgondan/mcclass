@@ -34,7 +34,7 @@ r_init :-
             eval(substitute(expr)[[2]])
         }
 
-        instead_of <- function(err, wrong, error, correct)
+        instead_of <- function(err, wrong, error, correct, noerror)
         {
             return(wrong)
         }
