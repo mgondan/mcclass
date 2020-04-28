@@ -1,0 +1,81 @@
+% Some HTML helper functions
+:- use_module(library(dcg/high_order)).
+
+table(Head, Body) -->
+    html(div(class("container shadow-sm my-3 mx-auto p-3 w-75"),
+        table(class("table table-borderless m-auto"), 
+	  [ \thead(Head), 
+            \tbody(Body) 
+          ]))).
+
+thead([H | Row]) -->
+    html(thead(style('border-top: 2px solid'),
+        tr([th(H), \foreach(member(X, Row), html(th(class('text-center'), X)))]))).
+
+tbody(Body) -->
+    html(tbody(style('border-top: 1px solid; border-bottom: 2px solid'),
+        \foreach(member(X, Body), html(\trow(X))))).
+
+trow([H | Row]) -->
+    html(tr([th(H), \foreach(member(X, Row), html(td(class('text-center'), X)))])).
+
+download(Data) -->
+    html(form(method('POST'),
+        button(
+	  [ class('btn btn-secondary'), 
+	    name(download), value(Data)
+	  ], 
+	  "Download data"))).
+
+form(Response) -->
+    html(form([class(form), method('POST'), action('#question')], \response(Response))).
+
+response(Response) -->
+    html(div(class("input-group mb-3"),
+      [ div(class("input-group-prepend"), span(class("input-group-text"), "Response:")),
+        input([class("form-control"), type(text), name(response), value(Response)]),
+        div(class("input-group-append"),
+        [ button([class('btn btn-primary'), type(submit), name(response), value(response)], 
+            "Submit"),
+          button([class('btn btn-warning'), name(help), value(hint)], 
+            "Help me")
+        ])
+      ])).
+
+navigation(Current, List) -->
+    html(nav('aria-label'("Page navigation"),
+        ul(class("pagination justify-content-center"),
+          [ \navfirst(Current, List),
+            \foreach(member(Number-X, List),
+                navitem(Current, Number-X)),
+            \navlast(Current, List)
+          ]))).
+
+navfirst(First, [_-First | _]) -->
+    !, 
+    html(li(class('page-item disabled'), a([class('page-link'), href(First)], "First"))).
+
+navfirst(_, [_-First | _]) -->
+    html(li(class('page-item'), a([class('page-link'), href(First)], "First"))).
+
+navitem(Current, Number-Current) -->
+    !, 
+    html(li(class('page-item active'), a([class('page-link'), href(Current)], Number))).
+
+navitem(_, Number-Link) -->
+    html(li(class('page-item'), a([class('page-link'), href(Link)], Number))).
+
+navlast(Last, List) -->
+    { last(List, _-Last) },
+    !, 
+    html(li(class('page-item disabled'), a([class('page-link'), href(Last)], "Last"))).
+
+navlast(_, List) -->
+    { last(List, _-Last) },
+    html(li(class('page-item'), a([class('page-link'), href(Last)], "Last"))).
+
+ul_nonempty(_, []) -->
+    [].
+
+ul_nonempty(Title, [H | T]) -->
+    html([ p(class('card-text'), Title), ul(class('card-text'), [H | T]) ]).
