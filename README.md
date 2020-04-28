@@ -1,2 +1,2 @@
-# mcclass
-McClass: MisConception-aware Competence Learning and Assessment Smart System
+# McClass
+MisConception-aware Competence Learning and Assessment Smart System
