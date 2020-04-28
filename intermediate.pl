@@ -5,9 +5,10 @@ final(A) :-
     !,
     \+ intermediate(A/0).
 
-final(instead_of(_, Wrong, _, _)) :-
+final(instead_of(_, Instead, _, Of, _)) :-
     !,
-    final(Wrong).
+    final(Instead),
+    final(Of).
 
 final(denoting(_, Expr, _)) :-
     !, final(Expr).
