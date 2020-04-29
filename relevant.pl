@@ -18,6 +18,10 @@
 % Apply rule to term
 %
 % Some special compounds
+step(Rule, Code, instead_of(Err, Instead, Of) >> To, Flags, Feedback) :-
+    !,
+    step(Rule, Code, instead_of(Err, Instead, Instead, Of, Of) >> To, Flags, Feedback).
+
 step(Rule, Code, instead_of(Err, A, Wrong, Of, Correct) >> To, Flags, Feedback) :-
     !,
     step(Rule, Code, A >> B, Flags, Feedback),
