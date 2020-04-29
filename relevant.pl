@@ -5,6 +5,7 @@
         route/3, 
 	hints/3,
         traps/2, 
+	codes/2,
         feedback/3,
         praise/3,
         mistakes/3,
@@ -88,6 +89,15 @@ route(Rules, A, B, Steps, Path) :-
     member(R, Rules),
     step(R, _, A >> X, _, feedback(_)),
     route(Rules, X, B, [X | Steps], Path).
+
+% 
+% Extract abbreviations of steps
+%
+codes([_], []).
+
+codes([A, X | Path], [Code | Codes]) :-
+    step(_, Code, A >> X, _, feedback(_)),
+    codes([X | Path], Codes).
 
 %
 % Find "relevant" buggy rules (also known as "traps")

@@ -214,11 +214,13 @@ avoid(_Id) -->
 
 wrong(_Id) -->
     { item(Item),
-      findall(li(M), (route(Item, Wrong, _), r(Wrong, Result), mathml(Wrong = number(Result), M)), List)
+      findall(wrong(Wrong, R-S), (route(Item, Wrong, Path), codes(Path, C), sort(C, S), r(Wrong, R)), List),
+      sort(2, @<, List, Sorted),
+      maplist([wrong(W, R-_), li(M)] >> mathml(W = number(R), M), Sorted, Li)
     },
     html(div(class(card),
       [ div(class('card-header alert-information'), "For teachers only"),
         div(class('card-body'),
-            \ul_nonempty("These results are recognized by the system:", List))
+            \ul_nonempty("These results are recognized by the system:", Li))
       ])).
 
