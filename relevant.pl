@@ -33,6 +33,20 @@ step(Rule, Code, denoting(Symbol, A, Label) >> To, Flags, Feedback) :-
     step(Rule, Code, A >> B, Flags, Feedback),
     To = denoting(Symbol, B, Label).
 
+step(Rule, Code, left_elsewhere(Err, Expr) >> To, Flags, Feedback) :-
+    !,
+    Expr =.. [Op, Left, A],
+    step(Rule, Code, A >> B, Flags, Feedback),
+    New =.. [Op, Left, B],
+    To = left_elsewhere(Err, New).
+
+step(Rule, Code, right_elsewhere(Err, Expr) >> To, Flags, Feedback) :-
+    !,
+    Expr =.. [Op, A, Right],
+    step(Rule, Code, A >> B, Flags, Feedback),
+    New =.. [Op, B, Right],
+    To = right_elsewhere(Err, New).
+
 % Direct match
 step(expert, Code, Step, Flags, feedback(Feedback)) :-
     expert(Code, Step, Flags, Feedback, _).

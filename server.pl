@@ -214,7 +214,7 @@ avoid(_Id) -->
 
 wrong(_Id) -->
     { item(Item),
-      findall(li(M), (route(Item, Wrong, _), r(Wrong, Result), mathml(Wrong = Result, M)), List)
+      findall(li(M), (route(Item, Wrong, _), r(Wrong, Result), mathml(Wrong = number(Result), M)), List)
     },
     html(div(class(card),
       [ div(class('card-header alert-information'), "For teachers only"),

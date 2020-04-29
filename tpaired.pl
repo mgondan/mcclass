@@ -145,6 +145,14 @@ buggy(paren_denom, From >> To, Flags, Feed) :-
             "fraction ", 
 	    \mml(Flags, dfrac(A - B, color(paren_denom, paren(black(C / D))))), "."].
 
+% Forget square root
+buggy(root, From >> To, Flags, Feed) :-
+    From = sqrt(N),
+    Inst = N,
+    To   = instead_of(root, Inst, From),
+    Feed = ["Please do not forget the square root around ", 
+            \mml([highlight(all) | Flags], color(root, N)), "."].
+
 r_init(tpaired) :-
     r_init,
     {|r||
