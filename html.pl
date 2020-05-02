@@ -78,4 +78,6 @@ ul_nonempty(_, []) -->
     [].
 
 ul_nonempty(Title, [H | T]) -->
-    html([ p(class('card-text'), Title), ul(class('card-text'), [H | T]) ]).
+    { findall(li(X), member(X, [H | T]), Li) },
+    html([ p(class('card-text'), Title), ul(class('card-text'), Li) ]).
+

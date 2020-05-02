@@ -3,11 +3,10 @@
 :- use_module(relevant).
 :- use_module(intermediate).
 :- use_module(library(mathml)).
-:- use_module(library(r/r_call)).
 :- use_module(library(http/html_write)).
 :- consult(html).
 :- consult(temp).
-:- consult(rserve).
+:- use_module(r).
 
 :- discontiguous intermediate/1, expert/5, buggy/4.
 
@@ -21,7 +20,7 @@ mathml:math_hook(Flags, s_EOT, Flags, sub(s, "EOT")).
 item(paired_tratio('D', ['T0', 'EOT'], s_D, [s_T0, s_EOT], 'N', mu)).
 
 :- multifile item//2.
-item(Flags, paired_tratio('D', ['T0', 'EOT'], s_D, [s_T0, s_EOT], 'N', mu), Response) -->
+item(paired_tratio('D', ['T0', 'EOT'], s_D, [s_T0, s_EOT], 'N', mu), Response) -->
     { D <- 'D',
       Mu <- mu,
       S_D <- s_D,
@@ -32,20 +31,20 @@ item(Flags, paired_tratio('D', ['T0', 'EOT'], s_D, [s_T0, s_EOT], 'N', mu), Resp
       S_EOT <- s_EOT,
       Tails <- tails,
       Alpha <- alpha,
-      maplist({Flags}/[X] >> =(\mml(Flags, X)), ["HDRS", "T0", "EOT", 'D'], H),
-      maplist({Flags}/[X] >> =(\mml(Flags, round1(X))), ["Mean", T0, EOT, D], R1),
-      maplist({Flags}/[X] >> =(\mml(Flags, round1(X))), ["SD", S_T0, S_EOT, S_D], R2)
+      maplist(mathml, ["HDRS", "T0", "EOT", 'D'], H),
+      maplist([X, Y] >> mathml(round1(X), Y), ["Mean", T0, EOT, D], R1),
+      maplist([X, Y] >> mathml(round1(X), Y), ["SD", S_T0, S_EOT, S_D], R2)
     }, 
     html(
       [ div(class(card), div(class('card-body'),
           [ h1(class('card-title'), "Phase II clinical study"),
             p(class('card-text'), 
             [ "Consider a clinical study on rumination-focused Cognitive ", 
-              "Behavioral Therapy (rfCBT) with ", \mml(Flags, 'N' = round0(N)), 
+              "Behavioral Therapy (rfCBT) with ", \mml('N' = round0(N)), 
               " patients. The primary outcome is the score on the ",
               "Hamilton Rating Scale for Depression (HDRS, range from ",
               "best = 0 to worst = 42). The significance level is set to ", 
-              \mml(Flags, alpha = round('100%'(Alpha))), " ", \mml(Flags, Tails), "."
+              \mml(alpha = round('100%'(Alpha))), " ", \mml(Tails), "."
 	    ]),
             \table(H, [R1, R2]),
             \download(tpaired)
@@ -54,9 +53,9 @@ item(Flags, paired_tratio('D', ['T0', 'EOT'], s_D, [s_T0, s_EOT], 'N', mu), Resp
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'), 
               [ "Does rfCBT lead to a relevant reduction (i.e., more than ",
-	        \mml(Flags, mu = Mu), " units) in mean HDRS scores between ",
+	        \mml(mu = Mu), " units) in mean HDRS scores between ",
                 "baseline (T0) and End of Treatment (EOT)? Please determine ",
-		"the ", span(class('text-nowrap'), [\mml(Flags, t), "-ratio."])
+		"the ", span(class('text-nowrap'), [\mml(t), "-ratio."])
               ]),
             \form(Response)
 	  ]))
@@ -153,7 +152,7 @@ buggy(root, From >> To, Flags, Feed) :-
     Feed = ["Please do not forget the square root around ", 
             \mml([highlight(all) | Flags], color(root, N)), "."].
 
-r_init(tpaired) :-
+r_init(tpaired, SessionId) :-
     r_init,
     {|r||
     paired_t <- function(d, mu, s, n)
@@ -190,37 +189,36 @@ r_init(tpaired) :-
     alpha = 0.05
     tails = 'two-tailed'
     |},
-    csvfile(tpaired, data).
+    csvfile(tpaired, data, SessionId).
 
-data(tpaired, File) :-
-    tempfile(tpaired, File).
+data(tpaired, File, SessionId) :-
+    tempfile(tpaired, File, SessionId).
 
 %
 % Invoke example
 %
 example :-
-    r_init(tpaired),
+    r_init(tpaired, []),
     item(Item),
     solution(Item, Solution, Path),
     writeln(solution: Solution),
     r(Solution, Result),
     writeln(result: Result),
     writeln(path: Path),
-    palette(Solution, Flags),
-    mathml(Flags, Solution = Result, Mathml),
+    mathml(Solution = Result, Mathml),
     writeln(mathml: Mathml),
+    palette(Solution, Flags),
     hints(Flags, Path, Hints),
     writeln(hints: Hints),
     traps(Path, Traps),
     writeln(traps: Traps),
-    praise(Flags, Path, Praise),
+    praise(Path, Praise),
     writeln(praise: Praise).
 
 example :-
     item(Item),
     solution(Item, Solution, Path),
-    route(Item, Wrong, Wooden),
-    dif(Solution, Wrong),
+    wrong(Item, Solution, Wrong, Wooden),
     writeln(wrong: Wrong),
     mathex(fix, Wrong, Fix),
     writeln(fix: Fix),
@@ -234,7 +232,7 @@ example :-
     writeln(mathml: Mathml),
     feedback(Flags, Wooden, Feedback),
     writeln(feedback: Feedback),
-    praise(Flags, Wooden, Praise),
+    praise(Wooden, Praise),
     writeln(praise: Praise),
     mistakes(Flags, Wooden, Mistakes),
     writeln(mistakes: Mistakes),
@@ -245,8 +243,6 @@ example :-
 
 example :-
     item(Item),
-    solution(Item, Solution, _),
-    palette(Solution, Flags),
-    html(\item(Flags, Item, ''), HTML, []),
+    html(\item(Item, ''), HTML, []),
     print_html(HTML).
 

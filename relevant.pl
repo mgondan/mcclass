@@ -2,18 +2,22 @@
     [
         step/5, 
         solution/3, 
+	wrong/3,
+	wrong/4,
+	wrongs_paths_results/2,
         route/3, 
 	hints/3,
-        traps/2, 
+        traps/3, 
 	codes/2,
         feedback/3,
-        praise/3,
-        mistakes/3,
+        praise/4,
+        mistakes/4,
 	relevant/4,
         mathex/3
     ]).
 
 :- use_module(intermediate).
+:- use_module(r).
 
 %
 % Apply rule to term
@@ -47,6 +51,20 @@ step(Rule, Code, right_elsewhere(Err, Expr) >> To, Flags, Feedback) :-
     step(Rule, Code, A >> B, Flags, Feedback),
     New =.. [Op, B, Right],
     To = right_elsewhere(Err, New).
+
+step(Rule, Code, left_landed(Err, Expr) >> To, Flags, Feedback) :-
+    !,
+    Expr =.. [Op, Left, A],
+    step(Rule, Code, A >> B, Flags, Feedback),
+    New =.. [Op, Left, B],
+    To = left_landed(Err, New).
+
+step(Rule, Code, right_landed(Err, Expr) >> To, Flags, Feedback) :-
+    !,
+    Expr =.. [Op, A, Right],
+    step(Rule, Code, A >> B, Flags, Feedback),
+    New =.. [Op, B, Right],
+    To = right_landed(Err, New).
 
 % Direct match
 step(expert, Code, Step, Flags, feedback(Feedback)) :-
@@ -90,6 +108,21 @@ route(Rules, A, B, Steps, Path) :-
     step(R, _, A >> X, _, feedback(_)),
     route(Rules, X, B, [X | Steps], Path).
 
+% Wrong result - assumes one single correct result
+wrong(Item, Wrong, Path) :-
+    solution(Item, Solution, _),
+    wrong(Item, Solution, Wrong, Path).
+
+wrong(Item, Solution, Wrong, Path) :-
+    route(Item, Wrong, Path),
+    dif(Wrong, Solution).
+
+wrongs_paths_results(Item, Wrongs_Paths_Results) :-
+    solution(Item, Solution, _),
+    findall((W-P)-(S-R), (wrong(Item, Solution, W, P), codes(P, C), sort(C, S), r(W, R)), List),
+    sort(2, @<, List, Sorted),
+    findall(wrong(Item, W, P, R), member((W-P)-(_-R), Sorted), Wrongs_Paths_Results).
+    
 % 
 % Extract abbreviations of steps
 %
@@ -112,18 +145,22 @@ trap(A, Trap) :-
     findall(Code-Feed, step(buggy, Code, A >> _, [color-auto], feedback(Feed)), Trap).
 
 % Traps along a path
-traps(Path, Traps) :-
+traps(Path, Traps, Code_Traps) :-
     maplist(trap, Path, Trap),
-    append(Trap, Traps).
+    append(Trap, Code_Traps),
+    pairs_values(Code_Traps, Traps).
 
 %
 % Hints to correct result
 %
-hints(_, [_], []).
+hints(Path, Hints, Code_Hints) :-
+    hints([], Path, Hints, Code_Hints).
 
-hints(Flags, [A, X | Path], [Code-Hint | Hints]) :-
+hints(_, [_], [], []).
+
+hints(Flags, [A, X | Path], [Hint | Hints], [Code-Hint | Code_Hints]) :-
     step(_, Code, A >> X, Flags, hint(Hint)),
-    hints(Flags, [X | Path], Hints).
+    hints(Flags, [X | Path], Hints, Code_Hints).
 
 %
 % Feedback: all
@@ -137,28 +174,35 @@ feedback(Flags, [A, X | Path], [Code-Feed | Feedback]) :-
 %
 % Feedback: only praise
 %
-praise(_, [_], []).
+praise(Flags, Path, Praise, Code_Praise) :-
+    code_praise(Flags, Path, Praise, Code_Praise).
 
-praise(Flags, [A, X | Path], [Code-F | Feedback]) :-
-    step(expert, Code, A >> X, Flags, feedback(F)),
-    praise(Flags, [X | Path], Feedback).
+code_praise(_, [_], [], []).
 
-praise(Flags, [A, X | Path], Feedback) :-
+code_praise(Flags, [A, X | Path], [Feed | Praise], [Code-Feed | Code_Praise]) :-
+    step(expert, Code, A >> X, Flags, feedback(Feed)),
+    code_praise(Flags, [X | Path], Praise, Code_Praise).
+
+code_praise(Flags, [A, X | Path], Praise, Code_Praise) :-
     step(buggy, _, A >> X, Flags, feedback(_)),
-    praise(Flags, [X | Path], Feedback).
+    code_praise(Flags, [X | Path], Praise, Code_Praise).
 
 %
 % Feedback: only mistakes
 %
-mistakes(_, [_], []).
+mistakes(Flags, Path, Mistakes, Code_Mistakes) :-
+    code_mistakes(Flags, Path, Code_Mistakes),
+    pairs_values(Code_Mistakes, Mistakes).
 
-mistakes(Flags, [A, X | Path], Mistakes) :-
+code_mistakes(_, [_], []).
+
+code_mistakes(Flags, [A, X | Path], Code_Mistakes) :-
     step(expert, _, A >> X, Flags, feedback(_)),
-    mistakes(Flags, [X | Path], Mistakes).
+    code_mistakes(Flags, [X | Path], Code_Mistakes).
 
-mistakes(Flags, [A, X | Path], [Code-Mistake | Mistakes]) :-
+code_mistakes(Flags, [A, X | Path], [Code-Mistake | Code_Mistakes]) :-
     step(buggy, Code, A >> X, Flags, feedback(Mistake)),
-    mistakes(Flags, [X | Path], Mistakes).
+    code_mistakes(Flags, [X | Path], Code_Mistakes).
 
 %
 % Only relevant feedback
@@ -168,8 +212,8 @@ relevant(Mistakes, Traps, Relevant, Irrelevant) :-
     pairs_keys(Mistakes, Mistake_keys),
     intersection(Mistake_keys, Trap_keys, Relevant_keys),
     subtract(Mistake_keys, Trap_keys, Irrelevant_keys),
-    findall(Key-L, (member(Key, Relevant_keys), member(Key-L, Mistakes)), Relevant),
-    findall(Key-L, (member(Key, Irrelevant_keys), member(Key-L, Mistakes)), Irrelevant).
+    findall(L, (member(Key, Relevant_keys), member(Key-L, Mistakes)), Relevant),
+    findall(L, (member(Key, Irrelevant_keys), member(Key-L, Mistakes)), Irrelevant).
 
 %
 % Math expressions
