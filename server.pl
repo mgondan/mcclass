@@ -159,15 +159,17 @@ feedback(Id, Response) -->
       mistakes(Flags, Woodden, _, Code_Mistakes),
       cache(Id, traps(Item, _, Code_Traps)),
       relevant(Code_Mistakes, Code_Traps, RelMistake, IrrelMistake),
-      append([IrrelPraise, IrrelMistake, Format], Additional)
+      append([IrrelPraise, IrrelMistake, Format], Additional),
+      mathml([fix(all) | Flags], Wrong, Fix),
+      mathml([show(all) | Flags], Wrong, Show)
     },
     html(div(class(card),
       [ div(class('card-header alert-warning'), "Incorrect result"),
         div(class('card-body'),
           [ p(class('card-text'), "This is the formula for the correct result:"),
-	    p(class('card-text'), \mml([fix(all) | Flags], Wrong)),
+	    p(class('card-text'), Fix),
 	    p(class('card-text'), "Your result matches the following expression:"),
-	    p(class('card-text'), \mml([show(all) | Flags], Wrong)),
+	    p(class('card-text'), Show),
 	    \ul_nonempty(em("Correct steps"), RelPraise),
 	    \ul_nonempty(em("Mistakes"), RelMistake),
 	    \ul_nonempty(em("Additional hints"), Additional)
