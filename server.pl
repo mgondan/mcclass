@@ -9,8 +9,8 @@
 :- use_module(library(http/http_unix_daemon)).
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/http_session)).
-:- consult(tpaired).
 :- use_module(library(quantity)).
+:- use_module(library(r/r_call)).
 
 :- initialization http_daemon.
 
@@ -19,10 +19,10 @@ id_assert(Id, Fact) :-
     assert(cache(Id, Fact)).
 
 cache(Id) :-
-    item(Item),
+    item(Id, Item),
     solution(Item, Solution, Path),
     r_init(Id),
-    r(Solution, Result),
+    sur(Result <- Solution),
     id_assert(Id, solution(Item, Solution, Path, Result)),
     praise([], Path, Praise, _),
     id_assert(Id, praise(Item, Praise)),
@@ -33,7 +33,10 @@ cache(Id) :-
     wrongs_paths_results(Item, Wrongs_Paths_Results),
     maplist(id_assert(Id), Wrongs_Paths_Results).
 
+:- consult(tpaired).
 :- cache(tpaired).
+:- consult(baseline).
+:- cache(baseline).
 
 :- multifile http:location/3.
 :- dynamic http:location/3.
@@ -42,7 +45,7 @@ http:location(mcclass, root(mcclass), []).
 
 :- http_handler(root('favicon.ico'), http_reply_file('favicon.ico', []), []).
 :- http_handler(mcclass(tpaired), handler(tpaired), []).
-:- http_handler(mcclass(pvalue), handler(pvalue), []).
+:- http_handler(mcclass(baseline), handler(baseline), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
@@ -83,7 +86,6 @@ post(Id, Request) :-
 
 page(Id) :-
     r_init(tpaired),
-    item(Item),
     response(Response),
     reply_html_page(
       [ title('McClass'),
@@ -95,12 +97,12 @@ page(Id) :-
 	  ]),
 	meta([name(viewport), content('width=device-width, initial-scale=1')])
       ],
-      [ \item(Item, Response),
+      [ \item(Id, Response),
         \help(Id),
         \feedback(Id, Response),
 	\wrongs(Id),
 	\avoid(Id),
-        \navigation(Id, [1-tpaired, 2-pvalue])
+        \navigation(Id, [1-tpaired, 2-baseline])
       ]).
 
 hint_level(Hint) :-
@@ -132,7 +134,7 @@ feedback(_Id, '') -->
 
 feedback(Id, Response) -->
     { quantity(_, _, Response),
-      item(Item),
+      item(Id, Item),
       cache(Id, solution(Item, Solution, _, Result)),
       match(Result, Response, Format),
       cache(Id, praise(Item, Praise))
@@ -147,7 +149,7 @@ feedback(Id, Response) -->
 
 feedback(Id, Response) -->
     { quantity(_, _, Response),
-      item(Item),
+      item(Id, Item),
       cache(Id, wrong(Item, Wrong, Woodden, Result)),
       match(Result, Response, Format),
       praise(Flags, Woodden, _, Code_Praise),
@@ -193,7 +195,7 @@ help(_Id) -->
 
 help(Id) -->
     { hint_level(Level),
-      item(Item),
+      item(Id, Item),
       cache(Id, hints(Item, Hints, _)),
       findall(H, (nth1(Index, Hints, H), Index =< Level), List)
     }, 
@@ -204,7 +206,7 @@ help(Id) -->
       ])).
 
 avoid(Id) -->
-    { item(Item),
+    { item(Id, Item),
       cache(Id, traps(Item, Traps, _))
     },
     html(div(class(card),
@@ -213,7 +215,7 @@ avoid(Id) -->
       ])).
 
 wrongs(Id) -->
-    { item(Item),
+    { item(Id, Item),
       cache(Id, solution(Item, Solution, _, Result)),
       mathml(Solution = number(Result), Correct),
       findall(W = number(R), cache(Id, wrong(Item, W, _, R)), Wrong),

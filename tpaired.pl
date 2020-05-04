@@ -17,10 +17,13 @@ mathml:math_hook(Flags, s_EOT, Flags, sub(s, "EOT")).
 %    
 % Paired t-test, t-ratio
 %
-item(paired_tratio('D', ['T0', 'EOT'], s_D, [s_T0, s_EOT], 'N', mu)).
+:- multifile(item/2).
+item(tpaired, paired_tratio('D', ['T0', 'EOT'], s_D, [s_T0, s_EOT], 'N', mu)).
+
+intermediate(paired_tratio/6).
 
 :- multifile item//2.
-item(paired_tratio('D', ['T0', 'EOT'], s_D, [s_T0, s_EOT], 'N', mu), Response) -->
+item(tpaired, Response) -->
     { D <- 'D',
       Mu <- mu,
       S_D <- s_D,
@@ -60,9 +63,6 @@ item(paired_tratio('D', ['T0', 'EOT'], s_D, [s_T0, s_EOT], 'N', mu), Response) -
             \form(Response)
 	  ]))
       ]).
-
-% Do not report this as a final result
-intermediate(paired_tratio/6).
 
 % Choose t-ratio for one-sample t-test
 expert(paired_tratio, From >> To, Flags, Feed, Hint) :-

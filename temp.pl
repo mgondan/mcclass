@@ -18,6 +18,10 @@ tempfile(Id, File, Stream, Options) :-
     assert(temp(Id, File)).
 
 % Create CSV file from R dataframe
+csvfile(Id, _) :-
+    temp(Id, _),
+    !.
+
 csvfile(Id, Data) :-
     tempfile(Id, _, Stream, [encoding(utf8), extension(csv)]),
     r_data_frame_colnames(Data, Names),

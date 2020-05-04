@@ -119,7 +119,7 @@ wrong(Item, Solution, Wrong, Path) :-
 
 wrongs_paths_results(Item, Wrongs_Paths_Results) :-
     solution(Item, Solution, _),
-    findall((W-P)-(S-R), (wrong(Item, Solution, W, P), codes(P, C), sort(C, S), r(W, R)), List),
+    findall((W-P)-(S-R), (wrong(Item, Solution, W, P), codes(P, C), sort(C, S), sur(R <- W)), List),
     sort(2, @<, List, Sorted),
     findall(wrong(Item, W, P, R), member((W-P)-(_-R), Sorted), Wrongs_Paths_Results).
     
