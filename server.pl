@@ -14,71 +14,26 @@
 
 :- initialization http_daemon.
 
-% Cache expensive results at beginning of session
-:- http_set_session_options([timeout(30), gc(active)]).
-:- listen(http_session(begin(SessionId, _Peer)), begin_session(SessionId)).
+:- dynamic cache/2.
+id_assert(Id, Fact) :-
+    assert(cache(Id, Fact)).
 
-begin_session(SessionId) :-
-    http_log("Session started: ~k~n", [SessionId]),
-    thread_create(work(SessionId), _).
-
-realwork(Id, SessionId) :-
-    http_log("Starting the real work for ~k~n", [Id]),
-    sleep(5),
+cache(Id) :-
     item(Item),
     solution(Item, Solution, Path),
-    r_init(Id, SessionId),
+    r_init(Id),
     r(Solution, Result),
-    http_session_assert(solution(Item, Solution, Path, Result), SessionId),
+    id_assert(Id, solution(Item, Solution, Path, Result)),
     praise([], Path, Praise, _),
-    http_session_assert(praise(Item, Praise), SessionId),
+    id_assert(Id, praise(Item, Praise)),
     hints(Path, Hints, Code_Hints),
-    http_session_assert(hints(Item, Hints, Code_Hints), SessionId),
+    id_assert(Id, hints(Item, Hints, Code_Hints)),
     traps(Path, Traps, Code_Traps),
-    http_session_assert(traps(Item, Traps, Code_Traps), SessionId),
+    id_assert(Id, traps(Item, Traps, Code_Traps)),
     wrongs_paths_results(Item, Wrongs_Paths_Results),
-    maplist({SessionId}/[X] >> http_session_assert(X, SessionId), Wrongs_Paths_Results),
-    http_log("Done with the real work.~n", []).
+    maplist(id_assert(Id), Wrongs_Paths_Results).
 
-work(SessionId) :-
-    thread_self(ThreadId),
-    http_session_assert(ready(ThreadId), SessionId),
-    http_log("Thread ~k for ~k started in Session ~k, ready~n", [ThreadId, Id, SessionId]),
-    catch(thread_get_message(id(Id)), abort, abort(SessionId)),
-    http_session_retract(ready(ThreadId), SessionId),
-    http_session_assert(busy(ThreadId), SessionId),
-    http_log("Thread ~k for ~k in Session ~k, busy~n", [ThreadId, Id, SessionId]),
-    catch(realwork(Id, SessionId), abort, abort(SessionId)),
-    http_log("Thread ~k for ~k in Session ~k, done~n", [ThreadId, Id, SessionId]),
-    http_session_retract(busy(ThreadId), SessionId),
-    http_session_assert(done, SessionId).
-
-abort(SessionId) :-
-    thread_self(ThreadId),
-    http_log("Thread ~k killed in Session ~k~n", [ThreadId, SessionId]),
-    fail.
-
-% Session cleanup
-:- listen(http_session(end(SessionId, _Peer)), end_session(SessionId)).
-
-end_session(SessionId) :-
-    http_log("Session stopped: ~k~n", [SessionId]),
-    http_session_data(ready(ThreadId), SessionId),
-    thread_signal(ThreadId, throw(abort)).
-
-end_session(SessionId) :-
-    http_log("Session stopped: ~k~n", [SessionId]),
-    http_session_data(busy(ThreadId), SessionId),
-    thread_signal(ThreadId, throw(abort)).
-
-ready(ThreadId) :-
-    http_session_data(ready(ThreadId)).
-
-busy :-
-    http_session_data(busy(_)).
-
-done :-
-    http_session_data(done).
+:- cache(tpaired).
 
 :- multifile http:location/3.
 :- dynamic http:location/3.
@@ -93,7 +48,6 @@ http:location(mcclass, root(mcclass), []).
 
 handler(Id, Request) :-
     member(method(post), Request),
-    init_session(Id),
     http_parameters(Request,
       [ download(Download, [optional(true)]), 
         help(Help, [optional(true)]),
@@ -102,26 +56,13 @@ handler(Id, Request) :-
     post(Id, [download(Download), help(Help), response(Response)]).
 
 handler(Id, _Request) :-
-    init_session(Id),
     page(Id).
-
-init_session(_Id) :-
-    done.
-
-init_session(_Id) :-
-    busy.
-
-init_session(Id) :-
-    ready(ThreadId),
-    http_log("Contacting thread ~k.~n", [ThreadId]),
-    thread_send_message(ThreadId, id(Id)).
 
 % Download data
 post(Id, Request) :-
     option(download(Download), Request),
     ground(Download),
-    http_in_session(SessionId),
-    data(Id, Temp, SessionId),
+    data(Id, Temp),
     http_reply_file(Temp, [ unsafe(true), mime_type(text/csv),
 	headers(['Content-Disposition'('attachment ; filename="data.csv"')])], 
         Request).
@@ -141,8 +82,7 @@ post(Id, Request) :-
     page(Id).
 
 page(Id) :-
-    http_in_session(SessionId),
-    r_init(Id, SessionId),
+    r_init(tpaired),
     item(Item),
     response(Response),
     reply_html_page(
@@ -153,8 +93,7 @@ page(Id) :-
 	    integrity('sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh'),
 	    crossorigin(anonymous)
 	  ]),
-	meta([name(viewport), content('width=device-width, initial-scale=1')]),
-	\refresh(3)
+	meta([name(viewport), content('width=device-width, initial-scale=1')])
       ],
       [ \item(Item, Response),
         \help(Id),
@@ -163,13 +102,6 @@ page(Id) :-
 	\avoid(Id),
         \navigation(Id, [1-tpaired, 2-pvalue])
       ]).
-
-refresh(_) -->
-    { done },
-    html([]).
-
-refresh(Sec) -->
-    html(meta(['HTTP-Equiv'(refresh), content(Sec)])).
 
 hint_level(Hint) :-
     http_session_data(hint(H))
@@ -198,21 +130,12 @@ feedback(_Id, '') -->
             p(class('card-text'), "Waiting for response..."))
       ])).
 
-feedback(_Id, _Response) -->
-    { busy ; ready(_) },
-    html(div(class(card),
-      [ div(class('card-header alert-warning'), "System is busy"),
-        div(class('card-body'),
-            p(class('card-text'), "Please wait..."))
-      ])).
-
-feedback(_Id, Response) -->
-    { done,
-      quantity(_, _, Response),
+feedback(Id, Response) -->
+    { quantity(_, _, Response),
       item(Item),
-      http_session_data(solution(Item, Solution, _, Result)),
+      cache(Id, solution(Item, Solution, _, Result)),
       match(Result, Response, Format),
-      http_session_data(praise(Item, Praise))
+      cache(Id, praise(Item, Praise))
     },
     html(div(class(card),
       [ div(class('card-header alert-success'), "Correct result"),
@@ -222,18 +145,17 @@ feedback(_Id, Response) -->
 	  ])
       ])).
 
-feedback(_Id, Response) -->
-    { done,
-      quantity(_, _, Response),
+feedback(Id, Response) -->
+    { quantity(_, _, Response),
       item(Item),
-      http_session_data(wrong(Item, Wrong, Woodden, Result)),
+      cache(Id, wrong(Item, Wrong, Woodden, Result)),
       match(Result, Response, Format),
       praise(Flags, Woodden, _, Code_Praise),
-      http_session_data(hints(Item, _, Code_Hints)),
+      cache(Id, hints(Item, _, Code_Hints)),
       relevant(Code_Praise, Code_Hints, RelPraise, IrrelPraise),
       palette(Wrong, Flags),
       mistakes(Flags, Woodden, _, Code_Mistakes),
-      http_session_data(traps(Item, _, Code_Traps)),
+      cache(Id, traps(Item, _, Code_Traps)),
       relevant(Code_Mistakes, Code_Traps, RelMistake, IrrelMistake),
       append([IrrelPraise, IrrelMistake, Format], Additional)
     },
@@ -269,10 +191,10 @@ help(_Id) -->
             p(class('card-text'), "Press \"help me\" to request a hint to the solution."))
       ])).
 
-help(_Id) -->
+help(Id) -->
     { hint_level(Level),
       item(Item),
-      http_session_data(hints(Item, Hints, _)),
+      cache(Id, hints(Item, Hints, _)),
       findall(H, (nth1(Index, Hints, H), Index =< Level), List)
     }, 
     html(div(class(card),
@@ -281,20 +203,20 @@ help(_Id) -->
 	    \ul_nonempty("Steps to the solution", List))
       ])).
 
-avoid(_Id) -->
+avoid(Id) -->
     { item(Item),
-      http_session_data(traps(Item, Traps, _))
+      cache(Id, traps(Item, Traps, _))
     },
     html(div(class(card),
       [ div(class('card-header alert-info'), "For teachers only"),
 	div(class('card-body'), \ul_nonempty("Avoid these traps:", Traps)) 
       ])).
 
-wrongs(_Id) -->
+wrongs(Id) -->
     { item(Item),
-      http_session_data(solution(Item, Solution, _, Result)),
+      cache(Id, solution(Item, Solution, _, Result)),
       mathml(Solution = number(Result), Correct),
-      findall(W = number(R), http_session_data(wrong(Item, W, _, R)), Wrong),
+      findall(W = number(R), cache(Id, wrong(Item, W, _, R)), Wrong),
       maplist(mathml, Wrong, Wrongs)
     },
     html(div(class(card),

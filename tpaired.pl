@@ -152,7 +152,7 @@ buggy(root, From >> To, Flags, Feed) :-
     Feed = ["Please do not forget the square root around ", 
             \mml([highlight(all) | Flags], color(root, N)), "."].
 
-r_init(tpaired, SessionId) :-
+r_init(tpaired) :-
     r_init,
     {|r||
     paired_t <- function(d, mu, s, n)
@@ -189,10 +189,10 @@ r_init(tpaired, SessionId) :-
     alpha = 0.05
     tails = 'two-tailed'
     |},
-    csvfile(tpaired, data, SessionId).
+    csvfile(tpaired, data).
 
-data(tpaired, File, SessionId) :-
-    tempfile(tpaired, File, SessionId).
+data(tpaired, File) :-
+    tempfile(tpaired, File).
 
 %
 % Invoke example
