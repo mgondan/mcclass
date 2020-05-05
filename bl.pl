@@ -117,13 +117,15 @@ expert(covariates, From >> To, Flags, Feed, Hint) :-
 intermediate(ancova_ff/8).
 
 % Omit one or more covariates
-:- multifile buggy/4.
-buggy(covariates, From >> To, Flags, Feed) :-
+:- multifile buggy/5.
+buggy(covariates, From >> To, Flags, Feed, Trap) :-
     From = ancova_f(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     subset(Subset, Cov, [R | Removed]),
     To   = ancova_ff(Data, Prim, Subset, Strata, Other, Int, 
              [omit(covariates, [R | Removed]) | Exclude], Therapy),
     Feed = [ "Please include the covariate(s) ", \mml(Flags, [R | Removed]), " in the ",
+             "statistical model." ],
+    Trap = [ "The covariate(s) ", \mml(Flags, Cov), " should be included in the ",
              "statistical model." ].
 
 % Step 3: Use the correct stratification variable(s)
@@ -138,13 +140,15 @@ expert(strata, From >> To, Flags, Feed, Hint) :-
 intermediate(ancova_fff/8).
 
 % Omit one or more stratification variables
-buggy(strata, From >> To, Flags, Feed) :-
+buggy(strata, From >> To, Flags, Feed, Trap) :-
     From = ancova_ff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     subset(Subset, Strata, [R | Removed]),
     To   = ancova_fff(Data, Prim, Cov, Subset, Other, Int, 
            [omit(strata, [R | Removed]) | Exclude], Therapy),
     Feed = [ "Please include the stratification ",
-             "variable(s) ", \mml(Flags, [R | Removed]), " in the statistical model." ].
+             "variable(s) ", \mml(Flags, [R | Removed]), " in the statistical model." ],
+    Trap = [ "The stratification variable(s) ", \mml(Flags, Strata), " should be ",
+             "included in the statistical model." ].
 
 % Step 4: Ignore distractors
 expert(other, From >> To, Flags, Feed, Hint) :-
@@ -156,13 +160,14 @@ expert(other, From >> To, Flags, Feed, Hint) :-
 intermediate(ancova_ffff/8).
 
 % Add one or more wrong predictors
-buggy(other, From >> To, Flags, Feed) :-
+buggy(other, From >> To, Flags, Feed, Trap) :-
     From = ancova_fff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     subset([S | Subset], Other),
     To   = ancova_ffff(Data, Prim, Cov, Strata, [add(other, [S | Subset])],
              Int, Exclude, Therapy),
     Feed = [ "The variable(s) ", \mml(Flags, [S | Subset]), " should not be used in ",
-             "the analysis." ].
+             "the analysis." ],
+    Trap = [ "The variable(s) ", \mml(Flags, Other), " are not used."].
 
 % Step 5: No treatment-by-covariate interactions
 expert(interactions, From >> To, _Flags, Feed, Hint) :-
@@ -179,7 +184,7 @@ atomics_to_string_sep(Sep, List, String) :-
     atomics_to_string(List, Sep, String).
 
 % Allow for treatment-by-covariate interactions
-buggy(interactions, From >> To, Flags, Feed) :-
+buggy(interactions, From >> To, Flags, Feed, Trap) :-
     From = ancova_ffff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     % T0, Sex
     append(Strata, Cov, Covariates),
@@ -197,7 +202,13 @@ buggy(interactions, From >> To, Flags, Feed) :-
     Feed = [ "The statistical model should not include treatment-by-covariate ",
              "interactions ",
              span(class('text-nowrap'), [\mml(Flags, Colon), "."])
+<<<<<<< HEAD
            ]. % add hint with all interactions for traps
+=======
+           ],
+    Trap = [ "The statistical model should not include any ",
+	             "treatment-by-covariate interactions."].
+>>>>>>> 2c7fcbca2d32ad16eb61133211b4f1c23eb04dc7
 
 % Step 6: Apply linear regression
 expert(main, From >> To, Flags, Feed, Hint) :-

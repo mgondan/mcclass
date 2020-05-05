@@ -8,7 +8,7 @@
 :- consult(temp).
 :- use_module(r).
 
-:- discontiguous intermediate/1, expert/5, buggy/4.
+:- discontiguous intermediate/1, expert/5, buggy/5.
 
 mathml:math_hook(Flags, s_D, Flags, sub(s, 'D')).
 mathml:math_hook(Flags, s_T0, Flags, sub(s, "T0")).
@@ -88,7 +88,7 @@ expert(paired_t, From >> To, Flags, Feed, Hint) :-
             \mml(Flags, dfrac(D - Mu, S / sqrt(N))), "."].
 
 % Choose t-ratio for two-groups t-test
-buggy(groups_t, From >> To, Flags, Feed) :-
+buggy(groups_t, From >> To, Flags, Feed, Trap) :-
     From = paired_tratio(D, [T0, EOT], S, [S_T0, S_EOT], N, Mu),
     Inst = groups_t(T0, S_T0, N, EOT, S_EOT, N),
     Of   = paired_t(D, Mu, S, N),
@@ -97,7 +97,9 @@ buggy(groups_t, From >> To, Flags, Feed) :-
             span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for independent ",
             "groups. Please use the ",
             span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for paired ",
-            "samples instead."].
+            "samples instead."],
+    Trap = ["Do not use the ", span(class('text-nowrap'), [\mml(Flags, t), "-test "]), 
+	    "for independent groups in this problem with paired measurements."].
 
 intermediate(groups_t/6).
 
@@ -113,15 +115,27 @@ expert(groups_t, From >> To, Flags, Feed, Hint) :-
             \mml(Flags, dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B))))].
 
 % Forgot school math
-buggy(school, From >> To, Flags, Feed) :-
+buggy(school, From >> To, Flags, Feed, Trap) :-
     From = 1/A + 1/B,
+    dif(A, B),
     Inst = frac(1, A + B),
     To   = instead_of(school, Inst, From),
     Feed = ["Please remember school math: ", 
-            \mml(Flags, color(school, color("black", From) \= color("black", Inst)))].
+            \mml(Flags, color(school, color("black", From) \= color("black", Inst)))],
+    Trap = ["Please remember school math: ",
+            \mml(Flags, From = frac(A + B, A*B))].
+
+buggy(school, From >> To, Flags, Feed, Trap) :-
+    From = 1/A + 1/A,
+    Inst = frac(1, 2*A),
+    To   = instead_of(school, Inst, From),
+    Feed = ["Please remember school math: ",
+             \mml(Flags, color(school, color("black", From) \= color("black", Inst)))],
+    Trap = ["Please remember school math: ",
+            \mml(Flags, From = frac(2, A))].
 
 % Forget parentheses
-buggy(frac_paren, From >> To, Flags, Feed) :-
+buggy(frac_paren, From >> To, Flags, Feed, Trap) :-
     From = dfrac(A - B, C / D),
     To   = left_landed(frac_paren, A - right_landed(frac_paren, 
                dfrac(left_elsewhere(frac_paren, A - B), 
@@ -129,28 +143,32 @@ buggy(frac_paren, From >> To, Flags, Feed) :-
     Feed = ["Please check the parentheses around the numerator and the ",
             "denominator of the fraction ",
             \mml(Flags, dfrac(color(frac_paren, paren(black(A - B))), 
-	                color(frac_paren, paren(black(C / D))))), "."].
+	                color(frac_paren, paren(black(C / D))))), "."],
+    Trap = Feed.
 
-buggy(paren_num, From >> To, Flags, Feed) :-
+buggy(paren_num, From >> To, Flags, Feed, Trap) :-
     From = dfrac(A - B, C / D),
     To   = left_landed(paren_num, A - dfrac(left_elsewhere(paren_num, A - B), C / D)),
     Feed = ["Please check the parentheses around the numerator of the fraction ",
-            \mml(Flags, dfrac(color(paren_num, paren(black(A - B))), C / D)), "."].
+            \mml(Flags, dfrac(color(paren_num, paren(black(A - B))), C / D)), "."],
+    Trap = Feed.
 
-buggy(paren_denom, From >> To, Flags, Feed) :-
+buggy(paren_denom, From >> To, Flags, Feed, Trap) :-
     From = dfrac(A - B, C / D),
     To   = right_landed(paren_denom, dfrac(A - B, right_elsewhere(paren_denom, C / D)) / D),
     Feed = ["Please check the parentheses around the denominator of the ",
             "fraction ", 
-	    \mml(Flags, dfrac(A - B, color(paren_denom, paren(black(C / D))))), "."].
+	    \mml(Flags, dfrac(A - B, color(paren_denom, paren(black(C / D))))), "."],
+    Trap = Feed.
 
 % Forget square root
-buggy(root, From >> To, Flags, Feed) :-
+buggy(root, From >> To, Flags, Feed, Trap) :-
     From = sqrt(N),
     Inst = N,
     To   = instead_of(root, Inst, From),
     Feed = ["Please do not forget the square root around ", 
-            \mml([highlight(all) | Flags], color(root, N)), "."].
+            \mml([highlight(all) | Flags], color(root, N)), "."],
+    Trap = Feed.
 
 r_init(tpaired) :-
     r_init,
