@@ -43,7 +43,6 @@ item(baseline, Response) -->
       Lid_FU  <- sprintf("%.1f (%.1f)", m_FU["Lidcombe"], s_FU["Lidcombe"]),
       TAU_FU  <- sprintf("%.1f (%.1f)", m_FU["TAU"], s_FU["TAU"]),
       Tails   <- tails,
-      http_log("Tails ~k~n", [Tails]),
       Alpha   <- alpha,
       maplist(mathml, ["Syllables %, Mean (SD)", "Lidcombe", "TAU"], H),
       maplist(mathml, ["Baseline", Lid_T0, TAU_T0], T0),
@@ -291,9 +290,5 @@ r_init(baseline) :-
         alpha <- 0.05
         tails <- "two-tailed"
     |},
-    csvfile(baseline, data).
-
-:- multifile data/2.
-data(baseline, File) :-
-    tempfile(baseline, File).
+    xlsxfile(baseline, data).
 

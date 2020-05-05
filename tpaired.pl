@@ -209,10 +209,6 @@ r_init(tpaired) :-
     |},
     csvfile(tpaired, data).
 
-:- multifile data/2.
-data(tpaired, File) :-
-    tempfile(tpaired, File).
-
 %
 % Invoke example
 %

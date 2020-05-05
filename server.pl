@@ -61,13 +61,23 @@ handler(Id, Request) :-
 handler(Id, _Request) :-
     page(Id).
 
-% Download data
+% Download csv data
+:- dynamic temp/3.
 post(Id, Request) :-
     option(download(Download), Request),
     ground(Download),
-    data(Id, Temp),
+    temp(Id, Temp, csv),
     format(atom(File), 'attachment ; filename=~k.csv', [Id]),
     http_reply_file(Temp, [ unsafe(true), mime_type(text/csv), headers(['Content-Disposition'(File)]) ], Request).
+
+% Download xlsx data
+post(Id, Request) :-
+    option(download(Download), Request),
+    ground(Download),
+    temp(Id, Temp, xlsx),
+    http_log("xlsx file: ~k~n", [Temp]), 
+    format(atom(File), 'attachment ; filename=~k.xlsx', [Id]),
+    http_reply_file(Temp, [ unsafe(true), mime_type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'), headers(['Content-Disposition'(File)]) ], Request).
 
 % Ask for help
 post(Id, Request) :-
