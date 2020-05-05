@@ -43,7 +43,7 @@ cache(Id) :-
 
 http:location(mcclass, root(mcclass), []).
 
-:- http_handler(root('favicon.ico'), http_reply_file('favicon.ico', []), []).
+:- http_handler(mcclass('favicon.ico'), http_reply_file('favicon.ico', []), []).
 :- http_handler(mcclass(tpaired), handler(tpaired), []).
 :- http_handler(mcclass(baseline), handler(baseline), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
@@ -97,7 +97,7 @@ page(Id) :-
 	  ]),
 	link(
           [ rel(icon),
-	    href('/favicon.ico'),
+	    href('/mcclass/favicon.ico'),
 	    type('image/x-icon')
 	  ]),
 	meta([name(viewport), content('width=device-width, initial-scale=1')])
