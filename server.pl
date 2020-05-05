@@ -66,9 +66,8 @@ post(Id, Request) :-
     option(download(Download), Request),
     ground(Download),
     data(Id, Temp),
-    http_reply_file(Temp, [ unsafe(true), mime_type(text/csv),
-	headers(['Content-Disposition'('attachment ; filename="data.csv"')])], 
-        Request).
+    format(atom(File), 'attachment ; filename=~k.csv', [Id]),
+    http_reply_file(Temp, [ unsafe(true), mime_type(text/csv), headers(['Content-Disposition'(File)]) ], Request).
 
 % Ask for help
 post(Id, Request) :-

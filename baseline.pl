@@ -293,3 +293,7 @@ r_init(baseline) :-
     |},
     csvfile(baseline, data).
 
+:- multifile data/2.
+data(baseline, File) :-
+    tempfile(baseline, File).
+
