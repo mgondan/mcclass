@@ -71,10 +71,13 @@ step(expert, Code, Step, Flags, feedback(Feedback)) :-
     expert(Code, Step, Flags, Feedback, _).
 
 step(buggy, Code, Step, Flags, feedback(Feedback)) :-
-    buggy(Code, Step, Flags, Feedback).
+    buggy(Code, Step, Flags, Feedback, _).
 
 step(expert, Code, Step, Flags, hint(Hint)) :-
     expert(Code, Step, Flags, _, Hint).
+
+step(buggy, Code, Step, Flags, hint(Hint)) :-
+    buggy(Code, Step, Flags, _, Hint).
 
 % General compounds
 step(Rule, Code, From >> To, Flags, Feedback) :-
@@ -142,7 +145,7 @@ codes([A, X | Path], [Code | Codes]) :-
 %
 % Traps at a specific location
 trap(A, Trap) :-
-    findall(Code-Feed, step(buggy, Code, A >> _, [color-auto], feedback(Feed)), Trap).
+    findall(Code-Feed, step(buggy, Code, A >> _, [color-auto], hint(Feed)), Trap).
 
 % Traps along a path
 traps(Path, Traps, Code_Traps) :-
