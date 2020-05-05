@@ -197,7 +197,7 @@ buggy(interactions, From >> To, Flags, Feed) :-
     Feed = [ "The statistical model should not include treatment-by-covariate ",
              "interactions ",
              span(class('text-nowrap'), [\mml(Flags, Colon), "."])
-           ].
+           ]. % add hint with all interactions for traps
 
 % Step 6: Apply linear regression
 expert(main, From >> To, Flags, Feed, Hint) :-
