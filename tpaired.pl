@@ -68,14 +68,32 @@ item(tpaired, Response) -->
 expert(paired_tratio, From >> To, Flags, Feed, Hint) :-
     From = paired_tratio(D, _, S, _, N, Mu),
     To   = paired_t(D, Mu, S, N),
-    Feed = ["Correctly identified the problem as a ",
-            span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for paired ",
-            "samples."],
-    Hint = ["This is a ",
-            span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for paired ",
-            "samples."].
+    Feed = [ "Correctly identified the problem as a ",
+             span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for paired ",
+             "samples." ],
+    Hint = [ "This is a ",
+             span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for paired ",
+             "samples." ].
 
 intermediate(paired_t/4).
+
+% Use wrong standard deviation
+buggy(sd, From >> To, Flags, Feed, Trap) :-
+    From = paired_tratio(D, _, S_D, S_wrong, N, Mu),
+    member(S, S_wrong),
+    To   = paired_t(D, Mu, instead_of(sd, S, S_D), N),
+    Feed = [ "Please use the standard deviation of the change scores ",
+             \mml(Flags, S_D), " for the ", 
+             span(class('text-nowrap'), [\mml(Flags, t), "-ratio"]),
+	     " instead of ", 
+	     span(class('text-nowrap'), [\mml(Flags, color(sd, S)), "."])
+	   ],
+    Trap = [ "Use the standard deviation of the change scores in the ", 
+             span(class('text-nowrap'), [\mml(Flags, t), "-ratio "]),
+	     "instead of ", 
+	     span(class('text-nowrap'), 
+	         [\mml(Flags, list((' ', "or", ' '), S_wrong)), "."]) 
+	   ].
 
 % Choose t-ratio for one-sample t-test
 expert(paired_t, From >> To, Flags, Feed, Hint) :-
@@ -170,10 +188,11 @@ buggy(root, From >> To, Flags, Feed, Trap) :-
             \mml([highlight(all) | Flags], color(root, N)), "."],
     Trap = Feed.
 
+% Forget to subtract the mu from the null hypothesis
 buggy(mu, From >> To, Flags, Feed, Trap) :-
     From = dfrac(D - Mu, S / SQRTN),
     To   = dfrac(omit_right(mu, D - Mu), S / SQRTN),
-    Feed = [ "Please do not forget to subtract the reduction ", 
+    Feed = [ "Please do not forget to subtract the average change ", 
              \mml(Flags, color(mu, Mu)), " under the null hypothesis." ],
     Trap = Feed.
 

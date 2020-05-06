@@ -144,8 +144,9 @@ codes([A, X | Path], [Code | Codes]) :-
 % are only needed to diagnose a mistake.
 %
 % Traps at a specific location
-trap(A, Trap) :-
-    findall(Code-Feed, step(buggy, Code, A >> _, [color-auto], hint(Feed)), Trap).
+trap(A, Sorted) :-
+    findall(Code-Feed, step(buggy, Code, A >> _, [color-auto], hint(Feed)), Traps),
+    sort(Traps, Sorted).
 
 % Traps along a path
 traps(Path, Traps, Code_Traps) :-
