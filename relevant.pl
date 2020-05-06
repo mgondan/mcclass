@@ -123,8 +123,12 @@ wrong(Item, Solution, Wrong, Path) :-
 wrongs_paths_results(Item, Wrongs_Paths_Results) :-
     solution(Item, Solution, _),
     findall((W-P)-(S-R), (wrong(Item, Solution, W, P), codes(P, C), sort(C, S), sur(R <- W)), List),
+    % Avoid duplicate results in which only the steps are permuted
     sort(2, @<, List, Sorted),
-    findall(wrong(Item, W, P, R), member((W-P)-(_-R), Sorted), Wrongs_Paths_Results).
+    findall(L-wrong(Item, W, P, R), (member((W-P)-(_-R), Sorted), code_mistakes([], P, M), length(M, L)), LWPR),
+    % Few errors first
+    keysort(LWPR, Sorted_LWPR),
+    pairs_values(Sorted_LWPR, Wrongs_Paths_Results).
     
 % 
 % Extract abbreviations of steps
