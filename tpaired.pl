@@ -170,6 +170,13 @@ buggy(root, From >> To, Flags, Feed, Trap) :-
             \mml([highlight(all) | Flags], color(root, N)), "."],
     Trap = Feed.
 
+buggy(mu, From >> To, Flags, Feed, Trap) :-
+    From = dfrac(D - Mu, S / SQRTN),
+    To   = dfrac(omit_right(mu, D - Mu), S / SQRTN),
+    Feed = [ "Please do not forget to subtract the reduction ", 
+             \mml(Flags, color(mu, Mu)), " under the null hypothesis." ],
+    Trap = Feed.
+
 r_init(tpaired) :-
     r_init,
     {|r||
