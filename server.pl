@@ -68,16 +68,27 @@ post(Id, Request) :-
     ground(Download),
     temp(Id, Temp, csv),
     format(atom(File), 'attachment ; filename=~k.csv', [Id]),
-    http_reply_file(Temp, [ unsafe(true), mime_type(text/csv), headers(['Content-Disposition'(File)]) ], Request).
+    http_reply_file(
+        Temp, 
+	[ unsafe(true), 
+	  mime_type(text/csv), 
+	  headers(['Content-Disposition'(File)]) 
+	], 
+	Request).
 
 % Download xlsx data
 post(Id, Request) :-
     option(download(Download), Request),
     ground(Download),
     temp(Id, Temp, xlsx),
-    http_log("xlsx file: ~k~n", [Temp]), 
     format(atom(File), 'attachment ; filename=~k.xlsx', [Id]),
-    http_reply_file(Temp, [ unsafe(true), mime_type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'), headers(['Content-Disposition'(File)]) ], Request).
+    http_reply_file(
+        Temp, 
+        [ unsafe(true), 
+          mime_type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'), 
+	  headers(['Content-Disposition'(File)]) 
+        ], 
+        Request).
 
 % Ask for help
 post(Id, Request) :-
@@ -170,7 +181,7 @@ feedback(Id, Response) -->
       cache(Id, hints(Item, _, Code_Hints)),
       relevant(Code_Praise, Code_Hints, RelPraise, IrrelPraise),
       palette(Wrong, Flags),
-      mistakes(Flags, Woodden, _, Code_Mistakes),
+      mistakes([fix(all) | Flags], Woodden, _, Code_Mistakes),
       cache(Id, traps(Item, _, Code_Traps)),
       relevant(Code_Mistakes, Code_Traps, RelMistake, IrrelMistake),
       append([IrrelPraise, IrrelMistake, Format], Additional),
