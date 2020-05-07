@@ -49,8 +49,8 @@ item(tpaired, Response) -->
               "best = 0 to worst = 42). The significance level is set to ", 
               \mml(alpha = round('100%'(Alpha))), " ", \mml(Tails), "."
 	    ]),
-            \table(H, [R1, R2]),
-            \download(tpaired)
+            \table(H, [R1, R2])
+	    % \download(tpaired)
 	  ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
@@ -64,10 +64,10 @@ item(tpaired, Response) -->
 	  ]))
       ]).
 
-% Choose t-ratio for one-sample t-test
+% Correctly identify as a paired t-test
 expert(paired_tratio, From >> To, Flags, Feed, Hint) :-
-    From = paired_tratio(D, _, S, _, N, Mu),
-    To   = paired_t(D, Mu, S, N),
+    From = paired_tratio(D, M_wrong, S, S_wrong, N, Mu),
+    To   = paired_tratio_2(D, M_wrong, S, S_wrong, N, Mu),
     Feed = [ "Correctly identified the problem as a ",
              span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for paired ",
              "samples." ],
@@ -75,11 +75,46 @@ expert(paired_tratio, From >> To, Flags, Feed, Hint) :-
              span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for paired ",
              "samples." ].
 
+intermediate(paired_tratio_2/6).
+
+% Choose correct numbers for numerator
+expert(numerator, From >> To, Flags, Feed, Hint) :-
+    From = paired_tratio_2(D, _, S, S_wrong, N, Mu),
+    To   = paired_tratio_3(D - Mu, S, S_wrong, N),
+    Feed = [ "Correctly identified the numerator of the ",
+             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
+    Hint = [ "The numerator is ",
+             span(class('text-nowrap'), [\mml(Flags, D - Mu), "."]) ].
+
+intermediate(paired_tratio_3/4).
+
+% Other solutions
+buggy(numerator, From >> To, Flags, Feed, Trap) :-
+    From = paired_tratio_2(D, M_other, S, S_wrong, N, Mu),
+    member(Min, [D, Mu | M_other]),
+    member(Sub, [D, Mu | M_other]),
+    dif(Min, Sub),
+    dif(Min - Sub, D - Mu),
+    To   = paired_tratio_3(Min - Sub, S, S_wrong, N),
+    Feed = [ "Please check the numerator of the ",
+             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
+    Trap = [ "The numerator is ",
+             span(class('text-nowrap'), [\mml(Flags, D - Mu), "."]) ].
+
+% Choose correct numbers for denominator
+expert(denominator, From >> To, Flags, Feed, Hint) :-
+    From = paired_tratio_3(D - Mu, S, _, N),
+    To   = paired_t(D, Mu, S, N),
+    Feed = [ "Correctly identified the denominator of the ",
+             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
+    Hint = [ \mml(Flags, S), " is used in the denominator of the ",
+             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ].
+
 intermediate(paired_t/4).
 
 % Use wrong standard deviation
-buggy(sd, From >> To, Flags, Feed, Trap) :-
-    From = paired_tratio(D, _, S_D, S_wrong, N, Mu),
+buggy(denominator, From >> To, Flags, Feed, Trap) :-
+    From = paired_tratio_3(D, S_D, S_wrong, N, Mu),
     member(S, S_wrong),
     To   = paired_t(D, Mu, instead_of(sd, S, S_D), N),
     Feed = [ "Please use the standard deviation of the change scores ",
@@ -190,10 +225,10 @@ buggy(root, From >> To, Flags, Feed, Trap) :-
 
 % Forget to subtract the mu from the null hypothesis
 buggy(mu, From >> To, Flags, Feed, Trap) :-
-    From = dfrac(D - Mu, S / SQRTN),
-    To   = dfrac(omit_right(mu, D - Mu), S / SQRTN),
+    From = dfrac(D - mu, S / SQRTN),
+    To   = dfrac(omit_right(mu, D - mu), S / SQRTN),
     Feed = [ "Please do not forget to subtract the average change ", 
-             \mml(Flags, color(mu, Mu)), " under the null hypothesis." ],
+             \mml(Flags, color(mu, mu)), " under the null hypothesis." ],
     Trap = Feed.
 
 r_init(tpaired) :-
@@ -232,6 +267,16 @@ r_init(tpaired) :-
     mu    = 5
     alpha = 0.05
     tails = 'two-tailed'
+
+    # Exam 2018-06ag
+    N = 24
+    T0 = 24.0
+    s_T0 = 5.1
+    EOT = 18.3
+    s_EOT = 4.7
+    D = 5.8
+    s_D = 3.8
+    mu = 4.0
     |},
     csvfile(tpaired, data).
 
