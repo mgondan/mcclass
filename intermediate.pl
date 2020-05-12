@@ -1,68 +1,48 @@
-:- module(intermediate, [final/1]).
+:- module(intermediate, [final/2]).
 
-final(A) :-
+final(Topic, A) :-
     atomic(A),
     !,
-    \+ intermediate(A/0).
+    \+ intermediate(Topic: A/0).
 
-final(instead_of(_, Instead, _, Of, _)) :-
+final(Topic, instead_of(_, Instead, _, Of, _)) :-
     !,
-    final(Instead),
-    final(Of).
+    final(Topic, Instead),
+    final(Topic, Of).
 
-final(denoting(_, Expr, _)) :-
-    !, final(Expr).
+final(Topic, denoting(_, Expr, _)) :-
+    !, final(Topic, Expr).
 
-final(expert(_ >> New)) :-
+final(Topic, expert(_ >> New)) :-
     !,
-    final(New).
+    final(Topic, New).
 
-final(buggy(_ >> New)) :-
+final(Topic, buggy(_ >> New)) :-
     !,
-    final(New).
+    final(Topic, New).
 
-final(left_landed(_, Expr)) :-
+final(Topic, left_landed(_, Expr)) :-
     !,
-    final(Expr).
+    final(Topic, Expr).
 
-final(right_landed(_, Expr)) :-
+final(Topic, right_landed(_, Expr)) :-
     !,
-    final(Expr).
+    final(Topic, Expr).
 
-final(omit_left(_, Expr)) :-
+final(Topic, omit_left(_, Expr)) :-
     !,
-    compound_name_arguments(Expr, _, [_, R]),
-    final(R).
+    Expr =.. [_, _, R],
+    final(Topic, R).
 
-final(omit_right(_, Expr)) :-
+final(Topic, omit_right(_, Expr)) :-
     !,
-    compound_name_arguments(Expr, _, [L, _]),
-    final(L).
+    Expr =.. [_, L, _],
+    final(Topic, L).
 
-final(A) :-
+final(Topic, A) :-
     compound(A),
     functor(A, Name, Arity),
-    \+ intermediate(Name/Arity),
+    \+ intermediate(Topic: Name/Arity),
     A =.. [Name | Args],
-    maplist(final, Args).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    maplist(final(Topic), Args).
 

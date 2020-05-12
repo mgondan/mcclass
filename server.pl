@@ -15,23 +15,23 @@
 :- initialization http_daemon.
 
 :- dynamic cache/2.
-id_assert(Id, Fact) :-
-    assert(cache(Id, Fact)).
+topic_assert(Topic, Fact) :-
+    assert(cache(Topic, Fact)).
 
-cache(Id) :-
-    item(Id, Item),
-    solution(Item, Solution, Path),
-    r_init(Id),
+cache(Topic) :-
+    item(Topic: Item),
+    solution(Topic, Item, Solution, Path),
+    r_init(Topic),
     sur(Result <- Solution),
-    id_assert(Id, solution(Item, Solution, Path, Result)),
-    praise([], Path, Praise, _),
-    id_assert(Id, praise(Item, Praise)),
-    hints(Path, Hints, Code_Hints),
-    id_assert(Id, hints(Item, Hints, Code_Hints)),
-    traps(Path, Traps, Code_Traps),
-    id_assert(Id, traps(Item, Traps, Code_Traps)),
-    wrongs_paths_results(Item, Wrongs_Paths_Results),
-    maplist(id_assert(Id), Wrongs_Paths_Results).
+    topic_assert(Topic, solution(Item, Solution, Path, Result)),
+    praise(Topic, Item, Path, Code_Praise, Praise),
+    topic_assert(Topic, praise(Item, Code_Praise, Praise)),
+    hints(Topic, Item, Path, Code_Hints, Hints),
+    topic_assert(Topic, hints(Item, Code_Hints, Hints)),
+    traps(Topic, Item, Path, Code_Traps, Traps),
+    topic_assert(Topic, traps(Item, Code_Traps, Traps)),
+    wrongs_paths_results(Topic, Item, WPR),
+    maplist(topic_assert(Topic), WPR).
 
 :- consult(tpaired).
 :- cache(tpaired).
@@ -50,13 +50,18 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
 handler(Id, Request) :-
+    buggies(Id, Codes_Feedback),
+    findall(Code, (member(Bug-_, Codes_Feedback), Code =.. [Bug, _, [default(off)]]), Codes),
     member(method(post), Request),
     http_parameters(Request,
       [ download(Download, [optional(true)]), 
         help(Help, [optional(true)]),
-        response(Response, [optional(true)]) 
+        response(Response, [optional(true)]),
+        buggy(Buggy, [optional(true)]) 
+          | Codes
       ]),
-    post(Id, [download(Download), help(Help), response(Response)]).
+    maplist([C, P] >> (C =.. [Bug, Value, _], P =.. [Bug, Value]), Codes, Post),
+    post(Id, [download(Download), help(Help), response(Response), buggy(Buggy) | Post]).
 
 handler(Id, _Request) :-
     page(Id).
@@ -86,7 +91,7 @@ post(Id, Request) :-
         Temp, 
         [ unsafe(true), 
           mime_type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'), 
-	  headers(['Content-Disposition'(File)]) 
+          headers(['Content-Disposition'(File)]) 
         ], 
         Request).
 
@@ -104,29 +109,32 @@ post(Id, Request) :-
     responded(Response),
     page(Id).
 
+% Evaluate response
+post(Id, Request) :-
+    option(buggy(Bugs), Request),
+    ground(Bugs),
+    buggies(Id, Codes_Feedback),
+    findall(C, (member(C-_, Codes_Feedback), Option =.. [C, on], option(Option, Request)), List),
+    bugs(Id, List),
+    page(Id).
+
 page(Id) :-
     r_init(tpaired),
     response(Response),
     reply_html_page(
       [ title('McClass'),
-        link(
-	  [ rel(stylesheet),
-	    href('https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css'),
-	    integrity('sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh'),
-	    crossorigin(anonymous)
-	  ]),
-	link(
-          [ rel(icon),
-	    href('/mcclass/favicon.ico'),
-	    type('image/x-icon')
-	  ]),
-	meta([name(viewport), content('width=device-width, initial-scale=1')])
+        link([rel(stylesheet),
+            href('https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css'),
+	        integrity('sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh'),
+	        crossorigin(anonymous)]),
+	    link([rel(icon), href('/mcclass/favicon.ico'), type('image/x-icon')]),
+	    meta([name(viewport), content('width=device-width, initial-scale=1')])
       ],
-      [ \item(Id, Response),
+      [ \item(Id: Response),
         \help(Id),
         \feedback(Id, Response),
-	\wrongs(Id),
-	\avoid(Id),
+	    \wrongs(Id),
+	    \avoid(Id),
         \navigation(Id, [1-tpaired, 2-baseline])
       ]).
 
@@ -150,6 +158,21 @@ responded(Response) :-
     http_session_retractall(response(_)),
     http_session_assert(response(Response)).
 
+bugs(Id, Bugs) :-
+    ground(Bugs),
+    !,
+    http_session_retractall(buggies(Id, _)),
+    http_session_assert(buggies(Id, Bugs)).
+
+bugs(Id, Bugs) :-
+    http_session_data(buggies(Id, B)),
+    !, Bugs = B.
+
+bugs(Id, Bugs) :-
+    buggies(Id, Codes_Feed),
+    pairs_keys(Codes_Feed, Bugs),
+    http_session_assert(buggies(Id, Bugs)).
+
 feedback(_Id, '') -->
     html(div(class(card),
       [ div(class('card-header alert-information'), "Feedback"),
@@ -159,30 +182,36 @@ feedback(_Id, '') -->
 
 feedback(Id, Response) -->
     { quantity(_, _, Response),
-      item(Id, Item),
+      item(Id: Item),
       cache(Id, solution(Item, Solution, _, Result)),
       match(Result, Response, Format),
-      cache(Id, praise(Item, Praise))
+      cache(Id, praise(Item, _, Praise))
     },
     html(div(class(card),
       [ div(class('card-header alert-success'), "Correct result"),
         div(class('card-body'), 
-	  [ \ul_nonempty(\mml(Solution = Result), Praise),
+	      [ \ul_nonempty(\mml(Solution = Result), Praise),
             \ul_nonempty("Additional hints", Format)
-	  ])
+	      ])
       ])).
 
 feedback(Id, Response) -->
     { quantity(_, _, Response),
-      item(Id, Item),
+      item(Id: Item),
       cache(Id, wrong(Item, Wrong, Woodden, Result)),
       match(Result, Response, Format),
-      praise(Flags, Woodden, _, Code_Praise),
-      cache(Id, hints(Item, _, Code_Hints)),
+      cache(Id, praise(Item, Code_Praise, _)),
+      cache(Id, hints(Item, Code_Hints, _)),
       relevant(Code_Praise, Code_Hints, RelPraise, IrrelPraise),
       palette(Wrong, Flags),
-      mistakes([fix(all) | Flags], Woodden, _, Code_Mistakes),
-      cache(Id, traps(Item, _, Code_Traps)),
+      mistakes(Id, Item, Woodden, [fix(all) | Flags], Code_Mistakes, _),
+
+      bugs(Id, Bugs),
+      pairs_keys(Code_Mistakes, Codes_Bugs),
+      subset(Codes_Bugs, Bugs),
+      http_log("Codes: ~k, Bugs: ~k~n", [Codes_Bugs, Bugs]),
+
+      cache(Id, traps(Item, Code_Traps, _)),
       relevant(Code_Mistakes, Code_Traps, RelMistake, IrrelMistake),
       append([IrrelPraise, IrrelMistake, Format], Additional),
       mathml([fix(all) | Flags], Wrong, Fix),
@@ -192,12 +221,12 @@ feedback(Id, Response) -->
       [ div(class('card-header alert-warning'), "Incorrect result"),
         div(class('card-body'),
           [ p(class('card-text'), "This is the formula for the correct result:"),
-	    p(class('card-text'), Fix),
-	    p(class('card-text'), "Your result matches the following expression:"),
-	    p(class('card-text'), Show),
-	    \ul_nonempty(em("Correct steps"), RelPraise),
-	    \ul_nonempty(em("Mistakes"), RelMistake),
-	    \ul_nonempty(em("Additional hints"), Additional)
+	        p(class('card-text'), Fix),
+	        p(class('card-text'), "Your result matches the following expression:"),
+	        p(class('card-text'), Show),
+	        \ul_nonempty(em("Correct steps"), RelPraise),
+	        \ul_nonempty(em("Mistakes"), RelMistake),
+	        \ul_nonempty(em("Additional hints"), Additional)
           ])
       ])).
 
@@ -206,9 +235,9 @@ feedback(_Id, _Response) -->
       [ div(class('card-header alert-danger'), "Incorrect result"),
         div(class('card-body'),
           p(class('card-text'), 
-	    [ "Your response is incorrect. It does not match any known mistake, ",
-	      "so I cannot provide useful feedback."
-	    ]))
+	        [ "Your response is incorrect. It does not match any known mistake, ",
+	          "so I cannot provide useful feedback."
+	        ]))
       ])).
 
 help(_Id) -->
@@ -222,35 +251,46 @@ help(_Id) -->
 
 help(Id) -->
     { hint_level(Level),
-      item(Id, Item),
-      cache(Id, hints(Item, Hints, _)),
+      item(Id: Item),
+      cache(Id, hints(Item, _, Hints)),
       findall(H, (nth1(Index, Hints, H), Index =< Level), List)
     }, 
     html(div(class(card),
       [ div(class('card-header alert-info'), "Hints"),
         div(class('card-body'), 
-	    \ul_nonempty("Steps to the solution", List))
+	        \ul_nonempty("Steps to the solution", List))
       ])).
 
 avoid(Id) -->
-    { item(Id, Item),
-      cache(Id, traps(Item, Traps, _))
+    { item(Id: Item),
+      cache(Id, traps(Item, _, Traps))
     },
     html(div(class(card),
       [ div(class('card-header alert-info'), "For teachers only"),
-	div(class('card-body'), \ul_nonempty("Avoid these traps:", Traps)) 
+        div(class('card-body'), \ul_nonempty("Avoid these traps:", Traps)) 
       ])).
 
 wrongs(Id) -->
-    { item(Id, Item),
+    { item(Id: Item),
+      buggies(Id, Codes_Feedback),
+      bugs(Id, Active),
       cache(Id, solution(Item, Solution, _, Result)),
       mathml(Solution = number(Result), Correct),
-      findall(W = number(R), cache(Id, wrong(Item, W, _, R)), Wrong),
+      findall(W = number(R), 
+        ( cache(Id, wrong(Item, W, Path, R)), 
+          mistakes(Id, Item, Path, [], Codes_Mistakes, _),
+          pairs_keys(Codes_Mistakes, Codes),
+          subset(Codes, Active)
+        ), Wrong),
       maplist(mathml, Wrong, Wrongs)
     },
     html(div(class(card),
       [ div(class('card-header alert-info'), "For teachers only"),
         div(class('card-body'),
-            \ul_nonempty("The following results are recognized by the system:", [Correct | Wrongs]))
+          [ \ul_nonempty("Correct result:", [Correct]),
+            \cb_nonempty("Buggy rules", buggy, Codes_Feedback, Active),
+            br(''),
+	        \ul_nonempty("The following incorrect results are recognized by the system:", Wrongs)
+          ])
       ])).
 

@@ -1,5 +1,4 @@
 % t-test for paired samples
-
 :- use_module(relevant).
 :- use_module(intermediate).
 :- use_module(library(mathml)).
@@ -8,8 +7,6 @@
 :- consult(temp).
 :- use_module(r).
 
-:- discontiguous intermediate/1, expert/5, buggy/5.
-
 mathml:math_hook(Flags, s_D, Flags, sub(s, 'D')).
 mathml:math_hook(Flags, s_T0, Flags, sub(s, "T0")).
 mathml:math_hook(Flags, s_EOT, Flags, sub(s, "EOT")).
@@ -17,13 +14,14 @@ mathml:math_hook(Flags, s_EOT, Flags, sub(s, "EOT")).
 %    
 % Paired t-test, t-ratio
 %
-:- multifile(item/2).
-item(tpaired, paired_tratio('D', ['T0', 'EOT'], s_D, [s_T0, s_EOT], 'N', mu)).
+:- multifile item/1.
+item(tpaired: paired_tratio('D', ['T0', 'EOT'], s_D, [s_T0, s_EOT], 'N', mu)).
 
-intermediate(paired_tratio/6).
+:- multifile intermediate/1.
+intermediate(tpaired: paired_tratio/6).
 
-:- multifile item//2.
-item(tpaired, Response) -->
+:- multifile item//1.
+item(tpaired: Response) -->
     { D <- 'D',
       Mu <- mu,
       S_D <- s_D,
@@ -65,7 +63,8 @@ item(tpaired, Response) -->
       ]).
 
 % Correctly identify as a paired t-test
-expert(paired_tratio, From >> To, Flags, Feed, Hint) :-
+:- multifile expert/5.
+expert(tpaired: paired_tratio, From >> To, Flags, Feed, Hint) :-
     From = paired_tratio(D, M_wrong, S, S_wrong, N, Mu),
     To   = paired_tratio_2(D, M_wrong, S, S_wrong, N, Mu),
     Feed = [ "Correctly identified the problem as a ",
@@ -75,46 +74,65 @@ expert(paired_tratio, From >> To, Flags, Feed, Hint) :-
              span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for paired ",
              "samples." ].
 
-intermediate(paired_tratio_2/6).
+intermediate(tpaired: paired_tratio_2/6).
 
 % Choose correct numbers for numerator
-expert(numerator, From >> To, Flags, Feed, Hint) :-
-    From = paired_tratio_2(D, _, S, S_wrong, N, Mu),
-    To   = paired_tratio_3(D - Mu, S, S_wrong, N),
+expert(tpaired: minuend, From >> To, Flags, Feed, Hint) :-
+    From = paired_tratio_2(D, M_other, S, S_wrong, N, Mu),
+    To   = paired_tratio_3(D, M_other, S, S_wrong, N, Mu),
     Feed = [ "Correctly identified the numerator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
     Hint = [ "The numerator is ",
              span(class('text-nowrap'), [\mml(Flags, D - Mu), "."]) ].
 
-intermediate(paired_tratio_3/4).
+intermediate(tpaired: paired_tratio_3/6).
 
 % Other solutions
-buggy(numerator, From >> To, Flags, Feed, Trap) :-
+:- multifile buggy/5.
+buggy(tpaired: minuend, From >> To, Flags, Feed, Trap) :-
     From = paired_tratio_2(D, M_other, S, S_wrong, N, Mu),
-    member(Min, [D, Mu | M_other]),
-    member(Sub, [D, Mu | M_other]),
-    dif(Min, Sub),
-    dif(Min - Sub, D - Mu),
-    To   = paired_tratio_3(Min - Sub, S, S_wrong, N),
+    member(Min, [Mu | M_other]),
+    To   = paired_tratio_3(instead_of(minuend, Min, D), M_other, S, S_wrong, N, Mu),
     Feed = [ "Please check the numerator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
     Trap = [ "The numerator is ",
+             span(class('text-nowrap'), [\mml(Flags, color(minuend, D) - cdots), "."]) ].
+
+% Choose correct numbers for numerator: subtrahend
+expert(tpaired: subtrahend, From >> To, Flags, Feed, Hint) :-
+    From = paired_tratio_3(D, _, S, S_wrong, N, Mu),
+    To   = paired_tratio_4(D, S, S_wrong, N, Mu),
+    Feed = [ "Correctly identified the numerator of the ",
+             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
+    Hint = [ "The numerator is ",
              span(class('text-nowrap'), [\mml(Flags, D - Mu), "."]) ].
 
+intermediate(tpaired: paired_tratio_4/5).
+
+% Other solutions
+buggy(tpaired: subtrahend, From >> To, Flags, Feed, Trap) :-
+    From = paired_tratio_3(D, M_other, S, S_wrong, N, Mu),
+    member(Sub, [D | M_other]),
+    To   = paired_tratio_4(instead_of(subtrahend, Sub, Mu), S, S_wrong, N, Mu),
+    Feed = [ "Please check the numerator of the ",
+             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
+    Trap = [ "The numerator is ",
+             span(class('text-nowrap'), [\mml(Flags, cdots - color(subtrahend, Mu)), "."]) ].
+
 % Choose correct numbers for denominator
-expert(denominator, From >> To, Flags, Feed, Hint) :-
-    From = paired_tratio_3(D - Mu, S, _, N),
+expert(tpaired: denominator, From >> To, Flags, Feed, Hint) :-
+    From = paired_tratio_4(D, S, _, N, Mu),
     To   = paired_t(D, Mu, S, N),
     Feed = [ "Correctly identified the denominator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
     Hint = [ \mml(Flags, S), " is used in the denominator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ].
 
-intermediate(paired_t/4).
+intermediate(tpaired: paired_t/4).
 
 % Use wrong standard deviation
-buggy(denominator, From >> To, Flags, Feed, Trap) :-
-    From = paired_tratio_3(D, S_D, S_wrong, N, Mu),
+buggy(tpaired: denominator, From >> To, Flags, Feed, Trap) :-
+    From = paired_tratio_4(D, S_D, S_wrong, N, Mu),
     member(S, S_wrong),
     To   = paired_t(D, Mu, instead_of(sd, S, S_D), N),
     Feed = [ "Please use the standard deviation of the change scores ",
@@ -131,7 +149,7 @@ buggy(denominator, From >> To, Flags, Feed, Trap) :-
 	   ].
 
 % Choose t-ratio for one-sample t-test
-expert(paired_t, From >> To, Flags, Feed, Hint) :-
+expert(tpaired: paired_t, From >> To, Flags, Feed, Hint) :-
     From = paired_t(D, Mu, S, N),
     To   = tratio(dfrac(D - Mu, S / sqrt(N))),
     Feed = ["Correctly identified the formula for the ",
@@ -141,7 +159,7 @@ expert(paired_t, From >> To, Flags, Feed, Hint) :-
             \mml(Flags, dfrac(D - Mu, S / sqrt(N))), "."].
 
 % Choose t-ratio for two-groups t-test
-buggy(groups_t, From >> To, Flags, Feed, Trap) :-
+buggy(tpaired: groups_t, From >> To, Flags, Feed, Trap) :-
     From = paired_tratio(D, [T0, EOT], S, [S_T0, S_EOT], N, Mu),
     Inst = groups_t(T0, S_T0, N, EOT, S_EOT, N),
     Of   = paired_t(D, Mu, S, N),
@@ -154,10 +172,10 @@ buggy(groups_t, From >> To, Flags, Feed, Trap) :-
     Trap = ["Do not use the ", span(class('text-nowrap'), [\mml(Flags, t), "-test "]), 
 	    "for independent groups in this problem with paired measurements."].
 
-intermediate(groups_t/6).
+intermediate(tpaired: groups_t/6).
 
 % Expression for two-groups t-test
-expert(groups_t, From >> To, Flags, Feed, Hint) :-
+expert(tpaired: groups_t, From >> To, Flags, Feed, Hint) :-
     From = groups_t(M_A, S_A, N_A, M_B, S_B, N_B),
     Pool = denoting(subsup(s, "pool", 2), var_pool(S_A^2, N_A, S_B^2, N_B), "the pooled variance"),
     To   = tratio(dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B)))),
@@ -168,7 +186,7 @@ expert(groups_t, From >> To, Flags, Feed, Hint) :-
             \mml(Flags, dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B))))].
 
 % Forgot school math
-buggy(school, From >> To, Flags, Feed, Trap) :-
+buggy(tpaired: school, From >> To, Flags, Feed, Trap) :-
     From = 1/A + 1/B,
     dif(A, B),
     Inst = frac(1, A + B),
@@ -178,17 +196,17 @@ buggy(school, From >> To, Flags, Feed, Trap) :-
     Trap = ["Please remember school math: ",
             \mml(Flags, From = frac(A + B, A*B))].
 
-buggy(school, From >> To, Flags, Feed, Trap) :-
+buggy(tpaired: school, From >> To, Flags, Feed, Trap) :-
     From = 1/A + 1/A,
     Inst = frac(1, 2*A),
     To   = instead_of(school, Inst, From),
     Feed = ["Please remember school math: ",
              \mml(Flags, color(school, color("black", From) \= color("black", Inst)))],
-    Trap = ["Please remember school math: ",
-            \mml(Flags, From = frac(2, A))].
+    Trap = [ "Please remember school math: ",
+             \mml(Flags, From = frac(2, A))].
 
 % Forget parentheses
-buggy(frac_paren, From >> To, Flags, Feed, Trap) :-
+buggy(tpaired: frac_paren, From >> To, Flags, Feed, Trap) :-
     From = dfrac(A - B, C / D),
     To   = left_landed(frac_paren, A - right_landed(frac_paren, 
                dfrac(left_elsewhere(frac_paren, A - B), 
@@ -199,14 +217,14 @@ buggy(frac_paren, From >> To, Flags, Feed, Trap) :-
 	                color(frac_paren, paren(black(C / D))))), "."],
     Trap = Feed.
 
-buggy(paren_num, From >> To, Flags, Feed, Trap) :-
+buggy(tpaired: paren_num, From >> To, Flags, Feed, Trap) :-
     From = dfrac(A - B, C / D),
     To   = left_landed(paren_num, A - dfrac(left_elsewhere(paren_num, A - B), C / D)),
     Feed = ["Please check the parentheses around the numerator of the fraction ",
             \mml(Flags, dfrac(color(paren_num, paren(black(A - B))), C / D)), "."],
     Trap = Feed.
 
-buggy(paren_denom, From >> To, Flags, Feed, Trap) :-
+buggy(tpaired: paren_denom, From >> To, Flags, Feed, Trap) :-
     From = dfrac(A - B, C / D),
     To   = right_landed(paren_denom, dfrac(A - B, right_elsewhere(paren_denom, C / D)) / D),
     Feed = ["Please check the parentheses around the denominator of the ",
@@ -215,7 +233,7 @@ buggy(paren_denom, From >> To, Flags, Feed, Trap) :-
     Trap = Feed.
 
 % Forget square root
-buggy(root, From >> To, Flags, Feed, Trap) :-
+buggy(tpaired: root, From >> To, Flags, Feed, Trap) :-
     From = sqrt(N),
     Inst = N,
     To   = instead_of(root, Inst, From),
@@ -224,7 +242,7 @@ buggy(root, From >> To, Flags, Feed, Trap) :-
     Trap = Feed.
 
 % Forget to subtract the mu from the null hypothesis
-buggy(mu, From >> To, Flags, Feed, Trap) :-
+buggy(tpaired: mu, From >> To, Flags, Feed, Trap) :-
     From = dfrac(D - mu, S / SQRTN),
     To   = dfrac(omit_right(mu, D - mu), S / SQRTN),
     Feed = [ "Please do not forget to subtract the average change ", 
@@ -283,28 +301,30 @@ r_init(tpaired) :-
 %
 % Invoke example
 %
+:- multifile example/0.
 example :-
-    r_init(tpaired, []),
-    item(Item),
-    solution(Item, Solution, Path),
+    Topic = tpaired,
+    r_init(Topic),
+    item(Topic: Item),
+    solution(Topic, Item, Solution, Path),
     writeln(solution: Solution),
     r(Solution, Result),
     writeln(result: Result),
     writeln(path: Path),
-    mathml(Solution = Result, Mathml),
+    mathml(Solution = number(Result), Mathml),
     writeln(mathml: Mathml),
-    palette(Solution, Flags),
-    hints(Flags, Path, Hints),
+    hints(Topic, Item, Path, _, Hints),
     writeln(hints: Hints),
-    traps(Path, Traps),
+    traps(Topic, Item, Path, _, Traps),
     writeln(traps: Traps),
-    praise(Path, Praise),
+    praise(Topic, Item, Path, _, Praise),
     writeln(praise: Praise).
 
 example :-
-    item(Item),
-    solution(Item, Solution, Path),
-    wrong(Item, Solution, Wrong, Wooden),
+    Topic = tpaired,
+    r_init(Topic),
+    item(Topic: Item),
+    wrong(Topic, Item, Wrong, Woodden),
     writeln(wrong: Wrong),
     mathex(fix, Wrong, Fix),
     writeln(fix: Fix),
@@ -312,23 +332,32 @@ example :-
     writeln(show: Show),
     r(Wrong, Result),
     writeln(result: Result),
-    writeln(path: Wooden),
+    writeln(path: Woodden),
     palette(Wrong, Flags),
     mathml([highlight(all) | Flags], Wrong \= Result, Mathml),
     writeln(mathml: Mathml),
-    feedback(Flags, Wooden, Feedback),
+    feedback(Topic, Item, Woodden, Flags, _, Feedback),
     writeln(feedback: Feedback),
-    praise(Wooden, Praise),
+    praise(Topic, Item, Woodden, Code_Praise, Praise),
     writeln(praise: Praise),
-    mistakes(Flags, Wooden, Mistakes),
+    mistakes(Topic, Item, Woodden, Flags, Code_Mistakes, Mistakes),
     writeln(mistakes: Mistakes),
-    traps(Path, Traps),
-    relevant(Mistakes, Traps, Relevant, Irrelevant),
-    writeln(relevant: Relevant),
-    writeln(irrelevant: Irrelevant).
+    solution(Topic, Item, _, Path),
+    hints(Topic, Item, Path, Code_Hints, _),
+    relevant(Code_Praise, Code_Hints, Rel_Praise, Irrel_Praise),
+    writeln(relevant_praise: Rel_Praise),
+    writeln(irrelevant_praise: Irrel_Praise),
+    traps(Topic, Item, Path, Code_Traps, _),
+    relevant(Code_Mistakes, Code_Traps, Rel_Mistakes, Irrel_Mistakes),
+    writeln(relevant_mistakes: Rel_Mistakes),
+    writeln(irrelevant_mistakes: Irrel_Mistakes).
 
 example :-
-    item(Item),
-    html(\item(Item, ''), HTML, []),
+    Topic = tpaired,
+    html(\item(Topic: ''), HTML, []),
     print_html(HTML).
 
+example :-
+    Topic = tpaired,
+    buggies(Topic, Bugs),
+    writeln(bugs: Bugs).

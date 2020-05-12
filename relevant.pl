@@ -1,134 +1,245 @@
 :- module(relevant, 
     [
-        step/5, 
-        solution/3, 
-	wrong/3,
-	wrong/4,
-	wrongs_paths_results/2,
-        route/3, 
-	hints/3,
-        traps/3, 
-	codes/2,
-        feedback/3,
-        praise/4,
-        mistakes/4,
-	relevant/4,
-        mathex/3
+        solution/4, 
+        hints/5,
+        traps/5,
+        praise/5,
+	    wrong/4,
+	    wrong/5,
+        feedback/6,
+        mistakes/6,
+        relevant/4,
+        mathex/3,
+        wrongs_paths_results/3,
+        buggies/2
     ]).
 
 :- use_module(intermediate).
 :- use_module(r).
+:- use_module(library(r/r_call)).
 
 %
 % Apply rule to term
 %
 % Some special compounds
-step(Rule, Code, instead_of(Err, Instead, Of) >> To, Flags, Feedback) :-
+step(Rule, Code, instead_of(Err, Instead, Of) >> To, Request) :-
     !,
-    step(Rule, Code, instead_of(Err, Instead, Instead, Of, Of) >> To, Flags, Feedback).
+    step(Rule, Code, instead_of(Err, Instead, Instead, Of, Of) >> To, Request).
 
-step(Rule, Code, instead_of(Err, A, Wrong, Of, Correct) >> To, Flags, Feedback) :-
+step(Rule, Topic: Code, instead_of(Err, A, Wrong, Of, Correct) >> To, Request) :-
     !,
-    step(Rule, Code, A >> B, Flags, Feedback),
-    solution(Of, Solution, _),
+    step(Rule, Topic: Code, A >> B, Request),
+    solution(Topic, Of, Solution, _),
     To = instead_of(Err, B, Wrong, Solution, Correct).
 
-step(Rule, Code, denoting(Symbol, A, Label) >> To, Flags, Feedback) :-
+step(Rule, Code, denoting(Symbol, A, Label) >> To, Request) :-
     !, 
-    step(Rule, Code, A >> B, Flags, Feedback),
+    step(Rule, Code, A >> B, Request),
     To = denoting(Symbol, B, Label).
 
-step(Rule, Code, left_elsewhere(Err, Expr) >> To, Flags, Feedback) :-
+step(Rule, Code, left_elsewhere(Err, Expr) >> To, Request) :-
     !,
     Expr =.. [Op, Left, A],
-    step(Rule, Code, A >> B, Flags, Feedback),
+    step(Rule, Code, A >> B, Request),
     New =.. [Op, Left, B],
     To = left_elsewhere(Err, New).
 
-step(Rule, Code, right_elsewhere(Err, Expr) >> To, Flags, Feedback) :-
+step(Rule, Code, right_elsewhere(Err, Expr) >> To, Request) :-
     !,
     Expr =.. [Op, A, Right],
-    step(Rule, Code, A >> B, Flags, Feedback),
+    step(Rule, Code, A >> B, Request),
     New =.. [Op, B, Right],
     To = right_elsewhere(Err, New).
 
-step(Rule, Code, left_landed(Err, Expr) >> To, Flags, Feedback) :-
+step(Rule, Code, left_landed(Err, Expr) >> To, Request) :-
     !,
     Expr =.. [Op, Left, A],
-    step(Rule, Code, A >> B, Flags, Feedback),
+    step(Rule, Code, A >> B, Request),
     New =.. [Op, Left, B],
     To = left_landed(Err, New).
 
-step(Rule, Code, right_landed(Err, Expr) >> To, Flags, Feedback) :-
+step(Rule, Code, right_landed(Err, Expr) >> To, Request) :-
     !,
     Expr =.. [Op, A, Right],
-    step(Rule, Code, A >> B, Flags, Feedback),
+    step(Rule, Code, A >> B, Request),
     New =.. [Op, B, Right],
     To = right_landed(Err, New).
 
 % Direct match
-step(expert, Code, Step, Flags, feedback(Feedback)) :-
-    expert(Code, Step, Flags, Feedback, _).
+step(expert, Code, Step, none) :-
+    expert(Code, Step, _, _, _).
 
-step(buggy, Code, Step, Flags, feedback(Feedback)) :-
-    buggy(Code, Step, Flags, Feedback, _).
+step(expert, Code, Step, praise(Praise)) :-
+    expert(Code, Step, [color-auto], Praise, _).
 
-step(expert, Code, Step, Flags, hint(Hint)) :-
-    expert(Code, Step, Flags, _, Hint).
+step(expert, Code, Step, feedback(Flags, Feed)) :-
+    expert(Code, Step, Flags, Feed, _).
 
-step(buggy, Code, Step, Flags, hint(Hint)) :-
-    buggy(Code, Step, Flags, _, Hint).
+step(expert, Code, Step, hint(Hint)) :-
+    expert(Code, Step, [color-auto], _, Hint).
+
+step(buggy, Code, Step, none) :-
+    buggy(Code, Step, _, _, _).
+
+step(buggy, Code, Step, trap(Trap)) :-
+    buggy(Code, Step, [color-auto], _, Trap).
+
+step(buggy, Code, Step, feedback(Flags, Feed)) :-
+    buggy(Code, Step, Flags, Feed, _).
 
 % General compounds
-step(Rule, Code, From >> To, Flags, Feedback) :-
+step(Rule, Code, From >> To, Request) :-
     compound(From),
     compound_name_arguments(From, Name, From_args),
     nth1(Index, From_args, Arg, Rest),
-    step(Rule, Code, Arg >> New, Flags, Feedback),
+    step(Rule, Code, Arg >> New, Request),
     nth1(Index, To_args, New, Rest),
     compound_name_arguments(To, Name, To_args).
 
 %
-% Find correct result
+% Find correct result(s)
 %
-solution(A, B, Path) :-
-    route([expert], A, B, [A], Path).
+solution(Topic, Item, Solution, Path) :-
+    solution(Topic, Item, Solution, [], Path).
 
-%
-% Find any result
-%
-route(A, B, Path) :-
-    route([expert, buggy], A, B, [A], Path).
-
-% reached goal
-route(_, A, A, Steps, Path) :-
-    final(A),
+% Reached goal
+solution(Topic, Solution, Solution, Steps, Path) :-
+    final(Topic, Solution),
     reverse(Steps, Path).
 
 % Continue search
-route(Rules, A, B, Steps, Path) :-
-    member(R, Rules),
-    step(R, _, A >> X, _, feedback(_)),
-    route(Rules, X, B, [X | Steps], Path).
+solution(Topic, A, B, Steps, Path) :-
+    step(expert, Topic: Code, A >> X, none),
+    solution(Topic, X, B, [Code-X | Steps], Path).
 
-% Wrong result - assumes one single correct result
-wrong(Item, Wrong, Path) :-
-    solution(Item, Solution, _),
-    wrong(Item, Solution, Wrong, Path).
+%
+% Stay on path with these hints
+%
+hints(Topic, Item, Path, Code_Hints, Hints) :-
+    hints(Topic, Item, Path, Code_Hints),
+    pairs_values(Code_Hints, Hints).
 
-wrong(Item, Solution, Wrong, Path) :-
-    route(Item, Wrong, Path),
-    dif(Wrong, Solution).
+hints(_, _, [], []).
 
-wrongs_paths_results(Item, Wrongs_Paths_Results) :-
-    solution(Item, Solution, _),
-    findall((W-P)-(S-R), (wrong(Item, Solution, W, P), codes(P, C), sort(C, S), sur(R <- W)), List),
+hints(Topic, A, [Code-B | Path], [Code-H | Hints]) :-
+    step(expert, Topic: Code, A >> B, hint(H)),
+    hints(Topic, B, Path, Hints).
+
+%
+% Find "relevant" buggy rules (also known as "traps")
+%
+% These are the bugs along the path to the correct result. Bugs can also occur
+% occur at other places, for example, mistakes specific to the two-sample
+% t-test in a problem with paired samples. But these latter bugs are not 
+% relevant for feedback, they are only needed to diagnose a mistake.
+%
+traps(Topic, Item, Path, Code_Traps, Traps) :-
+    traps(Topic, Item, Path, List),
+    append(List, Code_Traps),
+    pairs_values(Code_Traps, Traps).
+    
+traps(Topic, Solution, [], [Traps]) :-
+    traps(Topic, Solution, Traps).
+
+traps(Topic, A, [Code-B | Path], [T | Traps]) :-
+    traps(Topic, A, T),
+    step(expert, Topic: Code, A >> B, none),
+    traps(Topic, B, Path, Traps).
+
+% Traps at a specific location
+traps(Topic, A, Traps) :-
+    findall(C-T, step(buggy, Topic: C, A >> _, trap(T)), Unsorted),
+    sort(Unsorted, Traps).
+
+%
+% Feedback: only praise
+%
+praise(Topic, Item, Path, Code_Praise, Praise) :-
+    praise(Topic, Item, Path, Code_Praise),
+    pairs_values(Code_Praise, Praise).
+
+praise(_, _, [], []).
+
+praise(Topic, A, [Code-X | Path], [Code-P | Praise]) :-
+    step(expert, Topic: Code, A >> X, praise(P)),
+    praise(Topic, X, Path, Praise).
+
+praise(Topic, A, [Code-X | Path], Praise) :-
+    step(buggy, Topic: Code, A >> X, none),
+    praise(Topic, X, Path, Praise).
+                    
+%
+% Wrong result, correct solutions not known
+%
+wrong(Topic, Item, Wrong, Wodden) :-
+    findall(S, solution(Topic, Item, S, _), Solutions),
+    wrong(Topic, Item, Solutions, Wrong, Wodden).
+
+% Wrong result, correct solutions known
+wrong(Topic, Item, Solutions, Wrong, Woodden) :-
+    wrong(Topic, Item, Solutions, Wrong, [], Woodden).
+
+% Arrived at goal
+wrong(Topic, Wrong, Solutions, Wrong, Steps, Woodden) :-
+    final(Topic, Wrong),
+    \+ member(Wrong, Solutions),
+    reverse(Steps, Woodden).
+
+% Continue search
+wrong(Topic, A, Solutions, B, Steps, Woodden) :-
+    step(_, Topic: Code, A >> X, none),
+    wrong(Topic, X, Solutions, B, [Code-X | Steps], Woodden).
+
+%
+% Feedback: all
+%
+feedback(Topic, Item, Path, Flags, Code_Feedback, Feedback) :-
+    feedback(Topic, Item, Path, Flags, Code_Feedback),
+    pairs_values(Code_Feedback, Feedback).
+
+feedback(_, _, [], _, []).
+
+feedback(Topic, A, [Code-X | Path], Flags, [Code-F | Feedback]) :-
+    step(_, Topic: Code, A >> X, feedback(Flags, F)),
+    feedback(Topic, X, Path, Flags, Feedback).
+
+%
+% Feedback: only mistakes
+%
+mistakes(Topic, Item, Path, Flags, Code_Mistakes, Mistakes) :-
+    mistakes(Topic, Item, Path, Flags, Code_Mistakes),
+    pairs_values(Code_Mistakes, Mistakes).
+
+mistakes(_, _, [], _, []).
+
+mistakes(Topic, A, [Code-X | Path], Flags, Mistakes) :-
+    step(expert, Topic: Code, A >> X, none),
+    mistakes(Topic, X, Path, Flags, Mistakes).
+
+mistakes(Topic, A, [Code-X | Path], Flags, [Code-M | Mistakes]) :-
+    step(buggy, Topic: Code, A >> X, feedback(Flags, M)),
+    mistakes(Topic, X, Path, Flags, Mistakes).
+
+%
+% List of incorrect results
+%
+wrongs_paths_results(Topic, Item, WPR) :-
+    solution(Topic, Item, Solution, _),
+    % All wrong solutions incl. path and results
+    findall(wrong(W, P, R, S-R, L), 
+        ( wrong(Topic, Item, [Solution], W, P), 
+          pairs_keys(P, C), 
+          sort(C, S), 
+          sur(R <- W),
+          mistakes(Topic, Item, P, [], M),
+          length(M, L)
+        ), List),
     % Avoid duplicate results in which only the steps are permuted
-    sort(2, @<, List, Sorted),
-    findall(L-wrong(Item, W, P, R), (member((W-P)-(_-R), Sorted), code_mistakes([], P, M), length(M, L)), LWPR),
-    % Few errors first
-    keysort(LWPR, Sorted_LWPR),
-    pairs_values(Sorted_LWPR, Wrongs_Paths_Results).
+    sort(4, @<, List, Unique),
+    % Count number of mistakes
+    sort(5, @=<, Unique, Ascending),
+    % Cleanup
+    findall(wrong(Item, W, P, R), member(wrong(W, P, R, _, _), Ascending), WPR).
     
 % 
 % Extract abbreviations of steps
@@ -140,77 +251,20 @@ codes([A, X | Path], [Code | Codes]) :-
     codes([X | Path], Codes).
 
 %
-% Find "relevant" buggy rules (also known as "traps")
+% Find all buggy rules
 %
-% These are the bugs along the path to the correct result. Bugs can also
-% occur at other places, for example, mistakes specific to the
-% two-sample t-test. But these bugs are not relevant for feedback, they
-% are only needed to diagnose a mistake.
+% buggies(Topic, Code_Feedback) :-
+%     findall(C-F, buggy(Topic: C, _, [color-auto], F, _), Code_Feedback).
 %
-% Traps at a specific location
-trap(A, Sorted) :-
-    findall(Code-Feed, step(buggy, Code, A >> _, [color-auto], hint(Feed)), Traps),
-    sort(Traps, Sorted).
-
-% Traps along a path
-traps(Path, Traps, Code_Traps) :-
-    maplist(trap, Path, Trap),
-    append(Trap, Code_Traps),
-    pairs_values(Code_Traps, Traps).
-
-%
-% Hints to correct result
-%
-hints(Path, Hints, Code_Hints) :-
-    hints([], Path, Hints, Code_Hints).
-
-hints(_, [_], [], []).
-
-hints(Flags, [A, X | Path], [Hint | Hints], [Code-Hint | Code_Hints]) :-
-    step(_, Code, A >> X, Flags, hint(Hint)),
-    hints(Flags, [X | Path], Hints, Code_Hints).
-
-%
-% Feedback: all
-%
-feedback(_, [_], []).
-
-feedback(Flags, [A, X | Path], [Code-Feed | Feedback]) :-
-    step(_, Code, A >> X, Flags, feedback(Feed)),
-    feedback(Flags, [X | Path], Feedback).
-
-%
-% Feedback: only praise
-%
-praise(Flags, Path, Praise, Code_Praise) :-
-    code_praise(Flags, Path, Praise, Code_Praise).
-
-code_praise(_, [_], [], []).
-
-code_praise(Flags, [A, X | Path], [Feed | Praise], [Code-Feed | Code_Praise]) :-
-    step(expert, Code, A >> X, Flags, feedback(Feed)),
-    code_praise(Flags, [X | Path], Praise, Code_Praise).
-
-code_praise(Flags, [A, X | Path], Praise, Code_Praise) :-
-    step(buggy, _, A >> X, Flags, feedback(_)),
-    code_praise(Flags, [X | Path], Praise, Code_Praise).
-
-%
-% Feedback: only mistakes
-%
-mistakes(Flags, Path, Mistakes, Code_Mistakes) :-
-    code_mistakes(Flags, Path, Code_Mistakes),
-    pairs_values(Code_Mistakes, Mistakes).
-
-code_mistakes(_, [_], []).
-
-code_mistakes(Flags, [A, X | Path], Code_Mistakes) :-
-    step(expert, _, A >> X, Flags, feedback(_)),
-    code_mistakes(Flags, [X | Path], Code_Mistakes).
-
-code_mistakes(Flags, [A, X | Path], [Code-Mistake | Code_Mistakes]) :-
-    step(buggy, Code, A >> X, Flags, feedback(Mistake)),
-    code_mistakes(Flags, [X | Path], Code_Mistakes).
+buggies(Topic, Code_Bugs) :-
+    item(Topic: Item),
+    solution(Topic, Item, Solution, _),
+    findall(Code_Feed, 
+      ( wrong(Topic, Item, Solution, _, Path), 
+        mistakes(Topic, Item, Path, [color-auto], Code_Feed, _)
+      ), CF_List),
+    append(CF_List, CF_All),
+    sort(1, @<, CF_All, Code_Bugs).
 
 %
 % Only relevant feedback

@@ -22,9 +22,9 @@ trow([H | Row]) -->
 download(Data) -->
     html(form(method('POST'),
         button(
-	  [ class('btn btn-secondary'), 
-	    name(download), value(Data)
-	  ], 
+          [ class('btn btn-secondary'), 
+            name(download), value(Data)
+          ], 
 	  "Download data"))).
 
 form(Response) -->
@@ -35,7 +35,7 @@ response(Response) -->
       [ div(class("input-group-prepend"), span(class("input-group-text"), "Response:")),
         input([class("form-control"), type(text), name(response), value(Response)]),
         div(class("input-group-append"),
-        [ button([class('btn btn-primary'), type(submit), name(response), value(response)], 
+        [ button([class('btn btn-primary'), type(submit)], 
             "Submit"),
           button([class('btn btn-warning'), name(help), value(hint)], 
             "Help me")
@@ -80,4 +80,24 @@ ul_nonempty(_, []) -->
 ul_nonempty(Title, [H | T]) -->
     { findall(li(X), member(X, [H | T]), Li) },
     html([ p(class('card-text'), Title), ul(class('card-text'), Li) ]).
+
+cb_nonempty(_, _, []) -->
+    [].
+
+cb_nonempty(Title, Name, [H | T], Checked) -->
+    { maplist([V-_, V-C] >> (member(V, Checked) -> C = [checked] ; C = []), [H | T], Codes),
+      findall(
+          li([ div(class('custom-control custom-checkbox'),
+             [ input([class('custom-control-input'), type(checkbox), id(V), name(V) | C]),
+               label([class('custom-control-label'), for(V)], V)
+             ])
+             % p(class('card-text'), L),
+             % br('')
+         ]), member(V-C, Codes), List) 
+    },
+    html(form([method('POST'), action('#question')],
+      [ p(class('card-text'), Title), 
+        ul(style('list-style: none; padding-left: 1em; text-indent: 0em;'), List),
+        button([class('btn btn-secondary'), name(Name), value(upate)], "Update")
+      ])).
 

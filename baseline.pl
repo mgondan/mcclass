@@ -7,8 +7,6 @@
 :- consult(temp).
 :- use_module(r).
 
-:- discontiguous intermediate/1, expert/5, buggy/4.
-
 mathml:math_hook(Flags, m_T0, Flags, overline("T0")).
 mathml:math_hook(Flags, m_EOT, Flags, overline("EOT")).
 mathml:math_hook(Flags, s_T0, Flags, sub(s, "T0")).
@@ -25,15 +23,15 @@ subset([X | L], [X | S], D) :-
 subset(L, [H | S], [H | D]) :-
     subset(L, S, D).
 
-:- multifile item/2.
-item(baseline, Item) :-
+:- multifile item/1.
+item(baseline: Item) :-
     Item = baseline_fratio(data, "EOT", ["T0"], ["Sex"], ["Fidel", "FU"], [], [], "Therapy").
 
 :- multifile intermediate/1.
-intermediate(baseline_fratio/8).
+intermediate(baseline: baseline_fratio/8).
 
-:- multifile item//2.
-item(baseline, Response) -->
+:- multifile item//1.
+item(baseline: Response) -->
     { r_init(baseline),
       N <- 'N',
       Lid_T0  <- sprintf("%.1f (%.1f)", m_T0["Lidcombe"], s_T0["Lidcombe"]),
@@ -52,32 +50,32 @@ item(baseline, Response) -->
     html(
       [ div(class(card),
         div(class('card-body'),
-	  [ h1(class('card-title'), "Treatment of early stuttering"),
+	      [ h1(class('card-title'), "Treatment of early stuttering"),
             p(class('card-text'),
               [ "Jones et al. (2005) investigated the efficacy of the ",
                 "so-called Lidcombe therapy for the treatment of stuttering ",
-		"in early childhood. The study is a randomized trial ",
-		"on ", \mml('N' = N), " children, comparing Lidcombe ",
-		"with “treatment as usual” (TAU). The significance level ",
-		"is ", \mml(alpha = '100%'(Alpha)), " ", \mml(Tails), ". Please ",
-		"analyze the data and draw the correct conclusions." 
+		        "in early childhood. The study is a randomized trial ",
+		        "on ", \mml('N' = N), " children, comparing Lidcombe ",
+		        "with “treatment as usual” (TAU). The significance level ",
+		        "is ", \mml(alpha = '100%'(Alpha)), " ", \mml(Tails), ". Please ",
+		        "analyze the data and draw the correct conclusions." 
               ]),
-	    \table(H, [T0, EOT, FU]),
-	    p(class('card-text'),
-	        "The ficticious results can be downloaded below."),
-	    ul(
-	      [ li("ID: Patient number"),
-	        li("Sex: F, M (stratification factor)"),
-		li("AgeMo: Age in months at inclusion"),
-		li("T0: Percentage of stuttered syllables at baseline"),
-		li("Therapy: Lidcombe, TAU"),
-		li(["Fidel: Treatment fidelity in percent, summarizing ",
-		    "different indicators of adherence: ",
-		    "0% (none)...100% (perfect)"]),
-		li(["EOT: Percentage of stuttered syllables 9 months after ",
-		    "randomization (primary endpoint)"]),
-		li(["FU: Percentage of stuttered syllables 15 months after ",
-		    "randomization (secondary endpoint)"])
+	        \table(H, [T0, EOT, FU]),
+	        p(class('card-text'),
+	            "The ficticious results can be downloaded below."),
+	        ul(
+	          [ li("ID: Patient number"),
+	            li("Sex: F, M (stratification factor)"),
+		        li("AgeMo: Age in months at inclusion"),
+		        li("T0: Percentage of stuttered syllables at baseline"),
+		        li("Therapy: Lidcombe, TAU"),
+		        li(["Fidel: Treatment fidelity in percent, summarizing ",
+		            "different indicators of adherence: ",
+		            "0% (none)...100% (perfect)"]),
+		        li(["EOT: Percentage of stuttered syllables 9 months after ",
+		            "randomization (primary endpoint)"]),
+		        li(["FU: Percentage of stuttered syllables 15 months after ",
+		            "randomization (secondary endpoint)"])
               ]),
             \download(baseline)
           ])),
@@ -88,24 +86,24 @@ item(baseline, Response) -->
                   [ "Does the Lidcombe therapy lead to a reduction in stuttered ",
                     "syllables compared to TAU? Please determine ",
                     "the ", span(class('text-nowrap'), [\mml('F'), "-ratio."])
-		  ]),
+		          ]),
                 \form(Response)
               ]))
       ]).
 
 % Step 1: Recognize as an ANCOVA problem
 :- multifile expert/5.
-expert(baseline_fratio, From >> To, _Flags, Feed, Hint) :-
+expert(baseline: baseline_fratio, From >> To, _Flags, Feed, Hint) :-
     From = baseline_fratio(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     To   = fratio(ancova_f(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy)),
     Feed = [ "Correctly identified the problem as a group comparison with ",
              "covariate adjustment." ],
     Hint = "This is a group comparison with covariate adjustment.".
 
-intermediate(ancova_f/8).
+intermediate(baseline: ancova_f/8).
 
 % Step 2: Use the correct covariate(s)
-expert(covariates, From >> To, Flags, Feed, Hint) :-
+expert(baseline: covariates, From >> To, Flags, Feed, Hint) :-
     From = ancova_f(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     To   = ancova_ff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Feed = [ "The correct covariate(s) ", \mml(Flags, Cov), " were included ",
@@ -113,11 +111,11 @@ expert(covariates, From >> To, Flags, Feed, Hint) :-
     Hint = [ "The covariate(s) ", \mml(Flags, Cov), " should be included in the ",
              "statistical model." ].
 
-intermediate(ancova_ff/8).
+intermediate(baseline: ancova_ff/8).
 
 % Omit one or more covariates
 :- multifile buggy/5.
-buggy(covariates, From >> To, Flags, Feed, Trap) :-
+buggy(baseline: covariates, From >> To, Flags, Feed, Trap) :-
     From = ancova_f(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     subset(Subset, Cov, [R | Removed]),
     To   = ancova_ff(Data, Prim, Subset, Strata, Other, Int, 
@@ -128,7 +126,7 @@ buggy(covariates, From >> To, Flags, Feed, Trap) :-
              "statistical model." ].
 
 % Step 3: Use the correct stratification variable(s)
-expert(strata, From >> To, Flags, Feed, Hint) :-
+expert(baseline: strata, From >> To, Flags, Feed, Hint) :-
     From = ancova_ff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     To   = ancova_fff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Feed = [ "The stratification variable(s) ", \mml(Flags, Strata), " were ",
@@ -136,10 +134,10 @@ expert(strata, From >> To, Flags, Feed, Hint) :-
     Hint = [ "The stratification variable(s) ", \mml(Flags, Strata), " should be ",
              "included in the statistical model." ].
 
-intermediate(ancova_fff/8).
+intermediate(baseline: ancova_fff/8).
 
 % Omit one or more stratification variables
-buggy(strata, From >> To, Flags, Feed, Trap) :-
+buggy(baseline: strata, From >> To, Flags, Feed, Trap) :-
     From = ancova_ff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     subset(Subset, Strata, [R | Removed]),
     To   = ancova_fff(Data, Prim, Cov, Subset, Other, Int, 
@@ -150,16 +148,16 @@ buggy(strata, From >> To, Flags, Feed, Trap) :-
              "included in the statistical model." ].
 
 % Step 4: Ignore distractors
-expert(other, From >> To, Flags, Feed, Hint) :-
+expert(baseline: other, From >> To, Flags, Feed, Hint) :-
     From = ancova_fff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     To   = ancova_ffff(Data, Prim, Cov, Strata, [], Int, Exclude, Therapy),
     Feed = [ "Correctly excluded ", \mml(Flags, Other), " from the analysis." ],
     Hint = [ "The variable(s) ", \mml(Flags, Other), " are not used."].
 
-intermediate(ancova_ffff/8).
+intermediate(baseline: ancova_ffff/8).
 
 % Add one or more wrong predictors
-buggy(other, From >> To, Flags, Feed, Trap) :-
+buggy(baseline: other, From >> To, Flags, Feed, Trap) :-
     From = ancova_fff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     subset([S | Subset], Other),
     To   = ancova_ffff(Data, Prim, Cov, Strata, [add(other, [S | Subset])],
@@ -169,7 +167,7 @@ buggy(other, From >> To, Flags, Feed, Trap) :-
     Trap = [ "The variable(s) ", \mml(Flags, Other), " are not used."].
 
 % Step 5: No treatment-by-covariate interactions
-expert(interactions, From >> To, _Flags, Feed, Hint) :-
+expert(baseline: interactions, From >> To, _Flags, Feed, Hint) :-
     From = ancova_ffff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     To   = ancova_fffff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Feed = [ "Correctly excluded any treatment-by-covariate interactions from ",
@@ -177,13 +175,13 @@ expert(interactions, From >> To, _Flags, Feed, Hint) :-
     Hint = [ "The statistical model should not include any ",
              "treatment-by-covariate interactions."].
 
-intermediate(ancova_fffff/8).
+intermediate(baseline: ancova_fffff/8).
 
 atomics_to_string_sep(Sep, List, String) :-
     atomics_to_string(List, Sep, String).
 
 % Allow for treatment-by-covariate interactions
-buggy(interactions, From >> To, Flags, Feed, Trap) :-
+buggy(baseline: interactions, From >> To, Flags, Feed, Trap) :-
     From = ancova_ffff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     % T0, Sex
     append(Strata, Cov, Covariates),
@@ -206,7 +204,7 @@ buggy(interactions, From >> To, Flags, Feed, Trap) :-
 	             "treatment-by-covariate interactions."].
 
 % Step 6: Apply linear regression
-expert(main, From >> To, Flags, Feed, Hint) :-
+expert(baseline: main, From >> To, Flags, Feed, Hint) :-
     From = ancova_fffff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     To   = ancova_ffffff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Feed = ["The main effect for ", \mml(Flags, Therapy), " has been reported."],
@@ -236,8 +234,8 @@ r_init(baseline) :-
             # Randomization
             d$Therapy = factor(rbinom(N, size=1, prob=0.5), levels=c(0, 1), labels=c("Lidcombe", "TAU")) 
 
-	    # Treatment fidelity
-	    d$Fidel = pmin(100, pmax(20, round(rnorm(N, mean=70, sd=15))))
+	        # Treatment fidelity
+	        d$Fidel = pmin(100, pmax(20, round(rnorm(N, mean=70, sd=15))))
 
             # EOT depends on therapy and fidelity
             d$EOT = pmax(0, pmin(10, round(digits=1, rnorm(N,
@@ -249,8 +247,8 @@ r_init(baseline) :-
             return(d)
         }
 
-	baseline_fratio = function(d, Prim, Cov, Strata, Other, Int, Ex, Main)
-	{
+	    baseline_fratio = function(d, Prim, Cov, Strata, Other, Int, Ex, Main)
+        {
             Predictors = paste(c(Cov, Strata, Main), collapse="+")
             formula = sprintf("%s ~ %s", Prim, Predictors)
             m = lm(formula, data=d)
@@ -264,7 +262,7 @@ r_init(baseline) :-
         }
 
         ancova_ffffff = function(d, Prim, Cov, Strata, Other, Int, Ex, Main)
-	{
+	    {
             Predictors = paste(c(Cov, Strata, Other, Int, Main), collapse="+")
             f = sprintf("%s ~ %s", as.character(Prim), Predictors)
             m = lm(f, data=d)
@@ -274,10 +272,10 @@ r_init(baseline) :-
             F
         }
 
-	anova_f <- function(model, main)
-	{
-	    anova(model)[main, "F value"]
-	}
+	    anova_f <- function(model, main)
+	    {
+	        anova(model)[main, "F value"]
+	    }
 	
         data  <- baseline_data(seed=4711)
         'N'   <- nrow(data)
@@ -291,4 +289,63 @@ r_init(baseline) :-
         tails <- "two-tailed"
     |},
     xlsxfile(baseline, data).
+
+%
+% Invoke example
+%
+:- multifile example/0.
+example :-
+    Topic = baseline,
+    r_init(Topic),
+    item(Topic: Item),
+    solution(Topic, Item, Solution, Path),
+    writeln(solution: Solution),
+    sur(Result <- Solution),
+    writeln(result: Result),
+    writeln(path: Path),
+    mathml(Solution = number(Result), Mathml),
+    writeln(mathml: Mathml),
+    hints(Topic, Item, Path, _, Hints),
+    writeln(hints: Hints),
+    traps(Topic, Item, Path, _, Traps),
+    writeln(traps: Traps),
+    praise(Topic, Item, Path, _, Praise),
+    writeln(praise: Praise).
+
+example :-
+    Topic = baseline,
+    r_init(Topic),
+    item(Topic: Item),
+    wrong(Topic, Item, Wrong, Woodden),
+    writeln(wrong: Wrong),
+    mathex(fix, Wrong, Fix),
+    writeln(fix: Fix),
+    mathex(show, Wrong, Show),
+    writeln(show: Show),
+    sur(Result <- Wrong),
+    writeln(result: Result),
+    writeln(path: Woodden),
+    palette(Wrong, Flags),
+    mathml([highlight(all) | Flags], Wrong \= Result, Mathml),
+    writeln(mathml: Mathml),
+    feedback(Topic, Item, Woodden, Flags, _, Feedback),
+    writeln(feedback: Feedback),
+    praise(Topic, Item, Woodden, Code_Praise, Praise),
+    writeln(praise: Praise),
+    mistakes(Topic, Item, Woodden, Flags, Code_Mistakes, Mistakes),
+    writeln(mistakes: Mistakes),
+    solution(Topic, Item, _, Path),
+    hints(Topic, Item, Path, Code_Hints, _),
+    relevant(Code_Praise, Code_Hints, Rel_Praise, Irrel_Praise),
+    writeln(relevant_praise: Rel_Praise),
+    writeln(irrelevant_praise: Irrel_Praise),
+    traps(Topic, Item, Path, Code_Traps, _),
+    relevant(Code_Mistakes, Code_Traps, Rel_Mistakes, Irrel_Mistakes),
+    writeln(relevant_mistakes: Rel_Mistakes),
+    writeln(irrelevant_mistakes: Irrel_Mistakes).
+
+example :-
+    Topic = baseline,
+    html(\item(Topic: ''), HTML, []),
+    print_html(HTML).
 
