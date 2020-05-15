@@ -99,7 +99,7 @@ post(Id, Request) :-
 post(Id, Request) :-
     option(help(Help), Request),
     ground(Help),
-    hint_increase,
+    hint_increase(Id),
     page(Id).
 
 % Evaluate response
@@ -138,15 +138,15 @@ page(Id) :-
         \navigation(Id, [1-tpaired, 2-baseline])
       ]).
 
-hint_level(Hint) :-
-    http_session_data(hint(H))
+hint_level(Id, Hint) :-
+    http_session_data(hint(Id, H))
      -> Hint = H
       ; Hint = 0.
 
-hint_increase :-
-    hint_level(Hint),
+hint_increase(Id) :-
+    hint_level(Id, Hint),
     H is Hint + 1,
-    http_session_asserta(hint(H)).
+    http_session_asserta(hint(Id, H)).
 
 response(Response) :-
     http_session_data(response(Response)),
@@ -240,8 +240,8 @@ feedback(_Id, _Response) -->
 	        ]))
       ])).
 
-help(_Id) -->
-    { hint_level(0) }, 
+help(Id) -->
+    { hint_level(Id, 0) }, 
     !,
     html(div(class(card),
       [ div(class('card-header alert-information'), "Hints"),
@@ -250,7 +250,7 @@ help(_Id) -->
       ])).
 
 help(Id) -->
-    { hint_level(Level),
+    { hint_level(Id, Level),
       item(Id: Item),
       cache(Id, hints(Item, _, Hints)),
       findall(H, (nth1(Index, Hints, H), Index =< Level), List)
