@@ -87,7 +87,7 @@ expert(tpaired: minuend, From >> To, Flags, Feed, Hint) :-
     Feed = [ "Correctly identified the numerator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
     Hint = [ "The numerator is ",
-             span(class('text-nowrap'), [\mml(Flags, D - Mu), "."]) ].
+             span(class('text-nowrap'), [\mml(Flags, cdots - red(Mu)), "."]) ].
 
 intermediate(tpaired: paired_tratio_3/6).
 
@@ -109,7 +109,7 @@ expert(tpaired: subtrahend, From >> To, Flags, Feed, Hint) :-
     Feed = [ "Correctly identified the numerator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
     Hint = [ "The numerator is ",
-             span(class('text-nowrap'), [\mml(Flags, D - Mu), "."]) ].
+             span(class('text-nowrap'), [\mml(Flags, red(D) - cdots), "."]) ].
 
 intermediate(tpaired: paired_tratio_4/5).
 
