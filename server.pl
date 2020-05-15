@@ -245,7 +245,7 @@ help(Id) -->
       [ div(class('card-header'), "Hints"),
         div(class('card-body'),
             form([class(form), method('POST'), action('#question')],
-                button([class('btn btn-secondary'), name(help), value(hint)], "Give me a hint")))
+                button([class('btn btn-link'), name(help), value(hint)], "Give me a hint")))
       ])).
 
 help(Id) -->
@@ -260,7 +260,7 @@ help(Id) -->
         div(class('card-body'), 
             form([class(form), method('POST'), action('#question')],
 	          [ \ul_nonempty("Steps to the solution", List),
-                button([class('btn btn-secondary'), name(help), value(hint)], "Give me another hint")
+                button([class('btn btn-link'), name(help), value(hint)], "Give me another hint")
               ]))
       ])).
 
