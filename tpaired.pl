@@ -50,20 +50,20 @@ item(tpaired, Response) -->
               "Hamilton Rating Scale for Depression (HDRS, range from ",
               "best = 0 to worst = 42). The significance level is set to ", 
               \mml(alpha = round('100%'(Alpha))), " ", \mml(Tails), "."
-	    ]),
+	        ]),
             \table(H, [R1, R2])
-	    % \download(tpaired)
-	  ])),
+	        % \download(tpaired)
+	      ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'), 
               [ "Does rfCBT lead to a relevant reduction (i.e., more than ",
-	        \mml(mu = Mu), " units) in mean HDRS scores between ",
+	            \mml(mu = Mu), " units) in mean HDRS scores between ",
                 "baseline (T0) and End of Treatment (EOT)? Please determine ",
-		"the ", span(class('text-nowrap'), [\mml(t), "-ratio."])
+	            "the ", span(class('text-nowrap'), [\mml(t), "-ratio."])
               ]),
-            \form(Response)
-	  ]))
+            \response(Response)
+	      ]))
       ]).
 
 % Correctly identify as a paired t-test

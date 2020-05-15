@@ -27,20 +27,14 @@ download(Data) -->
           ], 
 	  "Download data"))).
 
-form(Response) -->
-    html(form([class(form), method('POST'), action('#question')], \response(Response))).
-
 response(Response) -->
-    html(div(class("input-group mb-3"),
-      [ div(class("input-group-prepend"), span(class("input-group-text"), "Response:")),
-        input([class("form-control"), type(text), name(response), value(Response)]),
-        div(class("input-group-append"),
-        [ button([class('btn btn-primary'), type(submit)], 
-            "Submit"),
-          button([class('btn btn-warning'), name(help), value(hint)], 
-            "Help me")
-        ])
-      ])).
+    html(form([class(form), method('POST'), action('#question')], 
+        div(class("input-group mb-3"),
+          [ div(class("input-group-prepend"), span(class("input-group-text"), "Response:")),
+            input([class("form-control"), type(text), name(response), value(Response)]),
+            div(class("input-group-append"),
+                button([class('btn btn-primary'), type(submit)], "Submit"))
+          ]))).
 
 navigation(Current, List) -->
     html(nav('aria-label'("Page navigation"),

@@ -240,17 +240,28 @@ feedback(_Id, _Response) -->
       ])).
 
 help(Id) -->
+    { hint_level(Id, 0) },
+    html(div(class(card),
+      [ div(class('card-header'), "Hints"),
+        div(class('card-body'),
+            form([class(form), method('POST'), action('#question')],
+                button([class('btn btn-secondary'), name(help), value(hint)], "Give me a hint")))
+      ])).
+
+help(Id) -->
     { hint_level(Id, Level),
-      Level > 0,
       item(Id: Item),
       cache(Id, hints(Item, _, Hints)),
       append(Hints, ["No more hints available."], NoMore),
       findall(H, (nth1(I, NoMore, H), I =< Level), List)
     }, 
     html(div(class(card),
-      [ div(class('card-header alert-warning'), "Hints"),
+      [ div(class('card-header'), "Hints"),
         div(class('card-body'), 
-	        \ul_nonempty("Steps to the solution", List))
+            form([class(form), method('POST'), action('#question')],
+	          [ \ul_nonempty("Steps to the solution", List),
+                button([class('btn btn-secondary'), name(help), value(hint)], "Give me another hint")
+              ]))
       ])).
 
 avoid(Id) -->
