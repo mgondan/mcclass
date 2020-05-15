@@ -30,8 +30,8 @@ item(baseline: Item) :-
 :- multifile intermediate/1.
 intermediate(baseline: baseline_fratio/8).
 
-:- multifile item//1.
-item(baseline: Response) -->
+:- multifile item//2.
+item(baseline, Response) -->
     { r_init(baseline),
       N <- 'N',
       Lid_T0  <- sprintf("%.1f (%.1f)", m_T0["Lidcombe"], s_T0["Lidcombe"]),
@@ -346,6 +346,6 @@ example :-
 
 example :-
     Topic = baseline,
-    html(\item(Topic: ''), HTML, []),
+    html(\item(Topic, ''), HTML, []),
     print_html(HTML).
 

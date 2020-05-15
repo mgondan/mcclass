@@ -24,8 +24,8 @@ item(tpaired: paired_tratio(m_D, [m_T0, m_EOT], s_D, [s_T0, s_EOT], 'N', mu)).
 :- multifile intermediate/1.
 intermediate(tpaired: paired_tratio/6).
 
-:- multifile item//1.
-item(tpaired: Response) -->
+:- multifile item//2.
+item(tpaired, Response) -->
     { D <- m_D,
       Mu <- mu,
       S_D <- s_D,
@@ -376,7 +376,7 @@ example :-
 
 example :-
     Topic = tpaired,
-    html(\item(Topic: ''), HTML, []),
+    html(\item(Topic, ''), HTML, []),
     print_html(HTML).
 
 example :-

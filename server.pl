@@ -130,7 +130,7 @@ page(Id) :-
 	    link([rel(icon), href('/mcclass/favicon.ico'), type('image/x-icon')]),
 	    meta([name(viewport), content('width=device-width, initial-scale=1')])
       ],
-      [ \item(Id: Response),
+      [ \item(Id, Response),
         \help(Id),
         \feedback(Id, Response),
 	    \wrongs(Id),
@@ -209,7 +209,6 @@ feedback(Id, Response) -->
       bugs(Id, Bugs),
       pairs_keys(Code_Mistakes, Codes_Bugs),
       subset(Codes_Bugs, Bugs),
-      http_log("Codes: ~k, Bugs: ~k~n", [Codes_Bugs, Bugs]),
 
       cache(Id, traps(Item, Code_Traps, _)),
       relevant(Code_Mistakes, Code_Traps, RelMistake, IrrelMistake),
@@ -241,22 +240,15 @@ feedback(_Id, _Response) -->
       ])).
 
 help(Id) -->
-    { hint_level(Id, 0) }, 
-    !,
-    html(div(class(card),
-      [ div(class('card-header alert-information'), "Hints"),
-        div(class('card-body'),
-            p(class('card-text'), "Press \"help me\" to request a hint to the solution."))
-      ])).
-
-help(Id) -->
     { hint_level(Id, Level),
+      Level > 0,
       item(Id: Item),
       cache(Id, hints(Item, _, Hints)),
-      findall(H, (nth1(Index, Hints, H), Index =< Level), List)
+      append(Hints, ["No more hints available."], NoMore),
+      findall(H, (nth1(I, NoMore, H), I =< Level), List)
     }, 
     html(div(class(card),
-      [ div(class('card-header alert-info'), "Hints"),
+      [ div(class('card-header alert-warning'), "Hints"),
         div(class('card-body'), 
 	        \ul_nonempty("Steps to the solution", List))
       ])).
