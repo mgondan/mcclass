@@ -84,7 +84,7 @@ intermediate(tpaired: paired_tratio_2/6).
 expert(tpaired: minuend, From >> To, Flags, Feed, Hint) :-
     From = paired_tratio_2(D, M_other, S, S_wrong, N, Mu),
     To   = paired_tratio_3(D, M_other, S, S_wrong, N, Mu),
-    Feed = [ "Correctly identified the numerator of the ",
+    Feed = [ "Correctly identified the subtrahend in the numerator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
     Hint = [ "The numerator is ",
              span(class('text-nowrap'), [\mml(Flags, cdots - red(Mu)), "."]) ].
@@ -106,7 +106,7 @@ buggy(tpaired: minuend, From >> To, Flags, Feed, Trap) :-
 expert(tpaired: subtrahend, From >> To, Flags, Feed, Hint) :-
     From = paired_tratio_3(D, _, S, S_wrong, N, Mu),
     To   = paired_tratio_4(D, S, S_wrong, N, Mu),
-    Feed = [ "Correctly identified the numerator of the ",
+    Feed = [ "Correctly identified the minuend in the numerator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
     Hint = [ "The numerator is ",
              span(class('text-nowrap'), [\mml(Flags, red(D) - cdots), "."]) ].
