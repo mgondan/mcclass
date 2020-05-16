@@ -191,7 +191,7 @@ expert(tpaired: groups_t, From >> To, Flags, Feed, Hint) :-
                "the pooled variance"),
     To   = tratio(dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B)))),
     Feed = [ "Correctly applied the expression for the ",
-             \nowrap([\mml(Flags, t), "-ratio"]), " for independent samples."])
+             \nowrap([\mml(Flags, t), "-ratio"]), " for independent samples."
            ],
     Hint = [ "Determine the ", \nowrap([\mml(Flags, t), "-ratio:"]), " ",
              \mml(Flags, dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B))))
