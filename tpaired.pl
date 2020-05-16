@@ -143,7 +143,7 @@ intermediate(tpaired: paired_t/4).
 
 % Use wrong standard deviation
 buggy(tpaired: denominator, From >> To, Flags, Feed, Trap) :-
-    From = paired_tratio_4(D, S_D, S_wrong, N, Mu),
+    From = paired_tratio_3(D, S_D, S_wrong, N, Mu),
     member(S, S_wrong),
     To   = paired_t(D, Mu, instead_of(denominator, S, S_D), N),
     Feed = [ "Please use the standard deviation of the change scores ",
