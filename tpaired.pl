@@ -81,51 +81,49 @@ expert(tpaired: paired_tratio, From >> To, Flags, Feed, Hint) :-
 intermediate(tpaired: paired_tratio_2/6).
 
 % Choose correct numbers for numerator
-expert(tpaired: minuend, From >> To, Flags, Feed, Hint) :-
-    From = paired_tratio_2(D, M_other, S, S_wrong, N, Mu),
-    To   = paired_tratio_3(D, M_other, S, S_wrong, N, Mu),
-    Feed = [ "Correctly identified the subtrahend in the numerator of the ",
+expert(tpaired: numerator, From >> To, Flags, Feed, Hint) :-
+    From = paired_tratio_2(D, _, S, S_wrong, N, Mu),
+    To   = paired_tratio_3(D, S, S_wrong, N, Mu),
+    Feed = [ "Correctly identified the numerator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
     Hint = [ "The numerator is ",
-             span(class('text-nowrap'), [\mml(Flags, cdots - red(Mu)), "."]) ].
+             span(class('text-nowrap'), [\mml(Flags, D - Mu), "."]) ].
 
-intermediate(tpaired: paired_tratio_3/6).
+intermediate(tpaired: paired_tratio_3/5).
 
 % Other solutions
 :- multifile buggy/5.
-buggy(tpaired: minuend, From >> To, Flags, Feed, Trap) :-
+buggy(tpaired: numerator, From >> To, Flags, Feed, Trap) :-
     From = paired_tratio_2(D, M_other, S, S_wrong, N, Mu),
-    member(Min, [Mu | M_other]),
-    To   = paired_tratio_3(instead_of(minuend, Min, D), M_other, S, S_wrong, N, Mu),
+    member(Min, M_other),
+    To   = paired_tratio_3(instead_of(numerator, Min, D), S, S_wrong, N, Mu),
     Feed = [ "Please check the numerator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
     Trap = [ "The numerator is ",
-             span(class('text-nowrap'), [\mml(Flags, color(minuend, D) - cdots), "."]) ].
+             span(class('text-nowrap'), [\mml(Flags, color(numerator, D - Mu)), "."]) ].
 
-% Choose correct numbers for numerator: subtrahend
-expert(tpaired: subtrahend, From >> To, Flags, Feed, Hint) :-
-    From = paired_tratio_3(D, _, S, S_wrong, N, Mu),
-    To   = paired_tratio_4(D, S, S_wrong, N, Mu),
-    Feed = [ "Correctly identified the minuend in the numerator of the ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
-    Hint = [ "The numerator is ",
-             span(class('text-nowrap'), [\mml(Flags, red(D) - cdots), "."]) ].
-
-intermediate(tpaired: paired_tratio_4/5).
-
-% Other solutions
-buggy(tpaired: subtrahend, From >> To, Flags, Feed, Trap) :-
-    From = paired_tratio_3(D, M_other, S, S_wrong, N, Mu),
-    member(Sub, [D | M_other]),
-    To   = paired_tratio_4(instead_of(subtrahend, Sub, Mu), S, S_wrong, N, Mu),
+buggy(tpaired: numerator, From >> To, Flags, Feed, Trap) :-
+    From = paired_tratio_2(D, M_other, S, S_wrong, N, Mu),
+    member(Sub, M_other),
+    To   = paired_tratio_3(D, S, S_wrong, N, instead_of(numerator, Sub, Mu)),
     Feed = [ "Please check the numerator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
     Trap = [ "The numerator is ",
-             span(class('text-nowrap'), [\mml(Flags, cdots - color(subtrahend, Mu)), "."]) ].
+             span(class('text-nowrap'), [\mml(Flags, color(numerator, D - Mu)), "."]) ].                                                                                                                           
+
+buggy(tpaired: numerator, From >> To, Flags, Feed, Trap) :-
+    From = paired_tratio_2(D, M_other, S, S_wrong, N, Mu),
+    select(Min, M_other, Remaining),
+    member(Sub, Remaining),
+    To   = paired_tratio_3(instead_of(numerator, Min, D), S, S_wrong, N, instead_of(numerator, Sub, Mu)),
+    Feed = [ "Please check the numerator of the ",
+             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
+    Trap = [ "The numerator is ",
+             span(class('text-nowrap'), [\mml(Flags, color(numerator, D - Mu)), "."]) ].
 
 % Choose correct numbers for denominator
 expert(tpaired: denominator, From >> To, Flags, Feed, Hint) :-
-    From = paired_tratio_4(D, S_D, _, N, Mu),
+    From = paired_tratio_3(D, S_D, _, N, Mu),
     To   = paired_t(D, Mu, S_D, N),
     Feed = [ "Correctly identified the denominator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
@@ -144,13 +142,13 @@ buggy(tpaired: denominator, From >> To, Flags, Feed, Trap) :-
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio"]),
 	         " instead of ", 
 	         span(class('text-nowrap'), [\mml(Flags, color(denominator, S)), "."])
-	       ],
+           ],
     Trap = [ "Use the standard deviation of the change scores in the ", 
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio "]),
-	         "instead of ", 
-	         span(class('text-nowrap'), 
+	     "instead of ", 
+	     span(class('text-nowrap'), 
 	         [\mml(Flags, list((' ', "or", ' '), S_wrong)), "."]) 
-	       ].
+	   ].
 
 % Choose t-ratio for one-sample t-test
 expert(tpaired: paired_t, From >> To, Flags, Feed, Hint) :-
