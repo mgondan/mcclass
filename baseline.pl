@@ -85,7 +85,7 @@ item(baseline, Response) -->
                 p(class('card-text'),
                   [ "Does the Lidcombe therapy lead to a reduction in stuttered ",
                     "syllables compared to TAU? Please determine ",
-                    "the ", span(class('text-nowrap'), [\mml('F'), "-ratio."])
+                    "the ", \nowrap([\mml('F'), "-ratio."])
 		          ]),
                 \response(Response)
               ]))
@@ -197,8 +197,7 @@ buggy(baseline: interactions, From >> To, Flags, Feed, Trap) :-
     To   = ancova_fffff(Data, Prim, Cov, Strata, Other,
              [add(interactions, Colon) | Int], Exclude, Therapy),
     Feed = [ "The statistical model should not include treatment-by-covariate ",
-             "interactions ",
-             span(class('text-nowrap'), [\mml(Flags, Colon), "."])
+             "interactions ", \nowrap([\mml(Flags, Colon), "."])
            ],
     Trap = [ "The statistical model should not include any ",
 	             "treatment-by-covariate interactions."].
