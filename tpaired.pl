@@ -60,7 +60,7 @@ item(tpaired, Response) -->
               [ "Does rfCBT lead to a relevant reduction (i.e., more than ",
 	            \mml(mu = Mu), " units) in mean HDRS scores between ",
                 "baseline (T0) and End of Treatment (EOT)? Please determine ",
-	            "the ", span(class('text-nowrap'), [\mml(t), "-ratio."])
+	            "the ", \nowrap([\mml(t), "-ratio."])
               ]),
             \response(Response)
 	      ]))
@@ -72,11 +72,11 @@ expert(tpaired: paired_tratio, From >> To, Flags, Feed, Hint) :-
     From = paired_tratio(D, M_wrong, S, S_wrong, N, Mu),
     To   = paired_tratio_2(D, M_wrong, S, S_wrong, N, Mu),
     Feed = [ "Correctly identified the problem as a ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for paired ",
-             "samples." ],
+             \nowrap([\mml(Flags, t), "-test"]), " for paired samples." 
+           ],
     Hint = [ "This is a ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for paired ",
-             "samples." ].
+             \nowrap([\mml(Flags, t), "-test"]), " for paired samples." 
+           ].
 
 intermediate(tpaired: paired_tratio_2/6).
 
@@ -85,9 +85,9 @@ expert(tpaired: numerator, From >> To, Flags, Feed, Hint) :-
     From = paired_tratio_2(D, _, S, S_wrong, N, Mu),
     To   = paired_tratio_3(D, S, S_wrong, N, Mu),
     Feed = [ "Correctly identified the numerator of the ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
-    Hint = [ "The numerator is ",
-             span(class('text-nowrap'), [\mml(Flags, D - Mu), "."]) ].
+             \nowrap([\mml(Flags, t), "-ratio."]) 
+           ],
+    Hint = [ "The numerator is ", \nowrap([\mml(Flags, D - Mu), "."]) ].
 
 intermediate(tpaired: paired_tratio_3/5).
 
@@ -98,37 +98,46 @@ buggy(tpaired: numerator, From >> To, Flags, Feed, Trap) :-
     member(Min, M_other),
     To   = paired_tratio_3(instead_of(numerator, Min, D), S, S_wrong, N, Mu),
     Feed = [ "Please check the numerator of the ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
+             \nowrap([\mml(Flags, t), "-ratio."]) 
+           ],
     Trap = [ "The numerator is ",
-             span(class('text-nowrap'), [\mml(Flags, color(numerator, D - Mu)), "."]) ].
+             \nowrap([\mml(Flags, color(numerator, D - Mu)), "."]) 
+           ].
 
 buggy(tpaired: numerator, From >> To, Flags, Feed, Trap) :-
     From = paired_tratio_2(D, M_other, S, S_wrong, N, Mu),
     member(Sub, M_other),
     To   = paired_tratio_3(D, S, S_wrong, N, instead_of(numerator, Sub, Mu)),
     Feed = [ "Please check the numerator of the ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
+             \nowrap([\mml(Flags, t), "-ratio."]) 
+           ],
     Trap = [ "The numerator is ",
-             span(class('text-nowrap'), [\mml(Flags, color(numerator, D - Mu)), "."]) ].                                                                                                                           
+             \nowrap([\mml(Flags, color(numerator, D - Mu)), "."]) 
+           ].
 
 buggy(tpaired: numerator, From >> To, Flags, Feed, Trap) :-
     From = paired_tratio_2(D, M_other, S, S_wrong, N, Mu),
     select(Min, M_other, Remaining),
     member(Sub, Remaining),
-    To   = paired_tratio_3(instead_of(numerator, Min, D), S, S_wrong, N, instead_of(numerator, Sub, Mu)),
+    To   = paired_tratio_3(instead_of(numerator, Min, D), S, S_wrong, N, 
+               instead_of(numerator, Sub, Mu)),
     Feed = [ "Please check the numerator of the ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
+             \nowrap([\mml(Flags, t), "-ratio."]) 
+           ],
     Trap = [ "The numerator is ",
-             span(class('text-nowrap'), [\mml(Flags, color(numerator, D - Mu)), "."]) ].
+             \nowrap([\mml(Flags, color(numerator, D - Mu)), "."]) 
+           ].
 
 % Choose correct numbers for denominator
 expert(tpaired: denominator, From >> To, Flags, Feed, Hint) :-
     From = paired_tratio_3(D, S_D, _, N, Mu),
     To   = paired_t(D, Mu, S_D, N),
     Feed = [ "Correctly identified the denominator of the ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
+             \nowrap([\mml(Flags, t), "-ratio."]) 
+           ],
     Hint = [ \mml(Flags, S_D), " is used in the denominator of the ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ].
+             \nowrap([\mml(Flags, t), "-ratio."]) 
+           ].
 
 intermediate(tpaired: paired_t/4).
 
@@ -138,27 +147,24 @@ buggy(tpaired: denominator, From >> To, Flags, Feed, Trap) :-
     member(S, S_wrong),
     To   = paired_t(D, Mu, instead_of(denominator, S, S_D), N),
     Feed = [ "Please use the standard deviation of the change scores ",
-             \mml(Flags, S_D), " for the ", 
-             span(class('text-nowrap'), [\mml(Flags, t), "-ratio"]),
-	         " instead of ", 
-	         span(class('text-nowrap'), [\mml(Flags, color(denominator, S)), "."])
+             \mml(Flags, S_D), " for the ", \nowrap([\mml(Flags, t), "-ratio"]),
+	         " instead of ", \nowrap([\mml(Flags, color(denominator, S)), "."])
            ],
     Trap = [ "Use the standard deviation of the change scores in the ", 
-             span(class('text-nowrap'), [\mml(Flags, t), "-ratio "]),
-	     "instead of ", 
-	     span(class('text-nowrap'), 
-	         [\mml(Flags, list((' ', "or", ' '), S_wrong)), "."]) 
-	   ].
+             \nowrap([\mml(Flags, t), "-ratio "]), "instead of ", 
+             \nowrap([\mml(Flags, list((' ', "or", ' '), S_wrong)), "."]) 
+           ].
 
 % Choose t-ratio for one-sample t-test
 expert(tpaired: paired_t, From >> To, Flags, Feed, Hint) :-
     From = paired_t(D, Mu, S, N),
     To   = tratio(dfrac(D - Mu, S / sqrt(N))),
     Feed = [ "Correctly identified the formula for the ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-ratio for paired samples."])],
-    Hint = [ "Determine the ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-ratio"]), " ",
-             \mml(Flags, dfrac(D - Mu, S / sqrt(N))), "."].
+             \nowrap([\mml(Flags, t), "-ratio for paired samples."])
+           ],
+    Hint = [ "Determine the ", \nowrap([\mml(Flags, t), "-ratio"]), " ",
+             \nowrap([\mml(Flags, dfrac(D - Mu, S / sqrt(N))), "."])
+           ].
 
 % Choose t-ratio for two-groups t-test
 buggy(tpaired: groups_t, From >> To, Flags, Feed, Trap) :-
@@ -167,24 +173,27 @@ buggy(tpaired: groups_t, From >> To, Flags, Feed, Trap) :-
     Of   = paired_t(D, Mu, S, N),
     To   = instead_of(groups_t, Inst, Of),
     Feed = [ "The result matches a ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for independent ",
-             "groups. Please use the ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-test"]), " for paired ",
-             "samples instead."],
-    Trap = [ "Do not use the ", span(class('text-nowrap'), [\mml(Flags, t), "-test "]), 
-	         "for independent groups in this problem with paired measurements."].
+             \nowrap([\mml(Flags, t), "-test"]), " for independent groups. ",
+             "Please use the ", \nowrap([\mml(Flags, t), "-test"]), " for ",
+             "paired samples instead."
+           ],
+    Trap = [ "Do not use the ", \nowrap([\mml(Flags, t), "-test "]), " for ", 
+	         "independent groups in this problem with paired measurements."
+           ].
 
 intermediate(tpaired: groups_t/6).
 
 % Expression for two-groups t-test
 expert(tpaired: groups_t, From >> To, Flags, Feed, Hint) :-
     From = groups_t(M_A, S_A, N_A, M_B, S_B, N_B),
-    Pool = denoting(subsup(s, "pool", 2), var_pool(S_A^2, N_A, S_B^2, N_B), "the pooled variance"),
+    Pool = denoting(subsup(s, "pool", 2), 
+               var_pool(S_A^2, N_A, S_B^2, N_B), 
+               "the pooled variance"),
     To   = tratio(dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B)))),
     Feed = [ "Correctly applied the expression for the ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-ratio for independent samples."])],
-    Hint = [ "Determine the ",
-             span(class('text-nowrap'), [\mml(Flags, t), "-ratio"]), " ",
+             \nowrap([\mml(Flags, t), "-ratio"]), " for independent samples."])
+           ],
+    Hint = [ "Determine the ", \nowrap([\mml(Flags, t), "-ratio:"]), " ",
              \mml(Flags, dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B))))
            ].
 
@@ -195,7 +204,7 @@ buggy(tpaired: school, From >> To, Flags, Feed, Trap) :-
     Inst = frac(1, A + B),
     To   = instead_of(school, Inst, From),
     Feed = [ "Please remember school math: ", 
-             \mml(Flags, color(school, color("black", From) \= color("black", Inst)))
+             \mml(Flags, color(school, black(From) \= black(Inst)))
            ],
     Trap = [ "Please remember school math: ",
              \mml(Flags, From = frac(A + B, A*B))
@@ -206,7 +215,7 @@ buggy(tpaired: school, From >> To, Flags, Feed, Trap) :-
     Inst = frac(1, 2*A),
     To   = instead_of(school, Inst, From),
     Feed = [ "Please remember school math: ",
-             \mml(Flags, color(school, color("black", From) \= color("black", Inst)))
+             \mml(Flags, color(school, black(From) \= black(Inst)))
            ],
     Trap = [ "Please remember school math: ",
              \mml(Flags, From = frac(2, A))
@@ -220,7 +229,7 @@ buggy(tpaired: frac_paren, From >> To, Flags, Feed, Trap) :-
 	               right_elsewhere(frac_paren, C / D)) / D)),
     Feed = [ "Please check the parentheses around the numerator and the ",
              "denominator of the fraction ",
-             span(class('text-nowrap'), 
+             \nowrap( 
                [ \mml(Flags, dfrac(color(frac_paren, paren(black(A - B))), 
 	             color(frac_paren, paren(black(C / D))))), "."
                ])
@@ -229,21 +238,28 @@ buggy(tpaired: frac_paren, From >> To, Flags, Feed, Trap) :-
 
 buggy(tpaired: paren_num, From >> To, Flags, Feed, Trap) :-
     From = dfrac(A - B, C / D),
-    To   = left_landed(paren_num, A - dfrac(left_elsewhere(paren_num, A - B), C / D)),
-    Feed = [ "Please check the parentheses around the numerator of the fraction ",
-             span(class('text-nowrap'), 
-               [ \mml(Flags, dfrac(color(paren_num, paren(black(A - B))), C / D)), "."
+    To   = left_landed(paren_num, 
+               A - dfrac(left_elsewhere(paren_num, A - B), C / D)),
+    Feed = [ "Please check the parentheses around the numerator of the ",
+             "fraction ",
+             \nowrap(
+               [ \mml(Flags, 
+                     dfrac(color(paren_num, paren(black(A - B))), C / D)), 
+                 "."
                ])
            ],
     Trap = Feed.
 
 buggy(tpaired: paren_denom, From >> To, Flags, Feed, Trap) :-
     From = dfrac(A - B, C / D),
-    To   = right_landed(paren_denom, dfrac(A - B, right_elsewhere(paren_denom, C / D)) / D),
+    To   = right_landed(paren_denom, 
+               dfrac(A - B, right_elsewhere(paren_denom, C / D)) / D),
     Feed = [ "Please check the parentheses around the denominator of the ",
              "fraction ", 
-             span(class('text-nowrap'), 
-               [ \mml(Flags, dfrac(A - B, color(paren_denom, paren(black(C / D))))), "."
+             \nowrap(
+               [ \mml(Flags, 
+                     dfrac(A - B, color(paren_denom, paren(black(C / D))))), 
+                 "."
                ])
            ],
     Trap = Feed.
@@ -254,9 +270,7 @@ buggy(tpaired: root, From >> To, Flags, Feed, Trap) :-
     Inst = N,
     To   = instead_of(root, Inst, From),
     Feed = [ "Please do not forget the square root around ", 
-             span(class('text-nowrap'), 
-               [ \mml([highlight(all) | Flags], color(root, N)), "."
-               ])
+             \nowrap([\mml([highlight(all) | Flags], color(root, N)), "."])
            ],
     Trap = Feed.
 

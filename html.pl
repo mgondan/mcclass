@@ -1,6 +1,9 @@
 % Some HTML helper functions
 :- use_module(library(dcg/high_order)).
 
+nowrap(L) -->
+    html(span(class('text-nowrap'), L).
+
 table(Head, Body) -->
     html(div(class("container shadow-sm my-3 mx-auto p-3 w-75"),
         table(class("table table-borderless m-auto"), 
