@@ -125,11 +125,11 @@ buggy(tpaired: subtrahend, From >> To, Flags, Feed, Trap) :-
 
 % Choose correct numbers for denominator
 expert(tpaired: denominator, From >> To, Flags, Feed, Hint) :-
-    From = paired_tratio_4(D, S, _, N, Mu),
-    To   = paired_t(D, Mu, S, N),
+    From = paired_tratio_4(D, S_D, _, N, Mu),
+    To   = paired_t(D, Mu, S_D, N),
     Feed = [ "Correctly identified the denominator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ],
-    Hint = [ \mml(Flags, S), " is used in the denominator of the ",
+    Hint = [ \mml(Flags, S_D), " is used in the denominator of the ",
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio."]) ].
 
 intermediate(tpaired: paired_t/4).
@@ -138,12 +138,12 @@ intermediate(tpaired: paired_t/4).
 buggy(tpaired: denominator, From >> To, Flags, Feed, Trap) :-
     From = paired_tratio_4(D, S_D, S_wrong, N, Mu),
     member(S, S_wrong),
-    To   = paired_t(D, Mu, instead_of(sd, S, S_D), N),
+    To   = paired_t(D, Mu, instead_of(denominator, S, S_D), N),
     Feed = [ "Please use the standard deviation of the change scores ",
              \mml(Flags, S_D), " for the ", 
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio"]),
 	         " instead of ", 
-	         span(class('text-nowrap'), [\mml(Flags, color(sd, S)), "."])
+	         span(class('text-nowrap'), [\mml(Flags, color(denominator, S)), "."])
 	       ],
     Trap = [ "Use the standard deviation of the change scores in the ", 
              span(class('text-nowrap'), [\mml(Flags, t), "-ratio "]),
