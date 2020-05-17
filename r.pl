@@ -26,12 +26,12 @@ r_init :-
             return(expr)
         }
 
-	left_elsewhere <- omit_left <- function(err, expr)
+        left_elsewhere <- omit_left <- function(err, expr)
         {
             eval(substitute(expr)[[3]])
         }
 
-	right_elsewhere <- omit_right <- function(err, expr)
+        right_elsewhere <- omit_right <- function(err, expr)
         {
             eval(substitute(expr)[[2]])
         }
@@ -41,20 +41,22 @@ r_init :-
             return(wrong)
         }
 
-	denoting <- function(sym, expr, label)
-	{
-	    return(expr)
-	}
-
-        tratio <- function(t)
+        denoting <- function(sym, expr, label)
         {
-            sprintf(ifelse(abs(t) >= 10, "%.1f", "%.2f"), t)
+	        return(expr)
         }
 
-	fratio <- function(f)
-	{
-	    sprintf(ifelse(abs(f) >= 10, "%.1f", "%.2f"), f)
-	}
+        tratio <- function(t, df)
+        {
+            r = sprintf(ifelse(abs(t) >= 10, "%.1f", "%.2f"), t)
+            d = sprintf("%g", df)
+            sprintf("t(%s) = %s", d, r)
+        }
+
+        fratio <- function(f)
+        {
+            sprintf(ifelse(abs(f) >= 10, "%.1f", "%.2f"), f)
+        }
     |}.
 
 :- discontiguous pl2r/2.

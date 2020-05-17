@@ -158,7 +158,7 @@ buggy(tpaired: denominator, From >> To, Flags, Feed, Trap) :-
 % Choose t-ratio for one-sample t-test
 expert(tpaired: paired_t, From >> To, Flags, Feed, Hint) :-
     From = paired_t(D, Mu, S, N),
-    To   = tratio(dfrac(D - Mu, S / sqrt(N))),
+    To   = tratio(dfrac(D - Mu, S / sqrt(N)), N - 1),
     Feed = [ "Correctly identified the formula for the ",
              \nowrap([\mml(Flags, t), "-ratio for paired samples."])
            ],
@@ -189,7 +189,7 @@ expert(tpaired: groups_t, From >> To, Flags, Feed, Hint) :-
     Pool = denoting(subsup(s, "pool", 2), 
                var_pool(S_A^2, N_A, S_B^2, N_B), 
                "the pooled variance"),
-    To   = tratio(dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B)))),
+    To   = tratio(dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B))), N_A + N_B - 2),
     Feed = [ "Correctly applied the expression for the ",
              \nowrap([\mml(Flags, t), "-ratio"]), " for independent samples."
            ],
