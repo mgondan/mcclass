@@ -84,11 +84,11 @@ item(baseline, Response) -->
               [ h4(class('card-title'), [a(id(question), []), "Question"]),
                 p(class('card-text'),
                   [ "Does the Lidcombe therapy lead to a reduction in stuttered ",
-                    "syllables compared to TAU? Please determine ",
-                    "the ", \nowrap([\mml('F'), "-ratio."])
-		          ]),
-                \response(Response)
-              ]))
+                    "syllables compared to TAU?" ]),
+                \question(question, response, 
+                  [ "Please determine the ", \nowrap([\mml('F'), "-ratio."]) ],
+                  Response)
+		      ]))
       ]).
 
 % Step 1: Recognize as an ANCOVA problem

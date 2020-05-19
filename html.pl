@@ -30,14 +30,17 @@ download(Data) -->
           ], 
 	  "Download data"))).
 
-response(Response) -->
-    html(form([class(form), method('POST'), action('#question')], 
+question(Tag, Code, Question, Response) -->
+    { format(atom(Hash), '#~w', [Tag]) },
+    html(form([class(form), method('POST'), action(Hash)],
+      [ p(class('card-text'), Question),
         div(class("input-group mb-3"),
-          [ div(class("input-group-prepend"), span(class("input-group-text"), "Response:")),
-            input([class("form-control"), type(text), name(response), value(Response)]),
+          [ div(class("input-group-prepend"), span(class("input-group-text"), "Response")),
+            input([class("form-control"), type(text), name(Code), value(Response)]),
             div(class("input-group-append"),
                 button([class('btn btn-primary'), type(submit)], "Submit"))
-          ]))).
+          ])
+      ])).
 
 navigation(Current, List) -->
     html(nav('aria-label'("Page navigation"),

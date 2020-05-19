@@ -59,10 +59,12 @@ item(tpaired, Response) -->
             p(class('card-text'), 
               [ "Does rfCBT lead to a relevant reduction (i.e., more than ",
 	            \mml(mu = Mu), " units) in mean HDRS scores between ",
-                "baseline (T0) and End of Treatment (EOT)? Please determine ",
-	            "the ", \nowrap([\mml(t), "-ratio."])
+                "baseline (T0) and End of Treatment (EOT)?" 
               ]),
-            \response(Response)
+            \question(question, 
+                response, 
+                ["Please determine the ", \nowrap([\mml(t), "-ratio."])], 
+                Response)
 	      ]))
       ]).
 

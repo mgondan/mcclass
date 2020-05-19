@@ -106,7 +106,7 @@ post(Id, Request) :-
 post(Id, Request) :-
     option(response(Response), Request),
     ground(Response),
-    responded(Response),
+    responded(Id, Response),
     page(Id).
 
 % Evaluate response
@@ -120,7 +120,7 @@ post(Id, Request) :-
 
 page(Id) :-
     r_init(tpaired),
-    response(Response),
+    response(Id, Response),
     reply_html_page(
       [ title('McClass'),
         link([rel(stylesheet),
@@ -148,15 +148,15 @@ hint_increase(Id) :-
     H is Hint + 1,
     http_session_asserta(hint(Id, H)).
 
-response(Response) :-
-    http_session_data(response(Response)),
+response(Id, Response) :-
+    http_session_data(response(Id, Response)),
     !.
 
-response('').
+response(_, '').
 
-responded(Response) :-
-    http_session_retractall(response(_)),
-    http_session_assert(response(Response)).
+responded(Id, Response) :-
+    http_session_retractall(response(Id, _)),
+    http_session_assert(response(Id, Response)).
 
 bugs(Id, Bugs) :-
     ground(Bugs),
