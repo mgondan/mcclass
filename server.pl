@@ -35,6 +35,8 @@ cache(Topic) :-
 
 :- consult(tpaired).
 :- cache(tpaired).
+:- consult(confint).
+:- cache(confint).
 :- consult(baseline).
 :- cache(baseline).
 
@@ -45,6 +47,7 @@ http:location(mcclass, root(mcclass), []).
 
 :- http_handler(mcclass('favicon.ico'), http_reply_file('favicon.ico', []), []).
 :- http_handler(mcclass(tpaired), handler(tpaired), []).
+:- http_handler(mcclass(confint), handler(confint), []).
 :- http_handler(mcclass(baseline), handler(baseline), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
@@ -119,7 +122,7 @@ post(Id, Request) :-
     page(Id).
 
 page(Id) :-
-    r_init(tpaired),
+    r_init(Id),
     response(Id, Response),
     reply_html_page(
       [ title('McClass'),
@@ -135,7 +138,7 @@ page(Id) :-
         \feedback(Id, Response),
 	    \wrongs(Id),
 	    \avoid(Id),
-        \navigation(Id, [1-tpaired, 2-baseline])
+        \navigation(Id, [1-tpaired, 2-confint, 3-baseline])
       ]).
 
 hint_level(Id, Hint) :-

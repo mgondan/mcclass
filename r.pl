@@ -57,6 +57,12 @@ r_init :-
         {
             sprintf(ifelse(abs(f) >= 10, "%.1f", "%.2f"), f)
         }
+
+        confint <- function(ci, digits=2)
+        {
+            mask = sprintf("%%.%if to %%.%if", digits, digits)
+            sprintf(mask, ci[1], ci[2])
+        }
     |}.
 
 :- discontiguous pl2r/2.

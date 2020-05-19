@@ -285,6 +285,7 @@ buggy(tpaired: mu, From >> To, Flags, Feed, Trap) :-
            ],
     Trap = Feed.
 
+:- multifile r_init/1.
 r_init(tpaired) :-
     r_init,
     {|r||
