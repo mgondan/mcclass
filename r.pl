@@ -63,6 +63,11 @@ r_init :-
             mask = sprintf("%%.%if to %%.%if", digits, digits)
             sprintf(mask, ci[1], ci[2])
         }
+
+        pm <- function(a, b)
+        {
+            c(a - b, a + b)
+        }
     |}.
 
 :- discontiguous pl2r/2.

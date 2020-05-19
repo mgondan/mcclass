@@ -82,6 +82,27 @@ expert(confint: paired_confint, From >> To, Flags, Feed, Hint) :-
              \nowrap([\mml(Flags, t), "-test"]), " for paired samples." 
            ].
 
+intermediate(confint: paired_ci/4).
+
+expert(confint: paired_ci, From >> To, Flags, Feed, Hint) :-
+    From = paired_ci(D, S, N, Alpha),
+    To   = pm(D, qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N))),
+    Feed = "Correctly applied the expression for the confidence interval.",
+    Hint = [ "The confidence interval is within ", 
+             \nowrap([\mml(Flags, pm(D, qt(1 - Alpha/2, N-1) * frac(S, sqrt(N)))), "."])
+           ].
+
+buggy(confint: 'Lulu', From >> To, Flags, Feed, Trap) :-
+    From = paired_ci(D, S, N, Alpha),
+    To   = pm(D, omit_left('Lulu', qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N)))),
+    Feed = "You determined the 68% confidence interval instead of the one for 95% ('Mir ist noch was aufgefallen...')",
+    Trap = [ "Please do not forget to multiply the standard error with the ",
+             \nowrap([\mml(Flags, 1 - Alpha), "-quantile"]), " of the ", 
+             \nowrap([\mml(Flags, 'T'), "-distribution:"]), " ", 
+             \nowrap([\mml(Flags, pm(D, color('Lulu', qt(1 - Alpha/2, N-1)) * frac(S, sqrt(N)))), "."])
+           ].
+
+
 :- multifile r_init/1.
 r_init(confint) :-
     r_init,
@@ -93,7 +114,7 @@ r_init(confint) :-
 
         paired_ci <- function(d, s, n, alpha)
         {
-            d + qt(c(alpha/2, 1-alpha/2), df=n-1) * s / sqrt(n)
+            pm(d, qt(1-alpha/2, df=n-1) * s / sqrt(n))
         }
 
         var_pool <- function(var_A, n_A, var_B, n_B)
