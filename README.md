@@ -1,7 +1,7 @@
 # McClass
 MisConception-aware Competence Learning and Assessment Smart System
 
-If you wish, try it at https://classking.vps.webdock.io/mcclass
+If you wish, try it at https://mcclass.vps.webdock.io/mcclass
 
 ## Step 1: install R
 Install a current version of R from www.r-project.org. 
