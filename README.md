@@ -8,7 +8,7 @@ Install a current version of R from www.r-project.org.
 
 Invoke R, and then
 
-* install.packages("Rserve")
+* install.packages("Rserve",,"http://rforge.net/",type="source")
 * library(Rserve)
 * Rserve()
 
