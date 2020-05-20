@@ -92,17 +92,26 @@ expert(confint: paired_ci, From >> To, Flags, Feed, Hint) :-
              \nowrap([\mml(Flags, pm(D, qt(1 - Alpha/2, N-1) * frac(S, sqrt(N)))), "."])
            ].
 
-buggy(confint: 'Lulu', From >> To, Flags, Feed, Trap) :-
-    From = paired_ci(D, S, N, Alpha),
-    To   = pm(D, omit_left('Lulu', qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N)))),
-    Feed = "You determined the 68% confidence interval instead of the one for 95% ('Mir ist noch was aufgefallen...')",
+buggy(confint: lulu, From >> To, Flags, Feed, Trap) :-
+    From = pm(D, qt(1 - Alpha/2, N-1) * SE),
+    To   = pm(D, omit_left(lulu, qt(1 - Alpha/2, N-1) * SE)),
+    Feed = Trap,
     Trap = [ "Please do not forget to multiply the standard error with the ",
              \nowrap([\mml(Flags, 1 - Alpha), "-quantile"]), " of the ", 
              \nowrap([\mml(Flags, 'T'), "-distribution:"]), " ", 
-             \nowrap([\mml(Flags, pm(D, color('Lulu', qt(1 - Alpha/2, N-1)) * frac(S, sqrt(N)))), "."])
+             \nowrap([\mml(Flags, pm(D, color(lulu, qt(1 - Alpha/2, N-1)) * SE)), "."])
            ].
 
-
+buggy(confint: se, From >> To, Flags, Feed, Trap) :-
+    From = pm(D, qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N))),
+    To   = pm(D, qt(1 - Alpha/2, N-1) * instead_of(se, S, dfrac(S, sqrt(N)))),
+    Feed = [ "The standard deviation ", \mml(Flags, S), " was used instead of ",
+             "the standard error ", \nowrap([\mml(Flags, frac(S, sqrt(N))), "."])
+           ],
+    Trap = [ "Please do not forget to divide the standard deviation by the square root of ",
+             \nowrap([\mml(Flags, N), "."])
+           ].
+ 
 :- multifile r_init/1.
 r_init(confint) :-
     r_init,
