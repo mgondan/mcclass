@@ -73,13 +73,25 @@ item(confint, Response) -->
 % Correctly identify as a paired t-test
 :- multifile expert/5.
 expert(confint: paired_confint, From >> To, Flags, Feed, Hint) :-
-    From = paired_confint(D, _M_wrong, S, _S_wrong, N, _Mu, Alpha),
-    To   = confint(paired_ci(D, S, N, Alpha), digits=1),
+    From = paired_confint(D, M_wrong, S, S_wrong, N, Mu, Alpha),
+    To   = paired_confint_2(D, M_wrong, S, S_wrong, N, Mu, Alpha),
     Feed = [ "Correctly identified the problem as a ",
              \nowrap([\mml(Flags, t), "-test"]), " for paired samples." 
            ],
     Hint = [ "This is a ",
              \nowrap([\mml(Flags, t), "-test"]), " for paired samples." 
+           ].
+
+intermediate(confint: paired_confint_2/7).
+
+% Used the correct center of the interval
+expert(confint: ci_center, From >> To, Flags, Feed, Hint) :-
+    From = paired_confint_2(D, _M_wrong, S, _S_wrong, N, _Mu, Alpha),
+    To   = confint(paired_ci(D, S, N, Alpha), digits=1),
+    Feed = [ "Correctly spanned the confidence interval around ",
+             \nowrap([\mml(Flags, D), "."])
+           ],
+    Hint = [ \mml(Flags, D), " is the center of the confidence interval." 
            ].
 
 intermediate(confint: paired_ci/4).
