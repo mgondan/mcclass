@@ -148,9 +148,10 @@ buggy(confint: lulu, From >> To, Flags, Feed, Trap) :-
 
 buggy(confint: ten_alpha, From >> To, Flags, Feed, Trap) :-
     From = paired_ci(D, S, N, Alpha),
-    To   = pm(D, qt(1 - left_landed(ten_alpha, 10*Alpha)/2, N-1) * dfrac(S, sqrt(N))),
-    _10alpha <- 10*alpha,
-    OneMinus10alpha <- 1-10*alpha,
+    member(F, [0.1, 10]),
+    To   = pm(D, qt(1 - left_landed(ten_alpha, F*Alpha)/2, N-1) * dfrac(S, sqrt(N))),
+    _10alpha <- F*alpha,
+    OneMinus10alpha <- 1-F*alpha,
     Feed = [ "The result matches the ", \mml(Flags, '100%'(OneMinus10alpha)), 
              " confidence interval (i.e., ", 
              \nowrap([\mml(Flags, Alpha = '100%'(_10alpha)), ")."]), " Please ",
