@@ -53,6 +53,7 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
 handler(Id, Request) :-
+    r_init(Id),
     buggies(Id, Codes_Feedback),
     findall(Code, (member(Bug-_, Codes_Feedback), Code =.. [Bug, _, [default(off)]]), Codes),
     member(method(post), Request),

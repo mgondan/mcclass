@@ -94,7 +94,7 @@ expert(confint: ci_center, From >> To, Flags, Feed, Hint) :-
 
 intermediate(confint: paired_confint_3/5).
 
-% Used the correct center of the interval
+% Interval around mean T0 or mean EOT (same for SD)
 buggy(confint: ci_center, From >> To, Flags, Feed, Trap) :-
     From = paired_confint_2(D, M_wrong, S, S_wrong, N, Mu, Alpha),
     nth1(Index, M_wrong, M_W),
@@ -137,13 +137,28 @@ expert(confint: paired_ci, From >> To, Flags, Feed, Hint) :-
            ].
 
 buggy(confint: lulu, From >> To, Flags, Feed, Trap) :-
-    From = pm(D, qt(1 - Alpha/2, N-1) * SE),
-    To   = pm(D, omit_left(lulu, qt(1 - Alpha/2, N-1) * SE)),
+    From = paired_ci(D, S, N, Alpha),
+    To   = pm(D, omit_left(lulu, qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N)))),
     Feed = Trap,
     Trap = [ "Please do not forget to multiply the standard error with the ",
              \nowrap([\mml(Flags, 1 - Alpha), "-quantile"]), " of the ", 
              \nowrap([\mml(Flags, 'T'), "-distribution:"]), " ", 
-             \nowrap([\mml(Flags, pm(D, color(lulu, qt(1 - Alpha/2, N-1)) * SE)), "."])
+             \nowrap([\mml(Flags, pm(D, color(lulu, qt(1 - Alpha/2, N-1)) * frac(S, sqrt(N)))), "."])
+           ].
+
+buggy(confint: ten_alpha, From >> To, Flags, Feed, Trap) :-
+    From = paired_ci(D, S, N, Alpha),
+    To   = pm(D, qt(1 - left_landed(ten_alpha, 10*Alpha)/2, N-1) * dfrac(S, sqrt(N))),
+    _10alpha <- 10*alpha,
+    OneMinus10alpha <- 1-10*alpha,
+    Feed = [ "The result matches the ", \mml(Flags, '100%'(OneMinus10alpha)), 
+             " confidence interval (i.e., ", 
+             \nowrap([\mml(Flags, Alpha = '100%'(_10alpha)), ")."]), " Please ",
+             "check the quantile of the ", 
+             \nowrap([\mml(Flags, t), "-distribution"]), " in your ",
+             "calculations."],
+    Trap = [ "Insert the correct ", \nowrap([\mml(Flags, t), "-quantile"]), 
+             " in to the expression for the confidence interval."
            ].
 
 buggy(confint: se, From >> To, Flags, Feed, Trap) :-
