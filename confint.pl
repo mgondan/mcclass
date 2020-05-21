@@ -91,11 +91,22 @@ expert(confint: ci_center, From >> To, Flags, Feed, Hint) :-
     Feed = [ "Correctly spanned the confidence interval around ",
              \nowrap([\mml(Flags, D), "."])
            ],
-    Hint = [ \mml(Flags, D), " is the center of the confidence interval." 
-           ].
+    Hint = [ \mml(Flags, D), " is the center of the confidence interval." ].
 
 intermediate(confint: paired_ci/4).
 
+% Used the correct center of the interval
+buggy(confint: ci_center, From >> To, Flags, Feed, Trap) :-
+    From = paired_confint_2(D, M_wrong, S, S_wrong, N, _Mu, Alpha),
+    nth1(Index, M_wrong, M_W),
+    nth1(Index, S_wrong, S_W),
+    To   = confint(paired_ci(instead_of(ci_center, M_W, D), instead_of(ci_center, S_W, S), N, Alpha), digits=1),
+    Feed = [ "The confidence interval is based on ", \mml(Flags, D), " and ", 
+             \nowrap([\mml(Flags, S), ","]), " not ", \mml(Flags, M_W), " and ",
+	     \nowrap([\mml(Flags, S_W), "."])
+           ],
+    Trap = [ \mml(Flags, D), " is the center of the confidence interval." ].
+                                                    
 expert(confint: paired_ci, From >> To, Flags, Feed, Hint) :-
     From = paired_ci(D, S, N, Alpha),
     To   = pm(D, qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N))),
