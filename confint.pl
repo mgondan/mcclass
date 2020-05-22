@@ -116,19 +116,20 @@ buggy(confint: ci_center, From >> To, Flags, Feed, Trap) :-
 % Ignore mu
 expert(confint: ci_mu, From >> To, Flags, Feed, Hint) :-
     From = paired_confint_3(D, S, N, Mu, Alpha),
-    To   = confint(paired_ci(D, S, N, Alpha), digits=1),
+    To   = confint(paired_ci(D, S, N, Mu, Alpha), digits=1),
     Feed = "Correctly ignored the null hypothesis in the confidence interval.",
     Hint = [ "The null hypothesis ", \mml(Flags, Mu), " is not used for the ",
              "confidence interval for ", \nowrap([\mml(Flags, D), "."])
            ].
 
-intermediate(confint: paired_ci/4).
+intermediate(confint: paired_ci/5).
 
 % Bug: subtract mu
 buggy(confint: ci_mu, From >> To, Flags, Feed, Trap) :-
     From = paired_confint_3(D, S, N, Mu, Alpha),
     To   = confint(
-               paired_ci(right_landed(ci_mu, D - Mu), S, N, Alpha), digits=1),
+               paired_ci(right_landed(ci_mu, D - Mu), S, N, Mu, Alpha), 
+               digits=1),
     Feed = [ "Do not subtract the null hypothesis ", \mml(Flags, Mu), " in ",
              "the confidence interval for ", \nowrap([\mml(Flags, D), "."]) 
            ],
@@ -137,29 +138,29 @@ buggy(confint: ci_mu, From >> To, Flags, Feed, Trap) :-
            ].
 
 expert(confint: paired_ci, From >> To, Flags, Feed, Hint) :-
-    From = paired_ci(D, S, N, Alpha),
+    From = paired_ci(D, S, N, _Mu, Alpha),
     To   = pm(D, qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N))),
     Feed = "Correctly applied the expression for the confidence interval.",
     Hint = [ "The confidence interval is within ", 
              \nowrap([
 	         \mml(Flags, pm(D, qt(1 - Alpha/2, N-1) * frac(S, sqrt(N)))), 
-		 "."])
+             "."])
            ].
 
 buggy(confint: lulu, From >> To, Flags, Feed, Trap) :-
-    From = paired_ci(D, S, N, Alpha),
+    From = paired_ci(D, S, N, _Mu, Alpha),
     To   = pm(D, omit_left(lulu, qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N)))),
     Feed = Trap,
     Trap = [ "Please do not forget to multiply the standard error with ",
              "the ", \nowrap([\mml(Flags, 1 - Alpha), "-quantile"]), " of ",
-	     "the ", \nowrap([\mml(Flags, 'T'), "-distribution:"]), " ", 
+             "the ", \nowrap([\mml(Flags, 'T'), "-distribution:"]), " ", 
              \nowrap([
 	         \mml(Flags, pm(D, color(lulu, qt(1 - Alpha/2, N-1)) 
-		     * frac(S, sqrt(N)))), "."])
+		         * frac(S, sqrt(N)))), "."])
            ].
 
 buggy(confint: ten_alpha, From >> To, Flags, Feed, Trap) :-
-    From = paired_ci(D, S, N, Alpha),
+    From = paired_ci(D, S, N, _Mu, Alpha),
     member(F, [0.1, 10]),
     To   = pm(D, qt(1 - left_landed(ten_alpha, F*Alpha)/2, N-1) 
                * dfrac(S, sqrt(N))),
@@ -167,19 +168,19 @@ buggy(confint: ten_alpha, From >> To, Flags, Feed, Trap) :-
     OneMinus10alpha <- 1-F*alpha,
     Feed = [ "The result matches ",
              "the ", \mml(Flags, '100%'(OneMinus10alpha)), " confidence ",
-	     "interval ",
-	     "(i.e., ", \nowrap([\mml(Flags, Alpha = '100%'(_10alpha)), ")."]),
-	     " Please check the quantile of ",
-	     "the ", \nowrap([\mml(Flags, t), "-distribution"]), " in your ",
+             "interval ",
+             "(i.e., ", \nowrap([\mml(Flags, Alpha = '100%'(_10alpha)), ")."]),
+             " Please check the quantile of ",
+             "the ", \nowrap([\mml(Flags, t), "-distribution"]), " in your ",
              "calculations."
-	   ],
+           ],
     Trap = [ "Insert the ",
              "correct ", \nowrap([\mml(Flags, t), "-quantile"]), " into the ",
-	     "expression for the confidence interval."
+             "expression for the confidence interval."
            ].
 
 buggy(confint: onetail, From >> To, Flags, Feed, Trap) :-
-    From = paired_ci(D, S, N, Alpha),
+    From = paired_ci(D, S, N, _Mu, Alpha),
     To   = pm(D, qt(1 - omit_right(onetail, Alpha/2), N-1) * dfrac(S, sqrt(N))),
     _2alpha <- 2*alpha,
     OneMinus2alpha <- 1 - 2*alpha,
@@ -188,18 +189,33 @@ buggy(confint: onetail, From >> To, Flags, Feed, Trap) :-
              "interval. Please check if you used the correct quantile of ",
              "the ", \nowrap([\mml(Flags, t), "-distribution"]), " for ",
              "the ", i("two-sided"), " confidence interval."
-	   ],
+           ],
     Trap = [ "Do not use the ",
              "one-sided ", \nowrap([\mml(Flags, t), "-quantile"]), " in the ",
-	     "expression for the confidence interval."
-	   ].
+             "expression for the confidence interval."
+           ].
+
+buggy(confint: tstat, From >> To, Flags, Feed, Trap) :-
+    From = paired_ci(D, S, N, Mu, Alpha),
+    T    = denoting('T', frac(D - Mu, S / sqrt(N)), "the observed t-statistic"),
+    To   = pm(D, instead_of(tstat, T, qt(1 - Alpha/2, N-1)) * dfrac(S, sqrt(N))),
+    Feed = [ "The result suggests that the ",
+             "observed ", \nowrap([\mml(Flags, t), "-statistic"]), " was used ",
+             "for the width of the confidence interval. Please check if you ",
+             "used the correct quantile of ",
+             "the ", \nowrap([\mml(Flags, t), "-distribution."])
+           ],
+    Trap = [ "Do not use the ",
+             "observed ", \nowrap([\mml(Flags, t), "-statistic"]), " in the ",
+             "expression for the confidence interval."
+           ].
 
 buggy(confint: se, From >> To, Flags, Feed, Trap) :-
     From = pm(D, qt(1 - Alpha, N-1) * dfrac(S, sqrt(N))),
     To   = pm(D, qt(1 - Alpha, N-1) * instead_of(se, S, dfrac(S, sqrt(N)))),
     Feed = [ "The standard deviation ", \mml(Flags, S), " was used instead of ",
              "the standard ",
-	     "error ", \nowrap([\mml(Flags, frac(S, sqrt(N))), "."])
+             "error ", \nowrap([\mml(Flags, frac(S, sqrt(N))), "."])
            ],
     Trap = [ "Please do not forget to divide the standard deviation by the ",
              "square root of ", \nowrap([\mml(Flags, N), "."])
@@ -223,7 +239,7 @@ r_init(confint) :-
             dfrac(d - mu, s / sqrt(n))
         }
 
-        paired_ci <- function(d, s, n, alpha)
+        paired_ci <- function(d, s, n, mu, alpha)
         {
             pm(d, qt(1-alpha/2, df=n-1) * s / sqrt(n))
         }
