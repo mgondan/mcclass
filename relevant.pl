@@ -22,6 +22,12 @@
 % Apply rule to term
 %
 % Some special compounds
+step(Rule, Code, protect(A) >> To, Request) :-
+    !,
+    Rule = expert,
+    step(Rule, Code, A >> B, Request),
+    To = protect(B).
+
 step(Rule, Code, instead_of(Err, Instead, Of) >> To, Request) :-
     !,
     step(Rule, Code, instead_of(Err, Instead, Instead, Of, Of) >> To, Request).

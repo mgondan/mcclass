@@ -68,6 +68,8 @@ r_init :-
         {
             c(a - b, a + b)
         }
+
+        protect <- identity
     |}.
 
 :- discontiguous pl2r/2.

@@ -78,7 +78,8 @@ item(confint, Response) -->
 :- multifile expert/5.
 expert(confint: paired_confint, From >> To, Flags, Feed, Hint) :-
     From = paired_confint(D, M_wrong, S, S_wrong, N, Mu, Alpha),
-    To   = paired_confint_2(D, M_wrong, S, S_wrong, N, Mu, Alpha),
+    To   = paired_confint_2(D, M_wrong, S, S_wrong, N, Mu, Alpha, T),
+    T    = protect(denoting('T', dfrac(D - Mu, S / sqrt(N)), "the observed t-statistic")),
     Feed = [ "Correctly identified the problem as ",
              "a ", \nowrap([\mml(Flags, t), "-test"]), " for paired samples." 
            ],
@@ -86,26 +87,26 @@ expert(confint: paired_confint, From >> To, Flags, Feed, Hint) :-
              "samples." 
            ].
 
-intermediate(confint: paired_confint_2/7).
+intermediate(confint: paired_confint_2/8).
 
 % Used the correct center of the interval
 expert(confint: ci_center, From >> To, Flags, Feed, Hint) :-
-    From = paired_confint_2(D, _M_wrong, S, _S_wrong, N, Mu, Alpha),
-    To   = paired_confint_3(D, S, N, Mu, Alpha),
+    From = paired_confint_2(D, _M_wrong, S, _S_wrong, N, Mu, Alpha, T),
+    To   = paired_confint_3(D, S, N, Mu, Alpha, T),
     Feed = [ "Correctly spanned the confidence interval ",
              "around ", \nowrap([\mml(Flags, D), "."])
            ],
     Hint = [ \mml(Flags, D), " is the center of the confidence interval." ].
 
-intermediate(confint: paired_confint_3/5).
+intermediate(confint: paired_confint_3/6).
 
 % Interval around mean T0 or mean EOT (same for SD)
 buggy(confint: ci_center, From >> To, Flags, Feed, Trap) :-
-    From = paired_confint_2(D, M_wrong, S, S_wrong, N, Mu, Alpha),
+    From = paired_confint_2(D, M_wrong, S, S_wrong, N, Mu, Alpha, T),
     nth1(Index, M_wrong, M_W),
     nth1(Index, S_wrong, S_W),
     To   = paired_confint_3(instead_of(ci_center, M_W, D), 
-	       instead_of(ci_center, S_W, S), N, Mu, Alpha),
+	       instead_of(ci_center, S_W, S), N, Mu, Alpha, T),
     Feed = [ "The confidence interval is based ",
              "on ", \mml(Flags, D), " ",
 	     "and ", \nowrap([\mml(Flags, S), ","]), " but not ",
@@ -115,20 +116,20 @@ buggy(confint: ci_center, From >> To, Flags, Feed, Trap) :-
 
 % Ignore mu
 expert(confint: ci_mu, From >> To, Flags, Feed, Hint) :-
-    From = paired_confint_3(D, S, N, Mu, Alpha),
-    To   = confint(paired_ci(D, S, N, Mu, Alpha), digits=1),
+    From = paired_confint_3(D, S, N, Mu, Alpha, T),
+    To   = confint(paired_ci(D, S, N, Mu, Alpha, T), digits=1),
     Feed = "Correctly ignored the null hypothesis in the confidence interval.",
     Hint = [ "The null hypothesis ", \mml(Flags, Mu), " is not used for the ",
              "confidence interval for ", \nowrap([\mml(Flags, D), "."])
            ].
 
-intermediate(confint: paired_ci/5).
+intermediate(confint: paired_ci/6).
 
 % Bug: subtract mu
 buggy(confint: ci_mu, From >> To, Flags, Feed, Trap) :-
-    From = paired_confint_3(D, S, N, Mu, Alpha),
+    From = paired_confint_3(D, S, N, Mu, Alpha, T),
     To   = confint(
-               paired_ci(right_landed(ci_mu, D - Mu), S, N, Mu, Alpha), 
+               paired_ci(right_landed(ci_mu, D - Mu), S, N, Mu, Alpha, T), 
                digits=1),
     Feed = [ "Do not subtract the null hypothesis ", \mml(Flags, Mu), " in ",
              "the confidence interval for ", \nowrap([\mml(Flags, D), "."]) 
@@ -138,7 +139,7 @@ buggy(confint: ci_mu, From >> To, Flags, Feed, Trap) :-
            ].
 
 expert(confint: paired_ci, From >> To, Flags, Feed, Hint) :-
-    From = paired_ci(D, S, N, _Mu, Alpha),
+    From = paired_ci(D, S, N, _Mu, Alpha, _T),
     To   = pm(D, qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N))),
     Feed = "Correctly applied the expression for the confidence interval.",
     Hint = [ "The confidence interval is within ", 
@@ -148,7 +149,7 @@ expert(confint: paired_ci, From >> To, Flags, Feed, Hint) :-
            ].
 
 buggy(confint: lulu, From >> To, Flags, Feed, Trap) :-
-    From = paired_ci(D, S, N, _Mu, Alpha),
+    From = paired_ci(D, S, N, _Mu, Alpha, _T),
     To   = pm(D, omit_left(lulu, qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N)))),
     Feed = Trap,
     Trap = [ "Please do not forget to multiply the standard error with ",
@@ -160,7 +161,7 @@ buggy(confint: lulu, From >> To, Flags, Feed, Trap) :-
            ].
 
 buggy(confint: ten_alpha, From >> To, Flags, Feed, Trap) :-
-    From = paired_ci(D, S, N, _Mu, Alpha),
+    From = paired_ci(D, S, N, _Mu, Alpha, _T),
     member(F, [0.1, 10]),
     To   = pm(D, qt(1 - left_landed(ten_alpha, F*Alpha)/2, N-1) 
                * dfrac(S, sqrt(N))),
@@ -180,7 +181,7 @@ buggy(confint: ten_alpha, From >> To, Flags, Feed, Trap) :-
            ].
 
 buggy(confint: onetail, From >> To, Flags, Feed, Trap) :-
-    From = paired_ci(D, S, N, _Mu, Alpha),
+    From = paired_ci(D, S, N, _Mu, Alpha, _T),
     To   = pm(D, qt(1 - omit_right(onetail, Alpha/2), N-1) * dfrac(S, sqrt(N))),
     _2alpha <- 2*alpha,
     OneMinus2alpha <- 1 - 2*alpha,
@@ -196,8 +197,7 @@ buggy(confint: onetail, From >> To, Flags, Feed, Trap) :-
            ].
 
 buggy(confint: tstat, From >> To, Flags, Feed, Trap) :-
-    From = paired_ci(D, S, N, Mu, Alpha),
-    T    = denoting('T', frac(D - Mu, S / sqrt(N)), "the observed t-statistic"),
+    From = paired_ci(D, S, N, _Mu, Alpha, T),
     To   = pm(D, instead_of(tstat, T, qt(1 - Alpha/2, N-1)) * dfrac(S, sqrt(N))),
     Feed = [ "The result suggests that the ",
              "observed ", \nowrap([\mml(Flags, t), "-statistic"]), " was used ",
@@ -239,7 +239,7 @@ r_init(confint) :-
             dfrac(d - mu, s / sqrt(n))
         }
 
-        paired_ci <- function(d, s, n, mu, alpha)
+        paired_ci <- function(d, s, n, mu, alpha, t)
         {
             pm(d, qt(1-alpha/2, df=n-1) * s / sqrt(n))
         }
