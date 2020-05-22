@@ -19,7 +19,8 @@ mathml:math_hook(Flags, s_EOT, Flags, sub(s, "EOT")).
 % Paired t-test, confidence interval
 %
 :- multifile item/1.
-item(confint: paired_confint(m_D, [m_T0, m_EOT], s_D, [s_T0, s_EOT], 'N', mu, alpha)).
+item(confint: 
+    paired_confint(m_D, [m_T0, m_EOT], s_D, [s_T0, s_EOT], 'N', mu, alpha)).
 
 :- multifile intermediate/1.
 intermediate(confint: paired_confint/7).
@@ -46,27 +47,31 @@ item(confint, Response) -->
           [ h1(class('card-title'), "Phase II clinical study"),
             p(class('card-text'), 
             [ "Consider a clinical study on rumination-focused Cognitive ", 
-              "Behavioral Therapy (rfCBT) with ", \mml('N' = round0(N)), 
-              " patients. The primary outcome is the score on the ",
-              "Hamilton Rating Scale for Depression (HDRS, range from ",
-              "best = 0 to worst = 42). The significance level is set to ", 
-              \mml(alpha = round('100%'(Alpha))), " ", \mml(Tails), "."
-	        ]),
+              "Behavioral Therapy (rfCBT) ",
+	      "with ", \mml('N' = round0(N)), " patients. The primary outcome ",
+	      "is the score on the Hamilton Rating Scale for ",
+	      "Depression (HDRS, range from best = 0 to worst = 42). The ",
+	      "significance level is set ",
+	      "to ", \mml(alpha = round('100%'(Alpha))), 
+	      " ", \nowrap([\mml(Tails), "."])
+	    ]),
             \table(H, [R1, R2])
 	        % \download(confint)
-	      ])),
+	  ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'), 
-              [ "Does rfCBT lead to a relevant reduction (i.e., more than ",
-	            \mml(mu = Mu), " units) in mean HDRS scores between ",
-                "baseline (T0) and End of Treatment (EOT)?" 
+              [ "Does rfCBT lead to a relevant ",
+	        "reduction (i.e., more than ", \mml(mu = Mu), " units) in ",
+		"mean HDRS scores between baseline (T0) ",
+		"and End of Treatment (EOT)?" 
               ]),
             \question(question, response, 
-                [ "Please determine the ", \mml(round('100%'(OneMinusAlpha))), 
-                  " confidence interval for the reduction in HDRS." 
+                [ "Please determine ",
+		  "the ", \mml(round('100%'(OneMinusAlpha))), " confidence ",
+		  "interval for the reduction in HDRS." 
                 ], Response)
-	      ]))
+	  ]))
       ]).
 
 % Correctly identify as a paired t-test
@@ -74,11 +79,11 @@ item(confint, Response) -->
 expert(confint: paired_confint, From >> To, Flags, Feed, Hint) :-
     From = paired_confint(D, M_wrong, S, S_wrong, N, Mu, Alpha),
     To   = paired_confint_2(D, M_wrong, S, S_wrong, N, Mu, Alpha),
-    Feed = [ "Correctly identified the problem as a ",
-             \nowrap([\mml(Flags, t), "-test"]), " for paired samples." 
+    Feed = [ "Correctly identified the problem as ",
+             "a ", \nowrap([\mml(Flags, t), "-test"]), " for paired samples." 
            ],
-    Hint = [ "This is a ",
-             \nowrap([\mml(Flags, t), "-test"]), " for paired samples." 
+    Hint = [ "This is a ", \nowrap([\mml(Flags, t), "-test"]), " for paired ",
+             "samples." 
            ].
 
 intermediate(confint: paired_confint_2/7).
@@ -87,8 +92,8 @@ intermediate(confint: paired_confint_2/7).
 expert(confint: ci_center, From >> To, Flags, Feed, Hint) :-
     From = paired_confint_2(D, _M_wrong, S, _S_wrong, N, Mu, Alpha),
     To   = paired_confint_3(D, S, N, Mu, Alpha),
-    Feed = [ "Correctly spanned the confidence interval around ",
-             \nowrap([\mml(Flags, D), "."])
+    Feed = [ "Correctly spanned the confidence interval ",
+             "around ", \nowrap([\mml(Flags, D), "."])
            ],
     Hint = [ \mml(Flags, D), " is the center of the confidence interval." ].
 
@@ -99,10 +104,12 @@ buggy(confint: ci_center, From >> To, Flags, Feed, Trap) :-
     From = paired_confint_2(D, M_wrong, S, S_wrong, N, Mu, Alpha),
     nth1(Index, M_wrong, M_W),
     nth1(Index, S_wrong, S_W),
-    To   = paired_confint_3(instead_of(ci_center, M_W, D), instead_of(ci_center, S_W, S), N, Mu, Alpha),
-    Feed = [ "The confidence interval is based on ", \mml(Flags, D), " and ", 
-             \nowrap([\mml(Flags, S), ","]), " not ", \mml(Flags, M_W), " and ",
-	     \nowrap([\mml(Flags, S_W), "."])
+    To   = paired_confint_3(instead_of(ci_center, M_W, D), 
+	       instead_of(ci_center, S_W, S), N, Mu, Alpha),
+    Feed = [ "The confidence interval is based ",
+             "on ", \mml(Flags, D), " ",
+	     "and ", \nowrap([\mml(Flags, S), ","]), " but not ",
+	     "on ", \mml(Flags, M_W), " and ", \nowrap([\mml(Flags, S_W), "."])
            ],
     Trap = [ \mml(Flags, D), " is the center of the confidence interval." ].
 
@@ -110,9 +117,9 @@ buggy(confint: ci_center, From >> To, Flags, Feed, Trap) :-
 expert(confint: ci_mu, From >> To, Flags, Feed, Hint) :-
     From = paired_confint_3(D, S, N, Mu, Alpha),
     To   = confint(paired_ci(D, S, N, Alpha), digits=1),
-    Feed = [ "Correctly ignored the null hypothesis in the confidence interval." ],
+    Feed = "Correctly ignored the null hypothesis in the confidence interval.",
     Hint = [ "The null hypothesis ", \mml(Flags, Mu), " is not used for the ",
-             "confidence interval."
+             "confidence interval for ", \nowrap([\mml(Flags, D), "."])
            ].
 
 intermediate(confint: paired_ci/4).
@@ -120,12 +127,13 @@ intermediate(confint: paired_ci/4).
 % Bug: subtract mu
 buggy(confint: ci_mu, From >> To, Flags, Feed, Trap) :-
     From = paired_confint_3(D, S, N, Mu, Alpha),
-    To   = confint(paired_ci(right_landed(ci_mu, D - Mu), S, N, Alpha), digits=1),
-    Feed = [ "Do not subtract the null hypothesis ", \mml(Flags, Mu), " in the ",
-             "confidence interval." 
+    To   = confint(
+               paired_ci(right_landed(ci_mu, D - Mu), S, N, Alpha), digits=1),
+    Feed = [ "Do not subtract the null hypothesis ", \mml(Flags, Mu), " in ",
+             "the confidence interval for ", \nowrap([\mml(Flags, D), "."]) 
            ],
     Trap = [ "The null hypothesis ", \mml(Flags, Mu), " is not used for the ",
-             "confidence interval."
+             "confidence interval for ", \nowrap([\mml(Flags, D), "."])
            ].
 
 expert(confint: paired_ci, From >> To, Flags, Feed, Hint) :-
@@ -133,45 +141,63 @@ expert(confint: paired_ci, From >> To, Flags, Feed, Hint) :-
     To   = pm(D, qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N))),
     Feed = "Correctly applied the expression for the confidence interval.",
     Hint = [ "The confidence interval is within ", 
-             \nowrap([\mml(Flags, pm(D, qt(1 - Alpha/2, N-1) * frac(S, sqrt(N)))), "."])
+             \nowrap([
+	         \mml(Flags, pm(D, qt(1 - Alpha/2, N-1) * frac(S, sqrt(N)))), 
+		 "."])
            ].
 
 buggy(confint: lulu, From >> To, Flags, Feed, Trap) :-
     From = paired_ci(D, S, N, Alpha),
     To   = pm(D, omit_left(lulu, qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N)))),
     Feed = Trap,
-    Trap = [ "Please do not forget to multiply the standard error with the ",
-             \nowrap([\mml(Flags, 1 - Alpha), "-quantile"]), " of the ", 
-             \nowrap([\mml(Flags, 'T'), "-distribution:"]), " ", 
-             \nowrap([\mml(Flags, pm(D, color(lulu, qt(1 - Alpha/2, N-1)) * frac(S, sqrt(N)))), "."])
+    Trap = [ "Please do not forget to multiply the standard error with ",
+             "the ", \nowrap([\mml(Flags, 1 - Alpha), "-quantile"]), " of ",
+	     "the ", \nowrap([\mml(Flags, 'T'), "-distribution:"]), " ", 
+             \nowrap([
+	         \mml(Flags, pm(D, color(lulu, qt(1 - Alpha/2, N-1)) 
+		     * frac(S, sqrt(N)))), "."])
            ].
 
 buggy(confint: ten_alpha, From >> To, Flags, Feed, Trap) :-
     From = paired_ci(D, S, N, Alpha),
     member(F, [0.1, 10]),
-    To   = pm(D, qt(1 - left_landed(ten_alpha, F*Alpha)/2, N-1) * dfrac(S, sqrt(N))),
+    To   = pm(D, qt(1 - left_landed(ten_alpha, F*Alpha)/2, N-1) 
+               * dfrac(S, sqrt(N))),
     _10alpha <- F*alpha,
     OneMinus10alpha <- 1-F*alpha,
-    Feed = [ "The result matches the ", \mml(Flags, '100%'(OneMinus10alpha)), 
-             " confidence interval (i.e., ", 
-             \nowrap([\mml(Flags, Alpha = '100%'(_10alpha)), ")."]), " Please ",
-             "check the quantile of the ", 
-             \nowrap([\mml(Flags, t), "-distribution"]), " in your ",
-             "calculations."],
-    Trap = [ "Insert the correct ", \nowrap([\mml(Flags, t), "-quantile"]), 
-             " in to the expression for the confidence interval."
+    Feed = [ "The result matches ",
+             "the ", \mml(Flags, '100%'(OneMinus10alpha)), " confidence ",
+	     "interval ",
+	     "(i.e., ", \nowrap([\mml(Flags, Alpha = '100%'(_10alpha)), ")."]),
+	     " Please check the quantile of ",
+	     "the ", \nowrap([\mml(Flags, t), "-distribution"]), " in your ",
+             "calculations."
+	   ],
+    Trap = [ "Insert the ",
+             "correct ", \nowrap([\mml(Flags, t), "-quantile"]), " into the ",
+	     "expression for the confidence interval."
            ].
 
 buggy(confint: se, From >> To, Flags, Feed, Trap) :-
     From = pm(D, qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N))),
     To   = pm(D, qt(1 - Alpha/2, N-1) * instead_of(se, S, dfrac(S, sqrt(N)))),
     Feed = [ "The standard deviation ", \mml(Flags, S), " was used instead of ",
-             "the standard error ", \nowrap([\mml(Flags, frac(S, sqrt(N))), "."])
+             "the standard ",
+	     "error ", \nowrap([\mml(Flags, frac(S, sqrt(N))), "."])
            ],
-    Trap = [ "Please do not forget to divide the standard deviation by the square root of ",
-             \nowrap([\mml(Flags, N), "."])
+    Trap = [ "Please do not forget to divide the standard deviation by the ",
+             "square root of ", \nowrap([\mml(Flags, N), "."])
            ].
  
+buggy(confint: root, From >> To, Flags, Feed, Trap) :-
+    From = sqrt(N),
+    Inst = N,
+    To   = instead_of(root, Inst, From),
+    Feed = [ "Please do not forget the square root around ",
+             \nowrap([\mml([highlight(all) | Flags], color(root, N)), "."])
+           ],
+    Trap = Feed.
+
 :- multifile r_init/1.
 r_init(confint) :-
     r_init,
