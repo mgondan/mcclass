@@ -178,9 +178,25 @@ buggy(confint: ten_alpha, From >> To, Flags, Feed, Trap) :-
 	     "expression for the confidence interval."
            ].
 
+buggy(confint: onetail, From >> To, Flags, Feed, Trap) :-
+    From = paired_ci(D, S, N, Alpha),
+    To   = pm(D, qt(1 - omit_right(onetail, Alpha/2), N-1) * dfrac(S, sqrt(N))),
+    _2alpha <- 2*alpha,
+    OneMinus2alpha <- 1 - 2*alpha,
+    Feed = [ "The result matches ",
+             "the ", \mml(Flags, '100%'(OneMinus2alpha)), " confidence ",
+             "interval. Please check if you used the correct quantile of ",
+             "the ", \nowrap([\mml(Flags, t), "-distribution"]), " for ",
+             "the ", i("two-sided"), " confidence interval."
+	   ],
+    Trap = [ "Do not use the ",
+             "one-sided ", \nowrap([\mml(Flags, t), "-quantile"]), " in the ",
+	     "expression for the confidence interval."
+	   ].
+
 buggy(confint: se, From >> To, Flags, Feed, Trap) :-
-    From = pm(D, qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N))),
-    To   = pm(D, qt(1 - Alpha/2, N-1) * instead_of(se, S, dfrac(S, sqrt(N)))),
+    From = pm(D, qt(1 - Alpha, N-1) * dfrac(S, sqrt(N))),
+    To   = pm(D, qt(1 - Alpha, N-1) * instead_of(se, S, dfrac(S, sqrt(N)))),
     Feed = [ "The standard deviation ", \mml(Flags, S), " was used instead of ",
              "the standard ",
 	     "error ", \nowrap([\mml(Flags, frac(S, sqrt(N))), "."])
