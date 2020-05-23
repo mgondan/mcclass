@@ -4,6 +4,7 @@
         hints/5,
         traps/5,
         praise/5,
+        correct/1,
 	    wrong/4,
 	    wrong/5,
         feedback/6,
@@ -71,27 +72,43 @@ step(Rule, Code, right_landed(Err, Expr) >> To, Request) :-
     New =.. [Op, B, Right],
     To = right_landed(Err, New).
 
+step(Rule, Code, omit_left(Err, Expr) >> To, Request) :-
+    !,
+    Expr =.. [Op, Left, A],
+    step(Rule, Code, A >> B, Request),
+    New =.. [Op, Left, B],
+    To = omit_left(Err, New).
+
+step(Rule, Code, omit_right(Err, Expr) >> To, Request) :-
+    !,
+    Expr =.. [Op, A, Right],
+    step(Rule, Code, A >> B, Request),
+    New =.. [Op, B, Right],
+    To = omit_right(Err, New).
+
 % Direct match
-step(expert, Code, Step, none) :-
-    expert(Code, Step, _, _, _).
+step(expert, Code, A >> B, none) :-
+    expert(Code, A >> B, _, _, _),
+    consistent(B).
 
-step(expert, Code, Step, praise(Praise)) :-
-    expert(Code, Step, [color-auto], Praise, _).
+step(expert, Code, A >> B, praise(Praise)) :-
+    expert(Code, A >> B, [color-auto], Praise, _).
 
-step(expert, Code, Step, feedback(Flags, Feed)) :-
-    expert(Code, Step, Flags, Feed, _).
+step(expert, Code, A >> B, feedback(Flags, Feed)) :-
+    expert(Code, A >> B, Flags, Feed, _).
 
-step(expert, Code, Step, hint(Hint)) :-
-    expert(Code, Step, [color-auto], _, Hint).
+step(expert, Code, A >> B, hint(Hint)) :-
+    expert(Code, A >> B, [color-auto], _, Hint).
 
-step(buggy, Code, Step, none) :-
-    buggy(Code, Step, _, _, _).
+step(buggy, Code, A >> B, none) :-
+    buggy(Code, A >> B, _, _, _),
+    consistent(B).
 
-step(buggy, Code, Step, trap(Trap)) :-
-    buggy(Code, Step, [color-auto], _, Trap).
+step(buggy, Code, A >> B, trap(Trap)) :-
+    buggy(Code, A >> B, [color-auto], _, Trap).
 
-step(buggy, Code, Step, feedback(Flags, Feed)) :-
-    buggy(Code, Step, Flags, Feed, _).
+step(buggy, Code, A >> B, feedback(Flags, Feed)) :-
+    buggy(Code, A >> B, Flags, Feed, _).
 
 % General compounds
 step(Rule, Code, From >> To, Request) :-
@@ -101,6 +118,114 @@ step(Rule, Code, From >> To, Request) :-
     step(Rule, Code, Arg >> New, Request),
     nth1(Index, To_args, New, Rest),
     compound_name_arguments(To, Name, To_args).
+
+%
+% Check if Expr is consistent 
+% 
+% Example: In omit(Expr), Expr should not include additional errors since it is
+% omitted anyway.
+%
+consistent(Expr) :-
+    atomic(Expr).
+
+consistent(protect(Expr)) :-
+    !, 
+    correct(Expr).
+
+consistent(instead_of(_, Wrong, Instead)) :-
+    !,
+    correct(Instead),
+    consistent(Wrong).
+
+consistent(instead_of(_, Wrong, _, Instead, _)) :-
+    !,
+    correct(Instead),
+    consistent(Wrong).
+
+consistent(denoting(_, Expr, _)) :-
+    !,
+    consistent(Expr).
+
+consistent(left_elsewhere(_, Expr)) :-
+    !,
+    Expr =.. [_, L, R],
+    consistent(L),
+    consistent(R).
+
+consistent(right_elsewhere(_, Expr)) :-
+    !,
+    Expr =.. [_, L, R],
+    consistent(R),
+    consistent(L).
+
+consistent(left_landed(_, Expr)) :-
+    !,
+    Expr =.. [_, L, R],
+    consistent(L),
+    consistent(R).
+
+consistent(right_landed(_, Expr)) :-
+    !,
+    Expr =.. [_, L, R],
+    consistent(L),
+    consistent(R).
+
+consistent(omit_left(_, Expr)) :-
+    !,
+    Expr =.. [_, L, R],
+    correct(L),
+    consistent(R).
+
+consistent(omit_right(_, Expr)) :-
+    !,
+    Expr =.. [_, L, R],
+    correct(R),
+    consistent(L).
+
+consistent(add(_, Expr)) :-
+    !,
+    consistent(Expr).
+
+consistent(omit(_, Expr)) :-
+    !,
+    correct(Expr).
+
+consistent(Compound) :-
+    compound(Compound),
+    compound_name_arguments(Compound, _, Arguments),
+    maplist(consistent, Arguments).
+
+% Check if Expr is correct (i.e., does not include errors)
+correct(Expr) :-
+    \+ wrong(Expr).
+
+wrong(instead_of(_, _, _)).
+
+wrong(instead_of(_, _, _, _, _)).
+
+wrong(denoting(_, Expr, _)) :-
+    wrong(Expr).
+
+wrong(left_elsewhere(_, _)).
+
+wrong(right_elsewhere(_, _)).
+
+wrong(left_landed(_, _)).
+
+wrong(right_landed(_, _)).
+
+wrong(omit_left(_, _)).
+
+wrong(omit_right(_, _)).
+
+wrong(add(_, _)).
+
+wrong(omit(_, _)).
+
+wrong(Compound) :-
+    compound(Compound),
+    compound_name_arguments(Compound, _, Arguments),
+    \+ maplist(correct, Arguments).
 
 %
 % Find correct result(s)

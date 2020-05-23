@@ -101,6 +101,7 @@ expert(confint: ci_center, From >> To, Flags, Feed, Hint) :-
 intermediate(confint: paired_confint_3/6).
 
 % Interval around mean T0 or mean EOT (same for SD)
+:- multifile buggy/5.
 buggy(confint: ci_center, From >> To, Flags, Feed, Trap) :-
     From = paired_confint_2(D, M_wrong, S, S_wrong, N, Mu, Alpha, T),
     nth1(Index, M_wrong, M_W),
@@ -119,7 +120,7 @@ buggy(confint: ci_center, From >> To, Flags, Feed, Trap) :-
 % Interval around mean T0 or mean EOT (SD unchanged)
 buggy(confint: ci_center_m, From >> To, Flags, Feed, Trap) :-
     From = paired_confint_2(D, M_wrong, S, _S_wrong, N, Mu, Alpha, T),
-    member(M_W, M_wrong),
+    member(M_W, [Mu | M_wrong]),
     To   = paired_confint_3(instead_of(ci_center_m, M_W, D),
            S, N, Mu, Alpha, T),
     Feed = [ "The confidence interval for the change score is spanned ",
@@ -176,9 +177,23 @@ expert(confint: paired_ci, From >> To, Flags, Feed, Hint) :-
              "."])
            ].
 
+buggy(confint: lu, From >> To, Flags, Feed, Trap) :-
+    From = paired_ci(D, S, N, _Mu, Alpha, _T),
+    L    = qt(1 - Alpha/2, N-1),
+    R    = dfrac(S, sqrt(N)),
+    To   = pm(D, omit_right(lu, L * R)),
+    Feed = Trap,
+    Trap = [ "Please do not forget to multiply the ",
+             "the ", \nowrap([\mml(Flags, t), "-quantile"]), " with the ",
+             "the standard error of the mean ",
+             "change ", \nowrap([\mml(Flags, S), "."])
+           ].
+
 buggy(confint: lulu, From >> To, Flags, Feed, Trap) :-
     From = paired_ci(D, S, N, _Mu, Alpha, _T),
-    To   = pm(D, omit_left(lulu, qt(1 - Alpha/2, N-1) * dfrac(S, sqrt(N)))),
+    L    = qt(1 - Alpha/2, N-1),
+    R    = dfrac(S, sqrt(N)),
+    To   = pm(D, omit_left(lulu, L * R)),
     Feed = Trap,
     Trap = [ "Please do not forget to multiply the standard error with ",
              "the ", \nowrap([\mml(Flags, 1 - Alpha), "-quantile"]), " of ",
@@ -210,9 +225,10 @@ buggy(confint: ten_alpha, From >> To, Flags, Feed, Trap) :-
 
 buggy(confint: onetail, From >> To, Flags, Feed, Trap) :-
     From = paired_ci(D, S, N, _Mu, Alpha, _T),
-    To   = pm(D, qt(1 - omit_right(onetail, Alpha/2), N-1) * dfrac(S, sqrt(N))),
-    _2alpha <- 2*alpha,
-    OneMinus2alpha <- 1 - 2*alpha,
+    member(F, [1, 0.1]),
+    To   = pm(D, qt(1 - omit_right(onetail, left_landed(onetail, F*Alpha) / 2), N-1) * dfrac(S, sqrt(N))),
+    _2alpha <- F*2*alpha,
+    OneMinus2alpha <- 1 - F*2*alpha,
     Feed = [ "The result matches ",
              "the ", \mml(Flags, '100%'(OneMinus2alpha)), " confidence ",
              "interval. Please check if you used the correct quantile of ",
@@ -301,14 +317,14 @@ r_init(confint) :-
         alpha = 0.05
         tails = 'two-tailed'
 
-        # Exam 2018-06ag
-        N     = 24
-        m_T0  = 24.0
-        s_T0  = 5.1
-        m_EOT = 18.3
-        s_EOT = 4.7
-        m_D   = 5.8
-        s_D   = 3.8
+        # Exam 2018-06 B
+        N     = 22
+        m_T0  = 18.7
+        s_T0  = 7.9
+        m_EOT = 13.0
+        s_EOT = 7.9
+        m_D   = 5.7
+        s_D   = 4.2
         mu    = 4.0
     |},
     csvfile(confint, data).
