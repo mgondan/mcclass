@@ -109,10 +109,38 @@ buggy(confint: ci_center, From >> To, Flags, Feed, Trap) :-
 	       instead_of(ci_center, S_W, S), N, Mu, Alpha, T),
     Feed = [ "The confidence interval is based ",
              "on ", \mml(Flags, D), " ",
-	     "and ", \nowrap([\mml(Flags, S), ","]), " but not ",
-	     "on ", \mml(Flags, M_W), " and ", \nowrap([\mml(Flags, S_W), "."])
+             "and ", \nowrap([\mml(Flags, S), ","]), " but not ",
+             "on ", \mml(Flags, M_W), " and ", \nowrap([\mml(Flags, S_W), "."])
+           ],
+    Trap = [ \mml(Flags, D), " is the center of the confidence interval, and ",
+             "the width derives from ", \nowrap([\mml(Flags, S), "."]) 
+           ].
+
+% Interval around mean T0 or mean EOT (SD unchanged)
+buggy(confint: ci_center_m, From >> To, Flags, Feed, Trap) :-
+    From = paired_confint_2(D, M_wrong, S, _S_wrong, N, Mu, Alpha, T),
+    member(M_W, M_wrong),
+    To   = paired_confint_3(instead_of(ci_center_m, M_W, D),
+           S, N, Mu, Alpha, T),
+    Feed = [ "The confidence interval for the change score is spanned ",
+             "around ", \nowrap([\mml(Flags, D), ","]), " instead ",
+             "of ", \nowrap([\mml(Flags, M_W), "."])
            ],
     Trap = [ \mml(Flags, D), " is the center of the confidence interval." ].
+
+% Interval around mean D, but wrong SD
+buggy(confint: ci_center_s, From >> To, Flags, Feed, Trap) :-
+    From = paired_confint_2(D, _M_wrong, S, S_wrong, N, Mu, Alpha, T),
+    member(S_W, S_wrong),
+    To   = paired_confint_3(D, instead_of(ci_center_s, S_W, S),
+           N, Mu, Alpha, T),
+    Feed = [ "The width of the confidence interval for the change score ",
+             "derives from ", \nowrap([\mml(Flags, S), ","]), " instead ",
+             "of ", \nowrap([\mml(Flags, S_W), "."])
+           ],
+    Trap = [ "The width of the confidence interval derives ",
+             "from ", \nowrap([\mml(Flags, S), "."])
+           ].
 
 % Ignore mu
 expert(confint: ci_mu, From >> To, Flags, Feed, Hint) :-
