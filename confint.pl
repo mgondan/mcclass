@@ -46,32 +46,32 @@ item(confint, Response) -->
       [ div(class(card), div(class('card-body'),
           [ h1(class('card-title'), "Phase II clinical study"),
             p(class('card-text'), 
-            [ "Consider a clinical study on rumination-focused Cognitive ", 
-              "Behavioral Therapy (rfCBT) ",
-	      "with ", \mml('N' = round0(N)), " patients. The primary outcome ",
-	      "is the score on the Hamilton Rating Scale for ",
-	      "Depression (HDRS, range from best = 0 to worst = 42). The ",
-	      "significance level is set ",
-	      "to ", \mml(alpha = round('100%'(Alpha))), 
-	      " ", \nowrap([\mml(Tails), "."])
-	    ]),
+              [ "Consider a clinical study on rumination-focused Cognitive ", 
+                "Behavioral Therapy (rfCBT) ",
+                "with ", \mml('N' = round0(N)), " patients. The primary outcome ",
+                "is the score on the Hamilton Rating Scale for ",
+                "Depression (HDRS, range from best = 0 to worst = 42). The ",
+                "significance level is set ",
+                "to ", \mml(alpha = round('100%'(Alpha))), 
+                " ", \nowrap([\mml(Tails), "."])
+              ]),
             \table(H, [R1, R2])
 	        % \download(confint)
-	  ])),
+	      ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'), 
               [ "Does rfCBT lead to a relevant ",
-	        "reduction (i.e., more than ", \mml(mu = Mu), " units) in ",
-		"mean HDRS scores between baseline (T0) ",
-		"and End of Treatment (EOT)?" 
+                "reduction (i.e., more than ", \mml(mu = Mu), " units) in ",
+                "mean HDRS scores between baseline (T0) ",
+                "and End of Treatment (EOT)?" 
               ]),
             \question(question, response, 
-                [ "Please determine ",
-		  "the ", \mml(round('100%'(OneMinusAlpha))), " confidence ",
-		  "interval for the reduction in HDRS." 
-                ], Response)
-	  ]))
+              [ "Please determine ",
+                "the ", \mml(round('100%'(OneMinusAlpha))), " confidence ",
+                "interval for the reduction in HDRS." 
+              ], Response)
+          ]))
       ]).
 
 % Correctly identify as a paired t-test
@@ -143,9 +143,32 @@ buggy(confint: ci_center_s, From >> To, Flags, Feed, Trap) :-
              "from ", \nowrap([\mml(Flags, S), "."])
            ].
 
+% Expert: Choose correct alpha
+expert(confint: alpha, From >> To, Flags, Feed, Hint) :-
+    From = paired_confint_3(D, S, N, Mu, Alpha, T),
+    To   = paired_confint_4(D, S, N, Mu, Alpha, T),
+    Level <- 1 - Alpha,
+    Feed = [ "The width of the confidence interval is given ",
+             "by ", \nowrap([\mml(Flags, 1 - Alpha = '100%'(Level)), "."])
+           ],
+    Hint = Feed.
+
+intermediate(confint: paired_confint_4/6).
+
+buggy(confint: alpha, From >> To, Flags, Feed, Trap) :-
+    From = paired_confint_3(D, S, N, Mu, Alpha, T),
+    To   = paired_confint_4(D, S, N, Mu, left_landed(alpha, 0.1*Alpha), T),
+    Level <- 1 - 0.1*Alpha,
+    Feed = [ "The result matches ",
+             "a ", \mml(Flags, '100%'(Level)), " confidence interval. Please ",
+             "choose the correct quantile from ",
+             "the ", \nowrap([\mml(Flags, t), "-distribution."])
+           ],
+    Trap = "Choose the wrong significance level.".
+
 % Ignore mu
 expert(confint: ci_mu, From >> To, Flags, Feed, Hint) :-
-    From = paired_confint_3(D, S, N, Mu, Alpha, T),
+    From = paired_confint_4(D, S, N, Mu, Alpha, T),
     To   = confint(paired_ci(D, S, N, Mu, Alpha, T), digits=1),
     Feed = "Correctly ignored the null hypothesis in the confidence interval.",
     Hint = [ "The null hypothesis ", \mml(Flags, Mu), " is not used for the ",
@@ -156,7 +179,7 @@ intermediate(confint: paired_ci/6).
 
 % Bug: subtract mu
 buggy(confint: ci_mu, From >> To, Flags, Feed, Trap) :-
-    From = paired_confint_3(D, S, N, Mu, Alpha, T),
+    From = paired_confint_4(D, S, N, Mu, Alpha, T),
     To   = confint(
                paired_ci(right_landed(ci_mu, D - Mu), S, N, Mu, Alpha, T), 
                digits=1),
@@ -203,35 +226,12 @@ buggy(confint: lulu, From >> To, Flags, Feed, Trap) :-
 		         * frac(S, sqrt(N)))), "."])
            ].
 
-buggy(confint: ten_alpha, From >> To, Flags, Feed, Trap) :-
-    From = paired_ci(D, S, N, _Mu, Alpha, _T),
-    member(F, [0.1, 10]),
-    To   = pm(D, qt(1 - left_landed(ten_alpha, F*Alpha)/2, N-1) 
-               * dfrac(S, sqrt(N))),
-    _10alpha <- F*alpha,
-    OneMinus10alpha <- 1-F*alpha,
-    Feed = [ "The result matches ",
-             "the ", \mml(Flags, '100%'(OneMinus10alpha)), " confidence ",
-             "interval ",
-             "(i.e., ", \nowrap([\mml(Flags, Alpha = '100%'(_10alpha)), ")."]),
-             " Please check the quantile of ",
-             "the ", \nowrap([\mml(Flags, t), "-distribution"]), " in your ",
-             "calculations."
-           ],
-    Trap = [ "Insert the ",
-             "correct ", \nowrap([\mml(Flags, t), "-quantile"]), " into the ",
-             "expression for the confidence interval."
-           ].
-
 buggy(confint: onetail, From >> To, Flags, Feed, Trap) :-
     From = paired_ci(D, S, N, _Mu, Alpha, _T),
-    member(F, [1, 0.1]),
-    To   = pm(D, qt(1 - omit_right(onetail, left_landed(onetail, F*Alpha) / 2), N-1) * dfrac(S, sqrt(N))),
-    _2alpha <- F*2*alpha,
-    OneMinus2alpha <- 1 - F*2*alpha,
-    Feed = [ "The result matches ",
-             "the ", \mml(Flags, '100%'(OneMinus2alpha)), " confidence ",
-             "interval. Please check if you used the correct quantile of ",
+    To   = pm(D, qt(1 - omit_right(onetail, Alpha / 2), N-1) * dfrac(S, sqrt(N))),
+    _2alpha <- 2*alpha,
+    Feed = [ "The result matches a one-sided confidence interval. Please ",
+             "check if you used the correct quantile of ",
              "the ", \nowrap([\mml(Flags, t), "-distribution"]), " for ",
              "the ", i("two-sided"), " confidence interval."
            ],
