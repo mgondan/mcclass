@@ -79,7 +79,7 @@ item(confint, Response) -->
 expert(confint: paired_confint, From >> To, Flags, Feed, Hint) :-
     From = paired_confint(D, M_wrong, S, S_wrong, N, Mu, Alpha),
     To   = paired_confint_2(D, M_wrong, S, S_wrong, N, Mu, Alpha, T),
-    T    = protect(denoting('T', dfrac(D - Mu, S / sqrt(N)), "the observed t-statistic")),
+    T    = protect(denoting('T', dfrac(D - Mu, S / sqrt(N)), span(["the observed ", math(mi(t)), "-statistic"]))),
     Feed = [ "Correctly identified the problem as ",
              "a ", \nowrap([\mml(Flags, t), "-test"]), " for paired samples." 
            ],
