@@ -7,164 +7,105 @@
 :- consult(temp).
 :- use_module(r).
 
-mathml:math_hook(Flags, m_D, Flags, overline('D')).
-mathml:math_hook(Flags, m_T0, Flags, overline("T0")).
-mathml:math_hook(Flags, m_EOT, Flags, overline("EOT")).
-
-mathml:math_hook(Flags, s_D, Flags, sub(s, 'D')).
-mathml:math_hook(Flags, s_T0, Flags, sub(s, "T0")).
-mathml:math_hook(Flags, s_EOT, Flags, sub(s, "EOT")).
+mathml:math_hook(Flags, pi_0, Flags, pi).
 
 %    
 % Binomial density
 %
 :- multifile item/1.
-item(dbinom: paired_tratio(m_D, [m_T0, m_EOT], s_D, [s_T0, s_EOT], 'N', mu)).
+item(dbinom: binary_dbinom(k, 'N', pi_0)).
 
 :- multifile intermediate/1.
-intermediate(dbinom: paired_tratio/6).
+intermediate(dbinom: binary_dbinom/3).
 
 :- multifile item//2.
 item(dbinom, Response) -->
-    { D <- m_D,
-      Mu <- mu,
-      S_D <- s_D,
+    { K <- k,
       N <- 'N',
-      T0 <- m_T0,
-      S_T0 <- s_T0,
-      EOT <- m_EOT,
-      S_EOT <- s_EOT,
-      Tails <- tails,
-      Alpha <- alpha,
-      maplist(mathml, ["HDRS", "T0", "EOT", 'D'], H),
-      maplist([X, Y] >> mathml(round1(X), Y), ["Mean", T0, EOT, D], R1),
-      maplist([X, Y] >> mathml(round1(X), Y), ["SD", S_T0, S_EOT, S_D], R2)
+      Pi_0 <- pi_0
     }, 
     html(
       [ div(class(card), div(class('card-body'),
-          [ h1(class('card-title'), "Phase II clinical study"),
-            p(class('card-text'), 
-            [ "Consider a clinical study on rumination-focused Cognitive ", 
-              "Behavioral Therapy (rfCBT) with ", \mml('N' = round0(N)), 
-              " patients. The primary outcome is the score on the ",
-              "Hamilton Rating Scale for Depression (HDRS, range from ",
-              "best = 0 to worst = 42). The significance level is set to ", 
-              \mml(alpha = round('100%'(Alpha))), " ", \mml(Tails), "."
-	        ]),
-            \table(H, [R1, R2])
-	        % \download(tpaired)
-	      ])),
+        [ h1(class('card-title'), "Binary outcomes"),
+          p(class('card-text'), 
+            [ "Consider a clinical study with ", \mml(round0(N)), " patients. ",
+	      "We assume that the success probability is ", \mml(Pi_0), " in ",
+	      "all patients, and successes occur independently."
+	    ])
+	  ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
-            p(class('card-text'), 
-              [ "Does rfCBT lead to a relevant reduction (i.e., more than ",
-	            \mml(mu = Mu), " units) in mean HDRS scores between ",
-                "baseline (T0) and End of Treatment (EOT)?" 
-              ]),
             \question(question, 
                 response, 
-                ["Please determine the ", \nowrap([\mml(t), "-ratio."])], 
+                [ "What is the probability for exactly ", \mml(K), " successes?" ], 
                 Response)
-	      ]))
+	  ]))
       ]).
 
 % Correctly identify as a paired t-test
 :- multifile expert/5.
-expert(dbinom: paired_tratio, From >> To, Flags, Feed, Hint) :-
-    From = paired_tratio(D, M_wrong, S, S_wrong, N, Mu),
-    To   = paired_tratio_2(D, M_wrong, S, S_wrong, N, Mu),
-    Feed = [ "Correctly identified the problem as a ",
-             \nowrap([\mml(Flags, t), "-test"]), " for paired samples." 
-           ],
-    Hint = [ "This is a ",
-             \nowrap([\mml(Flags, t), "-test"]), " for paired samples." 
+expert(dbinom: binary_dbinom, From >> To, _Flags, Feed, Hint) :-
+    From = binary_dbinom(K, N, Pi),
+    To   = binary_dbinom_2(K, N, Pi),
+    Feed = "Correctly identified the problem as a binomial probability.",
+    Hint = "This is a binomial probability.".
+
+intermediate(dbinom: binary_dbinom_2/3).
+
+expert(dbinom: dbinom_prod, From >> To, Flags, Feed, Hint) :-
+    From = binary_dbinom_2(K, N, Pi),
+    To   = prob(choose(N, K) * bernoulli(K, N, Pi)),
+    Feed = [ "Correctly identified the expression for the binomial ",
+             "probability."
+	   ],
+    Hint = [ "The expression for the binomidal probability is ", 
+             \nowrap([\mml(Flags, choose(K, N) * bernoulli(K, N, Pi)), "."]) 
+	   ].
+
+intermediate(dbinom: bernoulli/3).
+
+expert(dbinom: dbinom_bernoulli, From >> To, Flags, Feed, Hint) :-
+    From = bernoulli(K, N, Pi),
+    To   = successes(K, Pi) * failures(N-K, 1-Pi),
+    Feed = [ "Correctly determined the probability for a sequence of ",
+             "successes and failures."
+	   ],
+    Hint = [ "Determine the probability for a sequence of ",
+             \mml(Flags, K), " successes and ", \mml(Flags, N-K), "failures."
            ].
 
-intermediate(dbinom: paired_tratio_2/6).
+intermediate(dbinom: successes/2).
 
-% Choose correct numbers for numerator
-expert(dbinom: numerator, From >> To, Flags, Feed, Hint) :-
-    From = paired_tratio_2(D, _, S, S_wrong, N, Mu),
-    To   = paired_tratio_3(D, S, S_wrong, N, Mu),
-    Feed = [ "Correctly identified the numerator of the ",
-             \nowrap([\mml(Flags, t), "-ratio."]) 
-           ],
-    Hint = [ "The numerator is ", \nowrap([\mml(Flags, D - Mu), "."]) ].
-
-intermediate(dbinom: paired_tratio_3/5).
-
-% Choose correct numbers for denominator
-expert(dbinom: denominator, From >> To, Flags, Feed, Hint) :-
-    From = paired_tratio_3(D, S_D, _, N, Mu),
-    To   = paired_t(D, Mu, S_D, N),
-    Feed = [ "Correctly identified the denominator of the ",
-             \nowrap([\mml(Flags, t), "-ratio."]) 
-           ],
-    Hint = [ \mml(Flags, S_D), " is used in the denominator of the ",
-             \nowrap([\mml(Flags, t), "-ratio."]) 
+expert(dbinom: successes, From >> To, Flags, Feed, Hint) :-
+    From = successes(K, Pi),
+    To   = Pi^K,
+    Feed = [ "Correctly determined the probability for ", \mml(Flags, K), " ",
+             "independent successes."
+	   ],
+    Hint = [ "Determine the probability for ", \mml(Flags, K), " independent ",
+             "successes."
            ].
 
-intermediate(dbinom: paired_t/4).
+intermediate(dbinom: failures/2).
 
-expert(dbinom: paired_t, From >> To, Flags, Feed, Hint) :-
-    From = paired_t(D, Mu, S, N),
-    To   = tratio(dfrac(D - Mu, S / sqrt(N)), N - 1),
-    Feed = [ "Correctly identified the formula for the ",
-             \nowrap([\mml(Flags, t), "-ratio for paired samples."])
-           ],
-    Hint = [ "Determine the ", \nowrap([\mml(Flags, t), "-ratio"]), " ",
-             \nowrap([\mml(Flags, dfrac(D - Mu, S / sqrt(N))), "."])
+expert(dbinom: failures, From >> To, Flags, Feed, Hint) :-
+    From = failures(K, Pi),
+    To   = Pi^K,
+    Feed = [ "Correctly determined the probability for ", \mml(Flags, K), " ",
+             "independent failures."
+	   ],
+    Hint = [ "Determine the probability for ", \mml(Flags, K), " independent ",
+             "failures."
            ].
 
 :- multifile r_init/1.
 r_init(dbinom) :-
     r_init,
     {|r||
-        paired_t <- function(d, mu, s, n)
-        {
-            dfrac(d - mu, s / sqrt(n))
-        }
-
-        var_pool <- function(var_A, n_A, var_B, n_B)
-        {
-            frac((n_A - 1) * var_A + (n_B - 1) * var_B, n_A + n_B - 2)
-        }
-
-        tpaired_data <- function(seed)
-        {
-            set.seed(seed)
-            N    = sample(25:40, size=1)
-            Id   = 1:N
-            X    = rnorm(N, mean=25, sd=5)
-            T0   = round(X + rnorm(N, mean=0, sd=4))
-            EOT  = round(X + rnorm(N, mean=-6, sd=5))
-            D    = T0 - EOT
-            data.frame(Id, T0, EOT, D)    
-        }
-
-        data  = tpaired_data(seed=4711)
-        N     = nrow(data)
-        m_T0  = round(mean(data$T0), 1)
-        s_T0  = round(sd(data$T0), 1)
-        m_EOT = round(mean(data$EOT), 1)
-        s_EOT = round(sd(data$EOT), 1)
-        m_D   = round(mean(data$T0 - data$EOT), 1)
-        s_D   = round(sd(data$T0 - data$EOT), 1)
-        mu    = 5
-        alpha = 0.05
-        tails = 'two-tailed'
-
-        # Exam 2018-06ag
-        N     = 24
-        m_T0  = 24.0
-        s_T0  = 5.1
-        m_EOT = 18.3
-        s_EOT = 4.7
-        m_D   = 5.8
-        s_D   = 3.8
-        mu    = 4.0
-    |},
-    csvfile(dbinom, data).
+        k     = 14
+	N     = 26
+	pi_0  = 0.6
+    |}.
 
 %
 % Invoke example

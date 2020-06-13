@@ -64,6 +64,12 @@ r_init :-
             sprintf(mask, ci[1], ci[2])
         }
 
+	prob <- function(p, digits=2)
+	{
+	    mask = sprintf("%%.%if", digits)
+            sprintf(mask, p)
+	}
+
         pm <- function(a, b)
         {
             c(a - b, a + b)
