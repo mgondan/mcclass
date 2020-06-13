@@ -70,6 +70,11 @@ r_init :-
             sprintf(mask, p)
 	}
 
+	natural <- function(n)
+	{
+	    sprintf("%i", n)
+	}
+
         pm <- function(a, b)
         {
             c(a - b, a + b)
