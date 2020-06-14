@@ -8,6 +8,7 @@
 :- use_module(r).
 
 mathml:math_hook(Flags, pi_0, Flags, sub(pi, 0)).
+mathml:math_hook(Flags, pi_1, Flags, sub(pi, 1)).
 
 %    
 % Binomial density
@@ -21,18 +22,32 @@ intermediate(uqbinom: binary_uqbinom/3).
 :- multifile item//2.
 item(uqbinom, Response) -->
     { Alpha <- alpha,
-      N <- 'N',
-      Pi_0 <- pi_0
+      NN <- 'N', [N] = NN,
+      Pi_0 <- pi_0,
+      Pi_1 <- pi_1,
+      C = [k, dbinom(k, 'N', pi_0 = Pi_0), dbinom(k, 'N', pi_1 = Pi_1)], 
+      maplist(mathml, C, Cols),
+      findall(R, 
+        ( between(0, N, K), 
+	  P0 <- prob3(dbinom(K, 'N', pi_0)), 
+	  P1 <- prob3(dbinom(K, 'N', pi_1)),
+          maplist(mathml, [K, P0, P1], R)
+        ), Rows)
     }, 
     html(
       [ div(class(card), div(class('card-body'),
-        [ h1(class('card-title'), "Binary outcomes"),
-          p(class('card-text'), 
-            [ "Consider a clinical study with ", \mml(round0(N)), " patients. ",
-	      "Under H0 we assume that the success probability is ", \mml(Pi_0), " in ",
-	      "all patients, and successes occur independently."
-	    ])
-	])),
+          [ h1(class('card-title'), "Binary outcomes"),
+            p(class('card-text'), 
+              [ "Consider a clinical study with ", \mml('N' = round0(N)), " ",
+                "patients. The variable ", \mml('X'), " represents the number ",
+                "of therapeutic successes in the sample. We assume that the ",
+		"successes occur independently, and under the null ",
+		"hypothesis, the success probability is ", \mml(Pi_0), " in ",
+		"all patients. The binomial probabilities are given in the ",
+		"table below."
+	      ]),
+	    \table(Cols, Rows)
+	  ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
                 \question(question, 
@@ -70,9 +85,15 @@ r_init(uqbinom) :-
 	    1 + qbinom(..., lower.tail=FALSE)
 	}
 
+	prob3 = function(P)
+	{
+	    sprintf("%.3f", P)
+	}
+
         alpha = 0.05
 	N     = 26
 	pi_0  = 0.6
+	pi_1  = 0.75
     |}.
 
 %
@@ -88,7 +109,7 @@ example :-
     r(Solution, Result),
     writeln(result: Result),
     writeln(path: Path),
-    mathml(Solution = number(Result), Mathml),
+    mathml(Solution = quantity(Result), Mathml),
     writeln(mathml: Mathml),
     hints(Topic, Item, Path, _, Hints),
     writeln(hints: Hints),
