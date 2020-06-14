@@ -64,25 +64,39 @@ item(uqbinom, Response) -->
 :- multifile expert/5.
 expert(uqbinom: binary_uqbinom, From >> To, _Flags, Feed, Hint) :-
     From = binary_uqbinom(Alpha, N, Pi),
-    To   = binary_uqbinom_2(Alpha, N, Pi),
+    To   = natural(binary_uqbinom_2(Alpha, N, Pi)),
     Feed = "Correctly identified the problem as a binomial test.",
     Hint = "This is a binomial test.".
 
 intermediate(uqbinom: binary_uqbinom_2/3).
 
-expert(uqbinom: uqbinom, From >> To, _Flags, Feed, Hint) :-
+% Choose upper critical value
+expert(uqbinom: upper, From >> To, _Flags, Feed, Hint) :-
     From = binary_uqbinom_2(Alpha, N, Pi),
-    To   = natural(uqbinom(Alpha, N, Pi)),
-    Feed = "Correctly identified the upper critical value.",
-    Hint = "Report the upper critical value.".
+    To   = ucbinom(Alpha, N, Pi),
+    Feed = "Correctly reported the upper critical value.",
+    Hint = "The upper critical value should be reported.".
+
+buggy(uqbinom: lower, From >> To, _Flags, Feed, Trap) :-
+    From = binary_uqbinom_2(Alpha, N, Pi),
+    To   = instead_of(lower, lcbinom(Alpha, N, Pi), ucbinom(Alpha, N, Pi)),
+    Feed = [ "The result matches the lower critical value. Please report the ",
+             "upper critical value."
+           ],
+    Trap = "The lower critical value is reported instead of the upper one.".
 
 :- multifile r_init/1.
 r_init(uqbinom) :-
     r_init,
     {|r||
-        uqbinom = function(...)
+        lcbinom = function(...)
 	{
-	    1 + qbinom(..., lower.tail=FALSE)
+	    qbinom(..., lower.tail=TRUE) - 1
+	}
+
+        ucbinom = function(...)
+	{
+	    qbinom(..., lower.tail=FALSE) + 1
 	}
 
 	prob3 = function(P)
