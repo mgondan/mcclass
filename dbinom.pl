@@ -7,13 +7,13 @@
 :- consult(temp).
 :- use_module(r).
 
-mathml:math_hook(Flags, pi_0, Flags, pi).
+mathml:math_hook(Flags, pi_00, Flags, pi).
 
 %    
 % Binomial density
 %
 :- multifile item/1.
-item(dbinom: binary_dbinom(k, 'N', pi_0)).
+item(dbinom: binary_dbinom(k, 'N', pi_00)).
 
 :- multifile intermediate/1.
 intermediate(dbinom: binary_dbinom/3).
@@ -22,7 +22,7 @@ intermediate(dbinom: binary_dbinom/3).
 item(dbinom, Response) -->
     { K <- k,
       N <- 'N',
-      Pi_0 <- pi_0
+      Pi_0 <- pi_00
     }, 
     html(
       [ div(class(card), div(class('card-body'),
@@ -104,7 +104,7 @@ r_init(dbinom) :-
     {|r||
         k     = 14
 	N     = 26
-	pi_0  = 0.6
+	pi_00  = 0.6
     |}.
 
 %

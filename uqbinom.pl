@@ -14,10 +14,10 @@ mathml:math_hook(Flags, pi_1, Flags, sub(pi, 1)).
 % Binomial density
 %
 :- multifile item/1.
-item(uqbinom: binary_uqbinom(alpha, 'N', pi_0)).
+item(uqbinom: binom_ucrit(alpha, 'N', pi_0)).
 
 :- multifile intermediate/1.
-intermediate(uqbinom: binary_uqbinom/3).
+intermediate(uqbinom: binom_ucrit/3).
 
 :- multifile item//2.
 item(uqbinom, Response) -->
@@ -62,41 +62,111 @@ item(uqbinom, Response) -->
 
 % Correctly identify as a paired t-test
 :- multifile expert/5.
-expert(uqbinom: binary_uqbinom, From >> To, _Flags, Feed, Hint) :-
-    From = binary_uqbinom(Alpha, N, Pi),
-    To   = natural(binary_uqbinom_2(Alpha, N, Pi)),
+expert(uqbinom: binom, From >> To, _Flags, Feed, Hint) :-
+    From = binom_ucrit(Alpha, N, Pi),
+    To   = natural(binom_ucrit_2(Alpha, N, Pi)),
     Feed = "Correctly identified the problem as a binomial test.",
     Hint = "This is a binomial test.".
 
-intermediate(uqbinom: binary_uqbinom_2/3).
+intermediate(uqbinom: binom_ucrit_2/3).
 
 % Choose upper critical value
-expert(uqbinom: upper, From >> To, _Flags, Feed, Hint) :-
-    From = binary_uqbinom_2(Alpha, N, Pi),
-    To   = ucbinom(Alpha, N, Pi),
+expert(uqbinom: tail, From >> To, _Flags, Feed, Hint) :-
+    From = binom_ucrit_2(Alpha, N, Pi),
+    To   = binom_ucrit_3(tail("upper"), dist("upper"), Alpha, N, Pi),
     Feed = "Correctly reported the upper critical value.",
     Hint = "The upper critical value should be reported.".
 
-buggy(uqbinom: lower, From >> To, _Flags, Feed, Trap) :-
-    From = binary_uqbinom_2(Alpha, N, Pi),
-    To   = instead_of(lower, lcbinom(Alpha, N, Pi), ucbinom(Alpha, N, Pi)),
+intermediate(uqbinom: binom_ucrit_3/5).
+
+:- multifile buggy/5.
+buggy(uqbinom: tail, From >> To, _Flags, Feed, Trap) :-
+    From = binom_ucrit_2(Alpha, N, Pi),
+    To   = binom_ucrit_3(instead_of(tail, tail("lower"), tail("upper")), instead_of(tail, dist("lower"), dist("upper")), Alpha, N, Pi),
     Feed = [ "The result matches the lower critical value. Please report the ",
              "upper critical value."
            ],
     Trap = "The lower critical value is reported instead of the upper one.".
 
+% Critical value based on distribution
+expert(uqbinom: cumul, From >> To, _Flags, Feed, Hint) :-
+    From = binom_ucrit_3(Tail, Dist, Alpha, N, Pi),
+    To   = uqbinom(Tail, Dist, Alpha, N, Pi),
+    Feed = [ "Correctly determined the critical value using the cumulative ",
+             "distribution."
+           ],
+    Hint = [ "The critical value is determined using the cumulative ",
+             "distribution."
+	   ].
+
+buggy(uqbinom: cumul, From >> To, _Flags, Feed, Trap) :-
+    From = binom_ucrit_3(Tail, _Dist, Alpha, N, Pi),
+    To   = uqbinom(Tail, instead_of(cumul, dist("density"), dist("upper")), Alpha, N, Pi),
+    Feed = [ "The result matches the critical value based on the probability ",
+             "density. Please determine the critical value using the ",
+             "cumulative distribution function."
+           ],
+    Trap = [ "The critical value is determined using the density instead of ",
+             "the cumulative distribution." 
+           ].
+
 :- multifile r_init/1.
 r_init(uqbinom) :-
     r_init,
     {|r||
-        lcbinom = function(...)
+        uqbinom = function(tail, dist, alpha, size, prob)
 	{
-	    qbinom(..., lower.tail=TRUE) - 1
+	    if(tail == "upper" & dist == "upper")
+	        return(ucbinom(alpha, size, prob))
+	    
+            if(tail == "lower" & dist == "lower")
+	        return(lcbinom(alpha, size, prob))
+
+	    if(tail == "upper" & dist == "density")
+	        return(udbinom(alpha, size, prob))
+
+            if(tail == "lower" & dist == "density")
+	        return(ldbinom(alpha, size, prob))
+
+	    stop("error")
 	}
 
-        ucbinom = function(...)
+        lcbinom = function(alpha, size, prob)
 	{
-	    qbinom(..., lower.tail=FALSE) + 1
+	    qbinom(alpha, size, prob, lower.tail=TRUE) - 1
+	}
+
+	ucbinom = function(alpha, size, prob)
+	{
+            qbinom(alpha, size, prob, lower.tail=FALSE) + 1
+	}
+
+	ldbinom = function(alpha, size, prob)
+	{
+	    k = 0:floor(size*prob)
+	    p = dbinom(k, size=size, prob=prob)
+            k = k[p <= alpha]
+	    k[length(k)]
+        }
+
+	udbinom = function(alpha, size, prob)
+	{
+	    k = ceiling(size*prob):size
+	    p = dbinom(k, size=size, prob=prob)
+	    k = k[p <= alpha]
+	    k[1]
+	}
+
+	tail = dist = identity
+
+	lower = function(alpha)
+	{
+	    return(alpha)
+	}
+
+	upper = function(alpha)
+	{
+	    return(1 - alpha)
 	}
 
 	prob3 = function(P)
