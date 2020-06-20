@@ -15,6 +15,17 @@ mathml:math_hook(Flags, s_D, Flags, sub(s, 'D')).
 mathml:math_hook(Flags, s_T0, Flags, sub(s, "T0")).
 mathml:math_hook(Flags, s_EOT, Flags, sub(s, "EOT")).
 
+% R constants
+r:p_hook(mu, r(mu)).
+r:p_hook(m_D, r(m_D)).
+r:p_hook('N', r('N')).
+r:p_hook(s_D, r(s_D)).
+r:p_hook(s_T0, r(s_T0)).
+r:p_hook(s_EOT, r(s_EOT)).
+r:p_hook(m_T0, r(m_T0)).
+r:p_hook(m_EOT, r(m_EOT)).
+r:p_hook(alpha, r(alpha)).
+
 %    
 % Paired t-test, t-ratio
 %

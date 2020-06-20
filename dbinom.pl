@@ -9,6 +9,9 @@
 
 mathml:math_hook(Flags, pi_00, Flags, pi).
 
+r:p_hook(k, r(k)).
+r:p_hook(pi_00, r(pi_00)).
+
 %    
 % Binomial density
 %

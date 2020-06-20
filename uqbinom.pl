@@ -115,69 +115,69 @@ r_init(uqbinom) :-
     r_init,
     {|r||
         uqbinom = function(tail, dist, alpha, size, prob)
-	{
-	    if(tail == "upper" & dist == "upper")
-	        return(ucbinom(alpha, size, prob))
+        {
+	        if(tail == "upper" & dist == "upper")
+	            return(ucbinom(alpha, size, prob))
 	    
             if(tail == "lower" & dist == "lower")
-	        return(lcbinom(alpha, size, prob))
+	            return(lcbinom(alpha, size, prob))
 
-	    if(tail == "upper" & dist == "density")
-	        return(udbinom(alpha, size, prob))
+	        if(tail == "upper" & dist == "density")
+	            return(udbinom(alpha, size, prob))
 
             if(tail == "lower" & dist == "density")
-	        return(ldbinom(alpha, size, prob))
+	            return(ldbinom(alpha, size, prob))
 
-	    stop("error")
-	}
+	        stop("error")
+	    }
 
         lcbinom = function(alpha, size, prob)
-	{
-	    qbinom(alpha, size, prob, lower.tail=TRUE) - 1
-	}
+	    {
+	        qbinom(alpha, size, prob, lower.tail=TRUE) - 1
+	    }
 
-	ucbinom = function(alpha, size, prob)
-	{
+	    ucbinom = function(alpha, size, prob)
+	    {
             qbinom(alpha, size, prob, lower.tail=FALSE) + 1
-	}
+	    }
 
-	ldbinom = function(alpha, size, prob)
-	{
-	    k = 0:floor(size*prob)
-	    p = dbinom(k, size=size, prob=prob)
+	    ldbinom = function(alpha, size, prob)
+	    {
+	        k = 0:floor(size*prob)
+	        p = dbinom(k, size=size, prob=prob)
             k = k[p <= alpha]
-	    k[length(k)]
+	        k[length(k)]
         }
 
-	udbinom = function(alpha, size, prob)
-	{
-	    k = ceiling(size*prob):size
-	    p = dbinom(k, size=size, prob=prob)
-	    k = k[p <= alpha]
-	    k[1]
-	}
+	    udbinom = function(alpha, size, prob)
+	    {
+	        k = ceiling(size*prob):size
+	        p = dbinom(k, size=size, prob=prob)
+	        k = k[p <= alpha]
+	        k[1]
+	    }
 
-	tail = dist = identity
+	    tail = dist = identity
 
-	lower = function(alpha)
-	{
-	    return(alpha)
-	}
+	    lower = function(alpha)
+	    {
+	        return(alpha)
+	    }
 
-	upper = function(alpha)
-	{
-	    return(1 - alpha)
-	}
+	    upper = function(alpha)
+	    {
+	        return(1 - alpha)
+	    }
 
-	prob3 = function(P)
-	{
-	    sprintf("%.3f", P)
-	}
+	    prob3 = function(P)
+	    {
+	        sprintf("%.3f", P)
+	    }
 
         alpha = 0.05
-	N     = 26
-	pi_0  = 0.6
-	pi_1  = 0.75
+	    N     = 26
+	    pi_0  = 0.6
+	    pi_1  = 0.75
     |}.
 
 %
@@ -190,7 +190,7 @@ example :-
     item(Topic: Item),
     solution(Topic, Item, Solution, Path),
     writeln(solution: Solution),
-    r(Solution, Result),
+    rod(Result, Solution),
     writeln(result: Result),
     writeln(path: Path),
     mathml(Solution = quantity(Result), Mathml),

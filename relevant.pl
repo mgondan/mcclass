@@ -361,7 +361,7 @@ wrongs_paths_results(Topic, Item, WPR) :-
         ( wrong(Topic, Item, [Solution], W, P), 
           pairs_keys(P, C), 
           sort(C, S), 
-          sur(R <- W),
+          rod(W, R),
           mistakes(Topic, Item, P, [], M),
           length(M, L)
         ), List),

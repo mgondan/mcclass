@@ -169,7 +169,7 @@ buggy(confint: alpha, From >> To, Flags, Feed, Trap) :-
 % Ignore mu
 expert(confint: ci_mu, From >> To, Flags, Feed, Hint) :-
     From = paired_confint_4(D, S, N, Mu, Alpha, T),
-    To   = confint(paired_ci(D, S, N, Mu, Alpha, T), digits=1),
+    To   = confint(paired_ci(D, S, N, Mu, Alpha, T), 1),
     Feed = "Correctly ignored the null hypothesis in the confidence interval.",
     Hint = [ "The null hypothesis ", \mml(Flags, Mu), " is not used for the ",
              "confidence interval for ", \nowrap([\mml(Flags, D), "."])
@@ -181,8 +181,8 @@ intermediate(confint: paired_ci/6).
 buggy(confint: ci_mu, From >> To, Flags, Feed, Trap) :-
     From = paired_confint_4(D, S, N, Mu, Alpha, T),
     To   = confint(
-               paired_ci(right_landed(ci_mu, D - Mu), S, N, Mu, Alpha, T), 
-               digits=1),
+               paired_ci(right_landed(ci_mu, D - Mu), S, N, Mu, Alpha, T), 1
+           ),
     Feed = [ "Do not subtract the null hypothesis ", \mml(Flags, Mu), " in ",
              "the confidence interval for ", \nowrap([\mml(Flags, D), "."]) 
            ],
