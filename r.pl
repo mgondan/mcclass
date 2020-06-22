@@ -33,9 +33,19 @@ p(r(Expr), Res) :-
     !,
     r(Expr, Res).
 
+% Stay in prolog
+p(p(Expr), Res) :-
+    !,
+    p(Expr, Res).
+
+p(pp(Expr), Res) :-
+    !,
+    Res is Expr.
+
 % Evaluate compound
 p(Expr, Res) :-
     compound(Expr),
+    !,
     compound_name_arguments(Expr, Name, Arguments),
     maplist(p, Arguments, Results),
     compound_name_arguments(New, Name, Results),
@@ -181,20 +191,23 @@ rod(Expr, Res) :-
 % Multifile hook for extensions
 :- multifile pl2r_hook/2.
 pl2r(P, R) :-
-    pl2r_hook(P, R),
-    !.
+    pl2r_hook(P, R1),
+    !,
+    R = R1.
 
 % Prolog lists <-> (flat) R vectors
 pl2r([], 'NULL') :-
     !.
 
 pl2r([H | T], R) :-
-    !, maplist(pl2r, [H | T], List),
+    !,
+    maplist(pl2r, [H | T], List),
     compound_name_arguments(R, c, List).
 
 pl2r(P, R) :-
     atomic(P),
-    !, R = P.
+    !, 
+    R = P.
 
 pl2r(P, R) :-
     compound(P),
