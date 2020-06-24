@@ -44,6 +44,11 @@ step(Rule, Code, denoting(Symbol, A, Label) >> To, Request) :-
     step(Rule, Code, A >> B, Request),
     To = denoting(Symbol, B, Label).
 
+step(Rule, Code, abbrev(_, A) >> To, Request) :-
+    !,
+    step(Rule, Code, A >> B, Request),
+    To = B.
+
 step(Rule, Code, left_elsewhere(Err, Expr) >> To, Request) :-
     !,
     Expr =.. [Op, Left, A],
@@ -146,6 +151,9 @@ consistent(denoting(_, Expr, _)) :-
     !,
     consistent(Expr).
 
+consistent(abbrev(_, _)) :-
+    !.
+
 consistent(left_elsewhere(_, Expr)) :-
     !,
     Expr =.. [_, L, R],
@@ -205,6 +213,9 @@ wrong(instead_of(_, _, _, _, _)).
 
 wrong(denoting(_, Expr, _)) :-
     wrong(Expr).
+
+wrong(abbrev(_, _)) :-
+    fail.
 
 wrong(left_elsewhere(_, _)).
 

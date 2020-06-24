@@ -16,21 +16,22 @@ mathml:math_hook(Flags, s_T0, Flags, sub(s, "T0")).
 mathml:math_hook(Flags, s_EOT, Flags, sub(s, "EOT")).
 
 % R constants
-r:p_hook(mu, r(mu)).
-r:p_hook(m_D, r(m_D)).
-r:p_hook('N', r('N')).
-r:p_hook(s_D, r(s_D)).
-r:p_hook(s_T0, r(s_T0)).
-r:p_hook(s_EOT, r(s_EOT)).
-r:p_hook(m_T0, r(m_T0)).
-r:p_hook(m_EOT, r(m_EOT)).
-r:p_hook(alpha, r(alpha)).
+r:pl_hook(mu, r(mu)).
+r:pl_hook(m_D, r(m_D)).
+r:pl_hook('N', r('N')).
+r:pl_hook(s_D, r(s_D)).
+r:pl_hook(s_T0, r(s_T0)).
+r:pl_hook(s_EOT, r(s_EOT)).
+r:pl_hook(m_T0, r(m_T0)).
+r:pl_hook(m_EOT, r(m_EOT)).
+r:pl_hook(alpha, r(alpha)).
 
 %    
 % Paired t-test, t-ratio
 %
 :- multifile item/1.
-item(tpaired: paired_tratio(m_D, [m_T0, m_EOT], s_D, [s_T0, s_EOT], 'N', mu)).
+item(tpaired: paired_tratio(LU, [m_T0, m_EOT], s_D, [s_T0, s_EOT], 'N', mu)) :-
+    LU = abbrev(m_D, (m_T0 - m_EOT) ... m_D).
 
 :- multifile intermediate/1.
 intermediate(tpaired: paired_tratio/6).
@@ -356,7 +357,7 @@ example :-
     item(Topic: Item),
     solution(Topic, Item, Solution, Path),
     writeln(solution: Solution),
-    r(Solution, Result),
+    rod(Solution, Result),
     writeln(result: Result),
     writeln(path: Path),
     mathml(Solution = number(Result), Mathml),
@@ -378,7 +379,7 @@ example :-
     writeln(fix: Fix),
     mathex(show, Wrong, Show),
     writeln(show: Show),
-    r(Wrong, Result),
+    rod(Wrong, Result),
     writeln(result: Result),
     writeln(path: Woodden),
     palette(Wrong, Flags),

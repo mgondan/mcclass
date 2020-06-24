@@ -10,6 +10,8 @@
 mathml:math_hook(Flags, pi_0, Flags, sub(pi, 0)).
 mathml:math_hook(Flags, pi_1, Flags, sub(pi, 1)).
 
+r:pl_hook(pi_0, r(pi_0)).
+
 %    
 % Binomial density
 %
