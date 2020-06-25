@@ -837,6 +837,9 @@ pl_hook(natural(P), Res) :-
 pl_hook(qt(P, DF), Res) :-
     r(qt(pl(P), pl(DF)), Res).
 
+pl_hook(ubinom(C, Size, Prob), Res) :-
+    r(ubinom(pl(C), pl(Size), pl(Prob)), Res).
+
 pl_hook(uqbinom(Tail, Dist, Alpha, Size, Prob), Res) :-
     r(uqbinom(pl(Tail), pl(Dist), pl(Alpha), pl(Size), pl(Prob)), Res).
 
@@ -941,8 +944,6 @@ pl2r(P, R) :-
 % Some common functions
 r_init :-
     {|r||
-        dfrac <- frac <- `/`
-
         left_landed <- function(err, expr)
         {
             return(expr)
