@@ -172,7 +172,7 @@ buggy(tpaired: denominator, From >> To, Flags, Feed, Trap) :-
 % Choose t-ratio for one-sample t-test
 expert(tpaired: paired_t, From >> To, Flags, Feed, Hint) :-
     From = paired_t(D, Mu, S, N),
-    To   = tratio(dfrac(D - Mu, S / sqrt(N)), N - 1),
+    To   = tratio(dfrac(dec2(D - Mu), dec2(S / dec2(sqrt(N)))), N - 1),
     Feed = [ "Correctly identified the formula for the ",
              \nowrap([\mml(Flags, t), "-ratio for paired samples."])
            ],
