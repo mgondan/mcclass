@@ -837,6 +837,9 @@ pl_hook(natural(P), Res) :-
 pl_hook(qt(P, DF), Res) :-
     r(qt(pl(P), pl(DF)), Res).
 
+pl_hook(dbinom(K, Size, Prob), Res) :-
+    r(dbinom(pl(K), pl(Size), pl(Prob)), Res).
+
 pl_hook(ubinom(C, Size, Prob), Res) :-
     r(ubinom(pl(C), pl(Size), pl(Prob)), Res).
 
@@ -997,7 +1000,7 @@ r_init :-
             sprintf(mask, ci[1], ci[2])
         }
 
-        prob <- function(p, digits=2)
+        prob <- function(p, digits=3)
         {
             mask = sprintf("%%.%if", digits)
             sprintf(mask, p)

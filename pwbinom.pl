@@ -127,6 +127,17 @@ expert(pwbinom: ubinom, From >> To, _Flags, Feed, Hint) :-
     Feed = "Correctly determined the power from the upper tail.",
     Hint = "The power is the upper tail probability at the critical value.".
 
+buggy(pwbinom: dbinom2, From >> To, _Flags, Feed, Trap) :-
+    From = binom_power_4(Tail, Dist, Alpha, N, Pi_0, Pi_1),
+    C    = denoting(c, uqbinom(Tail, Dist, Alpha, N, Pi_0), "the critical value"),
+    To   = instead_of(dbinom2, dbinom(C, N, Pi_1), ubinom(C, N, Pi_1)),
+    Feed = [ "The result matches the power based on the probability ",
+             "density. Please determine the power using the ",
+             "cumulative distribution function."
+           ],
+    Trap = [ "Do not determine the power at the density, but use the cumulative distribution."
+           ].
+
 :- multifile r_init/1.
 r_init(pwbinom) :-
     r_init,
@@ -199,7 +210,7 @@ r_init(pwbinom) :-
         alpha = 0.05
 	    N     = 26
 	    pi_0  = 0.6
-	    pi_1  = 0.75
+	    pi_1  = 0.7
     |}.
 
 %

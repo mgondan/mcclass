@@ -139,12 +139,14 @@ consistent(protect(Expr)) :-
 
 consistent(instead_of(_, Wrong, Instead)) :-
     !,
-    correct(Instead),
+    % correct(Instead),
+    consistent(Instead),
     consistent(Wrong).
 
 consistent(instead_of(_, Wrong, _, Instead, _)) :-
     !,
-    correct(Instead),
+    % correct(Instead),
+    consistent(Instead),
     consistent(Wrong).
 
 consistent(denoting(_, Expr, _)) :-
