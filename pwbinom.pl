@@ -71,7 +71,7 @@ item(pwbinom, Response) -->
 :- multifile expert/5.
 expert(pwbinom: binom, From >> To, _Flags, Feed, Hint) :-
     From = binom_power(Alpha, N, Pi_0, Pi_1),
-    To   = prob(binom_power_2(Alpha, N, Pi_0, Pi_1)),
+    To   = perc(binom_power_2(Alpha, N, Pi_0, Pi_1)),
     Feed = "Correctly identified the problem as a binomial test.",
     Hint = "This is a binomial test.".
 

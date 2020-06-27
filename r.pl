@@ -831,6 +831,9 @@ pl_hook(fratio(F), Res) :-
 pl_hook(prob(P), Res) :-
     r(prob(pl(P)), Res).
 
+pl_hook(perc(P), Res) :-
+    r(perc(pl(P)), Res).
+
 pl_hook(natural(P), Res) :-
     r(natural(pl(P)), Res).
 
@@ -1004,6 +1007,14 @@ r_init :-
         {
             mask = sprintf("%%.%if", digits)
             sprintf(mask, p)
+        }
+
+        perc <- function(p, digits=3)
+        {
+            mask = "%.0f%%"
+            if(digits > 2)
+                mask = sprintf("%%.%if%%%%", digits-2)
+            sprintf(mask, 100*p)
         }
 
         natural <- function(n)
