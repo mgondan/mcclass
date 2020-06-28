@@ -34,8 +34,8 @@ item(pwbinom, Response) -->
       maplist(mathml, C, Cols),
       findall(R, 
         ( between(0, N, K), 
-	  P0 <- prob3(dbinom(K, 'N', pi_0)), 
-	  P1 <- prob3(dbinom(K, 'N', pi_1)),
+          P0 <- prob3(dbinom(K, 'N', pi_0)), 
+          P1 <- prob3(dbinom(K, 'N', pi_1)),
           maplist(mathml, [K, P0, P1], R)
         ), Rows)
     }, 
@@ -55,15 +55,13 @@ item(pwbinom, Response) -->
 	      ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
-                \question(question, 
-                    response, 
-                    [ "The significance level is set ",
-                      "to ", \mml(alpha = '100%'(Alpha)), " one-tailed. Assuming ",
-                      "that the success probability ",
-                      "is ", \nowrap([\mml(Pi_1), ","]), " what is the power of ",
-                      "the test?"
-                    ], 
-                    Response)
+                \question(question, response, 
+                  [ "The significance level is set ",
+                    "to ", \mml(alpha = '100%'(Alpha)), " one-tailed. Assuming ",
+                    "that the success probability ",
+                    "is ", \nowrap([\mml(Pi_1), ","]), " what is the power of ",
+                    "the test?"
+                  ], Response)
 	      ]))
       ]).
 
@@ -122,26 +120,47 @@ buggy(pwbinom: cumul, From >> To, _Flags, Feed, Trap) :-
 % Upper tail
 expert(pwbinom: ubinom, From >> To, _Flags, Feed, Hint) :-
     From = binom_power_4(Tail, Dist, Alpha, N, Pi_0, Pi_1),
-    C    = uqbinom(Tail, Dist, Alpha, N, Pi_0),
-    To   = ubinom(denoting(c, C, "the crititcal value"), N, Pi_1),
+    C    = denoting(c, uqbinom(Tail, Dist, Alpha, N, Pi_0), "the critical value"),
+    To   = pwbinom(C, dist("upper", C), N, Pi_1),
     Feed = "Correctly determined the power from the upper tail.",
     Hint = "The power is the upper tail probability at the critical value.".
 
 buggy(pwbinom: dbinom2, From >> To, _Flags, Feed, Trap) :-
     From = binom_power_4(Tail, Dist, Alpha, N, Pi_0, Pi_1),
     C    = denoting(c, uqbinom(Tail, Dist, Alpha, N, Pi_0), "the critical value"),
-    To   = instead_of(dbinom2, dbinom(C, N, Pi_1), ubinom(C, N, Pi_1)),
+    To   = pwbinom(C, instead_of(dbinom2, dist("density", C), dist("upper", C)), N, Pi_1),
     Feed = [ "The result matches the power based on the probability ",
              "density. Please determine the power using the ",
              "cumulative distribution function."
            ],
-    Trap = [ "Do not determine the power at the density, but use the cumulative distribution."
-           ].
+    Trap = "Do not determine the power at the density, but use the cumulative distribution.".
+
+buggy(pwbinom: dbinom2, From >> To, _Flags, Feed, Trap) :-
+    From = binom_power_4(Tail, Dist, Alpha, N, Pi_0, Pi_1),
+    C    = denoting(c, uqbinom(Tail, Dist, Alpha, N, Pi_0), "the critical value"),
+    To   = pwbinom(C, instead_of(dbinom2, dist("lower", C), dist("upper", C)), N, Pi_1),
+    Feed = [ "The result matches the power based on the lower tail of the ",
+             "distribution under the alternative. Please determine the power using the ",
+             "upper tail of the cumulative distribution function."
+           ],
+    Trap = "Do not determine the power at the lower tail, but use the upper tail of the cumulative distribution.".
+
 
 :- multifile r_init/1.
 r_init(pwbinom) :-
     r_init,
     {|r||
+        pwbinom = function(c, tail, size, prob)
+        {
+            if(tail == "upper")
+                return(ubinom(c, size, prob))
+
+            if(tail == "lower")
+                return(pbinom(c, size, prob))
+
+            dbinom(c, size, prob)
+        }
+
         uqbinom = function(tail, dist, alpha, size, prob)
         {
 	        if(tail == "upper" & dist == "upper")
@@ -190,7 +209,12 @@ r_init(pwbinom) :-
             dbinom(c, size, prob) + pbinom(c, size, prob, lower.tail=FALSE)
         }
 
-	    tail = dist = identity
+	    tail = identity
+
+        dist = function(tail, k)
+        {
+            return(tail)
+        }
 
 	    lower = function(alpha)
 	    {

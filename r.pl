@@ -843,8 +843,8 @@ pl_hook(qt(P, DF), Res) :-
 pl_hook(dbinom(K, Size, Prob), Res) :-
     r(dbinom(pl(K), pl(Size), pl(Prob)), Res).
 
-pl_hook(ubinom(C, Size, Prob), Res) :-
-    r(ubinom(pl(C), pl(Size), pl(Prob)), Res).
+pl_hook(pwbinom(C, Tail, Size, Prob), Res) :-
+    r(pwbinom(pl(C), pl(Tail), pl(Size), pl(Prob)), Res).
 
 pl_hook(uqbinom(Tail, Dist, Alpha, Size, Prob), Res) :-
     r(uqbinom(pl(Tail), pl(Dist), pl(Alpha), pl(Size), pl(Prob)), Res).
@@ -854,6 +854,9 @@ pl_hook(tail(Tail), Res) :-
 
 pl_hook(dist(Dist), Res) :-
     r(dist(pl(Dist)), Res).
+
+pl_hook(dist(Dist, K), Res) :-
+    r(dist(pl(Dist), pl(K)), Res).
 
 pl_hook(pm(X, PM), [P, M]) :-
     pl(X - PM, P),

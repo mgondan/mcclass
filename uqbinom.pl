@@ -159,7 +159,12 @@ r_init(uqbinom) :-
 	        k[1]
 	    }
 
-	    tail = dist = identity
+	    tail = identity
+
+        dist = function(tail, k)
+        {
+            return(tail)
+        }
 
 	    lower = function(alpha)
 	    {

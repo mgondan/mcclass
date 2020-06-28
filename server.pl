@@ -20,8 +20,8 @@ topic_assert(Topic, Fact) :-
 
 cache(Topic) :-
     item(Topic: Item),
-    solution(Topic, Item, Solution, Path),
     r_init(Topic),
+    solution(Topic, Item, Solution, Path),
     rod(Solution, Result),
     topic_assert(Topic, solution(Item, Solution, Path, Result)),
     praise(Topic, Item, Path, Code_Praise, Praise),
