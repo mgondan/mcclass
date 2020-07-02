@@ -35,6 +35,7 @@ cache(Topic) :-
 
 :- consult(tpaired), cache(tpaired).
 :- consult(confint), cache(confint).
+:- consult(tgroups), cache(tgroups).
 :- consult(baseline), cache(baseline).
 :- consult(dbinom), cache(dbinom).
 :- consult(uqbinom), cache(uqbinom).
@@ -48,6 +49,7 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass('favicon.ico'), http_reply_file('favicon.ico', []), []).
 :- http_handler(mcclass(tpaired), handler(tpaired), []).
 :- http_handler(mcclass(confint), handler(confint), []).
+:- http_handler(mcclass(tgroups), handler(tgroups), []).
 :- http_handler(mcclass(baseline), handler(baseline), []).
 :- http_handler(mcclass(dbinom), handler(dbinom), []).
 :- http_handler(mcclass(uqbinom), handler(uqbinom), []).
@@ -142,7 +144,7 @@ page(Id) :-
         \feedback(Id, Response),
         \wrongs(Id),
         \avoid(Id),
-        \navigation(Id, [1-tpaired, 2-confint, 3-dbinom, 4-uqbinom, 5-pwbinom, 6-baseline])
+	\navigation(Id, [1-tpaired, 2-confint, 3-tgroups, 4-dbinom, 5-uqbinom, 6-pwbinom, 7-baseline])
       ]).
 
 hint_level(Id, Hint) :-
