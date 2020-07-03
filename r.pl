@@ -831,6 +831,9 @@ pl_hook(fratio(F), Res) :-
 pl_hook(prob(P), Res) :-
     r(prob(pl(P)), Res).
 
+pl_hook(pvalue(P), Res) :-
+    r(pvalue(pl(P)), Res).
+
 pl_hook(perc(P), Res) :-
     r(perc(pl(P)), Res).
 
@@ -1020,6 +1023,17 @@ r_init :-
             sprintf(mask, 100*p)
         }
 
+        pvalue <- function(p, letter="p")
+        {
+            if(p < .001)
+                return(sprintf("%s < .001", letter))
+
+            if(p < .10)
+                return(sprintf("%s = %.3f", letter, p))
+
+            sprintf("%s = %.2f", letter, p)
+        }
+            
         natural <- function(n)
         {
             sprintf("%i", n)

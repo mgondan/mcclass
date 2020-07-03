@@ -23,6 +23,7 @@ r:pl_hook(n_VR, r(n_VR)).
 r:pl_hook(m_Box, r(m_Box)).
 r:pl_hook(s_Box, r(s_Box)).
 r:pl_hook(n_Box, r(n_Box)).
+r:pl_hook(groups_pvalue(M_A, S_A, N_A, M_B, S_B, N_B), r(groups_pvalue(M_A, S_A, N_A, M_B, S_B, N_B))).
 
 %    
 % t-test for independent groups, t-ratio
@@ -35,15 +36,13 @@ intermediate(tgroups: groups_tratio/6).
 
 :- multifile item//2.
 item(tgroups, Response) -->
-    { M_VR <- m_VR,
-      S_VR <- s_VR,
-      N_VR <- n_VR,
-      M_Box <- m_Box,
-      S_Box <- s_Box,
-      N_Box <- n_Box,
-      P     <- groups_pvalue(m_VR, s_VR, n_VR, m_Box, s_Box, n_Box),
-      Tails <- tails,
-      Alpha <- alpha
+    { rod(m_VR, M_VR),
+      rod(s_VR, S_VR),
+      rod(n_VR, N_VR),
+      rod(m_Box, M_Box),
+      rod(s_Box, S_Box),
+      rod(n_Box, N_Box),
+      rod(groups_pvalue(m_VR, s_VR, n_VR, m_Box, s_Box, n_Box), P)
     }, 
     html(
       [ div(class(card), div(class('card-body'),
@@ -88,10 +87,10 @@ item(tgroups, Response) -->
                 "test (Box: 13.4 ± 1.2 vs. VR: 10.8 ± 1.8, p < 0.001). Both ",
                 "groups showed equal operative performance in the OSATS score ",
                 \nowrap(["(VR: ", \mml(pm(round1(M_VR), round1(S_VR)))]), 
-		" vs. ",
+                " vs. ",
                 \nowrap(["Box: ", \mml(pm(round1(M_Box), round1(S_Box))), ","]),
-		" ",
-		\nowrap([\mml(p = pvalue(P)), ")."]), " Students generally ",
+                " ",
+                \nowrap([\mml(pvalue(P)), ")."]), " Students generally ",
                 "liked training and felt well prepared for assisting in ",
                 "laparoscopic surgery. The efficiency of the training was ",
                 "judged higher by the VR group than by the Box group."
@@ -199,12 +198,12 @@ r_init(tgroups) :-
             frac((n_A - 1) * var_A + (n_B - 1) * var_B, n_A + n_B - 2)
         }
 
-	groups_pvalue <- function(m_A, s_A, n_A, m_B, s_B, n_B)
-	{
-	    vp = var_pool(s_A^2, n_A, s_B^2, n_B)
-	    t = (m_A - m_B) / sqrt(vp * (1/n_A + 1/n_B))
-	    2 * pt(-abs(t), df=n_A + n_B - 2)
-	}
+        groups_pvalue <- function(m_A, s_A, n_A, m_B, s_B, n_B)
+        {
+            vp = var_pool(s_A^2, n_A, s_B^2, n_B)
+            t = (m_A - m_B) / sqrt(vp * (1/n_A + 1/n_B))
+            2 * pt(-abs(t), df=n_A + n_B - 2)
+        }
 
         alpha = 0.05
         tails = 'two-tailed'
