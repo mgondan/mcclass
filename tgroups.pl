@@ -54,10 +54,8 @@ item(tgroups, Response) -->
                 "motor skill training. One group underwent a virtual reality ",
                 "training (VR group), the other group participated in a ",
                 "mixture of online courses and classical training of motor ",
-                "skill with the so-called Box-trainer (Box group)."
-              ]),
-            p(class('card-text'),
-              [ "The primary dependent variable is the result on the OSATS ",
+                "skill with the so-called Box-trainer (Box group). ",
+                "The primary dependent variable is the result on the OSATS ",
                 "test (interval scaled, normally distributed, high scores = ",
                 "good performance). A few more dependent variables were ",
                 "assessed, including a knowledge test (interval scaled), ",
@@ -130,7 +128,7 @@ expert(tgroups: groups_t, From >> To, Flags, Feed, Hint) :-
     Pool = denoting(subsup(s, "pool", 2), 
                var_pool(S_A^2, N_A, S_B^2, N_B), 
                "the pooled variance"),
-    To   = tratio(dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B))), N_A + N_B - 2),
+    To   = tratio(dfrac(dec2(M_A - M_B), dec2(sqrt(Pool * dec2(1/N_A + 1/N_B)))), N_A + N_B - 2),
     Feed = [ "Correctly applied the expression for the ",
              \nowrap([\mml(Flags, t), "-ratio"]), " for independent samples."
            ],
