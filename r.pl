@@ -676,31 +676,31 @@ example :-
     writeln(1 + sqrt(X) --> Z).
 
 %
-% Round to two decimals
+% Round to D decimals
 %
-pl(dec2(X), Res) :-
+pl(dec(X, D), Res) :-
     pl(X, R),
     number(R),
     !,
     interval(R, Int),
-    pl(dec2(Int), Res).
+    pl(dec(Int, D), Res).
 
-pl(dec2(X), Res) :-
+pl(dec(X, D), Res) :-
     pl(X, A ... B),
     !,
-    L is floor(100*A) / 100,
-    U is ceiling(100*B) / 100,
+    L is floor(10^D * A) / 10^D,
+    U is ceiling(10^D * B) / 10^D,
     Res = L ... U.
 
 example :-
     writeln(dec2-1),
-    pl(dec2(sqrt(2)), Z),
-    writeln(dec2(sqrt(2)) --> Z).
+    pl(dec(sqrt(2), 2), Z),
+    writeln(dec(sqrt(2), 2) --> Z).
 
 example :-
     writeln(dec2-2),
-    pl(dec2(sqrt(2.1 ... 2.2)), Z),
-    writeln(dec2(sqrt(2.1 ... 2.2)) --> Z).
+    pl(dec(sqrt(2.1 ... 2.2), 2), Z),
+    writeln(dec(sqrt(2.1 ... 2.2), 2) --> Z).
 
 %
 % General functions that do not account for intervals.
@@ -759,7 +759,7 @@ example :-
     interval(4.0 ... 4.0, Mu),
     interval(3.8 ... 3.8, S),
     interval(24.0 ... 24.0, N),
-    pl(dec2(frac(D - Mu, dec2(S / dec2(sqrt(N))))), T),
+    pl(dec(frac(D - Mu, dec(S / dec(sqrt(N), 2), 2)), 2), T),
     writeln(t --> T).
 
 % Custom functions

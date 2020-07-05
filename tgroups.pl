@@ -128,7 +128,7 @@ expert(tgroups: groups_t, From >> To, Flags, Feed, Hint) :-
     Pool = denoting(subsup(s, "pool", 2), 
                var_pool(S_A^2, N_A, S_B^2, N_B), 
                "the pooled variance"),
-    To   = tratio(dfrac(dec2(M_A - M_B), dec2(sqrt(Pool * dec2(1/N_A + 1/N_B)))), N_A + N_B - 2),
+    To   = tratio(dfrac(dec(M_A - M_B, 2), dec(sqrt(Pool * dec(1/N_A + 1/N_B, 3)), 2)), N_A + N_B - 2),
     Feed = [ "Correctly applied the expression for the ",
              \nowrap([\mml(Flags, t), "-ratio"]), " for independent samples."
            ],
