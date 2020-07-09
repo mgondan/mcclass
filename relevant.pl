@@ -124,6 +124,12 @@ step(Rule, Code, From >> To, Request) :-
     nth1(Index, To_args, New, Rest),
     compound_name_arguments(To, Name, To_args).
 
+% Step without feedback
+%:- multifile expert/2.
+%:- multifile expert/5.
+%expert(Code, A >> B, _, "123", "456") :-
+%    expert(Code, A >> B).
+
 %
 % Check if Expr is consistent 
 % 
@@ -303,6 +309,11 @@ praise(Topic, Item, Path, Code_Praise, Praise) :-
     pairs_values(Code_Praise, Praise).
 
 praise(_, _, [], []).
+
+praise(Topic, A, [Code-X | Path], Praise) :-
+    step(expert, Topic: Code, A >> X, praise([])),
+    !, 
+    praise(Topic, X, Path, Praise).
 
 praise(Topic, A, [Code-X | Path], [Code-P | Praise]) :-
     step(expert, Topic: Code, A >> X, praise(P)),

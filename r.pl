@@ -803,7 +803,7 @@ pl_hook(abbrev(_, Expr), Res) :-
 pl_hook(protect(Expr), Res) :-
     pl(Expr, Res).
 
-pl_hook(var_pool(Var_A, N_A, Var_B, N_B), Res) :-
+pl_hook(var_pool1(Var_A, N_A, Var_B, N_B), Res) :-
     pl(frac((N_A - 1) * Var_A + (N_B - 1) * Var_B, N_A + N_B - 2), Res).
 
 pl_hook(tratio(T, DF), Res) :-

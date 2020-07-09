@@ -136,6 +136,13 @@ expert(tgroups: groups_t, From >> To, Flags, Feed, Hint) :-
              \mml(Flags, dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B))))
            ].
 
+intermediate(tgroups: var_pool/4).
+
+% Switch SDs in pooled variance
+expert(tgroups: vp, From >> To, _, [], []) :-
+    From = var_pool(V_A, N_A, V_B, N_B),
+    To   = var_pool1(V_A, N_A, V_B, N_B).
+
 % Forgot school math
 buggy(tgroups: school, From >> To, Flags, Feed, Trap) :-
     From = 1/A + 1/B,
@@ -191,14 +198,14 @@ r_init(tgroups) :-
     {|r||
         frac <- `/`
 
-        var_pool <- function(var_A, n_A, var_B, n_B)
+        var_pool1 <- function(var_A, n_A, var_B, n_B)
         {
             frac((n_A - 1) * var_A + (n_B - 1) * var_B, n_A + n_B - 2)
         }
 
         groups_pvalue <- function(m_A, s_A, n_A, m_B, s_B, n_B)
         {
-            vp = var_pool(s_A^2, n_A, s_B^2, n_B)
+            vp = var_pool1(s_A^2, n_A, s_B^2, n_B)
             t = (m_A - m_B) / sqrt(vp * (1/n_A + 1/n_B))
             2 * pt(-abs(t), df=n_A + n_B - 2)
         }
@@ -208,13 +215,14 @@ r_init(tgroups) :-
 
         # Exam 2019
         m_Box = 46.0
-	s_Box = 14.4
-	n_Box = 36
-	m_VR  = 48.4
-	s_VR  = 11.7
-	n_VR  = 40
+        s_Box = 14.4
+        n_Box = 36
+        m_VR  = 48.4
+        s_VR  = 11.7
+        n_VR  = 40
     |},
-    csvfile(tgroups, data).
+    % csvfile(tgroups, data),
+    true.
 
 %
 % Invoke example

@@ -288,11 +288,6 @@ r_init(confint) :-
             pm(d, qt(1-alpha/2, df=n-1) * s / sqrt(n))
         }
 
-        var_pool <- function(var_A, n_A, var_B, n_B)
-        {
-            frac((n_A - 1) * var_A + (n_B - 1) * var_B, n_A + n_B - 2)
-        }
-
         tpaired_data <- function(seed)
         {
             set.seed(seed)
