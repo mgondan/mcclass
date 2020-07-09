@@ -149,7 +149,7 @@ intermediate(tgroups: var_pool1/4).
 :- multifile buggy/5.
 buggy(tgroups: sqr, From >> To, _Flags, Feed, Trap) :-
     From = var_pool(square(S_A), N_A, square(S_B), N_B),
-    To   = var_pool1(skip(sqr, square, S_B), N_A, skip(sqr, square, S_A), N_B),
+    To   = var_pool1(skip(sqr, square, S_A), N_A, skip(sqr, square, S_B), N_B),
     Feed = [ "Please use the square of the SDs for the pooled variance." ],
     Trap = Feed.
 
