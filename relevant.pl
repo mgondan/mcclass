@@ -282,6 +282,10 @@ hints(Topic, Item, Path, Code_Hints, Hints) :-
 
 hints(_, _, [], []).
 
+hints(Topic, A, [Code-B | Path], Hints) :-
+    step(expert, Topic: Code, A >> B, hint([])),
+    !, hints(Topic, B, Path, Hints).
+
 hints(Topic, A, [Code-B | Path], [Code-H | Hints]) :-
     step(expert, Topic: Code, A >> B, hint(H)),
     hints(Topic, B, Path, Hints).
