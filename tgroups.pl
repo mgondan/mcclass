@@ -191,8 +191,7 @@ buggy(tgroups: paren_num, From >> To, Flags, Feed, Trap) :-
 % Forget square root
 buggy(tgroups: root, From >> To, Flags, Feed, Trap) :-
     From = sqrt(N),
-    Inst = N,
-    To   = instead_of(root, Inst, From),
+    To   = skip(root, sqrt, N),
     Feed = [ "Please do not forget the square root around ", 
              \nowrap([\mml([highlight(all) | Flags], color(root, N)), "."])
            ],

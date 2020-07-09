@@ -794,6 +794,9 @@ pl_hook(omit_right(_, Expr), Res) :-
     Expr =.. [_, L, _],
     pl(L, Res).
 
+pl_hook(skip(_, _, Expr), Res) :-
+    pl(Expr, Res).
+
 pl_hook(denoting(_, Expr, _), Res) :-
     pl(Expr, Res).
 
@@ -979,6 +982,11 @@ r_init :-
         instead_of1 <- function(err, wrong, error, correct, noerror)
         {
             return(wrong)
+        }
+
+        skip <- function(err, fn, expr)
+        {
+            return(expr)
         }
 
         denoting <- function(sym, expr, label)

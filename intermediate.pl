@@ -39,6 +39,9 @@ final(Topic, omit_right(_, Expr)) :-
     Expr =.. [_, L, _],
     final(Topic, L).
 
+final(Topic, skip(_, _, Expr)) :-
+    final(Topic, Expr).
+
 final(Topic, A) :-
     compound(A),
     functor(A, Name, Arity),

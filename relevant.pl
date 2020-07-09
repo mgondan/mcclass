@@ -91,6 +91,11 @@ step(Rule, Code, omit_right(Err, Expr) >> To, Request) :-
     New =.. [Op, B, Right],
     To = omit_right(Err, New).
 
+step(Rule, Code, skip(Err, Fn, A) >> To, Request) :-
+    !,
+    step(Rule, Code, A >> B, Request),
+    To = skip(Err, Fn, B).
+
 % Direct match
 step(expert, Code, A >> B, none) :-
     expert(Code, A >> B, _, _, _),
@@ -198,6 +203,10 @@ consistent(omit_right(_, Expr)) :-
     correct(R),
     consistent(L).
 
+consistent(skip(_, _Fn, Expr)) :-
+    !,
+    consistent(Expr).
+
 consistent(add(_, Expr)) :-
     !,
     consistent(Expr).
@@ -240,6 +249,8 @@ wrong(omit_right(_, _)).
 wrong(add(_, _)).
 
 wrong(omit(_, _)).
+
+wrong(skip(_, _, _)).
 
 wrong(Compound) :-
     compound(Compound),
@@ -478,6 +489,15 @@ mathex(show, omit_right(_, Expr), Out) :-
     !,
     Expr =.. [_, L, _],
     mathex(show, L, Out).
+
+mathex(fix, skip(_, Fn, Arg), Out) :-
+    !,
+    Expr =.. [Fn, Arg],
+    mathex(fix, Expr, Out).
+
+mathex(show, skip(_, _, Expr), Out) :-
+    !,
+    mathex(show, Expr, Out).
 
 mathex(_, Out, Out) :-
     atomic(Out).
