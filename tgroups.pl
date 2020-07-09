@@ -137,15 +137,30 @@ expert(tgroups: groups_t, From >> To, Flags, Feed, Hint) :-
            ].
 
 intermediate(tgroups: var_pool/4).
+intermediate(tgroups: square/1).
+
+% Switch SDs in pooled variance
+expert(tgroups: sqr, From >> To, _, [], []) :-
+    From = var_pool(square(S_A), N_A, square(S_B), N_B),
+    To   = var_pool1(S_A^2, N_A, S_B^2, N_B).
+
+intermediate(tgroups: var_pool1/4).
+
+:- multifile buggy/5.
+buggy(tgroups: sqr, From >> To, _Flags, Feed, Trap) :-
+    From = var_pool(square(S_A), N_A, square(S_B), N_B),
+    To   = var_pool1(skip(sqr, square, S_B), N_A, skip(sqr, square, S_A), N_B),
+    Feed = [ "Please use the square of the SDs for the pooled variance." ],
+    Trap = Feed.
 
 % Switch SDs in pooled variance
 expert(tgroups: vp, From >> To, _, [], []) :-
-    From = var_pool(V_A, N_A, V_B, N_B),
-    To   = var_pool1(V_A, N_A, V_B, N_B).
+    From = var_pool1(V_A, N_A, V_B, N_B),
+    To   = var_pool2(V_A, N_A, V_B, N_B).
 
 buggy(tgroups: vp, From >> To, _Flags, Feed, Trap) :-
-    From = var_pool(V_A, N_A, V_B, N_B),
-    To   = var_pool1(instead_of(vp, V_B, V_A), N_A, instead_of(vp, V_A, V_B), N_B),
+    From = var_pool1(V_A, N_A, V_B, N_B),
+    To   = var_pool2(instead_of(vp, V_B, V_A), N_A, instead_of(vp, V_A, V_B), N_B),
     Feed = [ "The SDs have been confused in the expression for the pooled variance." ],
     Trap = [ "Do not confuse the SDs in the pooled variance." ].
 
@@ -197,15 +212,6 @@ buggy(tgroups: root, From >> To, Flags, Feed, Trap) :-
            ],
     Trap = Feed.
 
-% Forget square
-%buggy(tgroups: sqr, From >> To, Flags, Feed, Trap) :-
-%    From = square(S),
-%    To   = skip(sqr, square, S),
-%    Feed = [ "Please do not forget the square around ",
-%             \nowrap([\mml([highlight(all) | Flags], color(sqr, S)), "."])
-%           ],
-%    Trap = Feed.
-
 :- multifile r_init/1.
 r_init(tgroups) :-
     r_init,
@@ -251,7 +257,7 @@ example :-
     rod(Solution, Result),
     writeln(result: Result),
     writeln(path: Path),
-    mathml(Solution = number(Result), Mathml),
+    mathml(Solution = quantity(Result), Mathml),
     writeln(mathml: Mathml),
     hints(Topic, Item, Path, _, Hints),
     writeln(hints: Hints),

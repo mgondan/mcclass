@@ -201,7 +201,7 @@ intermediate(tpaired: groups_t/6).
 expert(tpaired: groups_t, From >> To, Flags, Feed, Hint) :-
     From = groups_t(M_A, S_A, N_A, M_B, S_B, N_B),
     Pool = denoting(subsup(s, "pool", 2), 
-               var_pool1(S_A^2, N_A, S_B^2, N_B), 
+               var_pool2(S_A^2, N_A, S_B^2, N_B), 
                "the pooled variance"),
     To   = tratio(dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B))), N_A + N_B - 2),
     Feed = [ "Correctly applied the expression for the ",
@@ -306,7 +306,7 @@ r_init(tpaired) :-
             dfrac(d - mu, s / sqrt(n))
         }
 
-        var_pool1 <- function(var_A, n_A, var_B, n_B)
+        var_pool2 <- function(var_A, n_A, var_B, n_B)
         {
             frac((n_A - 1) * var_A + (n_B - 1) * var_B, n_A + n_B - 2)
         }
