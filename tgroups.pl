@@ -128,12 +128,12 @@ expert(tgroups: groups_t, From >> To, Flags, Feed, Hint) :-
     Pool = denoting(subsup(s, "pool", 2), 
                var_pool(S_A^2, N_A, S_B^2, N_B), 
                "the pooled variance"),
-    To   = tratio(dfrac(dec(M_A - M_B, 2), dec(sqrt(Pool * dec(1/N_A + 1/N_B, 3)), 2)), N_A + N_B - 2),
+    To   = tratio(dfrac(dec(M_A - M_B, 2), dec(sqrt(Pool * dec(frac(1, N_A) + frac(1, N_B), 3)), 2)), N_A + N_B - 2),
     Feed = [ "Correctly applied the expression for the ",
              \nowrap([\mml(Flags, t), "-ratio"]), " for independent samples."
            ],
     Hint = [ "Determine the ", \nowrap([\mml(Flags, t), "-ratio:"]), " ",
-             \mml(Flags, dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B))))
+             \mml(Flags, dfrac(M_A - M_B, sqrt(Pool * (frac(1, N_A) + frac(1, N_B)))))
            ].
 
 intermediate(tgroups: var_pool/4).
@@ -143,9 +143,15 @@ expert(tgroups: vp, From >> To, _, [], []) :-
     From = var_pool(V_A, N_A, V_B, N_B),
     To   = var_pool1(V_A, N_A, V_B, N_B).
 
+buggy(tgroups: vp, From >> To, _Flags, Feed, Trap) :-
+    From = var_pool(V_A, N_A, V_B, N_B),
+    To   = var_pool1(instead_of(vp, V_B, V_A), N_A, instead_of(vp, V_A, V_B), N_B),
+    Feed = [ "The SDs have been confused in the expression for the pooled variance." ],
+    Trap = [ "Do not confuse the SDs in the pooled variance." ].
+
 % Forgot school math
 buggy(tgroups: school, From >> To, Flags, Feed, Trap) :-
-    From = 1/A + 1/B,
+    From = frac(1, A) + frac(1, B),
     dif(A, B),
     Inst = frac(1, A + B),
     To   = instead_of(school, Inst, From),
@@ -157,7 +163,7 @@ buggy(tgroups: school, From >> To, Flags, Feed, Trap) :-
            ].
 
 buggy(tgroups: school, From >> To, Flags, Feed, Trap) :-
-    From = 1/A + 1/A,
+    From = frac(1, A) + frac(1, A),
     Inst = frac(1, 2*A),
     To   = instead_of(school, Inst, From),
     Feed = [ "Please remember school math: ",
@@ -198,9 +204,9 @@ r_init(tgroups) :-
     {|r||
         frac <- `/`
 
-        var_pool1 <- function(var_A, n_A, var_B, n_B)
+        var_pool1 <- function(v_A, n_A, v_B, n_B)
         {
-            frac((n_A - 1) * var_A + (n_B - 1) * var_B, n_A + n_B - 2)
+            frac((n_A - 1) * v_A + (n_B - 1) * v_B, n_A + n_B - 2)
         }
 
         groups_pvalue <- function(m_A, s_A, n_A, m_B, s_B, n_B)
