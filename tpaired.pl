@@ -212,28 +212,28 @@ expert(tpaired: groups_t, From >> To, Flags, Feed, Hint) :-
            ].
 
 % Forgot school math
-buggy(tpaired: school, From >> To, Flags, Feed, Trap) :-
-    From = 1/A + 1/B,
-    dif(A, B),
-    Inst = frac(1, A + B),
-    To   = instead_of(school, Inst, From),
-    Feed = [ "Please remember school math: ", 
-             \mml(Flags, color(school, black(From) \= black(Inst)))
-           ],
-    Trap = [ "Please remember school math: ",
-             \mml(Flags, From = frac(A + B, A*B))
-           ].
+%buggy(tpaired: school, From >> To, Flags, Feed, Trap) :-
+%    From = 1/A + 1/B,
+%    dif(A, B),
+%    Inst = frac(1, A + B),
+%    To   = instead_of(school, Inst, From),
+%    Feed = [ "Please remember school math: ", 
+%             \mml(Flags, color(school, black(From) \= black(Inst)))
+%           ],
+%    Trap = [ "Please remember school math: ",
+%             \mml(Flags, From = frac(A + B, A*B))
+%           ].
 
-buggy(tpaired: school, From >> To, Flags, Feed, Trap) :-
-    From = 1/A + 1/A,
-    Inst = frac(1, 2*A),
-    To   = instead_of(school, Inst, From),
-    Feed = [ "Please remember school math: ",
-             \mml(Flags, color(school, black(From) \= black(Inst)))
-           ],
-    Trap = [ "Please remember school math: ",
-             \mml(Flags, From = frac(2, A))
-           ].
+%buggy(tpaired: school, From >> To, Flags, Feed, Trap) :-
+%    From = 1/A + 1/A,
+%    Inst = frac(1, 2*A),
+%    To   = instead_of(school, Inst, From),
+%    Feed = [ "Please remember school math: ",
+%             \mml(Flags, color(school, black(From) \= black(Inst)))
+%           ],
+%    Trap = [ "Please remember school math: ",
+%             \mml(Flags, From = frac(2, A))
+%           ].
 
 % Forget parentheses
 buggy(tpaired: frac_paren, From >> To, Flags, Feed, Trap) :-

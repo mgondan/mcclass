@@ -296,7 +296,8 @@ hints(Topic, A, [Code-B | Path], [Code-H | Hints]) :-
 %
 traps(Topic, Item, Path, Code_Traps, Traps) :-
     traps(Topic, Item, Path, List),
-    append(List, Code_Traps),
+    append(List, All),
+    sort(1, @<, All, Code_Traps),
     pairs_values(Code_Traps, Traps).
     
 traps(Topic, Solution, [], [Traps]) :-

@@ -7,8 +7,8 @@
 :- consult(temp).
 :- use_module(r).
 
-mathml:math_hook(Flags, m_VR, Flags, overline("VR")).
-mathml:math_hook(Flags, m_Box, Flags, overline("Box")).
+mathml:math_hook(Flags, osats_VR, Flags, sub(overline("OSATS"), "VR")).
+mathml:math_hook(Flags, osats_Box, Flags, sub(overline("OSATS"), "Box")).
 
 mathml:math_hook(Flags, s_VR, Flags, sub(s, "VR")).
 mathml:math_hook(Flags, s_Box, Flags, sub(s, "Box")).
@@ -17,10 +17,10 @@ mathml:math_hook(Flags, n_VR, Flags, sub(n, "VR")).
 mathml:math_hook(Flags, n_Box, Flags, sub(n, "Box")).
 
 % R constants
-r:pl_hook(m_VR, r(m_VR)).
+r:pl_hook(osats_VR, r(osats_VR)).
 r:pl_hook(s_VR, r(s_VR)).
 r:pl_hook(n_VR, r(n_VR)).
-r:pl_hook(m_Box, r(m_Box)).
+r:pl_hook(osats_Box, r(osats_Box)).
 r:pl_hook(s_Box, r(s_Box)).
 r:pl_hook(n_Box, r(n_Box)).
 r:pl_hook(groups_pvalue(M_A, S_A, N_A, M_B, S_B, N_B), r(groups_pvalue(M_A, S_A, N_A, M_B, S_B, N_B))).
@@ -29,20 +29,20 @@ r:pl_hook(groups_pvalue(M_A, S_A, N_A, M_B, S_B, N_B), r(groups_pvalue(M_A, S_A,
 % t-test for independent groups, t-ratio
 %
 :- multifile item/1.
-item(tgroups: groups_tratio(m_VR, s_VR, n_VR, m_Box, s_Box, n_Box)).
+item(tgroups: groups_tratio(osats_VR, s_VR, n_VR, osats_Box, s_Box, n_Box)).
 
 :- multifile intermediate/1.
 intermediate(tgroups: groups_tratio/6).
 
 :- multifile item//2.
 item(tgroups, Response) -->
-    { rod(m_VR, M_VR),
+    { rod(osats_VR, M_VR),
       rod(s_VR, S_VR),
       rod(n_VR, N_VR),
-      rod(m_Box, M_Box),
+      rod(osats_Box, M_Box),
       rod(s_Box, S_Box),
       rod(n_Box, N_Box),
-      rod(groups_pvalue(m_VR, s_VR, n_VR, m_Box, s_Box, n_Box), P)
+      rod(groups_pvalue(osats_VR, s_VR, n_VR, osats_Box, s_Box, n_Box), P)
     }, 
     html(
       [ div(class(card), div(class('card-body'),
@@ -126,7 +126,7 @@ intermediate(tgroups: groups_t/6).
 expert(tgroups: groups_t, From >> To, Flags, Feed, Hint) :-
     From = groups_t(M_A, S_A, N_A, M_B, S_B, N_B),
     Pool = denoting(subsup(s, "pool", 2), 
-               var_pool(S_A^2, N_A, S_B^2, N_B), 
+               var_pool(square(S_A), N_A, square(S_B), N_B), 
                "the pooled variance"),
     To   = tratio(dfrac(dec(M_A - M_B, 2), dec(sqrt(Pool * dec(frac(1, N_A) + frac(1, N_B), 3)), 2)), N_A + N_B - 2),
     Feed = [ "Correctly applied the expression for the ",
@@ -150,24 +150,24 @@ buggy(tgroups: vp, From >> To, _Flags, Feed, Trap) :-
     Trap = [ "Do not confuse the SDs in the pooled variance." ].
 
 % Forgot school math
-buggy(tgroups: school, From >> To, Flags, Feed, Trap) :-
+buggy(tgroups: school1, From >> To, Flags, Feed, Trap) :-
     From = frac(1, A) + frac(1, B),
     dif(A, B),
     Inst = frac(1, A + B),
-    To   = instead_of(school, Inst, From),
+    To   = instead_of(school1, Inst, From),
     Feed = [ "Please remember school math: ", 
-             \mml(Flags, color(school, black(From) \= black(Inst)))
+             \mml(Flags, color(school1, black(From) \= black(Inst)))
            ],
     Trap = [ "Please remember school math: ",
              \mml(Flags, From = frac(A + B, A*B))
            ].
 
-buggy(tgroups: school, From >> To, Flags, Feed, Trap) :-
+buggy(tgroups: school2, From >> To, Flags, Feed, Trap) :-
     From = frac(1, A) + frac(1, A),
     Inst = frac(1, 2*A),
-    To   = instead_of(school, Inst, From),
+    To   = instead_of(school2, Inst, From),
     Feed = [ "Please remember school math: ",
-             \mml(Flags, color(school, black(From) \= black(Inst)))
+             \mml(Flags, color(school2, black(From) \= black(Inst)))
            ],
     Trap = [ "Please remember school math: ",
              \mml(Flags, From = frac(2, A))
@@ -197,6 +197,15 @@ buggy(tgroups: root, From >> To, Flags, Feed, Trap) :-
            ],
     Trap = Feed.
 
+% Forget square
+%buggy(tgroups: sqr, From >> To, Flags, Feed, Trap) :-
+%    From = square(S),
+%    To   = skip(sqr, square, S),
+%    Feed = [ "Please do not forget the square around ",
+%             \nowrap([\mml([highlight(all) | Flags], color(sqr, S)), "."])
+%           ],
+%    Trap = Feed.
+
 :- multifile r_init/1.
 r_init(tgroups) :-
     r_init,
@@ -219,10 +228,10 @@ r_init(tgroups) :-
         tails = 'two-tailed'
 
         # Exam 2019
-        m_Box = 46.0
+        osats_Box = 46.0
         s_Box = 14.4
         n_Box = 36
-        m_VR  = 48.4
+        osats_VR  = 48.4
         s_VR  = 11.7
         n_VR  = 40
     |},

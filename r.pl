@@ -880,6 +880,9 @@ pl_hook(ancova_ffffff(D, Prim, Cov, Strata, Other, Int, Ex, Main), Res) :-
 pl_hook(choose(N, K), Res) :-
     r(choose(N, K), Res).
 
+pl_hook(square(X), Res) :-
+    pl(X * X, Res).
+
 % Use R for evaluation
 %
 % Use R for full expression
