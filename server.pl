@@ -40,6 +40,7 @@ cache(Topic) :-
 :- consult(dbinom), cache(dbinom).
 :- consult(uqbinom), cache(uqbinom).
 :- consult(pwbinom), cache(pwbinom).
+:- consult(ztrans), cache(ztrans).
 
 :- multifile http:location/3.
 :- dynamic http:location/3.
@@ -54,6 +55,7 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(dbinom), handler(dbinom), []).
 :- http_handler(mcclass(uqbinom), handler(uqbinom), []).
 :- http_handler(mcclass(pwbinom), handler(pwbinom), []).
+:- http_handler(mcclass(ztrans), handler(ztrans), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
@@ -144,7 +146,7 @@ page(Id) :-
         \feedback(Id, Response),
         \wrongs(Id),
         \avoid(Id),
-	\navigation(Id, [1-tpaired, 2-confint, 3-tgroups, 4-dbinom, 5-uqbinom, 6-pwbinom, 7-baseline])
+        \navigation(Id, [1-tpaired, 2-confint, 3-tgroups, 4-ztrans, 5-dbinom, 6-uqbinom, 7-pwbinom, 8-baseline])
       ]).
 
 hint_level(Id, Hint) :-

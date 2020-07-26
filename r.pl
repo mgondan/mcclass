@@ -828,6 +828,22 @@ pl_hook(tratio(T, DF), Res) :-
        ; format(string(Res), "t(~0f) = ~2f ... ~2f", [ResDF, L, U])
     ).
 
+pl_hook(perc(P), Res) :-
+    pl(perc(P, 3), Res).
+
+pl_hook(perc(P, Digits), Res) :-
+    pl(P, ResP),
+    number(ResP),
+    format(string(Mask), "~~~0ff%", max(0, Digits-2)),
+    format(string(Res), Mask, ResP*100).
+
+pl_hook(perc(P, Dig), Res) :-
+    pl(P, ResP),
+    interval(ResP),
+    interval(ResP, L ... U),
+    format(string(Mask), "~~~0ff% ... ~~~0ff%", [max(0, Dig-2), max(0, Dig-2)]),
+    format(string(Res), Mask, [L*100, U*100]).
+    
 pl_hook(fratio(F), Res) :-
     r(fratio(pl(F)), Res).
 
@@ -836,9 +852,6 @@ pl_hook(prob(P), Res) :-
 
 pl_hook(pvalue(P), Res) :-
     r(pvalue(pl(P)), Res).
-
-pl_hook(perc(P), Res) :-
-    r(perc(pl(P)), Res).
 
 pl_hook(natural(P), Res) :-
     r(natural(pl(P)), Res).
@@ -863,6 +876,12 @@ pl_hook(dist(Dist), Res) :-
 
 pl_hook(dist(Dist, K), Res) :-
     r(dist(pl(Dist), pl(K)), Res).
+
+pl_hook(pnorm(Z), Res) :-
+    r(pnorm(pl(Z)), Res).
+
+pl_hook(unorm(Z), Res) :-
+    r(unorm(pl(Z)), Res).
 
 pl_hook(pm(X, PM), [P, M]) :-
     pl(X - PM, P),
@@ -1026,14 +1045,6 @@ r_init :-
             sprintf(mask, p)
         }
 
-        perc <- function(p, digits=3)
-        {
-            mask = "%.0f%%"
-            if(digits > 2)
-                mask = sprintf("%%.%if%%%%", digits-2)
-            sprintf(mask, 100*p)
-        }
-
         pvalue <- function(p, letter="p")
         {
             if(p < .001)
@@ -1056,6 +1067,11 @@ r_init :-
         }
 
         protect <- identity
+
+        unorm <- function(...)
+        {
+            pnorm(..., lower.tail=FALSE)
+        }
     |}.
 
 % Tests
