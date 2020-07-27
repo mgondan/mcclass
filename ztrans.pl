@@ -66,7 +66,7 @@ intermediate(ztrans: ztrans_pnorm_2/4).
 expert(ztrans: ztrans_z, From >> To, Flags, Feed, Hint) :-
     From = ztrans_pnorm_2(X, Mu, Sigma, _Sigma2),
     Z    = denoting(z, dfrac(X - Mu, Sigma), "the standardized score"),
-    To   = perc(ztrans_pnorm(dec(Z, 2))),
+    To   = ztrans_pnorm(dec(Z, 1)),
     Feed = [ "Correctly standardized the score." ],
     Hint = [ "The expression for the standardized score is ", 
              \nowrap([\mml(Flags, dfrac(X - Mu, Sigma)), "."]) 
@@ -79,7 +79,7 @@ intermediate(ztrans: ztrans_pnorm/1).
 buggy(ztrans: ztrans_z, From >> To, Flags, Feed, Trap) :-
     From = ztrans_pnorm_2(X, Mu, Sigma, Sigma2),
     Z    = denoting(z, dfrac(X - Mu, instead_of(ztrans_z, Sigma2, Sigma)), "the standardized score"),
-    To   = perc(ztrans_pnorm(dec(Z, 2))),
+    To   = ztrans_pnorm(dec(Z, 1)),
     Feed = [ "Please use the SD for ",
              "the ", \nowrap([\mml(Flags, z), "-standardization"]), " instead ",
              "of the variance."
@@ -89,21 +89,29 @@ buggy(ztrans: ztrans_z, From >> To, Flags, Feed, Trap) :-
 % Lower tail
 expert(ztrans: ztrans_lower, From >> To, _Flags, Feed, Hint) :-
     From = ztrans_pnorm(Z),
-    To   = pnorm(Z),
+    To   = perc(pnorm(Z)),
     Feed = [ "Correctly determined the lower tail of the standard Normal ",
              "distribution."
            ],
     Hint = "Determine the lower tail of the standard Normal distribution.".
 
 % Upper tail
-:- multifile buggy/5.
 buggy(ztrans: ztrans_lower, From >> To, _Flags, Feed, Trap) :-
     From = ztrans_pnorm(Z),
-    To   = instead_of(ztrans_lower, unorm(Z), pnorm(Z)),
+    To   = perc(instead_of(ztrans_lower, unorm(Z), pnorm(Z))),
     Feed = [ "The upper tail of the standard Normal distribution was reported ",
              "instead of the lower tail."
            ],
     Trap = "Avoid to report the upper tail instead of the lower tail.".
+
+% Forget Normal distribution
+buggy(ztrans: ztrans_norm, From >> To, Flags, Feed, Trap) :-
+    From = ztrans_pnorm(Z),
+    To   = zratio(Z),
+    Feed = [ "The ", \nowrap([\mml(Flags, z), "-value"]), " was reported ",
+             "instead of the lower tail of the standard Normal distribution."
+           ],
+    Trap = "Avoid omitting the application of the Normal distribution.".
 
 :- multifile r_init/1.
 r_init(ztrans) :-

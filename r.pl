@@ -809,6 +809,23 @@ pl_hook(protect(Expr), Res) :-
 pl_hook(var_pool2(Var_A, N_A, Var_B, N_B), Res) :-
     pl(frac((N_A - 1) * Var_A + (N_B - 1) * Var_B, N_A + N_B - 2), Res).
 
+pl_hook(zratio(Z), Res) :-
+    pl(Z, ResZ),
+    number(ResZ),
+    ( abs(ResZ) >= 10
+      -> format(string(Res), "z = ~1f", [ResZ])
+       ; format(string(Res), "z = ~2f", [ResZ])
+    ).
+
+pl_hook(zratio(Z), Res) :-
+    pl(Z, ResZ),
+    interval(ResZ),
+    interval(ResZ, L ... U),
+    ( min(abs(L), abs(U)) >= 10
+      -> format(string(Res), "z = ~1f ... ~1f", [L, U])
+       ; format(string(Res), "z = ~2f ... ~2f", [L, U])
+    ).
+
 pl_hook(tratio(T, DF), Res) :-
     pl(T, ResT),
     number(ResT),
@@ -1019,13 +1036,6 @@ r_init :-
         abbrev <- function(sym, expr)
         {
             return(expr)
-        }
-
-        tratio <- function(t, df)
-        {
-            r = sprintf(ifelse(abs(t) >= 10, "%.1f", "%.2f"), t)
-            d = sprintf("%g", df)
-            sprintf("t(%s) = %s", d, r)
         }
 
         fratio <- function(f)
