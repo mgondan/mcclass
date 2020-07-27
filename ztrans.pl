@@ -65,7 +65,7 @@ intermediate(ztrans: ztrans_pnorm_2/4).
 % z-standardization
 expert(ztrans: ztrans_z, From >> To, Flags, Feed, Hint) :-
     From = ztrans_pnorm_2(X, Mu, Sigma, _Sigma2),
-    Z    = denoting(z, dfrac(X - Mu, Sigma), "the standardized score"),
+    Z    = dfrac(X - Mu, Sigma),
     To   = ztrans_pnorm(dec(Z, 1)),
     Feed = [ "Correctly standardized the score." ],
     Hint = [ "The expression for the standardized score is ", 
@@ -78,7 +78,7 @@ intermediate(ztrans: ztrans_pnorm/1).
 :- multifile buggy/5.
 buggy(ztrans: ztrans_z, From >> To, Flags, Feed, Trap) :-
     From = ztrans_pnorm_2(X, Mu, Sigma, Sigma2),
-    Z    = denoting(z, dfrac(X - Mu, instead_of(ztrans_z, Sigma2, Sigma)), "the standardized score"),
+    Z    = dfrac(X - Mu, instead_of(ztrans_z, Sigma2, Sigma)),
     To   = ztrans_pnorm(dec(Z, 1)),
     Feed = [ "Please use the SD for ",
              "the ", \nowrap([\mml(Flags, z), "-standardization"]), " instead ",
@@ -89,7 +89,8 @@ buggy(ztrans: ztrans_z, From >> To, Flags, Feed, Trap) :-
 % Lower tail
 expert(ztrans: ztrans_lower, From >> To, _Flags, Feed, Hint) :-
     From = ztrans_pnorm(Z),
-    To   = perc(pnorm(Z)),
+    ZZ   = denoting(z, Z, "the standardized score"),
+    To   = perc(pnorm(ZZ)),
     Feed = [ "Correctly determined the lower tail of the standard Normal ",
              "distribution."
            ],
@@ -98,7 +99,8 @@ expert(ztrans: ztrans_lower, From >> To, _Flags, Feed, Hint) :-
 % Upper tail
 buggy(ztrans: ztrans_lower, From >> To, _Flags, Feed, Trap) :-
     From = ztrans_pnorm(Z),
-    To   = perc(instead_of(ztrans_lower, unorm(Z), pnorm(Z))),
+    ZZ   = denoting(z, Z, "the standardized score"),
+    To   = perc(instead_of(ztrans_lower, unorm(ZZ), pnorm(ZZ))),
     Feed = [ "The upper tail of the standard Normal distribution was reported ",
              "instead of the lower tail."
            ],
