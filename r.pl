@@ -845,6 +845,25 @@ pl_hook(tratio(T, DF), Res) :-
        ; format(string(Res), "t(~0f) = ~2f ... ~2f", [ResDF, L, U])
     ).
 
+pl_hook(chi2ratio(X2, DF), Res) :-
+    pl(X2, ResX2),
+    number(ResX2),
+    pl(DF, ResDF),
+    ( abs(ResX2) >= 10
+      -> format(string(Res), "chi2(~0f) = ~1f", [ResDF, ResX2])
+       ; format(string(Res), "chi2(~0f) = ~2f", [ResDF, ResX2])
+    ).
+
+pl_hook(chi2ratio(X2, DF), Res) :-
+    pl(X2, ResX2),
+    interval(ResX2),
+    interval(ResX2, L ... U),
+    pl(DF, ResDF),
+    ( min(abs(L), abs(U)) >= 10
+      -> format(string(Res), "chi2(~0f) = ~1f ... ~1f", [ResDF, L, U])
+       ; format(string(Res), "chi2(~0f) = ~2f ... ~2f", [ResDF, L, U])
+    ).
+
 pl_hook(perc(P), Res) :-
     pl(perc(P, 3), Res).
 
