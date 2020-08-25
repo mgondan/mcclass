@@ -52,6 +52,7 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(tpaired), handler(tpaired), []).
 :- http_handler(mcclass(confint), handler(confint), []).
 :- http_handler(mcclass(tgroups), handler(tgroups), []).
+:- http_handler(mcclass(chisq), handler(chisq), []).
 :- http_handler(mcclass(baseline), handler(baseline), []).
 :- http_handler(mcclass(dbinom), handler(dbinom), []).
 :- http_handler(mcclass(uqbinom), handler(uqbinom), []).
@@ -147,7 +148,7 @@ page(Id) :-
         \feedback(Id, Response),
         \wrongs(Id),
         \avoid(Id),
-        \navigation(Id, [1-tpaired, 2-confint, 3-tgroups, 4-ztrans, 5-dbinom, 6-uqbinom, 7-pwbinom, 8-baseline])
+	\navigation(Id, [1-tpaired, 2-confint, 3-tgroups, 4-chisq, 5-ztrans, 6-dbinom, 7-uqbinom, 8-pwbinom, 9-baseline])
       ]).
 
 hint_level(Id, Hint) :-
