@@ -36,6 +36,7 @@ cache(Topic) :-
 :- consult(tpaired), cache(tpaired).
 :- consult(confint), cache(confint).
 :- consult(tgroups), cache(tgroups).
+:- consult(chisq), cache(chisq).
 :- consult(baseline), cache(baseline).
 :- consult(dbinom), cache(dbinom).
 :- consult(uqbinom), cache(uqbinom).
