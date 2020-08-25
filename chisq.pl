@@ -140,7 +140,7 @@ r_init(chisq) :-
 
         p_pool1 <- function(s_A, n_A, s_B, n_B)
         {
-            frac(n_A * s_A + n_B * s_B, n_A + n_B)
+            frac(s_A + s_B, n_A + n_B)
         }
 
         chisq_pvalue <- function(s_A, n_A, s_B, n_B)
