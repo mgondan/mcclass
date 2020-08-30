@@ -1,5 +1,5 @@
 % User authentication
-:- module(login, [anonymous/0, known/1, login/1, logout/0, login_screen/0, login_request/1]).
+:- module(login, [anonymous/0, known/1, login/1, logout/0, login_screen/0, login_request/1, hello//0]).
 
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/http_session)).
@@ -9,6 +9,10 @@ anonymous :-
 
 known(User) :-
     http_session_data(user(User)).
+
+hello -->
+    { known(User) },
+    html(p("Hello ~w"-User)).
 
 login(User) :-
     http_session_retractall(user(_)),

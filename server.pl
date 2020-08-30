@@ -145,7 +145,8 @@ page(Id) :-
 	    link([rel(icon), href('/mcclass/favicon.ico'), type('image/x-icon')]),
 	    meta([name(viewport), content('width=device-width, initial-scale=1')])
       ],
-      [ \item(Id, Response),
+      [ \hello,
+        \item(Id, Response),
         \help(Id),
         \feedback(Id, Response),
         \wrongs(Id),
