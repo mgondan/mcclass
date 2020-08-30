@@ -11,6 +11,7 @@
 :- use_module(library(http/http_session)).
 :- use_module(library(quantity)).
 :- use_module(library(r/r_call)).
+:- use_module(login).
 
 :- initialization http_daemon.
 
@@ -61,78 +62,79 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
+% Prepare handler
 handler(Id, Request) :-
     r_init(Id),
-    buggies(Id, Codes_Feedback),
-    findall(Code, (member(Bug-_, Codes_Feedback), Code =.. [Bug, _, [default(off)]]), Codes),
     member(method(post), Request),
-    http_parameters(Request,
-      [ download(Download, [optional(true)]), 
-        help(Help, [optional(true)]),
-        response(Response, [optional(true)]),
-        buggy(Buggy, [optional(true)]) 
-          | Codes
-      ]),
-    maplist([C, P] >> (C =.. [Bug, Value, _], P =.. [Bug, Value]), Codes, Post),
-    post(Id, [download(Download), help(Help), response(Response), buggy(Buggy) | Post]).
+    !,
+    http_parameters(Request, [], [form_data(Data)]),
+    handle(Id, Data).
 
 handler(Id, _Request) :-
-    page(Id).
+    handle(Id, []).
+
+% Handle login request
+handle(Id, Data) :-
+    anonymous,
+    http_log("1\n", []),
+    login_request(Data),
+    http_log("2\n", []),
+    handle(Id, Data).
+
+% Show login screen
+handle(_Id, _Data) :-
+    anonymous,
+    login_screen.
 
 % Download csv data
 :- dynamic temp/3.
-post(Id, Request) :-
-    option(download(Download), Request),
-    ground(Download),
+handle(Id, Data) :-
+    member(download=_, Data),
     temp(Id, Temp, csv),
-    format(atom(File), 'attachment ; filename=~k.csv', [Id]),
-    http_reply_file(
-        Temp, 
-	[ unsafe(true), 
-	  mime_type(text/csv), 
-	  headers(['Content-Disposition'(File)]) 
-	], 
-	Request).
+    format(atom(File), 'attachment; filename=~k.csv', [Id]),
+    http_current(Request),
+    http_reply_file(Temp, 
+      [ unsafe(true), 
+        mime_type(text/csv), headers(['Content-Disposition'(File)])
+      ], Request).
 
 % Download xlsx data
-post(Id, Request) :-
-    option(download(Download), Request),
-    ground(Download),
+handle(Id, Data) :-
+    member(download=_, Data),
     temp(Id, Temp, xlsx),
-    format(atom(File), 'attachment ; filename=~k.xlsx', [Id]),
-    http_reply_file(
-        Temp, 
-        [ unsafe(true), 
-          mime_type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'), 
-          headers(['Content-Disposition'(File)]) 
-        ], 
-        Request).
+    format(atom(File), 'attachment; filename=~k.xlsx', [Id]),
+    http_current_request(Request),
+    http_reply_file(Temp, 
+      [ unsafe(true), 
+        mime_type('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'), 
+        headers(['Content-Disposition'(File)]) 
+      ], Request).
 
 % Ask for help
-post(Id, Request) :-
-    option(help(Help), Request),
-    ground(Help),
+handle(Id, Data) :-
+    member(help=_, Data),
     hint_increase(Id),
     page(Id).
 
 % Evaluate response
-post(Id, Request) :-
-    option(response(Response), Request),
-    ground(Response),
+handle(Id, Data) :-
+    member(response=Response, Data),
     responded(Id, Response),
     page(Id).
 
-% Evaluate response
-post(Id, Request) :-
-    option(buggy(Bugs), Request),
-    ground(Bugs),
+% Toggle buggy rules
+handle(Id, Data) :-
+    member(buggy=_, Data),
     buggies(Id, Codes_Feedback),
-    findall(C, (member(C-_, Codes_Feedback), Option =.. [C, on], option(Option, Request)), List),
+    findall(C, (member(C-_, Codes_Feedback), member(C=on, Data)), List),
     bugs(Id, List),
     page(Id).
 
+% Default
+handle(Id, _) :-
+    page(Id).
+
 page(Id) :-
-    r_init(Id),
     response(Id, Response),
     reply_html_page(
       [ title('McClass'),
@@ -148,7 +150,9 @@ page(Id) :-
         \feedback(Id, Response),
         \wrongs(Id),
         \avoid(Id),
-	\navigation(Id, [1-tpaired, 2-confint, 3-tgroups, 4-chisq, 5-ztrans, 6-dbinom, 7-uqbinom, 8-pwbinom, 9-baseline])
+        \navigation(Id, 
+          [ 1-tpaired, 2-confint, 3-tgroups, 4-chisq, 5-ztrans, 6-dbinom, 7-uqbinom, 8-pwbinom, 9-baseline
+          ])
       ]).
 
 hint_level(Id, Hint) :-

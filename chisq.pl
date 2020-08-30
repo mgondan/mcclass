@@ -23,7 +23,7 @@ r:pl_hook(n_VR, r(n_VR)).
 r:pl_hook(p_Box, r(p_Box)).
 r:pl_hook(s_Box, r(s_Box)).
 r:pl_hook(n_Box, r(n_Box)).
-r:pl_hook(p_pool1(S_A, N_A, S_B, N_B), r(p_pool1(S_A, N_A, S_B, N_B))).
+r:pl_hook(p_pool1(S_A, N_A, S_B, N_B), r(p_pool1(pl(S_A), pl(N_A), pl(S_B), pl(N_B)))).
 
 %    
 % chisquare-test for independent groups, ratio
@@ -115,22 +115,17 @@ expert(chisq: chisq_chi2, From >> To, Flags, Feed, Hint) :-
              \nowrap([\mml(Flags, chi^2), "-ratio"]), " for rate comparisons."
            ],
     Hint = [ "Determine the ", \nowrap([\mml(Flags, chi^2), "-ratio:"]), " ",
-             \mml(Flags, dfrac((p_A - p_B)^2, p_Pool * (1-p_Pool) * (frac(1, n_A) + frac(1, n_B))))
+             \mml(Flags, dfrac((sub(p, "A") - sub(p, "B"))^2, sub(p, "Pool") * (1-sub(p, "Pool")) * (frac(1, sub(n, "A")) + frac(1, sub(n, "B")))))
            ].
 
 intermediate(chisq: p_pool/4).
 
-% Switch ps in pooled success rate
+% Determine pooled success rate
 expert(chisq: pp, From >> To, _, [], []) :-
     From = p_pool(S_A, N_A, S_B, N_B),
     To   = p_pool1(S_A, N_A, S_B, N_B).
 
 :- multifile buggy/5.
-%buggy(chisq: pp, From >> To, _Flags, Feed, Trap) :-
-%    From = p_pool(S_A, N_A, S_B, N_B),
-%    To   = p_pool1(instead_of(pp, S_B, S_A), N_A, instead_of(pp, S_A, S_B), N_B),
-%    Feed = [ "The proportions have been confused in the expression for the pooled success rate." ],
-%    Trap = [ "Do not confuse the proportions in the pooled success rate." ].
 
 :- multifile r_init/1.
 r_init(chisq) :-
