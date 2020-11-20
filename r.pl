@@ -1037,7 +1037,7 @@ r_init :-
             eval(substitute(expr)[[2]])
         }
 
-        instead_of1 <- function(err, wrong, error, correct, noerror)
+        instead_of <- function(err, wrong, error, correct, noerror)
         {
             return(wrong)
         }
