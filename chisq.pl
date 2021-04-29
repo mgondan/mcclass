@@ -23,7 +23,7 @@ r:pl_hook(n_VR, r(n_VR)).
 r:pl_hook(p_Box, r(p_Box)).
 r:pl_hook(s_Box, r(s_Box)).
 r:pl_hook(n_Box, r(n_Box)).
-r:pl_hook(p_pool(S_A, N_A, S_B, N_B), r(p_pool(S_A, N_A, S_B, N_B))).
+r:pl_hook(p_pool1(S_A, N_A, S_B, N_B), r(p_pool(pl(S_A), pl(N_A), pl(S_B), pl(N_B)))).
 
 %    
 % chisquare-test for independent groups, ratio
@@ -110,13 +110,26 @@ expert(chisq: chisq_chi2, From >> To, Flags, Feed, Hint) :-
     Pool = denoting(sub(p, "pool"), 
                p_pool(S_A, N_A, S_B, N_B), 
                "the pooled success rate"),
-    To   = chi2ratio(dfrac((dec(S_A/N_A, 2) - dec(S_B/N_B, 2))^2, dec(Pool, 2) * dec(1-Pool, 2) * dec(frac(1, N_A) + frac(1, N_B), 2)), 1),
+    To   = chi2ratio(dfrac((dec(S_A/N_A, 2) - dec(S_B/N_B, 2))^2, dec(Pool, 2) * dec(1 - Pool, 2) * dec(frac(1, N_A) + frac(1, N_B), 2)), 1),
     Feed = [ "Correctly applied the expression for the ",
              \nowrap([\mml(Flags, chi^2), "-ratio"]), " for rate comparisons."
            ],
     Hint = [ "Determine the ", \nowrap([\mml(Flags, chi^2), "-ratio:"]), " ",
              \mml(Flags, dfrac((sub(p, "A") - sub(p, "B"))^2, Pool * (1-Pool) * (frac(1, sub(n, "A")) + frac(1, sub(n, "B")))))
            ].
+
+intermediate(chisq: p_pool/4).
+
+expert(chisq: pool, From >> To, _, [], []) :-
+    From = p_pool(S_A, N_A, S_B, N_B),
+    To   = p_pool1(S_A, N_A, S_B, N_B).
+
+:- multifile buggy/5.
+buggy(chisq: confuse, From >> To, _Flags, Feed, Hint) :-
+    From = p_pool(S_A, N_A, S_B, N_B),
+    To   = p_pool1(1 + instead_of(confuse, S_B, S_A), N_A, S_A, N_B),
+    Feed = [ "123a" ],
+    Hint = [ "456a" ].
 
 :- multifile r_init/1.
 r_init(chisq) :-

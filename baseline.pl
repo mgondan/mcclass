@@ -17,11 +17,11 @@ r:pl2r_hook(add(_, P), R) :-
 
 r:pl2r_hook(omit(_, _), 'NULL').
 
-subset([], [], []).
-subset([X | L], [X | S], D) :-
-    subset(L, S, D).
-subset(L, [H | S], [H | D]) :-
-    subset(L, S, D).
+my_subset([], [], []).
+my_subset([X | L], [X | S], D) :-
+    my_subset(L, S, D).
+my_subset(L, [H | S], [H | D]) :-
+    my_subset(L, S, D).
 
 :- multifile item/1.
 item(baseline: Item) :-
@@ -117,7 +117,7 @@ intermediate(baseline: ancova_ff/8).
 :- multifile buggy/5.
 buggy(baseline: covariates, From >> To, Flags, Feed, Trap) :-
     From = ancova_f(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
-    subset(Subset, Cov, [R | Removed]),
+    my_subset(Subset, Cov, [R | Removed]),
     To   = ancova_ff(Data, Prim, Subset, Strata, Other, Int, 
              [omit(covariates, [R | Removed]) | Exclude], Therapy),
     Feed = [ "Please include the covariate(s) ", \mml(Flags, [R | Removed]), " in the ",
@@ -139,7 +139,7 @@ intermediate(baseline: ancova_fff/8).
 % Omit one or more stratification variables
 buggy(baseline: strata, From >> To, Flags, Feed, Trap) :-
     From = ancova_ff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
-    subset(Subset, Strata, [R | Removed]),
+    my_subset(Subset, Strata, [R | Removed]),
     To   = ancova_fff(Data, Prim, Cov, Subset, Other, Int, 
            [omit(strata, [R | Removed]) | Exclude], Therapy),
     Feed = [ "Please include the stratification ",
@@ -159,7 +159,7 @@ intermediate(baseline: ancova_ffff/8).
 % Add one or more wrong predictors
 buggy(baseline: other, From >> To, Flags, Feed, Trap) :-
     From = ancova_fff(Data, Prim, Cov, Strata, Other, Int, Exclude, Therapy),
-    subset([S | Subset], Other),
+    my_subset([S | Subset], Other, _),
     To   = ancova_ffff(Data, Prim, Cov, Strata, [add(other, [S | Subset])],
              Int, Exclude, Therapy),
     Feed = [ "The variable(s) ", \mml(Flags, [S | Subset]), " should not be used in ",
@@ -186,10 +186,10 @@ buggy(baseline: interactions, From >> To, Flags, Feed, Trap) :-
     % T0, Sex
     append(Strata, Cov, Covariates),
     % [[T0], [Sex], [T0, Sex]]
-    findall([H | T], subset([H | T], Covariates), Subsets),
+    findall([H | T], my_subset([H | T], Covariates, _), Subsets),
     reverse(Subsets, Rev),
     % [[T0], [T0, Sex]]
-    subset([S | Subset], Rev),
+    my_subset([S | Subset], Rev, _),
     % [[Therapy, T0], [Therapy, T0, Sex]]
     maplist(append([Therapy]), [S | Subset], Interactions),
     % [Therapy:T0, Therapy:T0:Sex]

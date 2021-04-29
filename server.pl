@@ -50,6 +50,11 @@ cache(Topic) :-
 http:location(mcclass, root(mcclass), []).
 
 :- http_handler(mcclass('favicon.ico'), http_reply_file('favicon.ico', []), []).
+:- http_handler(mcclass('signup_form.js'), http_reply_file('scripts/signup_form.js', []), []).
+:- http_handler(mcclass(login), handler(login), []).
+:- http_handler(mcclass(logout), handler(logout), []).
+:- http_handler(mcclass(signin), handler(signin), []).
+:- http_handler(mcclass(signup), handler(signup), []).
 :- http_handler(mcclass(tpaired), handler(tpaired), []).
 :- http_handler(mcclass(confint), handler(confint), []).
 :- http_handler(mcclass(tgroups), handler(tgroups), []).
@@ -62,29 +67,52 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
+% Login (web form)
+handler(login, _Request) :-
+    !,
+    login.
+
+% Logout
+handler(logout, Request) :-
+    !,
+    logout,
+    http_redirect(see_other, mcclass(.), Request).
+
+% Signin
+handler(signin, Request) :-
+    !,
+    member(method(post), Request),
+    member(cookie(Cookies), Request),
+    member(user_id=UserId, Cookies),
+    http_parameters(Request, [email(Email, [])]),
+    signin(Email, UserId),
+    http_redirect(see_other, mcclass(.), Request).
+
+% Signup
+handler(signup, Request) :-
+    !,
+    member(method(post), Request),
+    member(cookie(Cookies), Request),
+    member(user_id=UserId, Cookies),
+    http_parameters(Request, [email(Email, [])]),
+    signup(Email, UserId),
+    http_redirect(see_other, mcclass(.), Request).
+
 % Prepare handler
 handler(Id, Request) :-
     r_init(Id),
     member(method(post), Request),
     !,
-    http_parameters(Request, [], [form_data(Data)]),
+    ( member(cookie(Cookies), Request), member(user_id=U, Cookies) 
+      -> Users = [user_id=U]
+      ;  Users = []
+    ), 
+    http_parameters(Request, [], [form_data(Form)]),
+    append(Users, Form, Data), 
     handle(Id, Data).
 
 handler(Id, _Request) :-
     handle(Id, []).
-
-% Handle login request
-handle(Id, Data) :-
-    anonymous,
-    http_log("1\n", []),
-    login_request(Data),
-    http_log("2\n", []),
-    handle(Id, Data).
-
-% Show login screen
-handle(_Id, _Data) :-
-    anonymous,
-    login_screen.
 
 % Download csv data
 :- dynamic temp/3.
