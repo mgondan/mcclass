@@ -1,14 +1,16 @@
 # McClass
 MisConception-aware Competence Learning and Assessment Smart System
 
-If you wish, try it at https://mcclass.vps.webdock.io/mcclass
+If you wish, try it at https://mcclass.vps.webdock.io/mcclass (later ;-)
 
 ## Step 1: install R
-Install a current version of R from www.r-project.org. 
+Install a current version of R
+
+sudo apt install r-base
 
 Invoke R, and then
 
-* install.packages("Rserve",,"http://rforge.net/",type="source")
+* install.packages("Rserve", repos="http://rforge.net/", type="source")
 * library(Rserve)
 * Rserve()
 * You also need WriteXLS for exporting Excel files: install.packages("WriteXLS")
