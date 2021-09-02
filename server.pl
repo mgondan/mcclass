@@ -9,6 +9,8 @@
 :- use_module(library(http/http_unix_daemon)).
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/http_session)).
+
+:- use_module(search).
 :- use_module(tpaired).
 
 :- initialization http_daemon.
@@ -33,8 +35,12 @@ handler(Task, Request) :-
 handler(Task, _) :-
     handle(Task, []).
 
-% Prepare handler
-handle(tpaired, Data) :-
+% Task sheet
+handle(Task, Data) :-
+    start(Task, Item),
+    % Das kommt noch weg, das muss man nicht bei jedem Seitenaufbau laufen lassen.
+    findall(Expression-Flags, search(Task, Expression, Flags), Solutions),
+    term_string(Solutions, String),
     reply_html_page(
       [ title('McClass'),
         link(
@@ -50,25 +56,25 @@ handle(tpaired, Data) :-
 	  [ name(viewport), 
             content('width=device-width, initial-scale=1')])
       ],
-      \item(tpaired, Data)
-    ).
+    [ \render(Task, Item, Data),
+      p(String)
+    ]).
 
-handle(confint, Data) :-
+handle(Task, _) :-
     reply_html_page(
       [ title('McClass'),
         link(
-          [ rel(stylesheet),
-            href('https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css'),
-            integrity('sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z'),
-            crossorigin(anonymous)]),
-        link(
-          [ rel(icon),
+      [ rel(stylesheet),
+        href('https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css'),
+        integrity('sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z'),
+        crossorigin(anonymous)]),
+    link(
+      [ rel(icon),
             href('/mcclass/favicon.ico'),
-            type('image/x-icon')]),
+        type('image/x-icon')]),
         meta(
-          [ name(viewport),
+      [ name(viewport),
             content('width=device-width, initial-scale=1')])
       ],
-      [ p(confint) ]
+      p("not found: ~w"-Task)
     ).
-
