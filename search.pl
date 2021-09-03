@@ -8,9 +8,9 @@
 search(_, _, Y, Y, []).
 
 % Continue search
-search(S, Task, X, Y, Path) :-
-    step(S, Task, X, Z, Flags),
-    search(S, Task, Z, Y, Steps),
+search(Stage, Task, X, Y, Path) :-
+    step(Stage, Task, X, Z, Flags),
+    search(Stage, Task, Z, Y, Steps),
     append(Flags, Steps, Path).
 
 % Convenience function
