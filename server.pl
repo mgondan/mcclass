@@ -41,6 +41,7 @@ handle(Task, Data) :-
     % Das kommt noch weg, das muss man nicht bei jedem Seitenaufbau laufen lassen.
     findall(Expression-Flags, search(Task, Expression, Flags), Solutions),
     term_string(Solutions, String),
+    length(Solutions, Length),
     reply_html_page(
       [ title('McClass'),
         link(
@@ -57,6 +58,7 @@ handle(Task, Data) :-
             content('width=device-width, initial-scale=1')])
       ],
     [ \render(Task, Item, Data),
+      p("~w solutions"-Length),
       p(String)
     ]).
 
