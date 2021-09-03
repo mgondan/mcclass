@@ -1,22 +1,25 @@
+
 :- module(search, [search/3]).
 
 :- use_module(steps).
 :- use_module(intermediate).
 
 % Reached the goal
-search(_, Y, Y, []).
+search(_, _, Y, Y, []).
 
 % Continue search
-search(Task, X, Y, Path) :-
-    step(Task, X, Z, Flags),
-    search(Task, Z, Y, Steps),
+search(S, Task, X, Y, Path) :-
+    step(S, Task, X, Z, Flags),
+    search(S, Task, Z, Y, Steps),
     append(Flags, Steps, Path).
 
 % Convenience function
-search(Task, Y, Flags) :-
+search(Task, Z, Flags) :-
     start(Task, X),
-    search(Task, X, Y, Flags),
-    complete(Task, Y).
+    search(stage(1), Task, X, Y, Flags1),
+    search(stage(2), Task, Y, Z, Flags2),
+    append(Flags1, Flags2, Flags),
+    complete(Task, Z).
 
 % Invoke with search:test.
 test :-
