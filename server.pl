@@ -39,7 +39,7 @@ handler(Task, _) :-
 handle(Task, Data) :-
     start(Task, Item),
     % Das kommt noch weg, das muss man nicht bei jedem Seitenaufbau laufen lassen.
-    findall(Expression-Flags, search(Task, Expression, Flags), Solutions),
+    searchall(Task, Solutions),
     term_string(Solutions, String),
     length(Solutions, Length),
     reply_html_page(
@@ -80,3 +80,4 @@ handle(Task, _) :-
       ],
       p("not found: ~w"-Task)
     ).
+
