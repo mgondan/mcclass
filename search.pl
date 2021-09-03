@@ -8,16 +8,16 @@
 search(_, _, Y, Y, []).
 
 % Continue search
-search(Stage, Task, X, Y, Path) :-
-    step(Stage, Task, X, Z, Flags),
-    search(Stage, Task, Z, Y, Steps),
+search(Task, Stage, X, Y, Path) :-
+    step(Task, Stage, X, Z, Flags),
+    search(Task, Stage, Z, Y, Steps),
     append(Flags, Steps, Path).
 
 % Convenience function
 search(Task, Z, Flags) :-
     start(Task, X),
-    search(stage(1), Task, X, Y, Flags1),
-    search(stage(2), Task, Y, Z, Flags2),
+    search(Task, stage(1), X, Y, Flags1),
+    search(Task, stage(2), Y, Z, Flags2),
     append(Flags1, Flags2, Flags),
     complete(Task, Z).
 
