@@ -10,6 +10,12 @@ step(Task, Stage, X, Y, Flags) :-
 step(Task, Stage, X, Y, Flags) :-
     buggy(Task, Stage, X, Y, Flags).
 
+% Handle special compounds
+step(Task, Stage, instead(X, Of), Z, Flags) :-
+    !,
+    step(Task, Stage, X, Y, Flags),
+    Z = instead(Y, Of).
+
 % Enter term and apply rule to components. For example, enter 
 % dfrac(Numerator, Denominator) and check if a rule can be applied to the
 % numerator and/or the denominator.

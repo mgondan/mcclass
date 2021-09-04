@@ -28,5 +28,10 @@ r_init :-
         {
             eval(substitute(expr)[[2]])
         }
+
+        instead <- function(x, of)
+        {
+            return(x)
+        }
     |}.
 

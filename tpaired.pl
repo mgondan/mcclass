@@ -140,20 +140,20 @@ buggy(tpaired, stage(2), X, Y, [bug(bug1)]) :-
 % with s_t0 (these flags are ignored, but will be activated in later versions).
 buggy(tpaired, stage(1), X, Y, [bug(d_t0), depends(s_t0), depends(paired)]) :-
     X = d,
-    Y = t0.
+    Y = instead(t0, d).
 
 % Use SD of T0 instead of SD of D
 buggy(tpaired, stage(1), X, Y, [bug(s_t0), depends(d_t0), depends(paired)]) :-
     X = s_d,
-    Y = s_t0.
+    Y = instead(s_t0, s_d).
 
 % Use mean EOT instead of mean D
 buggy(tpaired, stage(1), X, Y, [bug(d_eot), depends(s_eot), depends(paired)]) :-
     X = d,
-    Y = eot.
+    Y = instead(eot, d).
 
 % Use SD of EOT instead of SD of D
 buggy(tpaired, stage(1), X, Y, [bug(s_eot), depends(d_eot), depends(paired)]) :-
     X = s_d,
-    Y = s_eot.
+    Y = instead(s_eot, s_d).
 
