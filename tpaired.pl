@@ -89,6 +89,14 @@ buggy(tpaired, stage(2), X, Y, [bug(mu)]) :-
     X = paired(D, Mu, S_D, N),
     Y = dfrac(omit_right(D - Mu), S_D / sqrt(N)).
 
+% Test: this buggy rule is pedagogically meaningless, no one will omit D in
+% a t-ratio. The point of having it here is because it is incompatible to the
+% confusion rules at stage(1). D can be confused, D can be omitted, but not 
+% both. In general, only error-free terms can be omitted.
+buggy(tpaired, stage(2), X, Y, [bug(test)]) :-
+    X = paired(D, Mu, S_D, N),
+    Y = dfrac(omit_left(D - Mu), S_D / sqrt(N)).
+
 % Misconception: Run the t-test for independent samples despite the correlated
 % measurements.
 intermediate(tpaired, indep).
