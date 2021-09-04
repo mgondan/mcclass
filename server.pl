@@ -42,8 +42,8 @@ handle(Task, Data) :-
     start(Task, Item),
     % Das kommt noch weg, das muss man nicht bei jedem Seitenaufbau laufen lassen.
     searchall(Task, Solutions),
-    term_string(Solutions, String),
-    length(Solutions, Length),
+    maplist(term_string, Solutions, Strings),
+    findall(li(X), member(X, Strings), Items),
     reply_html_page(
       [ title('McClass'),
         link(
@@ -60,8 +60,7 @@ handle(Task, Data) :-
             content('width=device-width, initial-scale=1')])
       ],
     [ \render(Task, Item, Data),
-      p("~w solutions"-Length),
-      p(String)
+      ol(class('card-text'), Items)
     ]).
 
 handle(Task, _) :-
