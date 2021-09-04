@@ -1,6 +1,6 @@
 :- module(intermediate, [complete/2]).
 
-:- multifile intermediate/2.
+:- use_module(tasks).
 
 % Atoms (e.g. s_t0) are always complete
 complete(_, X) :-

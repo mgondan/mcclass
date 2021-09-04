@@ -1,21 +1,25 @@
-% tpaired.pl
-
-:- module(tpaired, [start/2, expert/5, buggy/5, render//3]).
+:- module(tpaired, [start/2, intermediate/2, expert/5, buggy/5, render//3]).
 
 :- use_module(library(http/html_write)).
-:- multifile start/2, expert/5, buggy/5, render//3.
+:- use_module(r).
 
-render(tpaired, item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu), Form) -->
-    { RD = 4.5,
-      RMu = 3.0,
-      RS_D = 8.2,
-      RN = 33,
-      RT0 = 23.2,
-      RS_T0 = 11.7,
-      REOT = 17.7,
-      RS_EOT = 13.2,
-      RTails = "two-tailed",
-      RAlpha = 0.05,
+:- multifile start/2, intermediate/2, expert/5, buggy/5, render//3.
+
+init(tpaired) :-
+    r_init,
+    d <- 4.5,
+    mu <- 3.0,
+    s_d <- 8.2,
+    n <- 33,
+    t0 <- 23.2,
+    s_t0 <- 11.7,
+    eot <- 17.7,
+    s_eot <- 13.2,
+    tails <- "two-tailed",
+    alpha <- 0.05.
+
+render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, Mu), Form) -->
+    { 
       option(resp(R), Form, '#.##')
     },
     html(
@@ -24,17 +28,17 @@ render(tpaired, item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu), Form) -->
             p(class('card-text'),
             [ "Consider a clinical study on rumination-focused Cognitive ",
               "Behavioral Therapy (rfCBT) with ",
-              math(mrow([mi('N'), mo(=), mn(RN)])), " patients. The primary ",
+              math(mrow([mi('N'), mo(=), mn(N)])), " patients. The primary ",
               "outcome is the score on the Hamilton Rating Scale for ", 
               "Depression (HDRS, range from best = 0 to worst = 42). The ",
               "significance level is set to ",
-              math(mrow([mi(&(alpha)), mo(=), mn(RAlpha)])), " two-tailed."])
+              math(mrow([mi(&(alpha)), mo(=), mn(5), mtext('%')])), " two-tailed."])
           ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'),
               [ "Does rfCBT lead to a relevant reduction (i.e., more than ",
-	        math(mrow([mi(&(mu)), mo(=), mn(RMu)])),
+	        math(mrow([mi(&(mu)), mo(=), mn(Mu)])),
                 " units) in mean HDRS scores between ",
                 "baseline (T0) and End of Treatment (EOT)?"
               ]),
@@ -53,11 +57,12 @@ render(tpaired, item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu), Form) -->
 % Prolog warns if the rules of a predicate are not adjacent. This would not
 % help us here, so the definitions for intermediate, expert and buggy are
 % declared to be discontiguous.
-:- discontiguous intermediate/2, expert/5, buggy/5.
+:- multifile intermediate/2, expert/5, buggy/5.
 
 % t-test for paired samples
 intermediate(_, item).
-start(tpaired, item(t0, s_t0, eot, s_eot, d, s_d, n, mu)).
+start(tpaired, item(t0, s_t0, eot, s_eot, d, s_d, n, mu)) :-
+    init(tpaired).
 
 % First step: Extract the correct information for a paired t-test from the task
 % description
@@ -86,7 +91,7 @@ buggy(tpaired, stage(2), X, Y, [bug(mu)]) :-
 
 % Misconception: Run the t-test for independent samples despite the correlated
 % measurements.
-intermediate(indep).
+intermediate(tpaired, indep).
 buggy(tpaired, stage(2), X, Y, [bug(indep)]) :-
     X = item(T0, S_T0, EOT, S_EOT, _, _, N, _),
     Y = indep(T0, S_T0, N, EOT, S_EOT, N).
@@ -151,3 +156,4 @@ buggy(tpaired, stage(1), X, Y, [bug(d_eot), depends(s_eot), depends(paired)]) :-
 buggy(tpaired, stage(1), X, Y, [bug(s_eot), depends(d_eot), depends(paired)]) :-
     X = s_d,
     Y = s_eot.
+

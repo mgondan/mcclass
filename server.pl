@@ -1,5 +1,10 @@
 % swipl server.pl --port=8001 --pidfile=http.pid
 
+:- use_module(library(dcg/basics)).
+:- use_module(tasks).
+:- use_module(r).
+:- use_module(search).
+
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_error)).
@@ -9,9 +14,6 @@
 :- use_module(library(http/http_unix_daemon)).
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/http_session)).
-
-:- use_module(search).
-:- use_module(tpaired).
 
 :- initialization http_daemon.
 

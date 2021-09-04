@@ -1,15 +1,17 @@
-:- module(search, [search/3, searchall/2]).
+:- module(search, [searchall/2]).
 
+:- use_module(r).
+:- use_module(tasks).
 :- use_module(steps).
 :- use_module(intermediate).
 
 % Reached the goal
-search(_, _, Y, Y, []).
+search_(_, _, Y, Y, []).
 
 % Continue search
-search(Task, Stage, X, Y, Path) :-
+search_(Task, Stage, X, Y, Path) :-
     step(Task, Stage, X, Z, Flags),
-    search(Task, Stage, Z, Y, Steps),
+    search_(Task, Stage, Z, Y, Steps),
     append(Flags, Steps, Path).
 
 % Return a solution for a given task
@@ -19,13 +21,14 @@ search(Task, Stage, X, Y, Path) :-
 % bugs refer to wrong steps in the calculation method. In the end, we check 
 % if the solution is complete (not intermediate). The flags are sorted to allow
 % elimination of redundant solutions that occur within stages.
-search(Task, Z, Sorted) :-
+search(Task, Z, Result, Flags) :-
     start(Task, X),
-    search(Task, stage(1), X, Y, Flags1),
-    search(Task, stage(2), Y, Z, Flags2),
-    append(Flags1, Flags2, Flags),
+    search_(Task, stage(1), X, Y, Flags1),
+    search_(Task, stage(2), Y, Z, Flags2),
     complete(Task, Z),
-    sort(Flags, Sorted).
+    append(Flags1, Flags2, Unsorted),
+    sort(Unsorted, Flags),
+    Result <- Z.
 
 % Return all solutions for a given task
 %
@@ -33,13 +36,16 @@ search(Task, Z, Sorted) :-
 % flags). This is a bit dangerous, since wrong steps are not commutative in
 % general. It will be replaced by a stricter definition that also checks for
 % equality of the numerical results).
-searchall(Task, Expr_Flags) :-
-    findall(E-F, search(Task, E, F), E_F),
-    sort(2, @<, E_F, Expr_Flags).
+searchall(Task, Expr_Res_Flags) :-
+    % Kleines Rätsel :-)
+    % Warum schreibe ich hier E-R/F? Hint: hat was mit "Punkt vor Strich" zu tun, es wird aber nichts gerechnet.
+    findall(E-R/F, search(Task, E, R, F), E_R_F),
+    sort(2, @<, E_R_F, Expr_Res_Flags).
 
 % Invoke with search:test.
 test :-
     use_module(tpaired),
-    search(tpaired, Y, Flags),
-    writeln(Y-Flags).
+    r_init,
+    search(tpaired, Z, Result, Flags),
+    writeln(Z-Result, Flags).
 
