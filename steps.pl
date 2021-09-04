@@ -16,6 +16,13 @@ step(Task, Stage, instead(X, Of), Z, Flags) :-
     step(Task, Stage, X, Y, Flags),
     Z = instead(Y, Of).
 
+step(Task, Stage, omit_left(Expr), Z, Flags) :-
+    !,
+    Expr =.. [Op, L, R],
+    step(Task, Stage, R, New, Flags),
+    Y =.. [Op, L, New],
+    Z = omit_left(Y).
+
 % Enter term and apply rule to components. For example, enter 
 % dfrac(Numerator, Denominator) and check if a rule can be applied to the
 % numerator and/or the denominator.
