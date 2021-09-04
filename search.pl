@@ -4,6 +4,7 @@
 :- use_module(tasks).
 :- use_module(steps).
 :- use_module(intermediate).
+:- use_module(depends).
 
 % Reached the goal
 search(_, _, Y, Y, []).
@@ -28,6 +29,7 @@ search(Task, Expr, Result, Flags) :-
     complete(Task, Expr),
     append(Flags1, Flags2, Unsorted),
     sort(Unsorted, Flags),
+    dependencies(Flags),
     Result <- Expr.
 
 % Return all solutions for a given task
