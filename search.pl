@@ -6,12 +6,12 @@
 :- use_module(intermediate).
 
 % Reached the goal
-search_(_, _, Y, Y, []).
+search(_, _, Y, Y, []).
 
 % Continue search
-search_(Task, Stage, X, Y, Path) :-
+search(Task, Stage, X, Y, Path) :-
     step(Task, Stage, X, Z, Flags),
-    search_(Task, Stage, Z, Y, Steps),
+    search(Task, Stage, Z, Y, Steps),
     append(Flags, Steps, Path).
 
 % Return a solution for a given task
@@ -21,14 +21,14 @@ search_(Task, Stage, X, Y, Path) :-
 % bugs refer to wrong steps in the calculation method. In the end, we check 
 % if the solution is complete (not intermediate). The flags are sorted to allow
 % elimination of redundant solutions that occur within stages.
-search(Task, Z, Result, Flags) :-
+search(Task, Expr, Result, Flags) :-
     start(Task, X),
-    search_(Task, stage(1), X, Y, Flags1),
-    search_(Task, stage(2), Y, Z, Flags2),
-    complete(Task, Z),
+    search(Task, stage(1), X, Y, Flags1),
+    search(Task, stage(2), Y, Expr, Flags2),
+    complete(Task, Expr),
     append(Flags1, Flags2, Unsorted),
     sort(Unsorted, Flags),
-    Result <- Z.
+    Result <- Expr.
 
 % Return all solutions for a given task
 %
@@ -46,6 +46,6 @@ searchall(Task, Expr_Res_Flags) :-
 test :-
     use_module(tpaired),
     r_init,
-    search(tpaired, Z, Result, Flags),
-    writeln(Z-Result, Flags).
+    search(tpaired, Expr, Result, Flags),
+    writeln(Expr-Result/Flags).
 
