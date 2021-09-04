@@ -28,7 +28,7 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, Mu), Form) -->
             p(class('card-text'),
             [ "Consider a clinical study on rumination-focused Cognitive ",
               "Behavioral Therapy (rfCBT) with ",
-              math(mrow([mi('N'), mo(=), mn(N)])), " patients. The primary ",
+              math(mrow([mi(N), mo(=), mn(\r(n))])), " patients. The primary ",
               "outcome is the score on the Hamilton Rating Scale for ", 
               "Depression (HDRS, range from best = 0 to worst = 42). The ",
               "significance level is set to ",
@@ -38,7 +38,7 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, Mu), Form) -->
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'),
               [ "Does rfCBT lead to a relevant reduction (i.e., more than ",
-	        math(mrow([mi(&(mu)), mo(=), mn(Mu)])),
+                math(mrow([mi(&(Mu)), mo(=), mn(\r(mu))])),
                 " units) in mean HDRS scores between ",
                 "baseline (T0) and End of Treatment (EOT)?"
               ]),

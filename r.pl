@@ -1,8 +1,13 @@
-:- module(r, [r_init/0]).
+:- module(r, [r_init/0, r//1]).
 
 :- reexport(library(r/r_call)).
 :- set_prolog_flag(float_overflow, infinity).
 r_call:r_console_property(size(25, 80)).
+
+% Evaluate R expression and render it as html
+r(Expr) -->
+    { R <- Expr },
+    html(R).
 
 r_init :- 
     {|r||
