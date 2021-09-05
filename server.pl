@@ -47,21 +47,23 @@ handle(Task, Data) :-
     reply_html_page(
       [ title('McClass'),
         link(
-	  [ rel(stylesheet),
-	    href('https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css'),
-	    integrity('sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z'),
-	    crossorigin(anonymous)]),
-	link(
-	  [ rel(icon), 
+	      [ rel(stylesheet),
+	        href('https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css'),
+            integrity('sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We'),
+            crossorigin(anonymous)
+          ]),
+	    link(
+	      [ rel(icon), 
             href('/mcclass/favicon.ico'),
-	    type('image/x-icon')]),
+	        type('image/x-icon')
+          ]),
         meta(
-	  [ name(viewport), 
+	      [ name(viewport), 
             content('width=device-width, initial-scale=1')])
-      ],
-    [ \render(Task, Item, Data),
-      ol(class('card-text'), Items)
-    ]).
+          ],
+      [ \render(Task, Item, Data),
+        ol(class('card-text'), Items)
+      ]).
 
 handle(Task, _) :-
     reply_html_page(
