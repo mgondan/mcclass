@@ -20,14 +20,20 @@ mml(A) -->
     mml([], A).
 
 mml(Flags, A) -->
-    { mathml(Flags, A, M, _) },
+    { colors(A, Colors),
+      append(Flags, Colors, List),
+      mathml(List, A, M, _) 
+    },
     html(M).
 
 mmlm(A) -->
     mmlm([], A).
 
 mmlm(Flags, A) -->
-    { mathml(Flags, A, M, With) },
+    { colors(A, Colors),
+      append(Flags, Colors, List),
+      mathml(List, A, M, With) 
+    },
     html([M, With]).
     
 % 2. Show example
@@ -1122,103 +1128,121 @@ type(Flags, underbrace(A, _), Type)
 mathml :- mathml(underbrace('D', u)).
 
 %
-% Color
+% Color palette from Bootstrap CSS
 %
-ml(Flags, color(C, A), M)
+color("dark").
+color("$blue").   % #0d6efd
+color("$indigo"). % #6610f2
+color("$purple"). % #6f42c1
+color("$pink").   % #d63384
+color("$red").    % #dc3545
+color("$orange"). % #fd7e14
+color("$yellow"). % #ffc107
+color("$green").  % #198754
+color("$teal").   % #20c997
+color("$cyan").   % #0dcaf0
+
+ml(Flags, color(C, A), M),
+    atom(C)
+ => member(color(C, S), Flags),
+    ml(Flags, color(S, A), M).
+
+ml(Flags, color(C, A), M),
+    string(C)
  => ml(Flags, A, X),
-    M = mstyle(mathcolor(C, X)).
+    M = mstyle(mathcolor(C), X).
 
 %
 % Mistakes
 %
-math(Flags, omit_left(Expr), New, M),
+math(Flags, omit_left(_Bug, Expr), New, M),
     option(error(ignore), Flags, highlight)
  => Flags = New,
     M = Expr.
 
-math(Flags, omit_left(Expr), New, M),
+math(Flags, omit_left(bug(Bug), Expr), New, M),
     option(error(fix), Flags, highlight),
     Expr =.. [Op, L, R]
  => Flags = New,
-    M = list(space, [box(list(space, [L, sign(Op)])), R]).
+    M = list(space, [color(Bug, box(color("dark", list(space, [L, sign(Op)])))), R]).
 
-math(Flags, omit_left(Expr), New, M),
+math(Flags, omit_left(bug(Bug), Expr), New, M),
     option(error(highlight), Flags, highlight),
     Expr =.. [Op, L, R]
  => Flags = New,
-    M = list(space, [cancel(list(space, [L, sign(Op)])), R]).
+    M = list(space, [color(Bug, cancel(color("dark", list(space, [L, sign(Op)])))), R]).
 
-math(Flags, omit_right(Expr), New, M),
+math(Flags, omit_right(_Bug, Expr), New, M),
     option(error(ignore), Flags, highlight)
  => Flags = New,
     M = Expr.
 
-math(Flags, omit_right(Expr), New, M),
+math(Flags, omit_right(bug(Bug), Expr), New, M),
     option(error(fix), Flags, highlight),
     Expr =.. [Op, L, R]
  => Flags = New,
-    M = list(space, [L, box(list(space, [sign(Op), R]))]).
+    M = list(space, [L, color(Bug, box(color("dark", list(space, [sign(Op), R]))))]).
 
-math(Flags, omit_right(Expr), New, M),
+math(Flags, omit_right(bug(Bug), Expr), New, M),
     option(error(highlight), Flags, highlight),
     Expr =.. [Op, L, R]
  => Flags = New,
-    M = list(space, [L, cancel(list(space, [sign(Op), R]))]).
+    M = list(space, [L, color(Bug, cancel(color("dark", list(space, [sign(Op), R]))))]).
 
 math(Flags, instead(_Bug, _Wrong, Correct), New, M),
     option(error(ignore), Flags, highlight)
  => Flags = New,
     M = Correct.
 
-math(Flags, instead(_Wrong, Correct), New, M),
+math(Flags, instead(bug(Bug), _Wrong, Correct), New, M),
     option(error(fix), Flags, highlight)
  => Flags = New,
-    M = box(Correct).
+    M = color(Bug, box(color("dark", Correct))).
 
-math(Flags, instead(Wrong, Correct), New, M),
+math(Flags, instead(bug(Bug), Wrong, Correct), New, M),
     option(error(highlight), Flags, highlight)
  => Flags = New,
-    M = underbrace(list(space, ["instead of", Correct]), color(red, Wrong)).
+    M = underbrace(list(space, ["instead of", Correct]), color(Bug, Wrong)).
 
-mathml :- mathml(dfrac(omit_right(overline('D') - mu),
+mathml :- mathml(dfrac(omit_right(bug(bug), overline('D') - mu),
                    sub(s, 'D') / sqrt('N'))).
 
 mathml :- writeln("Same with Flags = error(fix)"),
     mathml([error(fix)], 
-           dfrac(omit_right(overline('D') - mu), sub(s, 'D') / sqrt('N')),
+           dfrac(omit_right(bug(bug), overline('D') - mu), sub(s, 'D') / sqrt('N')),
            M),
     html(math(M)).
 
 mathml :- writeln("Same with Flags = error(highlight) which is the default"),
     mathml([error(highlight)], 
-           dfrac(omit_right(overline('D') - mu), sub(s, 'D') / sqrt('N')),
+           dfrac(omit_right(bug(bug), overline('D') - mu), sub(s, 'D') / sqrt('N')),
            M),
     html(math(M)).
     
 mathml :- writeln("Same with Flags = error(ignore)"),
     mathml([error(ignore)], 
-           dfrac(omit_right(overline('D') - mu), sub(s, 'D') / sqrt('N')),
+           dfrac(omit_right(bug(bug), overline('D') - mu), sub(s, 'D') / sqrt('N')),
            M),
     html(math(M)).
     
 mathml :- mathml(dfrac(overline('D') - mu,
-                   sub(s, 'D') / instead('N', sqrt('N')))).
+                   sub(s, 'D') / instead(bug(bug), 'N', sqrt('N')))).
 
 mathml :- writeln("Same with Flags = error(fix)"),
     mathml([error(fix)], 
-           dfrac(overline('D') - mu, sub(s, 'D') / instead('N', sqrt('N'))),
+           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug(bug), 'N', sqrt('N'))),
            M),
     html(math(M)).
 
 mathml :- writeln("Same with Flags = error(highlight) which is the default"),
     mathml([error(highlight)], 
-           dfrac(overline('D') - mu, sub(s, 'D') / instead('N', sqrt('N'))),
+           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug(bug), 'N', sqrt('N'))),
            M),
     html(math(M)).
 
 mathml :- writeln("Same with Flags = error(ignore)"),
     mathml([error(ignore)], 
-           dfrac(overline('D') - mu, sub(s, 'D') / instead('N', sqrt('N'))),
+           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug(bug), 'N', sqrt('N'))),
            M),
     html(math(M)).
 
@@ -1431,3 +1455,36 @@ current(Prec, Fix, Op),
     atom(Op)
  => current_op(Prec, Fix, Op).
 
+% Bugs
+bugs(Expr, Bugs) :-
+    bugs_(Expr, List),
+    sort(List, Bugs).
+
+bugs_(instead(bug(Bug), Wrong, _Correct), List)
+ => bugs_(Wrong, Bugs),
+    List = [Bug | Bugs].
+
+bugs_(omit_left(bug(Bug), Expr), List)
+ => Expr =.. [_Op, _L, R],
+    bugs_(R, Bugs),
+    List = [Bug | Bugs].
+
+bugs_(omit_right(bug(Bug), Expr), List)
+ => Expr =.. [_Op, L, _R],
+    bugs_(L, Bugs),
+    List = [Bug | Bugs].
+
+bugs_(X, Nil),
+    atomic(X)
+ => Nil = [].
+
+bugs_(X, List),
+    compound(X)
+ => X =.. [_ | Args],
+    maplist(bugs_, Args, Bugs),
+    append(Bugs, List).
+
+colors(Expr, Flags) :-
+    bugs(Expr, Bugs),
+    findall(C, color(C), Colors),
+    findall(color(B, C), (nth0(N, Bugs, B), N10 is N mod 10, nth0(N10, Colors, C)), Flags).

@@ -12,14 +12,14 @@ compatible(Term) :-
     atomic(Term).
 
 % No bugs in omitted things
-compatible(omit_left(Op)) :-
-    Op =.. [_, L, R],
+compatible(omit_left(_, Expr)) :-
+    Expr =.. [_, L, R],
     !,
     expert(L),
     compatible(R).
 
-compatible(omit_right(Op)) :-
-    Op =.. [_, L, R],
+compatible(omit_right(_, Expr)) :-
+    Expr =.. [_, L, R],
     !,
     expert(R),
     compatible(L).
@@ -33,15 +33,15 @@ compatible(Term) :-
 expert(Term) :-
     atomic(Term).
 
-expert(instead(_, _)) :-
+expert(instead(_, _, _)) :-
     !,
     fail.
 
-expert(omit_left(_)) :-
+expert(omit_left(_, _)) :-
     !,
     fail.
 
-expert(omit_right(_)) :-
+expert(omit_right(_, _)) :-
     !,
     fail.
 

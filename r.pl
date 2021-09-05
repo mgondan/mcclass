@@ -18,20 +18,20 @@ r_init :-
             frac((n_A-1) * v_A + (n_B-1) * v_B, n_A+n_B-2)
         }
 
-        omit_left <- function(expr)
+        omit_left <- function(bug, expr)
         {
             # use third element of [-, A, B]
             eval(substitute(expr)[[3]])
         }
 
-        omit_right <- function(expr)
+        omit_right <- function(bug, expr)
         {
             eval(substitute(expr)[[2]])
         }
 
-        instead <- function(x, of)
+        instead <- function(bug, inst, of)
         {
-            return(x)
+            return(inst)
         }
 
         with <- function(s, expr, text)

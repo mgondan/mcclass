@@ -96,7 +96,7 @@ expert(tpaired, stage(2), X, Y, [name(tratio)]) :-
 % in SPSS only allows for mu = 0. 
 buggy(tpaired, stage(2), X, Y, [bug(mu)]) :-
     X = paired(D, Mu, S_D, N),
-    Y = dfrac(omit_right(D - Mu), S_D / sqrt(N)).
+    Y = dfrac(omit_right(bug(mu), D - Mu), S_D / sqrt(N)).
 
 % Test: this buggy rule is pedagogically meaningless, no one will omit D in
 % a t-ratio. The point of having it here is because it is incompatible to the
@@ -104,7 +104,7 @@ buggy(tpaired, stage(2), X, Y, [bug(mu)]) :-
 % both. In general, only error-free terms can be omitted.
 buggy(tpaired, stage(2), X, Y, [bug(test)]) :-
     X = paired(D, Mu, S_D, N),
-    Y = dfrac(omit_left(D - Mu), S_D / sqrt(N)).
+    Y = dfrac(omit_left(bug(test), D - Mu), S_D / sqrt(N)).
 
 % Misconception: Run the t-test for independent samples despite the correlated
 % measurements.
@@ -157,20 +157,20 @@ buggy(tpaired, stage(2), X, Y, [bug(bug1)]) :-
 % with s_t0 (these flags are ignored, but will be activated in later versions).
 buggy(tpaired, stage(1), X, Y, [bug(d_t0), depends(s_t0), depends(paired)]) :-
     X = d,
-    Y = instead(t0, d).
+    Y = instead(bug(d_t0), t0, d).
 
 % Use SD of T0 instead of SD of D
 buggy(tpaired, stage(1), X, Y, [bug(s_t0), depends(d_t0), depends(paired)]) :-
     X = s_d,
-    Y = instead(s_t0, s_d).
+    Y = instead(bug(s_t0), s_t0, s_d).
 
 % Use mean EOT instead of mean D
 buggy(tpaired, stage(1), X, Y, [bug(d_eot), depends(s_eot), depends(paired)]) :-
     X = d,
-    Y = instead(eot, d).
+    Y = instead(bug(eot), eot, d).
 
 % Use SD of EOT instead of SD of D
 buggy(tpaired, stage(1), X, Y, [bug(s_eot), depends(d_eot), depends(paired)]) :-
     X = s_d,
-    Y = instead(s_eot, s_d).
+    Y = instead(bug(s_eot), s_eot, s_d).
 

@@ -11,17 +11,24 @@ step(Task, Stage, X, Y, Flags) :-
     buggy(Task, Stage, X, Y, Flags).
 
 % Handle special compounds
-step(Task, Stage, instead(X, Of), Z, Flags) :-
+step(Task, Stage, instead(Bug, X, Of), Z, Flags) :-
     !,
     step(Task, Stage, X, Y, Flags),
-    Z = instead(Y, Of).
+    Z = instead(Bug, Y, Of).
 
-step(Task, Stage, omit_left(Expr), Z, Flags) :-
+step(Task, Stage, omit_left(Bug, Expr), Z, Flags) :-
     !,
     Expr =.. [Op, L, R],
     step(Task, Stage, R, New, Flags),
     Y =.. [Op, L, New],
-    Z = omit_left(Y).
+    Z = omit_left(Bug, Y).
+
+step(Task, Stage, omit_right(Bug, Expr), Z, Flags) :-
+    !,
+    Expr =.. [Op, L, R],
+    step(Task, Stage, L, New, Flags),
+    Y =.. [Op, New, R],
+    Z = omit_right(Bug, Y).
 
 % Enter term and apply rule to components. For example, enter 
 % dfrac(Numerator, Denominator) and check if a rule can be applied to the
