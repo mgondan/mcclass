@@ -1122,6 +1122,13 @@ type(Flags, underbrace(A, _), Type)
 mathml :- mathml(underbrace('D', u)).
 
 %
+% Color
+%
+ml(Flags, color(C, A), M)
+ => ml(Flags, A, X),
+    M = mstyle(mathcolor(C, X)).
+
+%
 % Mistakes
 %
 math(Flags, omit_left(Expr), New, M),
@@ -1158,7 +1165,7 @@ math(Flags, omit_right(Expr), New, M),
  => Flags = New,
     M = list(space, [L, cancel(list(space, [sign(Op), R]))]).
 
-math(Flags, instead(_Wrong, Correct), New, M),
+math(Flags, instead(_Bug, _Wrong, Correct), New, M),
     option(error(ignore), Flags, highlight)
  => Flags = New,
     M = Correct.
@@ -1171,7 +1178,7 @@ math(Flags, instead(_Wrong, Correct), New, M),
 math(Flags, instead(Wrong, Correct), New, M),
     option(error(highlight), Flags, highlight)
  => Flags = New,
-    M = underbrace(list(space, ["instead of", Correct]), Wrong).
+    M = underbrace(list(space, ["instead of", Correct]), color(red, Wrong)).
 
 mathml :- mathml(dfrac(omit_right(overline('D') - mu),
                    sub(s, 'D') / sqrt('N'))).
