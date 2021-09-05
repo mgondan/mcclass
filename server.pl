@@ -4,6 +4,7 @@
 :- use_module(tasks).
 :- use_module(r).
 :- use_module(search).
+:- use_module(mathml).
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
@@ -42,8 +43,7 @@ handle(Task, Data) :-
     start(Task, Item),
     % Das kommt noch weg, das muss man nicht bei jedem Seitenaufbau laufen lassen.
     searchall(Task, Solutions),
-    maplist(term_string, Solutions, Strings),
-    findall(li(X), member(X, Strings), Items),
+    findall(li([\mml(Expr = Res), String]), (member(Expr-Res/Flags, Solutions), term_string(Flags, String)), Items),
     reply_html_page(
       [ title('McClass'),
         link(

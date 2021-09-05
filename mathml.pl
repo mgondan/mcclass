@@ -1217,6 +1217,13 @@ math(Flags, buggy(Flags, _, B), New, X)
     X = B.
 
 %
+% t-test
+%
+math(Flags, var_pool(V1, N1, V2, N2), New, X)
+ => New = Flags,
+    X = dfrac((N1 - 1)*V1 + (N2 - 1)*V2, N1 + N2 - 2).
+    
+%
 % Binomial coefficient and distribution
 %
 ml(Flags, choose(N, K), M)
