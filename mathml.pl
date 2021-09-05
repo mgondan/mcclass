@@ -54,13 +54,6 @@ mathml(Flags, A, X, _) :-
     ml(Flags, "Conversion failed: ~w"-A, X).
 
 %
-% Try external macro
-%
-ml(Flags, A, X),
-    hook(Flags, A, New, M)
- => ml(New, M, X).
-
-%
 % Try if expression matches with math/4 macro
 %
 ml(Flags, A, X),
@@ -74,6 +67,14 @@ ml(Flags, A, X),
 math(Flags, A, New, X),
     member(replace(A, _), Flags)
  => select(replace(A, X), Flags, New).
+
+%
+% Check if a macro has been defined in an external module
+%
+math(Flags, A, New, X),
+    hook(Flags, A, New0, X0)
+ => New = New0,
+    X = X0.
 
 %
 % Greek letters
