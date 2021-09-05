@@ -26,10 +26,11 @@ search(Task, Expr, Result, Flags) :-
     start(Task, X),
     search(Task, stage(1), X, Y, Flags1),
     search(Task, stage(2), Y, Expr, Flags2),
-    complete(Task, Expr),
+    complete(Task, Expr),    % no intermediate solutions
+    compatible(Expr),        % no incompatible bugs
     append(Flags1, Flags2, Unsorted),
     sort(Unsorted, Flags),
-    dependencies(Flags),
+    dependencies(Flags),     % dependencies between bugs
     Result <- Expr.
 
 % Return all solutions for a given task
