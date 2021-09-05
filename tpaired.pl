@@ -27,7 +27,7 @@ mathml:hook(Flags, t0, Flags, overline('T0')).
 mathml:hook(Flags, s_t0, Flags, sub(s, "T0")).
 mathml:hook(Flags, eot, Flags, overline('EOT')).
 mathml:hook(Flags, s_eot, Flags, sub(s, "EOT")).
-
+mathml:hook(Flags, s2p, Flags, sub(s, "pool")^2).
 
 render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, Mu), Form) -->
     { option(resp(R), Form, '#.##') },
@@ -118,7 +118,7 @@ buggy(tpaired, stage(2), X, Y, [bug(indep)]) :-
 % if a wrong decision has been made before [bug(indep)].
 expert(tpaired, stage(2), X, Y, [name(tratio)]) :-
     X = indep(T0, S_T0, N, EOT, S_EOT, N),
-    P = var_pool(S_T0^2, N, S_EOT^2, N),
+    P = with(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
     Y = dfrac(T0 - EOT, sqrt(P * (1/N + 1/N))).
 
 % The following mistake cannot occur in the paired t-test, but is again only

@@ -43,7 +43,7 @@ handle(Task, Data) :-
     start(Task, Item),
     % Das kommt noch weg, das muss man nicht bei jedem Seitenaufbau laufen lassen.
     searchall(Task, Solutions),
-    findall(li([\mml(Expr = Res), String]), (member(Expr-Res/Flags, Solutions), term_string(Flags, String)), Items),
+    findall(li([\mmlm(Expr = Res), String]), (member(Expr-Res/Flags, Solutions), term_string(Flags, String)), Items),
     reply_html_page(
       [ title('McClass'),
         link(

@@ -33,5 +33,10 @@ r_init :-
         {
             return(x)
         }
+
+        with <- function(s, expr, text)
+        {
+            return(expr)
+        }
     |}.
 
