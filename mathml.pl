@@ -1,7 +1,9 @@
 % Translate mathematical expressions to MathML
 :- module(mathml, [mml//1, mml//2, mmlm//1, mmlm//2]).
 
-:- discontiguous mathml/0, math/4, current/3, paren/3, prec/3, type/3, denoting/3, ml/3.
+:- multifile hook/4.
+
+:- discontiguous mathml/0, current/3, paren/3, prec/3, type/3, denoting/3, ml/3, math/4.
 :- use_module(library(http/html_write)).
 
 % mathml/0: Show the examples
@@ -50,6 +52,13 @@ mathml(Flags, A, X, With) :-
 
 mathml(Flags, A, X, _) :-
     ml(Flags, "Conversion failed: ~w"-A, X).
+
+%
+% Try external macro
+%
+ml(Flags, A, X),
+    hook(Flags, A, New, M)
+ => ml(New, M, X).
 
 %
 % Try if expression matches with math/4 macro

@@ -2,6 +2,7 @@
 
 :- use_module(library(http/html_write)).
 :- use_module(r).
+:- use_module(mathml).
 
 :- multifile start/2, intermediate/2, expert/5, buggy/5, render//3.
 
@@ -18,10 +19,18 @@ init(tpaired) :-
     tails <- "two-tailed",
     alpha <- 0.05.
 
+% Prettier symbols for mathematical rendering
+mathml:hook(Flags, d, Flags, overline('D')).
+mathml:hook(Flags, s_d, Flags, sub(s, 'D')).
+mathml:hook(Flags, n, Flags, 'N').
+mathml:hook(Flags, t0, Flags, overline('T0')).
+mathml:hook(Flags, s_t0, Flags, sub(s, "T0")).
+mathml:hook(Flags, eot, Flags, overline('EOT')).
+mathml:hook(Flags, s_eot, Flags, sub(s, "EOT")).
+
+
 render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, Mu), Form) -->
-    { 
-      option(resp(R), Form, '#.##')
-    },
+    { option(resp(R), Form, '#.##') },
     html(
       [ div(class(card), div(class('card-body'),
           [ h1(class('card-title'), "Phase II clinical study"),
