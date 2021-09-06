@@ -4,6 +4,7 @@
 :- use_module(tasks).
 :- use_module(r).
 :- use_module(search).
+:- use_module(feedback).
 :- use_module(mathml).
 
 :- use_module(library(http/thread_httpd)).
@@ -42,8 +43,16 @@ handler(Task, _) :-
 handle(Task, Data) :-
     start(Task, Item),
     % Das kommt noch weg, das muss man nicht bei jedem Seitenaufbau laufen lassen.
+    % Und unleserlich ist es auch, also nicht versuchen zu entziffern. Anständige
+    % Menschen verwenden keine goals über mehrere Zeilen.
     searchall(Task, Solutions),
-    findall(li([\mmlm(Expr = Res), String]), (member(Expr-Res/Flags, Solutions), term_string(Flags, String)), Items),
+    findall(li([\mmlm(Col, Expr = Res), ul(Feedback)]), 
+        ( member(Expr-Res/Flags, Solutions),
+          colors(Expr, Col),
+          feedback(Flags, FB),
+          findall(li(L), member(L, FB), Feedback)
+        ), 
+        Items),
     reply_html_page(
       [ title('McClass'),
         link(

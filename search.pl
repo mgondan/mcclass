@@ -5,6 +5,7 @@
 :- use_module(steps).
 :- use_module(intermediate).
 :- use_module(depends).
+:- use_module(feedback).
 
 % Reached the goal
 search(_, _, Y, Y, []).
@@ -50,5 +51,7 @@ test :-
     use_module(tpaired),
     r_init,
     search(tpaired, Expr, Result, Flags),
-    writeln(Expr-Result/Flags).
+    writeln(Expr-Result/Flags),
+    feedback(Flags, Feedback),
+    writeln(Feedback).
 

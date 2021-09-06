@@ -76,9 +76,11 @@ start(tpaired, item(t0, s_t0, eot, s_eot, d, s_d, n, mu)) :-
 % First step: Extract the correct information for a paired t-test from the task
 % description
 intermediate(tpaired, paired).
-expert(tpaired, stage(2), X, Y, [name(paired)]) :-
+expert(tpaired, stage(2), X, Y, [name(paired), praise(paired, FB)]) :-
     X = item(_, _, _, _, D, S_D, N, Mu),
-    Y = paired(D, Mu, S_D, N).
+    Y = paired(D, Mu, S_D, N),
+    FB = [ "Correctly identified the problem as a ", \mmlm(t), "-test for ",
+           "samples."].
 
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal)

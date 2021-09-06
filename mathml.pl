@@ -1,5 +1,5 @@
 % Translate mathematical expressions to MathML
-:- module(mathml, [mml//1, mml//2, mmlm//1, mmlm//2]).
+:- module(mathml, [mml//1, mml//2, mmlm//1, mmlm//2, colors/2]).
 
 :- multifile hook/4.
 
