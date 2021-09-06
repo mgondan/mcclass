@@ -107,6 +107,23 @@ denoting(_Flags, greek(_), Den)
 mathml :- mathml(epsilon).
 
 %
+% Verbatim output
+%
+ml(_Flags, &(A), M),
+    atom(A)
+ => M = &(A).
+
+type(_Flags, &(A), Type),
+    atom(A)
+ => Type = atomic.
+
+denoting(_Flags, &(A), Den),
+    atom(A)
+ => Den = [].
+
+
+
+%
 % Summation sign
 %
 math(Flags, sum(A), New, X),
@@ -259,6 +276,15 @@ denoting(_Flags, space(_), Den)
  => Den = [].
 
 mathml :- mathml(space).
+
+%
+% Hyphen
+%
+math(Flags, hyph(L, R), New, X)
+ => New = Flags,
+    X = list(&('#8209'), [L, R]).
+
+mathml :- mathml(hyph(t, "test")).
 
 %
 % Symbols/Identifiers

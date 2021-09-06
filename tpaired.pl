@@ -79,14 +79,15 @@ intermediate(tpaired, paired).
 expert(tpaired, stage(2), X, Y, [name(paired), praise(paired, FB)]) :-
     X = item(_, _, _, _, D, S_D, N, Mu),
     Y = paired(D, Mu, S_D, N),
-    FB = [ "Correctly identified the problem as a ", \mmlm(t), "-test for ",
-           "samples."].
+    FB = ["Correctly recognised the problem as ",
+          "a ", \mmlm(hyph(t, "test")), " for paired samples."].
 
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal)
-expert(tpaired, stage(2), X, Y, [name(tratio)]) :-
+expert(tpaired, stage(2), X, Y, [name(tratio), praise(paired, FB)]) :-
     X = paired(D, Mu, S_D, N),
-    Y = dfrac(D - Mu, S_D / sqrt(N)).
+    Y = dfrac(D - Mu, S_D / sqrt(N)),
+    FB = [ "Correctly identified the ", \mmlm(hyph(t, "ratio.")) ].
 
 % Misconception: Run the paired t-test against zero, that is, just test for a
 % decrease in symptoms. This is a frequent misconception, the problem is known
@@ -96,32 +97,39 @@ expert(tpaired, stage(2), X, Y, [name(tratio)]) :-
 % tend to see an improvement even in the absence of any therapeutical effect.
 % This misconception is even built into SPSS, because the paired samples t-test
 % in SPSS only allows for mu = 0. 
-buggy(tpaired, stage(2), X, Y, [bug(mu)]) :-
+buggy(tpaired, stage(2), X, Y, [bug(mu), blame(mu, FB)]) :-
     X = paired(D, Mu, S_D, N),
-    Y = dfrac(omit_right(bug(mu), D - Mu), S_D / sqrt(N)).
+    Y = dfrac(omit_right(bug(mu), D - Mu), S_D / sqrt(N)),
+    FB = [ "In the ", \mmlm(hyph(t, "ratio")), ", the null hypothesis has ",
+           "been omitted." ].
 
 % Test: this buggy rule is pedagogically meaningless, no one will omit D in
 % a t-ratio. The point of having it here is because it is incompatible to the
 % confusion rules at stage(2). D can be confused, D can be omitted, but not 
 % both. In general, only error-free terms can be omitted.
-buggy(tpaired, stage(2), X, Y, [bug(test)]) :-
+buggy(tpaired, stage(2), X, Y, [bug(test), blame(test, FB)]) :-
     X = paired(D, Mu, S_D, N),
-    Y = dfrac(omit_left(bug(test), D - Mu), S_D / sqrt(N)).
+    Y = dfrac(omit_left(bug(test), D - Mu), S_D / sqrt(N)),
+    FB = "This is a pseudo bug for testing compatibility checks.".
 
 % Misconception: Run the t-test for independent samples despite the correlated
 % measurements.
 intermediate(tpaired, indep).
-buggy(tpaired, stage(2), X, Y, [bug(indep)]) :-
+buggy(tpaired, stage(2), X, Y, [bug(indep), blame(indep, FB)]) :-
     X = item(T0, S_T0, EOT, S_EOT, _, _, N, _),
-    Y = indep(T0, S_T0, N, EOT, S_EOT, N).
+    Y = indep(T0, S_T0, N, EOT, S_EOT, N),
+    FB = [ "Wrongly recognized the problem as a ", \mmlm(hyph(t, "test")), " ",
+           "for independent samples." ].
 
 % This step is used to determine the test statistic for the t-test for
 % independent samples. The step itself is correct, although it is only needed
 % if a wrong decision has been made before [bug(indep)].
-expert(tpaired, stage(2), X, Y, [name(tratio)]) :-
+expert(tpaired, stage(2), X, Y, [name(tratio), praise(tratio, FB)]) :-
     X = indep(T0, S_T0, N, EOT, S_EOT, N),
     P = with(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
-    Y = dfrac(T0 - EOT, sqrt(P * (1/N + 1/N))).
+    Y = dfrac(T0 - EOT, sqrt(P * (1/N + 1/N))),
+    FB = [ "Correctly identified the ", \mmlm(hyph(t, "ratio")), " for ",
+           "independent samples." ].
 
 % The following mistake cannot occur in the paired t-test, but is again only
 % possible if the student has already made the wrong decision to calculate the
@@ -132,24 +140,31 @@ expert(tpaired, stage(2), X, Y, [name(tratio)]) :-
 % everyone falls into this trap at least once, including me and the student
 % assistants. I have coined it "bug(school)", since it is an example in which
 % the person has forgotten school math.
-buggy(tpaired, stage(2), X, Y, [bug(school)]) :-
+buggy(tpaired, stage(2), X, Y, [bug(school), blame(school, FB)]) :-
     dif(N1, N2),
     X = 1/N1 + 1/N2,
-    Y = frac(1, N1 + N2).
+    Y = frac(1, N1 + N2),
+    FB = [ "Please do not forget school ",
+           "math, ", \mmlm(frac(1, a) + frac(1, b) =\= frac(1, a+b)) ].
 
 % Same for N1 = N2
-buggy(tpaired, stage(2), X, Y, [bug(school)]) :-
+buggy(tpaired, stage(2), X, Y, [bug(school), blame(school, FB)]) :-
     X = 1/N + 1/N,
-    Y = frac(1, 2*N).
+    Y = frac(1, 2*N),
+    FB = [ "Please do not forget school ",
+           "math, ", \mmlm(frac(1, x) + frac(1, x) =\= frac(1, 2*x)) ].
 
 % Forget parentheses in numerator and denominator of X / Y, with X = A - B and
 % Y = C / D. That is, calculate A - (B / C) / D instead of (A - B) / (C / D).
 % 
 % This is the first buggy rule that ever came to my attention, therefore the
 % name, bug1.
-buggy(tpaired, stage(2), X, Y, [bug(bug1)]) :-
+buggy(tpaired, stage(2), X, Y, [bug(bug1), blame(bug1, FB)]) :-
     X = dfrac(D - Mu, S / SQRT_N),
-    Y = D - dfrac(Mu, S) / SQRT_N.
+    Y = D - dfrac(Mu, S) / SQRT_N,
+    FB = [ "Please do not forget the parentheses around the numerator and ",
+           "the denominator of a fraction, ", 
+           \mmlm([error(ignore)], frac(paren(D - Mu), paren(S / SQRT_N))) ].
 
 % One challenging aspect of word problems ("Textaufgaben") is that students
 % have trouble to extract the correct information from the task description.
@@ -157,22 +172,30 @@ buggy(tpaired, stage(2), X, Y, [bug(bug1)]) :-
 % 
 % The depends means: This bug is limited to the paired t-test and co-occurs
 % with s_t0 (these flags are ignored, but will be activated in later versions).
-buggy(tpaired, stage(1), X, Y, [bug(d_t0), depends(s_t0), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, [bug(d_t0), blame(d_t0, FB), depends(s_t0), depends(paired)]) :-
     X = d,
-    Y = instead(bug(d_t0), t0, d).
+    Y = instead(bug(d_t0), t0, d),
+    FB = [ "Please insert the average change score and its standard ",
+           "deviation into the ", \mmlm(hyph(t, "ratio")), "." ].
 
 % Use SD of T0 instead of SD of D
-buggy(tpaired, stage(1), X, Y, [bug(s_t0), depends(d_t0), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, [bug(s_t0), blame(s_t0, FB), depends(d_t0), depends(paired)]) :-
     X = s_d,
-    Y = instead(bug(s_t0), s_t0, s_d).
+    Y = instead(bug(s_t0), s_t0, s_d),
+    FB = [ "Please insert the average change score and its standard ",
+           "deviation into the ", \mmlm(hyph(t, "ratio")), "." ].
 
 % Use mean EOT instead of mean D
-buggy(tpaired, stage(1), X, Y, [bug(d_eot), depends(s_eot), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, [bug(d_eot), blame(d_eot, FB), depends(s_eot), depends(paired)]) :-
     X = d,
-    Y = instead(bug(eot), eot, d).
+    Y = instead(bug(eot), eot, d),
+    FB = [ "Please insert the average change score and its standard ",
+           "deviation into the ", \mmlm(hyph(t, "ratio")), "." ].
 
 % Use SD of EOT instead of SD of D
-buggy(tpaired, stage(1), X, Y, [bug(s_eot), depends(d_eot), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, [bug(s_eot), blame(s_eot, FB), depends(d_eot), depends(paired)]) :-
     X = s_d,
-    Y = instead(bug(s_eot), s_eot, s_d).
+    Y = instead(bug(s_eot), s_eot, s_d),
+    FB = [ "Please insert the average change score and its standard ",
+           "deviation into the ", \mmlm(hyph(t, "ratio")), "." ].
 
