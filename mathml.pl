@@ -1190,13 +1190,13 @@ math(Flags, omit_left(bug(Bug), Expr), New, M),
     option(error(fix), Flags, highlight),
     Expr =.. [Op, L, R]
  => Flags = New,
-    M = list(space, [color(Bug, box(color("dark", list(space, [L, sign(Op)])))), R]).
+    M = list(space, [color(Bug, box(color("#000000", list(space, [L, sign(Op)])))), R]).
 
 math(Flags, omit_left(bug(Bug), Expr), New, M),
     option(error(highlight), Flags, highlight),
     Expr =.. [Op, L, R]
  => Flags = New,
-    M = list(space, [color(Bug, cancel(color("dark", list(space, [L, sign(Op)])))), R]).
+    M = list(space, [color(Bug, cancel(color("#000000", list(space, [L, sign(Op)])))), R]).
 
 math(Flags, omit_right(_Bug, Expr), New, M),
     option(error(ignore), Flags, highlight)
@@ -1207,13 +1207,13 @@ math(Flags, omit_right(bug(Bug), Expr), New, M),
     option(error(fix), Flags, highlight),
     Expr =.. [Op, L, R]
  => Flags = New,
-    M = list(space, [L, color(Bug, box(color("dark", list(space, [sign(Op), R]))))]).
+    M = list(space, [L, color(Bug, box(color("#000000", list(space, [sign(Op), R]))))]).
 
 math(Flags, omit_right(bug(Bug), Expr), New, M),
     option(error(highlight), Flags, highlight),
     Expr =.. [Op, L, R]
  => Flags = New,
-    M = list(space, [L, color(Bug, cancel(color("dark", list(space, [sign(Op), R]))))]).
+    M = list(space, [L, color(Bug, cancel(color("#000000", list(space, [sign(Op), R]))))]).
 
 math(Flags, instead(_Bug, _Wrong, Correct), New, M),
     option(error(ignore), Flags, highlight)
@@ -1223,7 +1223,7 @@ math(Flags, instead(_Bug, _Wrong, Correct), New, M),
 math(Flags, instead(bug(Bug), _Wrong, Correct), New, M),
     option(error(fix), Flags, highlight)
  => Flags = New,
-    M = color(Bug, box(color("dark", Correct))).
+    M = color(Bug, box(color("#000000", Correct))).
 
 math(Flags, instead(bug(Bug), Wrong, Correct), New, M),
     option(error(highlight), Flags, highlight)
@@ -1499,6 +1499,11 @@ bugs_(omit_right(bug(Bug), Expr), List)
  => Expr =.. [_Op, L, _R],
     bugs_(L, Bugs),
     List = [Bug | Bugs].
+
+bugs_(color(Col, Expr), List),
+    atom(Col)
+ => bugs_(Expr, Bugs),
+    List = [Col | Bugs].
 
 bugs_(X, Nil),
     atomic(X)

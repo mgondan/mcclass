@@ -52,6 +52,7 @@ test :-
     r_init,
     search(tpaired, Expr, Result, Flags),
     writeln(Expr-Result/Flags),
-    feedback(Flags, Feedback),
+    colors(Expr, Col),
+    feedback(Flags, Col, Feedback),
     writeln(Feedback).
 

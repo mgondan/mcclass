@@ -1,15 +1,15 @@
 % Collect feedback from Flags
-:- module(feedback, [praise/2, blame/2, feedback/2]).
+:- module(feedback, [praise/3, blame/3, feedback/3]).
 
 % This may become more complex if we change the representation.
-praise(Flags, Praise) :-
-    findall(P, (member(name(N), Flags), member(praise(N, P), Flags)), Praise).
+praise(Flags, Col, Praise) :-
+    findall(P, (member(expert(N, Args), Flags), feedback(_, expert(N, Args), Col, P)), Praise).
 
-blame(Flags, Blame) :-
-    findall(B, (member(bug(N), Flags), member(blame(N, B), Flags)), Blame).
+blame(Flags, Col, Blame) :-
+    findall(B, (member(bug(N, Args), Flags), feedback(_, bug(N, Args), Col, B)), Blame).
 
-feedback(Flags, Feedback) :-
-    praise(Flags, Praise),
-    blame(Flags, Blame),
+feedback(Flags, Col, Feedback) :-
+    praise(Flags, Col, Praise),
+    blame(Flags, Col, Blame),
     append(Praise, Blame, Feedback).
 

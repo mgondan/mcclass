@@ -38,5 +38,10 @@ r_init :-
         {
             return(expr)
         }
+
+        color <- function(col, expr)
+        {
+            return(expr)
+        }
     |}.
 

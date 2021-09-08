@@ -49,7 +49,7 @@ handle(Task, Data) :-
     findall(li([\mmlm(Col, Expr = Res), ul(Feedback)]), 
         ( member(Expr-Res/Flags, Solutions),
           colors(Expr, Col),
-          feedback(Flags, FB),
+          feedback(Flags, Col, FB),
           findall(li(L), member(L, FB), Feedback)
         ), 
         Items),

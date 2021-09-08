@@ -4,7 +4,7 @@
 % Check if there is a name(X) or bug(X) for each depends(X)
 dependencies(Flags) :-
     findall(D, member(depends(D), Flags), Dependencies),
-    findall(D, (member(name(D), Flags) ; member(bug(D), Flags)), Bugs),
+    findall(D, (member(expert(D, _), Flags) ; member(bug(D, _), Flags)), Bugs),
     subtract(Dependencies, Bugs, []).
 
 % Check if bugs are compatible
