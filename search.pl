@@ -53,6 +53,6 @@ test :-
     search(tpaired, Expr, Result, Flags),
     writeln(Expr-Result/Flags),
     colors(Expr, Col),
-    feedback(Flags, Col, Feedback),
+    feedback(tpaired, Flags, Col, Feedback),
     writeln(Feedback).
 
