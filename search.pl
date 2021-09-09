@@ -8,12 +8,12 @@
 :- use_module(feedback).
 
 % Reached the goal
-search(_, _, Y, Y, []).
+search_(_, _, Y, Y, []).
 
 % Continue search
-search(Task, Stage, X, Y, Path) :-
+search_(Task, Stage, X, Y, Path) :-
     step(Task, Stage, X, Z, Flags),
-    search(Task, Stage, Z, Y, Steps),
+    search_(Task, Stage, Z, Y, Steps),
     append(Flags, Steps, Path).
 
 % Return a solution for a given task
@@ -23,36 +23,30 @@ search(Task, Stage, X, Y, Path) :-
 % bugs refer to wrong steps in the calculation method. In the end, we check 
 % if the solution is complete (not intermediate). The flags are sorted to allow
 % elimination of redundant solutions that occur within stages.
-search(Task, Expr, Result, Flags) :-
+search(Task, Expr, Result, Flags, Sorted) :-
     start(Task, X),
-    search(Task, stage(1), X, Y, Flags1),
-    search(Task, stage(2), Y, Expr, Flags2),
+    search_(Task, stage(1), X, Y, Flags1),
+    search_(Task, stage(2), Y, Expr, Flags2),
     complete(Task, Expr),    % no intermediate solutions
     compatible(Expr),        % no incompatible bugs
-    append(Flags1, Flags2, Unsorted),
-    sort(Unsorted, Flags),
-    dependencies(Flags),     % dependencies between bugs
+    append(Flags2, Flags1, Flags), % Confusions (stage 1) last
+    sort(Flags, Sorted),
+    dependencies(Sorted),     % dependencies between bugs
     Result <- Expr.
 
 % Return all solutions for a given task
 %
 % The sort/4 in the last line eliminates redundant solutions (redundant = same
-% flags). This is a bit dangerous, since wrong steps are not commutative in
-% general. It will be replaced by a stricter definition that also checks for
-% equality of the numerical results).
+% flags and same numerical result).
 searchall(Task, Expr_Res_Flags) :-
-    % Kleines Rätsel :-)
-    % Warum schreibe ich hier E-R/F? Hint: hat was mit "Punkt vor Strich" zu tun, es wird aber nichts gerechnet.
-    findall(E-R/F, search(Task, E, R, F), E_R_F),
-    sort(2, @<, E_R_F, Expr_Res_Flags).
+    findall(res(E, R/S, F), search(Task, E, R, F, S), Results),
+    sort(2, @<, Results, Sorted),
+    findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
 
 % Invoke with search:test.
 test :-
     use_module(tpaired),
     r_init,
-    search(tpaired, Expr, Result, Flags),
-    writeln(Expr-Result/Flags),
-    colors(Expr, Col),
-    feedback(tpaired, Flags, Col, Feedback),
-    writeln(Feedback).
+    searchall(tpaired, E_R_F),
+    writeln(E_R_F).
 
