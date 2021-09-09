@@ -31,7 +31,13 @@ mathml:hook(Flags, eot, Flags, overline("EOT")).
 mathml:hook(Flags, s_eot, Flags, sub(s, "EOT")).
 mathml:hook(Flags, s2p, Flags, sub(s, "pool")^2).
 
-render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, Mu), Form) -->
+% Render R result
+mathml:hook(Flags, r(Expr), Flags, Res) :-
+    R <- Expr,
+    [Res] = R,
+    number(Res).
+
+render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
     { option(resp(R), Form, '#.##') },
     html(
       [ div(class(card), div(class('card-body'),
@@ -39,23 +45,31 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, Mu), Form) -->
             p(class('card-text'),
             [ "Consider a clinical study on rumination-focused Cognitive ",
               "Behavioral Therapy (rfCBT) with ",
-              math(mrow([mi(N), mo(=), mn(\r(n))])), " patients. The primary ",
+              \mmlm(N = r(n)), " patients. The primary ",
               "outcome is the score on the Hamilton Rating Scale for ", 
-              "Depression (HDRS, range from best = 0 to worst = 42). The ",
-              "significance level is set to ",
-              math(mrow([mi(&(alpha)), mo(=), mn(5), mtext('%')])), " two-tailed."])
+              "Depression (HDRS, range from best = 0 to worst = 42). ",
+              "The significance level is set to ",
+              \mmlm(alpha = [5, "%"]), " two-tailed."]),
+            div(class('container'),
+              div(class("row justify-content-md-center"),
+              \mmlm([round(1)], ##(
+                [
+                  #(mathbackground("#e0e0e0"), 
+                    ["HDRS",       "T0",    "EOT",    'D']),
+                  #(["Average",   r(t0),   r(eot),   r(d)]),
+                  #(["SD",      r(s_t0), r(s_eot), r(s_d)])
+                ])))) 
           ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'),
               [ "Does rfCBT lead to a relevant reduction (i.e., more than ",
-                math(mrow([mi(&(Mu)), mo(=), mn(\r(mu))])),
+                \mmlm(r(mu)),
                 " units) in mean HDRS scores between ",
                 "baseline (T0) and End of Treatment (EOT)?"
               ]),
             form([class(form), method('POST'), action('#tpaired-tratio')],
-              [ p(class('card-text'), "Question"),
-                div(class("input-group mb-3"),
+              [ div(class("input-group mb-3"),
                   [ div(class("input-group-prepend"), 
                       span(class("input-group-text"), "Response")),
                     input([class("form-control"), type(text), name(resp), value(R)]),

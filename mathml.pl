@@ -228,7 +228,6 @@ type(Flags, hat(A), Type)
  => type(Flags, A, Type).
 
 mathml :- mathml(hat('K')).
-
 mathml :- mathml(hat('K'^2)).
 mathml :- mathml(hat('K')^2).
 mathml :- mathml(hat('sigma')^2).
@@ -985,6 +984,50 @@ paren(_Flags, braces(_), Paren)
  => Paren is 3.
 
 mathml :- mathml(paren(paren(paren(paren(i))))).
+
+%
+% Matrices
+%
+ml(Flags, ##(Rows), M)
+ => maplist(ml(Flags), Rows, X),
+    M = mtable(X).
+
+paren(Flags, ##([Row1]), Paren)
+ => paren(Flags, Row1, Paren).
+
+paren(_Flags, ##(_), Paren)
+ => Paren is 0.
+
+mathml :- mathml(##([#([1, 0, 0]), #([0, 1, 0]), #([0, 0, 1])])).
+
+%
+% Row vectors
+%
+ml(Flags, #(Cells), M)
+ => findall(cell(C), member(C, Cells), CCells),
+    maplist(ml(Flags), CCells, X),
+    M = mtr(X).
+
+paren(Flags, #(Cells), Paren)
+ => maparg(paren(Flags), Cells, Ps),
+    max_list(Ps, Paren).
+
+% with attributes (e.g., mathbackground(blue))
+ml(Flags, #(Options, Cells), M)
+ => findall(cell(C), member(C, Cells), CCells),
+    maplist(ml(Flags), CCells, X), 
+    M = mtr(Options, X).
+
+paren(Flags, #(_Options, Cells), Paren)
+ => maparg(paren(Flags), Cells, Ps),
+    max_list(Ps, Paren).
+
+%
+% Table cell
+%
+ml(Flags, cell(Cell), M)
+ => ml(Flags, Cell, X),
+    M = mtd(X).
 
 %
 % Lists of things
