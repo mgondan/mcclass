@@ -40,3 +40,4 @@ step(Task, Stage, X, Y, Flags) :-
     step(Task, Stage, Arg, New, Flags),
     nth1(Index, YArgs, New, Rest),
     compound_name_arguments(Y, Name, YArgs).
+

@@ -53,6 +53,8 @@ handle(Task, Data) :-
           findall(li(L), member(L, FB), Feedback)
         ), 
         Items),
+
+    % Antwort des Servers
     reply_html_page(
       [ title('McClass'),
         link(
@@ -71,6 +73,7 @@ handle(Task, Data) :-
             content('width=device-width, initial-scale=1')])
           ],
       [ \render(Task, Item, Data),
+        \solution(Task),
         ol(class('card-text'), Items)
       ]).
 

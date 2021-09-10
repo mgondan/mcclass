@@ -1,4 +1,4 @@
-:- module(search, [searchall/2]).
+:- module(search, [searchall/2, solution//1]).
 
 :- use_module(r).
 :- use_module(tasks).
@@ -22,16 +22,17 @@ search_(Task, Stage, X, Y, Path) :-
 % stage(1) are mix-up of parameters (see examples in tpaired.pl). At stage(2),
 % bugs refer to wrong steps in the calculation method. In the end, we check 
 % if the solution is complete (not intermediate). The flags are sorted to allow
-% elimination of redundant solutions that occur within stages.
+% elimination of redundant solutions that occur within stages (e.g., 
+% permutations).
 search(Task, Expr, Result, Flags, Sorted) :-
     start(Task, X),
     search_(Task, stage(1), X, Y, Flags1),
     search_(Task, stage(2), Y, Expr, Flags2),
-    complete(Task, Expr),    % no intermediate solutions
-    compatible(Expr),        % no incompatible bugs
-    append(Flags2, Flags1, Flags), % Confusions (stage 1) last
+    complete(Task, Expr),           % no intermediate solutions
+    compatible(Expr),               % no incompatible bugs
+    append(Flags2, Flags1, Flags),  % confusions (stage 1) last in feedback
     sort(Flags, Sorted),
-    dependencies(Sorted),     % dependencies between bugs
+    dependencies(Sorted),           % dependencies between bugs
     Result <- Expr.
 
 % Return all solutions for a given task
@@ -42,6 +43,28 @@ searchall(Task, Expr_Res_Flags) :-
     findall(res(E, R/S, F), search(Task, E, R, F, S), Results),
     sort(2, @<, Results, Sorted),
     findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
+
+% Find correct solution for a given task
+%
+% At present, this is the first solution in the list, because expert rules are
+% tried before buggy rules (see steps.pl). This may change in the future, when
+% we allow, e.g., tasks with multiple correct solutions.
+solution(Task, Expr, Result, Flags) :-
+    once(search(Task, Expr, Result, Flags, _Sorted)).
+
+solution(Task) -->
+    { solution(Task, Expr, Result, Flags),
+      colors(Expr, Col),
+      feedback(Task, Flags, Col, FB),
+      findall(li(L), member(L, FB), Feedback) 
+    },
+    html(div(class("card"),
+          [ div(class("card-header text-white bg-success"), "Solution"),
+            div(class("card-body"), 
+              [ p(class("card-text"), \mmlm(Expr = Result)),
+                p(class("card-text"), ul(Feedback))
+              ])
+          ])).
 
 % Invoke with search:test.
 test :-
