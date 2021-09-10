@@ -1,6 +1,7 @@
 :- module(tpaired, [start/2, intermediate/2, expert/5, buggy/5, feedback/5, render//3]).
 
 :- use_module(library(http/html_write)).
+:- use_module(table).
 :- use_module(r).
 :- use_module(mathml).
 
@@ -52,13 +53,19 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
               \mmlm(alpha = [5, "%"]), " two-tailed."]),
             div(class('container'),
               div(class("row justify-content-md-center"),
-              \mmlm([round(1)], ##(
-                [
-                  #(mathbackground("#e0e0e0"), 
-                    ["HDRS",       "T0",    "EOT",    'D']),
-                  #(["Average",   r(t0),   r(eot),   r(d)]),
-                  #(["SD",      r(s_t0), r(s_eot), r(s_d)])
-                ])))) 
+                div(class("col-6"),
+                  \htmltable(
+                    [ em("Table 1. "), "Observed HDRS scores at T0, EOT, ",
+                      "and ", \mmlm("T0" - "EOT") ],
+                    [ "Average", "SD" ],
+                    [ "HDRS", "T0", "EOT", \mmlm('D') ],
+                    [ [ \mmlm([round(1)], r(t0)),
+                        \mmlm([round(1)], r(eot)),
+                        \mmlm([round(1)], r(d)) ],
+                      [ \mmlm([round(1)], r(s_t0)),
+                        \mmlm([round(1)], r(s_eot)),
+                        \mmlm([round(1)], r(s_d)) ]
+                    ]))))
           ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
