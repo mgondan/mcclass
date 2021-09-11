@@ -1,11 +1,13 @@
-:- module(tpaired, [start/2, intermediate/2, expert/5, buggy/5, feedback/5, render//3]).
+:- module(tpaired, 
+    [ start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, 
+      render//3]).
 
 :- use_module(library(http/html_write)).
 :- use_module(table).
 :- use_module(r).
 :- use_module(mathml).
 
-:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, render//3.
+:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 init(tpaired) :-
     r_init,
@@ -104,17 +106,25 @@ expert(tpaired, stage(2), X, Y, [step(expert, paired, [])]) :-
     Y = paired(D, Mu, S_D, N).
 
 feedback(tpaired, paired, [], Col, FB) :-
-    FB = ["Correctly recognised the problem as ",
-          "a ", \mmlm(Col, hyph(t, "test")), " for paired samples."].
+    FB = [ "Correctly recognised the problem as ",
+           "a ", \mmlm(Col, hyph(t, "test")), " for paired samples." ].
+
+hint(tpaired, paired, [], Col, Hint) :-
+    Hint = [ "This is a ", \mmlm(Col, hyph(t, "test")), " for paired ",
+           "samples." ].
 
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal)
-expert(tpaired, stage(2), X, Y, [step(expert, tratio, [])]) :-
+expert(tpaired, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
     X = paired(D, Mu, S_D, N),
     Y = dfrac(D - Mu, S_D / sqrt(N)).
 
-feedback(tpaired, tratio, [], Col, FB) :-
+feedback(tpaired, tratio, [_D, _Mu, _S_D, _N], Col, FB) :-
     FB = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio.")) ].
+
+hint(tpaired, tratio, [D, Mu, S_D, N], Col, Hint) :-
+    Hint = [ "The ", \mmlm(Col, hyph(t, "ratio")), " ",
+         "is ", \mmlm(Col, dfrac(D - Mu, S_D / sqrt(N))) ].
 
 % Misconception: Run the paired t-test against zero, that is, just test for a
 % decrease in symptoms. This is a frequent misconception, the problem is known

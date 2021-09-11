@@ -55,14 +55,15 @@ solution(Task, Expr, Result, Flags) :-
 solution(Task) -->
     { solution(Task, Expr, Result, Flags),
       colors(Expr, Col),
-      feedback(Task, Flags, Col, FB),
-      findall(li(L), member(L, FB), Feedback) 
+      hints(Task, Flags, Col, Hints),
+      findall(li(L), member(L, Hints), List) 
     },
     html(div(class("card"),
           [ div(class("card-header text-white bg-success"), "Solution"),
             div(class("card-body"), 
               [ p(class("card-text"), \mmlm(Expr = Result)),
-                p(class("card-text"), ul(Feedback))
+                p(class("card-text"), "Hints"),
+                p(class("card-text"), ul(List))
               ])
           ])).
 
