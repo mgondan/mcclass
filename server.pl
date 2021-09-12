@@ -74,6 +74,7 @@ handle(Task, Data) :-
           ],
       [ \render(Task, Item, Data),
         \solution(Task),
+        \critical(Task, Solutions),
         ol(class('card-text'), Items)
       ]).
 

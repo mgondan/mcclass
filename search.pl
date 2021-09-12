@@ -1,4 +1,4 @@
-:- module(search, [searchall/2, solution//1]).
+:- module(search, [searchall/2, solution//1, critical//2]).
 
 :- use_module(r).
 :- use_module(tasks).
@@ -6,6 +6,7 @@
 :- use_module(intermediate).
 :- use_module(depends).
 :- use_module(feedback).
+:- use_module(mathml).
 
 % Reached the goal
 search_(_, _, Y, Y, []).
@@ -67,10 +68,37 @@ solution(Task) -->
               ])
           ])).
 
+% Return all wrong alternatives with exactly one bug. These bugs are critical,
+% that is, if you commit them, you lost the path to the correct solution. Any
+% other bugs that occur downstream (e.g., in tpaired, the school bug that 
+% may occurs in the wrong formula of the independent t-test) are less relevant
+% for feedback, we only use them to understand what the user is doing.
+onebug(Task, Expr, Flags, FB) :-
+    findall(B-A, member(step(buggy, B, A), Flags), [Bug-Arg]),
+    colors(Expr, Col),
+    feedback(Task, Bug, Arg, Col, FB).
+
+critical(Task, Expr_Res_Flags, Crit) :-
+    findall(FB, (member(E-_R/F, Expr_Res_Flags), onebug(Task, E, F, FB)), Crit).
+
+critical(Task, Expr_Res_Flags) -->
+    { critical(Task, Expr_Res_Flags, Crit),
+      findall(li(L), member(L, Crit), List)
+    },
+    html(div(class("card"),
+          [ div(class("card-header text-white bg-danger"), "Traps"),
+            div(class("card-body"),
+              [ p(class("card-text"), "Avoid these mistakes"),
+                p(class("card-text"), ul(List))
+              ])
+          ])).
+
 % Invoke with search:test.
 test :-
     use_module(tpaired),
     r_init,
     searchall(tpaired, E_R_F),
-    writeln(E_R_F).
+    writeln(E_R_F),
+    critical(tpaired, E_R_F, Crit),
+    writeln(Crit).
 
