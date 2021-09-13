@@ -142,6 +142,10 @@ feedback(tpaired, mu, [Mu], Col, FB) :-
     FB = [ "In the ", \mmlm(hyph(t, "ratio,")), " the null ",
            "hypothesis ", \mmlm(Col, color(mu, Mu)), " has been omitted." ].
 
+hint(tpaired, mu, [Mu], Col, FB) :-
+    FB = [ "Do not omit the null hypothesis ", \mmlm(Col, color(mu, Mu)), " ",
+           "in the ", \mmlm(hyph(t, "ratio.")) ].
+
 % Test: this buggy rule is pedagogically meaningless, no one will omit D in
 % a t-ratio. The point of having it here is because it is incompatible to the
 % confusion rules at stage(2). D can be confused, D can be omitted, but not 
@@ -153,6 +157,10 @@ buggy(tpaired, stage(2), X, Y, [step(buggy, test, [D])]) :-
 feedback(tpaired, test, [D], Col, FB) :-
     FB = [ "This is a pseudo bug for compatibility checks. No one would omit ",
            \mmlm(Col, color(test, D)), " from the formula." ].
+
+hint(tpaired, test, [D], Col, FB) :-
+    FB = [ "I guess you would not omit ", \mmlm(Col, color(test, D)), " from ",
+           "the formula." ].
 
 % Misconception: Run the t-test for independent samples despite the correlated
 % measurements.
@@ -166,17 +174,26 @@ feedback(tpaired, indep, [], Col, FB) :-
            "a ", \mmlm(Col, hyph(t, "test")), " ",
            "for independent samples." ].
 
+hint(tpaired, indep, [], Col, FB) :-
+    FB = [ "Do not calculate a ", \mmlm(Col, hyph(t, "test")), " for ",
+           "independent samples here." ].
+
 % This step is used to determine the test statistic for the t-test for
 % independent samples. The step itself is correct, although it is only needed
 % if a wrong decision has been made before [bug(indep)].
-expert(tpaired, stage(2), X, Y, [step(expert, tratio_indep, [])]) :-
+expert(tpaired, stage(2), X, Y, [step(expert, tratio_indep, [T0, S_T0, N, EOT, S_EOT])]) :-
     X = indep(T0, S_T0, N, EOT, S_EOT, N),
     P = with(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
     Y = dfrac(T0 - EOT, sqrt(P * (1/N + 1/N))).
 
-feedback(tpaired, tratio_indep, [], Col, FB) :-
+feedback(tpaired, tratio_indep, [_T0, _S_T0, _N, _EOT, _S_EOT], Col, FB) :-
     FB = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " ",
            "for independent samples." ].
+
+hint(tpaired, tratio_indep, [T0, S_T0, N, EOT, S_EOT], Col, FB) :-
+    P = with(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
+    FB = [ "The ", \mmlm(Col, hyph(t, "ratio")), " for independent samples ",
+           "would be ", \mmlm(Col, dfrac(T0 - EOT, sqrt(P * (1/N + 1/N)))) ].
 
 % The following mistake cannot occur in the paired t-test, but is again only
 % possible if the student has already made the wrong decision to calculate the
@@ -197,12 +214,21 @@ feedback(tpaired, school1, [N1, N2], Col, FB) :-
            "math, ", \mmlm(Col, frac(1, color(school1, N1)) + 
              frac(1, color(school1, N2)) =\= frac(1, color(school1, N1+N2))) ].
 
+hint(tpaired, school1, [N1, N2], Col, FB) :-
+    FB = [ "Please do not forget school ",
+           "math, ", \mmlm(Col, frac(1, color(school1, N1)) +
+             frac(1, color(school1, N2)) =\= frac(1, color(school1, N1+N2))) ].
+
 % Same for N1 = N2
 buggy(tpaired, stage(2), X, Y, [step(buggy, school2, [N])]) :-
     X = 1/N + 1/N,
     Y = frac(1, color(school2, 2*N)).
 
 feedback(tpaired, school2, [N], Col, FB) :-
+    FB = [ "Please do not forget school ",
+           "math, ", \mmlm(Col, frac(1, color(school2, N)) + frac(1, color(school2, N)) =\= frac(1, color(school2, 2*N))) ].
+
+hint(tpaired, school2, [N], Col, FB) :-
     FB = [ "Please do not forget school ",
            "math, ", \mmlm(Col, frac(1, color(school2, N)) + frac(1, color(school2, N)) =\= frac(1, color(school2, 2*N))) ].
 
@@ -221,6 +247,12 @@ feedback(tpaired, bug1, [D, Mu, S, SQRT_N], Col, FB) :-
            \mmlm([error(ignore) | Col], frac(color(bug1, paren(color("#000000", D - Mu))), color(bug1, paren(color("#000000", S / SQRT_N))))) 
          ].
 
+hint(tpaired, bug1, [D, Mu, S, SQRT_N], Col, FB) :-
+    FB = [ "Do not forget the parentheses around the numerator and ",
+           "the denominator of a fraction, ",
+           \mmlm([error(ignore) | Col], frac(color(bug1, paren(color("#000000", D - Mu))), color(bug1, paren(color("#000000", S / SQRT_N)))))
+         ].
+
 % One challenging aspect of word problems ("Textaufgaben") is that students
 % have trouble to extract the correct information from the task description.
 % Here, the student uses the mean T0 instead of mean D. 
@@ -236,6 +268,10 @@ feedback(tpaired, d_t0, [D], Col, FB) :-
            "score ", \mmlm(Col, color(d_t0, D)), " into ",
            "the ", \mmlm(Col, hyph(t, "ratio")), "." ].
 
+hint(tpaired, d_t0, [D], Col, FB) :-
+    FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
+           "the average change score ", \mmlm(Col, color(d_t0, D)), "." ].
+
 % Use SD of T0 instead of SD of D
 buggy(tpaired, stage(1), X, Y, [step(buggy, s_t0, [s_d]), depends(d_t0), depends(paired)]) :-
     X = s_d,
@@ -246,6 +282,10 @@ feedback(tpaired, s_t0, [S], Col, FB) :-
            "scores ", \mmlm(Col, color(s_t0, S)), " into ",
            "the ", \mmlm(Col, hyph(t, "ratio")), "." ].
 
+hint(tpaired, s_t0, [S], Col, FB) :-
+    FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
+           "the average change score and its standard deviation ", \mmlm(Col, color(s_t0, S)), "." ].
+
 % Use mean EOT instead of mean D
 buggy(tpaired, stage(1), X, Y, [step(buggy, d_eot, [d]), depends(s_eot), depends(paired)]) :-
     X = d,
@@ -254,6 +294,10 @@ buggy(tpaired, stage(1), X, Y, [step(buggy, d_eot, [d]), depends(s_eot), depends
 feedback(tpaired, d_eot, [D], Col, FB) :-
     FB = [ "Please insert the average change score ", \mmlm(Col, color(d_eot, D)), " into ",
            "the ", \mmlm(Col, hyph(t, "ratio")), "." ].
+
+hint(tpaired, d_eot, [D], Col, FB) :-
+    FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
+           "the average change score ", \mmlm(Col, color(d_eot, D)), "." ].
 
 % Use SD of EOT instead of SD of D
 buggy(tpaired, stage(1), X, Y, [step(buggy, s_eot, [s_d]), depends(d_eot), depends(paired)]) :-
@@ -264,4 +308,8 @@ feedback(tpaired, s_eot, [S], Col, FB) :-
     FB = [ "Please insert the standard deviation of the change ",
            "scores ", \mmlm(Col, color(s_eot, S)), " into ",
            "the ", \mmlm(Col, hyph(t, "ratio")), "." ].
+
+hint(tpaired, s_eot, [S], Col, FB) :-
+    FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
+           "the average change score and its standard deviation ", \mmlm(Col, color(s_eot, S)), "." ].
 

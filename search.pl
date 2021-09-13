@@ -76,7 +76,7 @@ solution(Task) -->
 onebug(Task, Expr, Flags, FB) :-
     findall(B-A, member(step(buggy, B, A), Flags), [Bug-Arg]),
     colors(Expr, Col),
-    feedback(Task, Bug, Arg, Col, FB).
+    hint(Task, Bug, Arg, Col, FB).
 
 critical(Task, Expr_Res_Flags, Crit) :-
     findall(FB, (member(E-_R/F, Expr_Res_Flags), onebug(Task, E, F, FB)), Crit).
