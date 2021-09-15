@@ -1,5 +1,5 @@
 :- module(tpaired, 
-    [ start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, 
+    [ start/2, init/1, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, 
       render//3]).
 
 :- use_module(library(http/html_write)).
@@ -11,16 +11,30 @@
 
 init(tpaired) :-
     r_init,
-    d <- 4.5,
-    mu <- 3.0,
-    s_d <- 8.2,
-    n <- 33,
-    t0 <- 23.2,
-    s_t0 <- 11.7,
-    eot <- 17.7,
-    s_eot <- 13.2,
-    tails <- "two-tailed",
-    alpha <- 0.05.
+
+    {|r||
+        n <- round(runif(1, min=20, max=45))
+        Id <- 1:n
+        T0 <- round(runif(n, min=15, max=40))
+        EOT <- round(t0 + runif(n, min=-10, max=2))
+        data <- data.frame(Id, T0, EOT)
+
+        mu <- round(runif(1, min=2, max=5), 1)
+        t0 <- mean(data$T0)
+        s_t0 <- sd(data$T0)
+        eot <- mean(data$EOT)
+        s_eot <- sd(data$EOT)
+        d <- mean(data$T0 - data$EOT)
+        s_d <- sd(data$T0 - data$EOT)
+
+        tails <- "two-tailed"
+        alpha <- 0.05
+    |},
+
+    r_data_frame_colnames(data, Names),
+    r_data_frame_to_rows(data, row, Rows),
+    Header =.. [row | Names],
+    csv_write_file("tpaired.csv", [Header | Rows], [separator(0';), encoding(utf8)]).
 
 %
 % Prettier symbols for mathematical rendering
@@ -67,7 +81,9 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
                       [ \mmlm([round(1)], r(s_t0)),
                         \mmlm([round(1)], r(s_eot)),
                         \mmlm([round(1)], r(s_d)) ]
-                    ]))))
+                    ])))),
+              form(method('POST'),
+                  button([ class('btn btn-secondary'), name(download), value(tpaired) ], "Download data"))
           ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),

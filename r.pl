@@ -1,6 +1,8 @@
 :- module(r, [r_init/0, r//1]).
 
 :- reexport(library(r/r_call)).
+:- reexport(library(r/r_data)).
+
 :- set_prolog_flag(float_overflow, infinity).
 r_call:r_console_property(size(25, 80)).
 

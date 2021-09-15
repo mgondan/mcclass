@@ -16,6 +16,7 @@
 :- use_module(library(http/http_unix_daemon)).
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/http_session)).
+:- use_module(library(http/http_wrapper)).
 
 :- initialization http_daemon.
 
@@ -38,6 +39,19 @@ handler(Task, Request) :-
 
 handler(Task, _) :-
     handle(Task, []).
+
+% Download csv data
+:- dynamic temp/3.
+handle(Task, Data) :-
+    init(tpaired),
+    member(download=_, Data),
+    format(atom(File), "attachment; filename=~k.csv", [Task]),
+    format(atom(Local), "~k.csv", [Task]),
+    http_current_request(Request),
+    http_reply_file(Local,
+      [ unsafe(true),
+        mime_type(text/csv), headers(['Content-Disposition'(File)])
+      ], Request).
 
 % Task sheet
 handle(Task, Data) :-
