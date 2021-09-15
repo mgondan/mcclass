@@ -273,7 +273,7 @@ hint(tpaired, d_t0, [D], Col, FB) :-
            "the average change score ", \mmlm(Col, color(d_t0, D)), "." ].
 
 % Use SD of T0 instead of SD of D
-buggy(tpaired, stage(1), X, Y, [step(buggy, s_t0, [s_d]), depends(d_t0), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, [step(buggy, s_t0, [s_d]), depends(paired)]) :-
     X = s_d,
     Y = instead(bug(s_t0), s_t0, s_d).
 
@@ -300,7 +300,7 @@ hint(tpaired, d_eot, [D], Col, FB) :-
            "the average change score ", \mmlm(Col, color(d_eot, D)), "." ].
 
 % Use SD of EOT instead of SD of D
-buggy(tpaired, stage(1), X, Y, [step(buggy, s_eot, [s_d]), depends(d_eot), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, [step(buggy, s_eot, [s_d]), depends(paired)]) :-
     X = s_d,
     Y = instead(bug(s_eot), s_eot, s_d).
 
