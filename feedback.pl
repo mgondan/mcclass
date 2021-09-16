@@ -14,4 +14,3 @@ feedback(Task, Flags, Col, Feedback) :-
 hints(Task, Flags, Col, Hints) :-
     findall(FB, (member(step(expert, N, Args), Flags), hint(Task, N, Args, Col, FB)), Hints).
 
-

@@ -1,4 +1,4 @@
-:- module(search, [searchall/2, solution//1, critical//2]).
+:- module(search, [search/4, searchall/2]).
 
 :- use_module(r).
 :- use_module(tasks).
@@ -24,7 +24,10 @@ search_(Task, Stage, X, Y, Path) :-
 % bugs refer to wrong steps in the calculation method. In the end, we check 
 % if the solution is complete (not intermediate). The flags are sorted to allow
 % elimination of redundant solutions that occur within stages (e.g., 
-% permutations).
+% permutations)
+search(Task, Expr, Result, Flags) :-
+    search(Task, Expr, Result, Flags, _).
+
 search(Task, Expr, Result, Flags, Sorted) :-
     start(Task, X),
     search_(Task, stage(1), X, Y, Flags1),
@@ -45,75 +48,4 @@ searchall(Task, Expr_Res_Flags) :-
     sort(2, @<, Results, Sorted),
     findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
 
-% Find correct solution for a given task
-%
-% At present, this is the first solution in the list, because expert rules are
-% tried before buggy rules (see steps.pl). This may change in the future, when
-% we allow, e.g., tasks with multiple correct solutions.
-solution(Task, Expr, Result, Flags) :-
-    once(search(Task, Expr, Result, Flags, _Sorted)).
-
-solution(Task) -->
-    { solution(Task, Expr, Result, Flags),
-      colors(Expr, Col),
-      hints(Task, Flags, Col, Hints),
-      findall(li(L), member(L, Hints), List) 
-    },
-    html(div(class("card"),
-          [ div(class("card-header text-white bg-success"), "Solution"),
-            div(class("card-body"), 
-              [ p(class("card-text"), \mmlm(Expr = Result)),
-                p(class("card-text"), "Hints"),
-                p(class("card-text"), ul(List))
-              ])
-          ])).
-
-% Return all wrong alternatives with exactly one bug. These bugs are critical,
-% that is, if you commit them, you lost the path to the correct solution. Any
-% other bugs that occur downstream (e.g., in tpaired, the school bug that 
-% may occurs in the wrong formula of the independent t-test) are less relevant
-% for feedback, we only use them to understand what the user is doing.
-onebug(Task, Expr, Flags, FB) :-
-    findall(B-A, member(step(buggy, B, A), Flags), [Bug-Arg]),
-    colors(Expr, Col),
-    hint(Task, Bug, Arg, Col, FB).
-
-critical(Task, Expr_Res_Flags, Crit) :-
-    findall(FB, (member(E-_R/F, Expr_Res_Flags), onebug(Task, E, F, FB)), Crit).
-
-critical(Task, Expr_Res_Flags) -->
-    { critical(Task, Expr_Res_Flags, Crit),
-      findall(li(L), member(L, Crit), List)
-    },
-    html(div(class("card"),
-          [ div(class("card-header text-white bg-danger"), "Traps"),
-            div(class("card-body"),
-              [ p(class("card-text"), "Avoid these mistakes"),
-                p(class("card-text"), ul(List))
-              ])
-          ])).
-
-%
-% Run example outside of webserver
-% $ swipl
-% ?- [search].
-% ?- trace.   (if needed)
-% ?- search:test.
-%
-test :-
-    test(tpaired),
-    test(tpaired). % Change to or
-
-test(Task) :-
-    use_module(tasks),
-    init(Task),
-    writeln("All alternatives"),
-    searchall(Task, E_R_F),
-    writeln(E_R_F),
-    writeln("Correct response"),
-    solution(Task, Expr, Res, Flags),
-    writeln(Expr-Res/Flags),
-    writeln("Critical bugs"),
-    critical(Task, E_R_F, Crit),
-    writeln(Crit).
 

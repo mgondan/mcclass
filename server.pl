@@ -27,23 +27,23 @@ http:location(mcclass, root(mcclass), []).
 
 :- http_handler(mcclass('favicon.ico'), http_reply_file('favicon.ico', []), []).
 :- http_handler(mcclass(tpaired), handler(tpaired), []).
-:- http_handler(mcclass(confint), handler(confint), []).
+:- http_handler(mcclass(oddsratio), handler(oddsratio), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
 handler(Task, Request) :-
     member(method(post), Request),
     !,
-    http_parameters(Request, [], [form_data(Data)]),
-    handle(Task, Data).
+    http_parameters(Request, [], [form_data(Form)]),
+    handle(Task, Form).
 
 handler(Task, _) :-
     handle(Task, []).
 
 % Download csv data
 :- dynamic temp/3.
-handle(Task, Data) :-
-    member(download=_, Data),
+handle(Task, Form) :-
+    member(download=_, Form),
     init(Task),
     data(Task, Local),
     format(atom(File), "attachment; filename=~k.csv", [Task]),
@@ -54,22 +54,9 @@ handle(Task, Data) :-
       ], Request).
 
 % Task sheet
-handle(Task, Data) :-
-    init(Task),
+handle(Task, Form) :-
+    task(Task, TaskData),
     start(Task, Item),
-    % Das kommt noch weg, das muss man nicht bei jedem Seitenaufbau laufen lassen.
-    % Und unleserlich ist es auch, also nicht versuchen zu entziffern. Anständige
-    % Menschen verwenden keine goals über mehrere Zeilen.
-    searchall(Task, Solutions),
-    findall(li([\mmlm(Col, Expr = Res), ul(Feedback)]), 
-        ( member(Expr-Res/Flags, Solutions),
-          colors(Expr, Col),
-          feedback(Task, Flags, Col, FB),
-          findall(li(L), member(L, FB), Feedback)
-        ), 
-        Items),
-
-    % Antwort des Servers
     reply_html_page(
       [ title('McClass'),
         link(
@@ -87,10 +74,10 @@ handle(Task, Data) :-
 	      [ name(viewport), 
             content('width=device-width, initial-scale=1')])
           ],
-      [ \render(Task, Item, Data),
-        \solution(Task),
-        \critical(Task, Solutions),
-        ol(class('card-text'), Items)
+      [ \render(Task, Item, Form),
+        \solution(TaskData),
+        \hints(TaskData),
+        \wrongs(TaskData)
       ]).
 
 handle(Task, _) :-
