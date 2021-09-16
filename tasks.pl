@@ -1,4 +1,4 @@
-:- module(tasks, [task/2, solution//1, hints//1, wrongs//1]).
+:- module(tasks, [task/2, solution//1, hints//1, wrongs//1, traps//1]).
 
 :- use_module(library(http/html_write)).
 :- use_module(mathml).
@@ -74,10 +74,12 @@ wrong(Task, Expr_Res_Flags) :-
     searchall(Task, [_ | Expr_Res_Flags]).
 
 % Pretty print
-wrong(task(Task, _Data), Expr-_Res/Flags, Items) :-
+wrong(task(Task, Data), Expr-_Res/Flags, Items) :-
+    member(traps(Traps), Data),
     colors(Expr, Col),
     findall(li(FB), 
-      ( member(step(_, Name, Args), Flags), 
+      ( member(step(_, Name, Args), Flags),
+        member(Name, Traps), % show only relevant feedback
         feedback(Task, Name, Args, Col, FB)
       ), Items).
 

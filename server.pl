@@ -77,7 +77,8 @@ handle(Task, Form) :-
       [ \render(Task, Item, Form),
         \solution(TaskData),
         \hints(TaskData),
-        \wrongs(TaskData)
+        \wrongs(TaskData),
+        \traps(TaskData)
       ]).
 
 handle(Task, _) :-
