@@ -1,11 +1,14 @@
-:- module(tasks, [task/2, solution//1, hints//1, wrongs//1, traps//1]).
+:- module(tasks, [task/2, solution//1, hints//1, wrongs//1, traps//1,
+                  start/2, init/1, data/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3]).
 
 :- use_module(library(http/html_write)).
 :- use_module(mathml).
 :- use_module(search).
 
-:- reexport(tpaired).
-:- reexport(oddsratio).
+:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
+
+:- consult(tpaired).
+:- consult(oddsratio).
 
 % Gather useful information
 %
@@ -141,7 +144,7 @@ traps(task(Task, Data)) -->
 % ?- tasks:test.
 %
 test :-
-    test(tpaired).
+    test(oddsratio).
 
 test(Task) :-
     task(Task, TaskData),
