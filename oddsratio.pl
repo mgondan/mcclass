@@ -1,6 +1,6 @@
-:- module(oddsratio, 
-       	[ start/2, init/1, data/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, 
-	render//3]).
+%:- module(oddsratio, 
+%       	[ start/2, init/1, data/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, 
+%	render//3]).
 
 :- use_module(library(http/html_write)).
 :- use_module(session).
@@ -8,32 +8,30 @@
 :- use_module(r).
 :- use_module(mathml).
 
-:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
+:- multifile init/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
- init(oddsratio) :-
+init(oddsratio) :-
  	data(oddsratio).
 
 data(oddsratio, File) :-
 	session_data(download(oddsratio, File)).
 
-
 data(oddsratio) :- 
 	r_init,
 
 	{|r||
-	    sr_a <- round(runif(1, min=10, max=95))
-	    Id <- 1:sr_a
-	    OR <- round(runif(sr_a, min=0.02, max=10))
-	    data <- data.frame(Id, OR)
-
-	    or <- mean(data$OR)
-        |},
+        sr_a <- round(runif(1, min=10, max=95))
+        Id <- 1:sr_a
+        OR <- round(runif(sr_a, min=0.02, max=10))
+        data <- data.frame(Id, OR)
+        or <- mean(data$OR)
+    |},
 
 	r_data_frame_colnames(data, Names),
 	r_data_frame_to_rows(data, row, Rows),
 	Header =.. [row | Names],
 	tmp_file_stream(File, Stream, []),
-	csv_write_stream(Stream, [Header | Rows], [seperator(0';), encoding(utf8)]),
+	csv_write_stream(Stream, [Header | Rows], [separator(0';), encoding(utf8)]),
 	close(Stream),
 	session_assert(download(oddsratio, File)).
 
