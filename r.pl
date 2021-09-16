@@ -36,7 +36,7 @@ r_init :-
             return(inst)
         }
 
-        with <- function(s, expr, text)
+        denoting <- function(s, expr, text)
         {
             return(expr)
         }

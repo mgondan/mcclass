@@ -95,10 +95,16 @@ critical(Task, Expr_Res_Flags) -->
 
 % Invoke with search:test.
 test :-
-    use_module(tpaired),
-    r_init,
-    searchall(tpaired, E_R_F),
+    use_module(tasks),
+    Task = tpaired,
+    init(Task),
+    writeln("All alternatives"),
+    searchall(Task, E_R_F),
     writeln(E_R_F),
-    critical(tpaired, E_R_F, Crit),
+    writeln("Correct response"),
+    solution(Task, Expr, Res, Flags),
+    writeln(Expr-Res/Flags),
+    writeln("Critical bugs"),
+    critical(Task, E_R_F, Crit),
     writeln(Crit).
 

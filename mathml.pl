@@ -54,7 +54,7 @@ mathml(Flags, A, X, With) :-
     !,
     X = math(M),
     denoting(Flags, A, Denoting),
-    ml(Flags, with(Denoting), With).
+    ml(Flags, denoting(Denoting), With).
 
 mathml(Flags, A, X, _) :-
     ml(Flags, "Conversion failed: ~w"-A, X).
@@ -876,24 +876,24 @@ mathml :- mathml(-2 * -2).
 %
 % with s^2_pool denoting the pooled variance
 %
-ml(Flags, with(A, _, _), X)
+ml(Flags, denoting(A, _, _), X)
  => ml(Flags, A, X).
 
-paren(Flags, with(A, _, _), Paren)
+paren(Flags, denoting(A, _, _), Paren)
  => paren(Flags, A, Paren).
 
-prec(Flags, with(A, _, _), Prec)
+prec(Flags, denoting(A, _, _), Prec)
  => prec(Flags, A, Prec).
 
-type(Flags, with(A, _, _), Type)
+type(Flags, denoting(A, _, _), Type)
  => type(Flags, A, Type).
 
-denoting(Flags, with(A, Expr, Info), Den)
+denoting(Flags, denoting(A, Expr, Info), Den)
  => denoting(Flags, Expr, T),
     Den = [denoting(A, Expr, Info) | T].
 
 mathml :-
-    S2P = with(sub(s, "pool")^2,
+    S2P = denoting(sub(s, "pool")^2,
                    frac((sub('N', "A") - 1) * sub(s, "A")^2 +
                         (sub('N', "B") - 1) * sub(s, "B")^2,
                         sub('N', "A") + sub('N', "B") - 2),
@@ -916,18 +916,18 @@ denoting(_Flags, denoting(_, _, _), Den)
 %
 % Collect abbreviations
 %
-ml(Flags, with(Abbreviations), X)
+ml(Flags, denoting(Abbreviations), X)
  => sort(Abbreviations, Sorted), % remove duplicates
-    ml(Flags, with_(Sorted), X).
+    ml(Flags, denoting_(Sorted), X).
 
-ml(_Flags, with_([]), W)
+ml(_Flags, denoting_([]), W)
  => W = " ".
 
-ml(Flags, with_([A]), W)
+ml(Flags, denoting_([A]), W)
  => ml(Flags, A, X),
     W = span([", with", &(nbsp), math(X)]).
 
-ml(Flags, with_([A, B | T]), W)
+ml(Flags, denoting_([A, B | T]), W)
  => ml(Flags, A, X),
     ml(Flags, and([B | T]), Y),
     W = span([", with", &(nbsp), math(X) | Y]).

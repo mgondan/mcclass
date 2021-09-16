@@ -1,8 +1,9 @@
 :- module(tpaired, 
-    [ start/2, init/1, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, 
+    [ start/2, init/1, data/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, 
       render//3]).
 
 :- use_module(library(http/html_write)).
+:- use_module(session).
 :- use_module(table).
 :- use_module(r).
 :- use_module(mathml).
@@ -10,13 +11,19 @@
 :- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 init(tpaired) :-
+    data(tpaired).
+
+data(tpaired, File) :-
+    session_data(download(tpaired, File)).
+
+data(tpaired) :-
     r_init,
 
     {|r||
         n <- round(runif(1, min=20, max=45))
         Id <- 1:n
         T0 <- round(runif(n, min=15, max=40))
-        EOT <- round(t0 + runif(n, min=-10, max=2))
+        EOT <- round(T0 + runif(n, min=-10, max=2))
         data <- data.frame(Id, T0, EOT)
 
         mu <- round(runif(1, min=2, max=5), 1)
@@ -34,7 +41,10 @@ init(tpaired) :-
     r_data_frame_colnames(data, Names),
     r_data_frame_to_rows(data, row, Rows),
     Header =.. [row | Names],
-    csv_write_file("tpaired.csv", [Header | Rows], [separator(0';), encoding(utf8)]).
+    tmp_file_stream(File, Stream, []),
+    csv_write_stream(Stream, [Header | Rows], [separator(0';), encoding(utf8)]),
+    close(Stream),
+    session_assert(download(tpaired, File)).
 
 %
 % Prettier symbols for mathematical rendering
@@ -111,8 +121,7 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
 
 % t-test for paired samples
 intermediate(_, item).
-start(tpaired, item(t0, s_t0, eot, s_eot, d, s_d, n, mu)) :-
-    init(tpaired).
+start(tpaired, item(t0, s_t0, eot, s_eot, d, s_d, n, mu)).
 
 % First step: Extract the correct information for a paired t-test from the task
 % description
@@ -199,7 +208,7 @@ hint(tpaired, indep, [], Col, FB) :-
 % if a wrong decision has been made before [bug(indep)].
 expert(tpaired, stage(2), X, Y, [step(expert, tratio_indep, [T0, S_T0, N, EOT, S_EOT])]) :-
     X = indep(T0, S_T0, N, EOT, S_EOT, N),
-    P = with(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
+    P = denoting(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
     Y = dfrac(T0 - EOT, sqrt(P * (1/N + 1/N))).
 
 feedback(tpaired, tratio_indep, [_T0, _S_T0, _N, _EOT, _S_EOT], Col, FB) :-
@@ -207,7 +216,7 @@ feedback(tpaired, tratio_indep, [_T0, _S_T0, _N, _EOT, _S_EOT], Col, FB) :-
            "for independent samples." ].
 
 hint(tpaired, tratio_indep, [T0, S_T0, N, EOT, S_EOT], Col, FB) :-
-    P = with(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
+    P = denoting(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
     FB = [ "The ", \mmlm(Col, hyph(t, "ratio")), " for independent samples ",
            "would be ", \mmlm(Col, dfrac(T0 - EOT, sqrt(P * (1/N + 1/N)))) ].
 

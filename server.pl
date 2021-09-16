@@ -43,10 +43,10 @@ handler(Task, _) :-
 % Download csv data
 :- dynamic temp/3.
 handle(Task, Data) :-
-    init(tpaired),
     member(download=_, Data),
+    init(Task),
+    data(Task, Local),
     format(atom(File), "attachment; filename=~k.csv", [Task]),
-    format(atom(Local), "~k.csv", [Task]),
     http_current_request(Request),
     http_reply_file(Local,
       [ unsafe(true),
@@ -55,6 +55,7 @@ handle(Task, Data) :-
 
 % Task sheet
 handle(Task, Data) :-
+    init(Task),
     start(Task, Item),
     % Das kommt noch weg, das muss man nicht bei jedem Seitenaufbau laufen lassen.
     % Und unleserlich ist es auch, also nicht versuchen zu entziffern. Anständige
