@@ -208,7 +208,7 @@ hint(tpaired, indep, [], Col, FB) :-
 % if a wrong decision has been made before [bug(indep)].
 expert(tpaired, stage(2), X, Y, [step(expert, tratio_indep, [T0, S_T0, N, EOT, S_EOT])]) :-
     X = indep(T0, S_T0, N, EOT, S_EOT, N),
-    P = denoting(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
+    P = abbrev(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
     Y = dfrac(T0 - EOT, sqrt(P * (1/N + 1/N))).
 
 feedback(tpaired, tratio_indep, [_T0, _S_T0, _N, _EOT, _S_EOT], Col, FB) :-
@@ -216,7 +216,7 @@ feedback(tpaired, tratio_indep, [_T0, _S_T0, _N, _EOT, _S_EOT], Col, FB) :-
            "for independent samples." ].
 
 hint(tpaired, tratio_indep, [T0, S_T0, N, EOT, S_EOT], Col, FB) :-
-    P = denoting(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
+    P = abbrev(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
     FB = [ "The ", \mmlm(Col, hyph(t, "ratio")), " for independent samples ",
            "would be ", \mmlm(Col, dfrac(T0 - EOT, sqrt(P * (1/N + 1/N)))) ].
 

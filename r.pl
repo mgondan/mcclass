@@ -36,7 +36,7 @@ r_init :-
             return(inst)
         }
 
-        denoting <- function(s, expr, text)
+        abbrev <- function(s, expr, text)
         {
             return(expr)
         }

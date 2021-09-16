@@ -876,24 +876,24 @@ mathml :- mathml(-2 * -2).
 %
 % with s^2_pool denoting the pooled variance
 %
-ml(Flags, denoting(A, _, _), X)
+ml(Flags, abbrev(A, _, _), X)
  => ml(Flags, A, X).
 
-paren(Flags, denoting(A, _, _), Paren)
+paren(Flags, abbrev(A, _, _), Paren)
  => paren(Flags, A, Paren).
 
-prec(Flags, denoting(A, _, _), Prec)
+prec(Flags, abbrev(A, _, _), Prec)
  => prec(Flags, A, Prec).
 
-type(Flags, denoting(A, _, _), Type)
+type(Flags, abbrev(A, _, _), Type)
  => type(Flags, A, Type).
 
-denoting(Flags, denoting(A, Expr, Info), Den)
+denoting(Flags, abbrev(A, Expr, Info), Den)
  => denoting(Flags, Expr, T),
     Den = [denoting(A, Expr, Info) | T].
 
 mathml :-
-    S2P = denoting(sub(s, "pool")^2,
+    S2P = abbrev(sub(s, "pool")^2,
                    frac((sub('N', "A") - 1) * sub(s, "A")^2 +
                         (sub('N', "B") - 1) * sub(s, "B")^2,
                         sub('N', "A") + sub('N', "B") - 2),

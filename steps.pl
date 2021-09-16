@@ -30,6 +30,11 @@ step(Task, Stage, omit_right(Bug, Expr), Z, Flags) :-
     Y =.. [Op, New, R],
     Z = omit_right(Bug, Y).
 
+step(Task, Stage, abbrev(Abbrev, Expr, Text), Z, Flags) :-
+    !,
+    step(Task, Stage, Expr, New, Flags),
+    Z = abbrev(Abbrev, New, Text).
+
 % Enter term and apply rule to components. For example, enter 
 % dfrac(Numerator, Denominator) and check if a rule can be applied to the
 % numerator and/or the denominator.
