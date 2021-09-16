@@ -121,8 +121,6 @@ denoting(_Flags, &(A), Den),
     atom(A)
  => Den = [].
 
-
-
 %
 % Summation sign
 %
@@ -275,6 +273,17 @@ denoting(_Flags, space(_), Den)
  => Den = [].
 
 mathml :- mathml(space).
+
+%
+% No space
+%
+ml(_Flags, nospace, M)
+ => M = &('#8288').
+
+denoting(_Flags, nospace, Den)
+ => Den = [].
+
+mathml :- mathml(nospace).
 
 %
 % Hyphen
@@ -1034,7 +1043,7 @@ ml(Flags, cell(Cell), M)
 %
 math(Flags, [H | T], New, M)
  => Flags = New, 
-    M = list(space, [H | T]).
+    M = list(&('#8288'), [H | T]).
 
 ml(Flags, list(_, [A]), M)
  => ml(Flags, A, M).

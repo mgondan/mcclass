@@ -171,22 +171,6 @@ hint(tpaired, mu, [Mu], Col, FB) :-
     FB = [ "Do not omit the null hypothesis ", \mmlm(Col, color(mu, Mu)), " ",
            "in the ", \mmlm(hyph(t, "ratio.")) ].
 
-% Test: this buggy rule is pedagogically meaningless, no one will omit D in
-% a t-ratio. The point of having it here is because it is incompatible to the
-% confusion rules at stage(2). D can be confused, D can be omitted, but not 
-% both. In general, only error-free terms can be omitted.
-buggy(tpaired, stage(2), X, Y, [step(buggy, test, [D])]) :-
-    X = paired(D, Mu, S_D, N),
-    Y = dfrac(omit_left(bug(test), D - Mu), S_D / sqrt(N)).
-
-feedback(tpaired, test, [D], Col, FB) :-
-    FB = [ "This is a pseudo bug for compatibility checks. No one would omit ",
-           \mmlm(Col, color(test, D)), " from the formula." ].
-
-hint(tpaired, test, [D], Col, FB) :-
-    FB = [ "I guess you would not omit ", \mmlm(Col, color(test, D)), " from ",
-           "the formula." ].
-
 % Misconception: Run the t-test for independent samples despite the correlated
 % measurements.
 intermediate(tpaired, indep).
@@ -295,21 +279,23 @@ feedback(tpaired, d_t0, [D], Col, FB) :-
 
 hint(tpaired, d_t0, [D], Col, FB) :-
     FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
-           "the average change score ", \mmlm(Col, color(d_t0, D)), "." ].
+           "the average change score ", \mmlm(Col, [color(d_t0, D), "."]) ].
 
 % Use SD of T0 instead of SD of D
-buggy(tpaired, stage(1), X, Y, [step(buggy, s_t0, [s_d]), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, [step(buggy, s_t0, [d, s_d]), depends(paired)]) :-
     X = s_d,
     Y = instead(bug(s_t0), s_t0, s_d).
 
-feedback(tpaired, s_t0, [S], Col, FB) :-
+feedback(tpaired, s_t0, [_D, S], Col, FB) :-
     FB = [ "Please insert the standard deviation of the change ",
            "scores ", \mmlm(Col, color(s_t0, S)), " into ",
            "the ", \mmlm(Col, hyph(t, "ratio.")) ].
 
-hint(tpaired, s_t0, [S], Col, FB) :-
+hint(tpaired, s_t0, [D, S], Col, FB) :-
     FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
-           "the average change score and its standard deviation ", \mmlm(Col, color(s_t0, S)), "." ].
+           "the average change score ",
+           \mmlm(Col, color(d_eot, D)), " and its standard ",
+           "deviation ", \mmlm(Col, [color(s_t0, S), "."]) ].
 
 % Use mean EOT instead of mean D
 buggy(tpaired, stage(1), X, Y, [step(buggy, d_eot, [d]), depends(s_eot), depends(paired)]) :-
@@ -322,19 +308,21 @@ feedback(tpaired, d_eot, [D], Col, FB) :-
 
 hint(tpaired, d_eot, [D], Col, FB) :-
     FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
-           "the average change score ", \mmlm(Col, color(d_eot, D)), "." ].
+           "the average change score ", \mmlm(Col, [color(d_eot, D), "."]) ].
 
 % Use SD of EOT instead of SD of D
-buggy(tpaired, stage(1), X, Y, [step(buggy, s_eot, [s_d]), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, [step(buggy, s_eot, [d, s_d]), depends(paired)]) :-
     X = s_d,
     Y = instead(bug(s_eot), s_eot, s_d).
 
-feedback(tpaired, s_eot, [S], Col, FB) :-
+feedback(tpaired, s_eot, [_D, S], Col, FB) :-
     FB = [ "Please insert the standard deviation of the change ",
            "scores ", \mmlm(Col, color(s_eot, S)), " into ",
-           "the ", \mmlm(Col, hyph(t, "ratio.")) ].
+           "the ", \mmlm(Col, hyph(t, "ratio..")) ].
 
-hint(tpaired, s_eot, [S], Col, FB) :-
+hint(tpaired, s_eot, [D, S], Col, FB) :-
     FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
-           "the average change score and its standard deviation ", \mmlm(Col, color(s_eot, S)), "." ].
+           "the average change score ",
+           \mmlm(Col, color(d_eot, D)), "and its standard ",
+           "deviation ", \mmlm(Col, [color(s_eot, S), "."]) ].
 
