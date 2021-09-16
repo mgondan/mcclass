@@ -93,10 +93,19 @@ critical(Task, Expr_Res_Flags) -->
               ])
           ])).
 
-% Invoke with search:test.
+%
+% Run example outside of webserver
+% $ swipl
+% ?- [search].
+% ?- trace.   (if needed)
+% ?- search:test.
+%
 test :-
+    test(tpaired),
+    test(tpaired). % Change to or
+
+test(Task) :-
     use_module(tasks),
-    Task = tpaired,
     init(Task),
     writeln("All alternatives"),
     searchall(Task, E_R_F),
