@@ -159,7 +159,7 @@ test(Task) :-
     member(wrong(W), Data), 
     length(W, L), 
     format("Wrong alternatives: ~w~n", [L]),
-    html(\wrong(TaskData), Wrong, []),
+    html(\wrongs(TaskData), Wrong, []),
     writeln(Wrong),
     member(traps(T), Data),
     format("Traps: ~w~n", [T]),
