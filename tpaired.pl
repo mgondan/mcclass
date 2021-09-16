@@ -291,7 +291,7 @@ buggy(tpaired, stage(1), X, Y, [step(buggy, d_t0, [d]), depends(s_t0), depends(p
 feedback(tpaired, d_t0, [D], Col, FB) :-
     FB = [ "Please insert the average change ",
            "score ", \mmlm(Col, color(d_t0, D)), " into ",
-           "the ", \mmlm(Col, hyph(t, "ratio")), "." ].
+           "the ", \mmlm(Col, hyph(t, "ratio.")) ].
 
 hint(tpaired, d_t0, [D], Col, FB) :-
     FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
@@ -305,7 +305,7 @@ buggy(tpaired, stage(1), X, Y, [step(buggy, s_t0, [s_d]), depends(paired)]) :-
 feedback(tpaired, s_t0, [S], Col, FB) :-
     FB = [ "Please insert the standard deviation of the change ",
            "scores ", \mmlm(Col, color(s_t0, S)), " into ",
-           "the ", \mmlm(Col, hyph(t, "ratio")), "." ].
+           "the ", \mmlm(Col, hyph(t, "ratio.")) ].
 
 hint(tpaired, s_t0, [S], Col, FB) :-
     FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
@@ -318,7 +318,7 @@ buggy(tpaired, stage(1), X, Y, [step(buggy, d_eot, [d]), depends(s_eot), depends
 
 feedback(tpaired, d_eot, [D], Col, FB) :-
     FB = [ "Please insert the average change score ", \mmlm(Col, color(d_eot, D)), " into ",
-           "the ", \mmlm(Col, hyph(t, "ratio")), "." ].
+           "the ", \mmlm(Col, hyph(t, "ratio.")) ].
 
 hint(tpaired, d_eot, [D], Col, FB) :-
     FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
@@ -332,7 +332,7 @@ buggy(tpaired, stage(1), X, Y, [step(buggy, s_eot, [s_d]), depends(paired)]) :-
 feedback(tpaired, s_eot, [S], Col, FB) :-
     FB = [ "Please insert the standard deviation of the change ",
            "scores ", \mmlm(Col, color(s_eot, S)), " into ",
-           "the ", \mmlm(Col, hyph(t, "ratio")), "." ].
+           "the ", \mmlm(Col, hyph(t, "ratio.")) ].
 
 hint(tpaired, s_eot, [S], Col, FB) :-
     FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
