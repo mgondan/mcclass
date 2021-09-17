@@ -1,4 +1,4 @@
-:- module(search, [search/4, searchall/2]).
+:- module(search, [search/3, searchall/2]).
 
 :- use_module(r).
 :- use_module(tasks).
@@ -25,26 +25,28 @@ search_(Task, Stage, X, Y, Path) :-
 % if the solution is complete (not intermediate). The flags are sorted to allow
 % elimination of redundant solutions that occur within stages (e.g., 
 % permutations)
-search(Task, Expr, Result, Flags) :-
-    search(Task, Expr, Result, Flags, _).
+search(Task, Expr, Flags) :-
+    search(Task, Expr, Flags, _).
 
-search(Task, Expr, Result, Flags, Sorted) :-
+search(Task, Expr, Flags, Sorted) :-
     start(Task, X),
     search_(Task, stage(1), X, Y, Flags1),
     search_(Task, stage(2), Y, Expr, Flags2),
     complete(Task, Expr),           % no intermediate solutions
     compatible(Expr),               % no incompatible bugs
     append(Flags2, Flags1, Flags),  % confusions (stage 1) last in feedback
-    sort(Flags, Sorted),
-    dependencies(Sorted),           % dependencies between bugs
-    Result <- Expr.
+    sort(Flags, Sorted).
 
 % Return all solutions for a given task
 %
-% The sort/4 in the last line eliminates redundant solutions (redundant = same
-% flags and same numerical result).
+% The sort/4 in the 2nd-to-last line eliminates redundant solutions 
+% (redundant = same flags and same numerical result).
 searchall(Task, Expr_Res_Flags) :-
-    findall(res(E, R/S, F), search(Task, E, R, F, S), Results),
+    findall(res(E, R/S, F), 
+      ( search(Task, E, F, S),
+        dependencies(S),            % check dependencies here
+        R <- E
+      ), Results),
     sort(2, @<, Results, Sorted),
     findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
 

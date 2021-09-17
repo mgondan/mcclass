@@ -38,7 +38,8 @@ task(Task, Data) :-
 % tried before buggy rules (see steps.pl). This may change in the future, when
 % we allow, e.g., tasks with multiple correct solutions.
 solution(Task, Expr-Res/Flags) :-
-    once(search(Task, Expr, Res, Flags)).
+    once(search(Task, Expr, Flags)),
+    Res <- Expr.
 
 % Pretty print
 solution(task(_Task, Data)) -->
