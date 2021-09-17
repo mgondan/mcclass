@@ -74,7 +74,11 @@ hints(task(Task, Data)) -->
 
 % The incorrect response alternatives
 wrong(Task, Expr_Res_Flags) :-
-    searchall(Task, Expr_Res_Flags).
+    searchall(Task, E_R_F),
+    findall(E-R/F, 
+      ( member(E-R/F, E_R_F), 
+        memberchk(step(buggy, _, _), F)
+      ), Expr_Res_Flags).
 
 % Pretty print
 wrong(task(Task, Data), Expr-_Res/Flags, Items) :-

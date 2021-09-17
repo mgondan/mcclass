@@ -253,13 +253,13 @@ buggy(tpaired, stage(2), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
 feedback(tpaired, bug1, [D, Mu, S, SQRT_N], Col, FB) :-
     FB = [ "Please do not forget the parentheses around the numerator and ",
            "the denominator of a fraction, ", 
-           \mmlm([error(ignore) | Col], frac(color(bug1, paren(color("#000000", D - Mu))), color(bug1, paren(color("#000000", S / SQRT_N))))) 
+           \mmlm([error(ignore) | Col], dfrac(color(bug1, paren(color("#000000", D - Mu))), color(bug1, paren(color("#000000", S / SQRT_N))))) 
          ].
 
 hint(tpaired, bug1, [D, Mu, S, SQRT_N], Col, FB) :-
     FB = [ "Do not forget the parentheses around the numerator and ",
            "the denominator of a fraction, ",
-           \mmlm([error(ignore) | Col], frac(color(bug1, paren(color("#000000", D - Mu))), color(bug1, paren(color("#000000", S / SQRT_N)))))
+           \mmlm([error(ignore) | Col], dfrac(color(bug1, paren(color("#000000", D - Mu))), color(bug1, paren(color("#000000", S / SQRT_N)))))
          ].
 
 % One challenging aspect of word problems ("Textaufgaben") is that students
@@ -282,47 +282,47 @@ hint(tpaired, d_t0, [D], Col, FB) :-
            "the average change score ", \mmlm(Col, [color(d_t0, D), "."]) ].
 
 % Use SD of T0 instead of SD of D
-buggy(tpaired, stage(1), X, Y, [step(buggy, s_t0, [d, s_d]), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, [step(buggy, s_t0, [d, s_d, t0, s_t0]), depends(paired)]) :-
     X = s_d,
     Y = instead(bug(s_t0), s_t0, s_d).
 
-feedback(tpaired, s_t0, [_D, S], Col, FB) :-
-    FB = [ "Please insert the standard deviation of the change ",
-           "scores ", \mmlm(Col, color(s_t0, S)), " into ",
+feedback(tpaired, s_t0, [D, S, _T0, _S_T0], Col, FB) :-
+    FB = [ "Please insert the average change ", \mmlm(Col, color(t0, D)), " ",
+           "and standard deviation ", \mmlm(Col, color(s_t0, S)), " into ",
            "the ", \mmlm(Col, hyph(t, "ratio.")) ].
 
-hint(tpaired, s_t0, [D, S], Col, FB) :-
-    FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
-           "the average change score ",
-           \mmlm(Col, color(d_eot, D)), " and its standard ",
-           "deviation ", \mmlm(Col, [color(s_t0, S), "."]) ].
+hint(tpaired, s_t0, [_D, _S, T0, S_T0], Col, FB) :-
+    FB = [ "Do not insert the T0 average ", \mmlm(Col, color(t0, T0)), " ",
+           "and standard deviation ", \mmlm(Col, color(s_t0, S_T0)), " into ",
+           "the ", \mmlm(Col, hyph(t, "ratio.")), " Use the change scores ",
+           "instead." ].
 
 % Use mean EOT instead of mean D
-buggy(tpaired, stage(1), X, Y, [step(buggy, d_eot, [d]), depends(s_eot), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, [step(buggy, eot, [d]), depends(s_eot), depends(paired)]) :-
     X = d,
-    Y = instead(bug(d_eot), eot, d).
+    Y = instead(bug(eot), eot, d).
 
-feedback(tpaired, d_eot, [D], Col, FB) :-
-    FB = [ "Please insert the average change score ", \mmlm(Col, color(d_eot, D)), " into ",
+feedback(tpaired, eot, [D], Col, FB) :-
+    FB = [ "Please insert the average change score ", \mmlm(Col, color(eot, D)), " into ",
            "the ", \mmlm(Col, hyph(t, "ratio.")) ].
 
-hint(tpaired, d_eot, [D], Col, FB) :-
+hint(tpaired, eot, [D], Col, FB) :-
     FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
-           "the average change score ", \mmlm(Col, [color(d_eot, D), "."]) ].
+           "the average change score ", \mmlm(Col, [color(eot, D), "."]) ].
 
 % Use SD of EOT instead of SD of D
-buggy(tpaired, stage(1), X, Y, [step(buggy, s_eot, [d, s_d]), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, [step(buggy, s_eot, [d, s_d, eot, s_eot]), depends(paired)]) :-
     X = s_d,
     Y = instead(bug(s_eot), s_eot, s_d).
 
-feedback(tpaired, s_eot, [_D, S], Col, FB) :-
-    FB = [ "Please insert the standard deviation of the change ",
-           "scores ", \mmlm(Col, color(s_eot, S)), " into ",
+feedback(tpaired, s_eot, [D, S, _EOT, _S_EOT], Col, FB) :-
+    FB = [ "Please insert the average change ", \mmlm(Col, color(eot, D)), " ",
+           "and standard deviation ", \mmlm(Col, color(s_eot, S)), " into ",
            "the ", \mmlm(Col, hyph(t, "ratio.")) ].
 
-hint(tpaired, s_eot, [D, S], Col, FB) :-
-    FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
-           "the average change score ",
-           \mmlm(Col, color(d_eot, D)), "and its standard ",
-           "deviation ", \mmlm(Col, [color(s_eot, S), "."]) ].
+hint(tpaired, s_eot, [_D, _S, EOT, S_EOT], Col, FB) :-
+    FB = [ "Do not insert the EOT average ", \mmlm(Col, color(eot, EOT)), " ",
+           "and standard deviation ", \mmlm(Col, color(s_eot, S_EOT)), " into ",
+           "the ", \mmlm(Col, hyph(t, "ratio.")), " Use the change scores ",
+           "instead." ].
 
