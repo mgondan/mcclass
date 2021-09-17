@@ -318,7 +318,7 @@ buggy(tpaired, stage(1), X, Y, [step(buggy, s_eot, [d, s_d]), depends(paired)]) 
 feedback(tpaired, s_eot, [_D, S], Col, FB) :-
     FB = [ "Please insert the standard deviation of the change ",
            "scores ", \mmlm(Col, color(s_eot, S)), " into ",
-           "the ", \mmlm(Col, hyph(t, "ratio..")) ].
+           "the ", \mmlm(Col, hyph(t, "ratio.")) ].
 
 hint(tpaired, s_eot, [D, S], Col, FB) :-
     FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",

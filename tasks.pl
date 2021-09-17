@@ -74,7 +74,7 @@ hints(task(Task, Data)) -->
 
 % The incorrect response alternatives
 wrong(Task, Expr_Res_Flags) :-
-    searchall(Task, [_ | Expr_Res_Flags]).
+    searchall(Task, Expr_Res_Flags).
 
 % Pretty print
 wrong(task(Task, Data), Expr-_Res/Flags, Items) :-
@@ -144,7 +144,7 @@ traps(task(Task, Data)) -->
 % ?- tasks:test.
 %
 test :-
-    test(oddsratio).
+    test(tpaired).
 
 test(Task) :-
     task(Task, TaskData),
