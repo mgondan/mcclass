@@ -24,11 +24,13 @@ task(Task, Data) :-
     solution(Task, Expr-Res/Flags),
     hints(Flags, H),
     wrong(Task, E_R_F),
-    traps(E_R_F, T),
+    wrongall(Task, E_R_F_All),
+    traps(E_R_F_All, T),
     Data = task(Task, 
       [ sol(Expr-Res/Flags), 
         hints(H), 
         wrong(E_R_F),
+        wrongall(E_R_F_All), % this needs a better solution
         traps(T)
       ]).
 
@@ -75,7 +77,7 @@ hints(task(Task, Data)) -->
 
 % The incorrect response alternatives
 wrong(Task, Expr_Res_Flags) :-
-    searchall(Task, E_R_F),
+    searchdep(Task, E_R_F),
     findall(E-R/F, 
       ( member(E-R/F, E_R_F), 
         memberchk(step(buggy, _, _), F)
@@ -113,6 +115,15 @@ wrongs(task(Task, Data)) -->
 % tpaired, the school bug that may occur in the formula of the independent 
 % t-test) are less relevant for feedback, we only use them to understand what 
 % the user is doing.
+
+% The incorrect response alternatives (without check for dependencies)
+wrongall(Task, Expr_Res_Flags) :-
+    searchall(Task, E_R_F),
+    findall(E-R/F,
+      ( member(E-R/F, E_R_F),
+        memberchk(step(buggy, _, _), F)
+      ), Expr_Res_Flags).
+
 trap(Flags, Trap) :-
     findall(T, member(step(buggy, T, _), Flags), [Trap]).
 
@@ -129,7 +140,7 @@ trap(task(Task, Data), Expr-_Res/Flags, li(Trap)) :-
     hint(Task, Name, Args, Col, Trap).
 
 traps(task(Task, Data)) -->
-    { member(wrong(E_R_F), Data),
+    { member(wrongall(E_R_F), Data),
       findall(L, 
         ( member(Wrong, E_R_F), 
           trap(task(Task, Data), Wrong, L)

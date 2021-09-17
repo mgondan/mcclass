@@ -1,4 +1,4 @@
-:- module(search, [search/3, searchall/2]).
+:- module(search, [search/3, searchall/2, searchdep/2]).
 
 :- use_module(r).
 :- use_module(tasks).
@@ -41,7 +41,7 @@ search(Task, Expr, Flags, Sorted) :-
 %
 % The sort/4 in the 2nd-to-last line eliminates redundant solutions 
 % (redundant = same flags and same numerical result).
-searchall(Task, Expr_Res_Flags) :-
+searchdep(Task, Expr_Res_Flags) :-
     findall(res(E, R/S, F), 
       ( search(Task, E, F, S),
         dependencies(S),            % check dependencies here
@@ -50,4 +50,12 @@ searchall(Task, Expr_Res_Flags) :-
     sort(2, @<, Results, Sorted),
     findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
 
+searchall(Task, Expr_Res_Flags) :-
+    findall(res(E, R/S, F),
+      ( search(Task, E, F, S),
+        % dependencies(S),          % do not check dependencies (needed for the traps)
+        R <- E
+      ), Results),
+    sort(2, @<, Results, Sorted),
+    findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
 
