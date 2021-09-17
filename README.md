@@ -1,7 +1,7 @@
 # McClass
 MisConception-aware Competence Learning and Assessment Smart System
 
-If you wish, try it at https://mcclass.vps.webdock.io/mcclass (later ;-)
+If you wish, try it at https://mcclass.vps.webdock.io/mcclass
 
 ## Step 1: install R
 Install a current version of R
@@ -21,8 +21,6 @@ Install a current version of SWI-Prolog from www.swi-prolog.org.
 
 Invoke swipl, and then
 
-* `pack_install(mathml).`
-* `pack_install(quantity).`
 * `pack_install('https://github.com/JanWielemaker/rserve_client.git').`
 * `halt.`
 
@@ -40,6 +38,6 @@ Let's assume you have a working https-configuration. Then add the following two 
         ProxyPass               /mcclass        http://localhost:8001/mcclass
         ProxyPassReverse        /mcclass        http://localhost:8001/mcclass
 
-Then enable the reverse proxy with `sudo a2enmod proxy`, `sudo a2enmod proxy_http`, `sudo apache2 restart`.
+Then enable the reverse proxy with `sudo a2enmod proxy`, `sudo a2enmod proxy_http`, `systemctl restart apache2`.
 
 This "worked for me", but I am no expert in network stuff.
