@@ -268,18 +268,18 @@ hint(tpaired, bug1, [D, Mu, S, SQRT_N], Col, FB) :-
 % 
 % The depends means: This bug is limited to the paired t-test and co-occurs
 % with s_t0 (these flags are ignored, but will be activated in later versions).
-buggy(tpaired, stage(1), X, Y, [step(buggy, d_t0, [d]), depends(s_t0), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, [step(buggy, t0, [d]), depends(s_t0), depends(paired)]) :-
     X = d,
-    Y = instead(bug(d_t0), t0, d).
+    Y = instead(bug(t0), t0, d).
 
-feedback(tpaired, d_t0, [D], Col, FB) :-
+feedback(tpaired, t0, [D], Col, FB) :-
     FB = [ "Please insert the average change ",
-           "score ", \mmlm(Col, color(d_t0, D)), " into ",
+           "score ", \mmlm(Col, color(t0, D)), " into ",
            "the ", \mmlm(Col, hyph(t, "ratio.")) ].
 
-hint(tpaired, d_t0, [D], Col, FB) :-
+hint(tpaired, t0, [D], Col, FB) :-
     FB = [ "Please determine the ", \mmlm(Col, hyph(t, "ratio")), " using ",
-           "the average change score ", \mmlm(Col, [color(d_t0, D), "."]) ].
+           "the average change score ", \mmlm(Col, [color(t0, D), "."]) ].
 
 % Use SD of T0 instead of SD of D
 buggy(tpaired, stage(1), X, Y, [step(buggy, s_t0, [d, s_d, t0, s_t0]), depends(paired)]) :-
