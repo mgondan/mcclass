@@ -278,7 +278,7 @@ feedback(tpaired, t0, [D, _T0], Col, FB) :-
            "the ", \mmlm(Col, hyph(t, "ratio.")) ].
 
 hint(tpaired, t0, [_D, T0], Col, FB) :-
-    FB = [ "Do not insert the EOT average ", \mmlm(Col, color(t0, T0)), " ",
+    FB = [ "Do not insert the T0 average ", \mmlm(Col, color(t0, T0)), " ",
            "into the ", \mmlm(Col, hyph(t, "ratio.")), " Use the change ",
            "scores instead." ].
 
@@ -295,7 +295,7 @@ feedback(tpaired, s_t0, [S, _S_T0], Col, FB) :-
 
 hint(tpaired, s_t0, [_S, S_T0], Col, FB) :-
     FB = [ "Do not insert the standard deviation for ",
-           "EOT ", \mmlm(Col, color(s_t0, S_T0)), " into ",
+           "T0 ", \mmlm(Col, color(s_t0, S_T0)), " into ",
            "the ", \mmlm(Col, hyph(t, "ratio.")), " Use the change scores ",
            "instead." ].
 
