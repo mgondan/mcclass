@@ -32,20 +32,29 @@ render(ztrans, item(X, Mu, Sigma), Form) -->
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
           p(class('card-text'), 
-            [ "Let ", \mml('X'), " follow a Normal distribution with ",
-              "expectation ", \mml(round0(M)), " and ",
-              "standard deviation ", \nowrap([\mml(round0(S)), ")."]), " A table of the ",
+            [ "Let ", \mmlm('X'), " follow a Normal distribution with ",
+              "expectation ", \mmlm([round(0)], Mu), " and ",
+              "standard deviation ", \mmlm([round(0)], [Sigma, "."]),
+              "A table of the standard ",
               "Normal distribution is found below."
             ])
         ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
-            \question(question, 
-                response, 
-                [ "How many realizations are ",
-                  "below ", \nowrap([\mml(round0(X)), "?"])
-                ], 
-                Response)
+            p(class('card-text'),
+              [ "How many realizations are ",
+                  "below ", \mmlm([round(0)], [X, "?"])
+              ]))
+           ]),
+
+           form([class(form), method('POST'), action('#ztrans-tratio')],
+              [ div(class("input-group mb-3"),
+                  [ div(class("input-group-prepend"), 
+                      span(class("input-group-text"), "Response")),
+                    input([class("form-control"), type(text), name(resp), value(R)]),
+                      div(class("input-group-append"),
+                        button([class('btn btn-primary'), type(submit)], "Submit"))
+              ])])
           ]))
       ]).
 
