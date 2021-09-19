@@ -1,43 +1,40 @@
-% z-transform
-:- use_module(relevant).
-:- use_module(intermediate).
-:- use_module(library(mathml)).
 :- use_module(library(http/html_write)).
-:- consult(html).
-:- consult(temp).
+:- use_module(session).
+:- use_module(table).
 :- use_module(r).
+:- use_module(mathml).
 
-mathml:math_hook(Flags, sigma2, Flags, sigma^2).
+:- multifile init/1, data/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
-r:pl_hook(x, r(x)).
-r:pl_hook(mu, r(mu)).
-r:pl_hook(sigma, r(sigma)).
-r:pl_hook(sigma2, r(sigma2)).
+init(ztrans) :-
+    data(ztrans).
 
-%    
-% Binomial density
-%
-:- multifile item/1.
-item(ztrans: ztrans_pnorm(x, mu, sigma, sigma2)).
+data(ztrans) :-
+    r_init,
 
-:- multifile intermediate/1.
-intermediate(ztrans: ztrans_pnorm/4).
+    {|r||
+        x <- 88
+        mu <- 100
+        sigma <- 15
+    |}.
 
-:- multifile item//2.
-item(ztrans, Response) -->
-    { M <- mu,
-      V <- sigma2,
-      S <- sigma,
-      X <- x
-    }, 
+mathml:hook(Flags, x, Flags, 'X').
+
+% Render R result
+mathml:hook(Flags, r(Expr), Flags, Res) :-
+    R <- Expr,
+    [Res] = R,
+    number(Res).
+
+render(ztrans, item(X, Mu, Sigma), Form) -->
+    { option(resp(R), Form, '## %') },
     html(
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
           p(class('card-text'), 
             [ "Let ", \mml('X'), " follow a Normal distribution with ",
               "expectation ", \mml(round0(M)), " and ",
-              "variance ", \mml(round0(V)), " (i.e., the SD ",
-              "is ", \nowrap([\mml(round0(S)), ")."]), " A table of the ",
+              "standard deviation ", \nowrap([\mml(round0(S)), ")."]), " A table of the ",
               "Normal distribution is found below."
             ])
         ])),
