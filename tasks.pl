@@ -9,6 +9,7 @@
 
 :- consult(tpaired).
 :- consult(oddsratio).
+:- consult(tgroups).
 
 % Gather useful information
 %
