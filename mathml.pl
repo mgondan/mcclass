@@ -41,7 +41,10 @@ mathml :-
     writeln("Mathml examples").
 
 mathml(A) :-
-    mathml([], A, M, With),
+    mathml([], A).
+
+mathml(Flags, A) :-
+    mathml(Flags, A, M, With),
     format("A = ~w\n", A),
     format("M = ~w\n", M),
     format("W = ~w\n", With).
@@ -349,6 +352,9 @@ ml(_Flags, sign(=<), X)
 
 ml(_Flags, sign(>=), X)
  => X = mo(&(ge)).
+
+ml(_Flags, sign(;), X)
+ => X = mo(&(semi)).
 
 ml(_Flags, sign(~), X)
  => X = mo(&('Tilde')).
@@ -1081,6 +1087,24 @@ denoting(Flags, list(_, L), Den)
 mathml :- mathml(list(space, [i, j, k])).
 
 %
+% Steps in an R calculation
+%
+math(Flags, {}(Args), New, M)
+ => Flags = New,
+    semi(Args, L),
+    M = list(sign(;), L).
+
+mathml :- mathml({odds_a = frac(p_a, 1-p_a); odds_b = odds_a*2; p_b = frac(odds_b, 1 + odds_b)}).
+
+% Translate a;b;c to list
+semi(A ; B, X)
+ => semi(B, T),
+    X = [A | T].
+
+semi(A, X)
+ => X = [A].
+
+%
 % Fractions
 %
 ml(Flags, frac(N, D), M)
@@ -1287,42 +1311,30 @@ mathml :- mathml(dfrac(omit_right(bug(bug), overline('D') - mu),
 
 mathml :- writeln("Same with Flags = error(fix)"),
     mathml([error(fix)], 
-           dfrac(omit_right(bug(bug), overline('D') - mu), sub(s, 'D') / sqrt('N')),
-           M),
-    html(math(M)).
+           dfrac(omit_right(bug(bug), overline('D') - mu), sub(s, 'D') / sqrt('N'))).
 
 mathml :- writeln("Same with Flags = error(highlight) which is the default"),
     mathml([error(highlight)], 
-           dfrac(omit_right(bug(bug), overline('D') - mu), sub(s, 'D') / sqrt('N')),
-           M),
-    html(math(M)).
+           dfrac(omit_right(bug(bug), overline('D') - mu), sub(s, 'D') / sqrt('N'))).
     
 mathml :- writeln("Same with Flags = error(ignore)"),
     mathml([error(ignore)], 
-           dfrac(omit_right(bug(bug), overline('D') - mu), sub(s, 'D') / sqrt('N')),
-           M),
-    html(math(M)).
+           dfrac(omit_right(bug(bug), overline('D') - mu), sub(s, 'D') / sqrt('N'))).
     
 mathml :- mathml(dfrac(overline('D') - mu,
                    sub(s, 'D') / instead(bug(bug), 'N', sqrt('N')))).
 
 mathml :- writeln("Same with Flags = error(fix)"),
     mathml([error(fix)], 
-           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug(bug), 'N', sqrt('N'))),
-           M),
-    html(math(M)).
+           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug(bug), 'N', sqrt('N')))).
 
 mathml :- writeln("Same with Flags = error(highlight) which is the default"),
     mathml([error(highlight)], 
-           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug(bug), 'N', sqrt('N'))),
-           M),
-    html(math(M)).
+           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug(bug), 'N', sqrt('N')))).
 
 mathml :- writeln("Same with Flags = error(ignore)"),
     mathml([error(ignore)], 
-           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug(bug), 'N', sqrt('N'))),
-           M),
-    html(math(M)).
+           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug(bug), 'N', sqrt('N')))).
 
 %
 % Expert and buggy rules
