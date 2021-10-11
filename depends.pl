@@ -11,6 +11,10 @@ dependencies(Flags) :-
 compatible(Term) :-
     atomic(Term).
 
+% Experimental
+compatible(Term) :-
+    var(Term).
+
 % No bugs in omitted things
 compatible(omit_left(_, Expr)) :-
     Expr =.. [_, L, R],

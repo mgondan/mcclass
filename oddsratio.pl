@@ -16,6 +16,16 @@ init(oddsratio) :-
     {|r||
         pi_A <- runif(1, min=0.25, max=0.85)
         or <- runif(1, min=0.5, max=6)
+
+        odds <- function(p)
+        {
+          p / (1 - p)
+        }
+
+        prob <- function(odds)
+        {
+          odds / (1 + odds)
+        }
     |}.
 
 %
@@ -72,105 +82,17 @@ intermediate(_, item).
 start(oddsratio, item(pi_A, or)) :-
 	init(oddsratio).
 
-intermediate(oddsratio, odd).
 expert(oddsratio, stage(2), X, Y, [step(expert, odd, [])]) :-
 	X = item(Pi_A, OR),
-	Y = odd(Pi_A, OR).
+	Y = { odds_A = frac(Pi_A, 1 - Pi_A) ;
+          odds_B = odds_A * OR ; 
+          pi_B = frac(odds_B, 1 + odds_B) ; 
+          pi_B 
+        }.
 
 feedback(oddsratio, odd, [], Col, FB) :-
-	FB = [ "Correctly recognised the problem as a ", \mmlm(Col, hyph(odds, "ratio")), "."].
+	FB = [ "Correctly recognised the problem as an ", \mmlm(Col, hyph(odds, "ratio")), "."].
 
 hint(oddsratio, odd, [], Col, FB) :-
-        FB = [ "This is a ", \mmlm(Col, hyph(odds, "ratio")), "."].
+        FB = [ "This is an ", \mmlm(Col, hyph(odds, "ratio")), "."].
 
-% Turn percentage into decimal.
-intermediate(oddsratio, odds_1).
-expert(oddsratio, stage(2), X, Y, [step(expert, odds_1, [Pi_A])]) :-
-	X = odd(Pi_A, OR),
-	Y = odds_1(abbrev(odds_A, (Pi_A / (1 - Pi_A)), "'the odds for A'"), OR).
-
-feedback(oddsratio, odds_1, [Pi_A], Col, FB) :-
-	FB = [ "Correctly converted ", \mmlm(Col, Pi_A), " to odds." ].
-
-hint(oddsratio, odds_1, [Pi_A], Col, FB) :-
-	FB = [ "The formula to convert ", \mmlm(Col, Pi_A), " to odds is ", 
-	       \mmlm(Col, Pi_A / (1 - Pi_A)) ].
-
-% Calculate decimal for sucess rate of b.
-intermediate(oddsratio, odds_2).
-expert(oddsratio, stage(2), X, Y, [step(expert, odds_2, [Odds_A, OR])]) :-
-	X = odds_1(Odds_A, OR),
-	Y = odds_2(abbrev(odds_B, (Odds_A / OR), "'the odds for B'")).
-
-feedback(oddsratio, odds_2, [_Odds_A, _OR], Col, FB) :-
-	FB = [ "Correctly calculated the odds for sucess with treatment ", 
-	       \mmlm(Col, b)].
-
-hint(oddsratio, odds_2, [Odds_A, OR], Col, FB) :-
-	FB = [ "The odds for success with treatment ",
-	       \mmlm(Col, b), " are ", \mmlm(Col, (Odds_A / OR)) ].
-
-% Turn decimal into Sucess rate of b.
-expert(oddsratio, stage(2), X, Y, [step(expert, pi_B, [Odds_B])]) :-
-	X = odds_2(Odds_B),
-	Y = dfrac(Odds_B, (1 + Odds_B)).
-
-feedback(oddsratio, pi_B, [_Odds_B], Col, FB) :-
-	FB = [ "Correctly calculated the probability for success with treatment ", 
-	       \mmlm(Col, b), " and converted it to percent." ].
-
-hint(oddsratio, pi_B, [Odds_B], Col, FB) :-
-	FB = [ " The success-rate for treatment ", \mmlm(Col, b), " is ",
-	       \mmlm(Col, dfrac(Odds_B, (1 + Odds_B))) ].
-
-% Forgot decimal conversion of sr_a.
-buggy(oddsratio, stage(2), X, Y, [step(buggy, cona, [Pi_A])]) :-
-	X = odd(Pi_A, OR),
-	Y = odds_1(abbrev(odds_A, (omit_right(bug(cona), Pi_A / (1 - Pi_A))), "'the wrong odds for A'"), OR).
-
-feedback(oddsratio, cona, [Pi_A], Col, FB) :-
-	FB = [ "Please remember to convert ", \mmlm(Col, color(cona, Pi_A)), " to ",
-	       "odds." ].
-
-hint(oddsratio, cona, [Pi_A], Col, FB) :-
-	FB = [ "You should concider converting ", \mmlm(Col, color(cona, Pi_A)), 
-	       " to odds before continuing." ].
-
-% Forgot to divide o_a and or.
-buggy(oddsratio, stage(2), X, Y, [step(buggy, divi, [Odds_A, OR])]) :-
-	X = odds_1(Odds_A, OR),
-	Y = odds_2(abbrev(odds_B, (omit_right(bug(divi), Odds_A / OR)), "'the wrong odds for B'")).
-
-feedback(oddsratio, divi, [Odds_A, OR], Col, FB) :-
-	FB = [ "It appears you forgot to divide ", \mmlm(Col, color(divi, Odds_A)), " by ",
-	       \mmlm(Col, color(divi, OR)) ].
-
-hint(oddsratio, divi, [Odds_A, OR], Col, FB) :-
-	FB = [ "Do not forget to divide ",\mmlm(Col, color(divi, Odds_A)), " by ",
-	       \mmlm(Col, color(divi, OR)) ].
-
-% Multiplied O_A and OR rather than deviding them.
-buggy(oddsratio, stage(2), X, Y, [step(buggy, mult, [Odds_A, OR])]) :-
-	X = odds_1(Odds_A, OR),
-	Y = odds_2(abbrev(odds_B, (instead(bug(mult), (Odds_A * OR), (Odds_A / OR))), "'the wrong odds for B'")).
-
-feedback(oddsratio, mult, [Odds_A, OR], Col, FB) :-
-	FB = [ "It seems you multiplied ", \mmlm(Col, color(mult, Odds_A)), " with ", 
-	       \mmlm(Col, color(mult, OR)), " rather than dividing them." ].
-
-hint(oddsratio, mult, [Odds_A, OR], Col, FB) :-
-	FB = [ "If I were you I would divide ", \mmlm(Col, color(divi, Odds_A)), " by ",
-	       \mmlm(Col, color(divi, OR)), " rather then multiplying them." ].
-
-% Forgot to convert Odds for B to Probability.
-buggy(oddsratio, stage(2), X, Y, [step(buggy, nopi, [Odds_B])]) :-
- 	X = odds_2(Odds_B),
-	Y = instead(bug(nopi), Odds_B, dfrac(Odds_B, (1 + Odds_B))).
-
-feedback(oddsratio, nopi, [Odds_B], Col, FB) :-
-	FB = [ "It looks like you forgot to convert ", \mmlm(Col, color(nopi, Odds_B)), 
-	       " back into a probability." ].
-
-hint(oddsratio, nopi, [Odds_B], Col, FB) :-
-	FB = [ "Remember that your end result should be a probabitly ",
-    	       "rather than the ", \mmlm(Col, color(nopi, Odds_B)) ].

@@ -4,7 +4,13 @@
 
 % Atoms (e.g. s_t0) are always complete
 complete(_, X) :-
-    atomic(X).
+    atomic(X),
+    !.
+
+% Experimental: variables
+complete(_, X) :-
+    var(X),
+    !.
 
 % Compounds are complete 
 % - if they haven't been declared as intermediate 

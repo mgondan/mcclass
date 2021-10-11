@@ -161,7 +161,7 @@ traps(task(Task, Data)) -->
 % ?- tasks:test.
 %
 test :-
-    test(tpaired).
+    test(oddsratio).
 
 test(Task) :-
     task(Task, TaskData),
