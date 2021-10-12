@@ -20,17 +20,20 @@ data(tgroups) :-
     r_init,
 
     {|r||
-	n_vr <- round(runif(1, min=20, max=45))
-	Id <- 1:n_vr
-	VR <- round(runif(n_vr, min=15, max=40))
-	n_box <- round(runif(1, min=20, max=45))
-	BOX <- round(VR + runif(n_vr, min=-10, max=2))
-	data <- data.frame(Id, VR, BOX)
-	
-	vr <- mean(data$VR)
-	s_vr <- sd(data$VR)
-	box <- mean(data$BOX)
-	s_box <- sd(data$BOX)
+	n <- round(runif(1, min=50, max=100))
+        N <- rbinom(n, 1, 0.5)
+        Id <- 1:n
+        B0 <- round(runif(n, min=15, max=40))
+        B1 <- round(runif(n, min=-2, max=10))
+        AV <- round(B0 + B1 * N)
+        data <- data.frame(Id, N, AV)
+
+        vr <- mean(data[data$N==1, 1])
+        s_vr <- sd(data[data$N==1, 1])
+        box <- mean(data[data$N==0, 1])
+        s_box <- sd(data[data$N==0, 1])
+        n_vr <- nrow(subset(data, N==1))
+        n_box <- nrow(subset(data, N==0))
 
 	tails <- "two-tailed"
 	alpha <- 0.05
