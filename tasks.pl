@@ -10,6 +10,7 @@
 :- consult(tpaired).
 :- consult(oddsratio).
 :- consult(tgroups).
+:- consult(ztrans).
 
 % Gather useful information
 %
@@ -161,7 +162,7 @@ traps(task(Task, Data)) -->
 % ?- tasks:test.
 %
 test :-
-    test(oddsratio).
+    test(ztrans).
 
 test(Task) :-
     task(Task, TaskData),

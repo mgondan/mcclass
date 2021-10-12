@@ -1448,6 +1448,13 @@ math(Flags, tan(Alpha), New, X)
     X = fn("tan", [Alpha]).
 
 %
+% Probability
+%
+math(Flags, pnorm(Z), New, X)
+ => New = Flags,
+    X = fn('Phi', [Z]).
+
+%
 % Functions like f(x) and f(x; a, b)
 %
 ml(Flags, fn(Name, (Args ; Params)), M)

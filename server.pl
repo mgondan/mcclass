@@ -28,6 +28,7 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass('favicon.ico'), http_reply_file('favicon.ico', []), []).
 :- http_handler(mcclass(tpaired), handler(tpaired), []).
 :- http_handler(mcclass(oddsratio), handler(oddsratio), []).
+:- http_handler(mcclass(ztrans), handler(ztrans), []).
 :- http_handler(mcclass(tgroups), handler(tgroups), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
