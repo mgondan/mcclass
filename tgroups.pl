@@ -24,8 +24,8 @@ data(tgroups) :-
         N <- rbinom(n, 1, 0.5)
         Id <- 1:n
         B0 <- round(runif(n, min=15, max=40))
-        B1 <- round(runif(n, min=-2, max=10))
-        AV <- round(B0 + B1 * N)
+        B1 <- round(runif(n, min=-10, max=2))
+        AV <- round(B0 + B1 * (1 - N))
         data <- data.frame(Id, N, AV)
 
         vr <- mean(data[data$N==1, 1])
