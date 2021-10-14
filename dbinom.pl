@@ -15,8 +15,13 @@ data(dbinom) :-
     r_init,
     {|r||
         k  <- 14
-	n  <- 26
-	p0 <- 0.6
+	    n  <- 26
+	    p0 <- 0.6
+
+        bernoulli <- function(k, n, p0)
+        {
+          p0^k * (1 - p0)^(n - k)
+        }
     |}.
 
 mathml:hook(Flags, n, Flags, 'N').
@@ -64,6 +69,7 @@ intermediate(dbinom, item).
 start(dbinom, item(k, n, p0)).
 
 % Recognise as a binomial density
+intermediate(dbinom, dbinom).
 expert(dbinom, stage(2), From, To, [step(expert, dens, [])]) :-
     From = item(K, N, Pi),
     To   = dbinom(K, N, Pi).
@@ -71,6 +77,19 @@ expert(dbinom, stage(2), From, To, [step(expert, dens, [])]) :-
 feedback(dbinom, dens, [], _Col, FB) :-
     FB = [ "Correctly recognised the problem as a binomial probability." ].
 
-hint(dbinom, dens, [], _Col, FB) :-
-    FB = [ "This is a binomial probability." ].
+hint(dbinom, dens, [], _Col, Hint) :-
+    Hint = [ "This is a binomial probability." ].
+
+% Convert to product
+expert(dbinom, stage(2), From, To, [step(expert, prod, [K, N, Pi])]) :-
+    From = dbinom(K, N, Pi),
+    To   = choose(N, K) * bernoulli(K, N, Pi).
+
+feedback(dbinom, prod, [_K, _N, _Pi], _Col, FB) :-
+    FB = [ "Correctly identified the formula for the binomial probability." ].
+
+hint(dbinom, prod, [K, N, Pi], Col, Hint) :-
+    Hint = [ "The formula for the binomial probability ",
+           "is ", \mmlm(Col, choose(N, K) * bernoulli(K, N, Pi)), "."
+         ].
 
