@@ -1,7 +1,3 @@
-%:- module(tpaired, 
-%    [ start/2, init/1, data/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, 
-%      render//3]).
-
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
@@ -113,11 +109,6 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
               ])])
           ]))
       ]).
-
-% Prolog warns if the rules of a predicate are not adjacent. This would not
-% help us here, so the definitions for intermediate, expert and buggy are
-% declared to be discontiguous.
-:- multifile intermediate/2, expert/5, buggy/5.
 
 % t-test for paired samples
 intermediate(_, item).

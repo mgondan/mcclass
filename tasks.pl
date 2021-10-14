@@ -11,6 +11,7 @@
 :- consult(oddsratio).
 :- consult(tgroups).
 :- consult(ztrans).
+:- consult(dbinom).
 
 % Gather useful information
 %
