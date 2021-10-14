@@ -1378,7 +1378,16 @@ mathml :- mathml(choose('N', k) * pi^k * (1 - pi)^('N' - k)).
 % The name is a bit unfortunate
 math(Flags, bernoulli(K, N, Pi), New, M)
  => Flags = New,
-    M = Pi^K * (1-Pi)^(N-K).
+    M = successes(K, Pi) * failures(N - K, 1 - Pi).
+
+math(Flags, successes(K, Pi), New, M)
+ => Flags = New,
+    M = Pi^K.
+
+% This may change
+math(Flags, failures(K, Pi), New, M)
+ => Flags = New,
+    M = Pi^K.
 
 % Density, distribution etc.
 math(Flags, dbinom(K, N, Pi), New, X)

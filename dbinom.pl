@@ -20,7 +20,18 @@ data(dbinom) :-
 
         bernoulli <- function(k, n, p0)
         {
-          p0^k * (1 - p0)^(n - k)
+          successes(k, p0) * failures(n - k, 1 - p0)
+        }
+
+        successes <- function(k, p0)
+        {
+          p0^k
+        }
+
+        # this may change
+        failures <- function(nk, q0)
+        {
+          q0^nk
         }
     |}.
 
@@ -74,22 +85,40 @@ expert(dbinom, stage(2), From, To, [step(expert, dens, [])]) :-
     From = item(K, N, Pi),
     To   = dbinom(K, N, Pi).
 
-feedback(dbinom, dens, [], _Col, FB) :-
-    FB = [ "Correctly recognised the problem as a binomial probability." ].
+feedback(dbinom, dens, [], _Col, Feed) :-
+    Feed = [ "Correctly recognised the problem as a binomial probability." ].
 
 hint(dbinom, dens, [], _Col, Hint) :-
     Hint = [ "This is a binomial probability." ].
 
 % Convert to product
+intermediate(dbinom, bernoulli).
 expert(dbinom, stage(2), From, To, [step(expert, prod, [K, N, Pi])]) :-
     From = dbinom(K, N, Pi),
     To   = choose(N, K) * bernoulli(K, N, Pi).
 
-feedback(dbinom, prod, [_K, _N, _Pi], _Col, FB) :-
-    FB = [ "Correctly identified the formula for the binomial probability." ].
+feedback(dbinom, prod, [_K, _N, _Pi], _Col, Feed) :-
+    Feed = [ "Correctly identified the formula for the binomial probability." ].
 
 hint(dbinom, prod, [K, N, Pi], Col, Hint) :-
     Hint = [ "The formula for the binomial probability ",
-           "is ", \mmlm(Col, choose(N, K) * bernoulli(K, N, Pi)), "."
-         ].
+             "is ", \mmlm(Col, choose(N, K) * bernoulli(K, N, Pi)), "."
+           ].
+
+% Successes and failures
+expert(dbinom, stage(2), From, To, [step(expert, bern, [K, N, Pi])]) :-
+    From = bernoulli(K, N, Pi),
+    To   = successes(K, Pi) * failures(N - K, 1 - Pi).
+
+feedback(dbinom, bern, [K, N, _Pi], Col, Feed) :-
+    Feed = [ "Correctly determined the probability for a sequence ",
+             "of ", \mmlm(Col, K), " successes ", 
+             "and ", \mmlm(Col, N - K), " failures."
+           ].
+
+hint(dbinom, bern, [K, N, _Pi], Col, Hint) :-
+    Hint = [ "Determine the probability for a sequence ",
+             "of ", \mmlm(Col, K), " successes ",
+             "and ", \mmlm(Col, N - K), "failures."
+           ].
 
