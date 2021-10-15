@@ -82,8 +82,8 @@ start(dbinom, item(k, n, p0)).
 % Recognise as a binomial density
 intermediate(dbinom, dbinom).
 expert(dbinom, stage(2), From, To, [step(expert, dens, [])]) :-
-    From = item(K, N, Pi),
-    To   = dbinom(K, N, Pi).
+    From = item(K, N, P0),
+    To   = dbinom(K, N, P0).
 
 feedback(dbinom, dens, [], _Col, Feed) :-
     Feed = [ "Correctly recognised the problem as a binomial probability." ].
@@ -93,32 +93,50 @@ hint(dbinom, dens, [], _Col, Hint) :-
 
 % Convert to product
 intermediate(dbinom, bernoulli).
-expert(dbinom, stage(2), From, To, [step(expert, prod, [K, N, Pi])]) :-
-    From = dbinom(K, N, Pi),
-    To   = choose(N, K) * bernoulli(K, N, Pi).
+expert(dbinom, stage(2), From, To, [step(expert, prod, [K, N, P0])]) :-
+    From = dbinom(K, N, P0),
+    To   = choose(N, K) * bernoulli(K, N, P0).
 
-feedback(dbinom, prod, [_K, _N, _Pi], _Col, Feed) :-
+feedback(dbinom, prod, [_K, _N, _P0], _Col, Feed) :-
     Feed = [ "Correctly identified the formula for the binomial probability." ].
 
-hint(dbinom, prod, [K, N, Pi], Col, Hint) :-
+hint(dbinom, prod, [K, N, P0], Col, Hint) :-
     Hint = [ "The formula for the binomial probability ",
-             "is ", \mmlm(Col, choose(N, K) * bernoulli(K, N, Pi)), "."
+             "is ", \mmlm(Col, choose(N, K) * bernoulli(K, N, P0)), "."
            ].
 
 % Successes and failures
-expert(dbinom, stage(2), From, To, [step(expert, bern, [K, N, Pi])]) :-
-    From = bernoulli(K, N, Pi),
-    To   = successes(K, Pi) * failures(N - K, 1 - Pi).
+intermediate(dbinom, successes).
+expert(dbinom, stage(2), From, To, [step(expert, bern, [K, N, P0])]) :-
+    From = bernoulli(K, N, P0),
+    To   = successes(K, P0) * failures(N - K, 1 - P0).
 
-feedback(dbinom, bern, [K, N, _Pi], Col, Feed) :-
+feedback(dbinom, bern, [K, N, _P0], Col, Feed) :-
     Feed = [ "Correctly determined the probability for a sequence ",
              "of ", \mmlm(Col, K), " successes ", 
              "and ", \mmlm(Col, N - K), " failures."
            ].
 
-hint(dbinom, bern, [K, N, _Pi], Col, Hint) :-
+hint(dbinom, bern, [K, N, _P0], Col, Hint) :-
     Hint = [ "Determine the probability for a sequence ",
              "of ", \mmlm(Col, K), " successes ",
              "and ", \mmlm(Col, N - K), "failures."
            ].
+
+% Successes
+expert(dbinom, stage(2), From, To, [step(expert, success, [K, P0])]) :-
+    From = successes(K, P0),
+    To   = P0^K.
+
+feedback(dbinom, success, [K, _P0], Col, Feed) :-
+    Feed = [ "Correctly determined the probability for ", \mml(Col, K), " ",
+             "independent successes."
+           ].
+
+hint(dbinom, success, [K, _P0], Col, Hint) :-
+    Hint = [ "Determine the probability for ", \mml(Col, K), " independent ",
+             "successes."
+           ].
+
+% Failures
 
