@@ -6,11 +6,14 @@
 :- discontiguous mathml/0, current/3, paren/3, prec/3, type/3, denoting/3, ml/3, math/4.
 :- use_module(library(http/html_write)).
 
+%
 % mathml/0: Show the examples
 % math/4: Translate complex expression to its components
 % paren/3: Count level of parentheses
 % prec/3: Determine operator precedence (e.g., addition after multiplication)
 %
+
+:- op(400, yfx, user:dot).
 
 %
 % Interface
@@ -344,7 +347,7 @@ ml(_Flags, sign(=:=), X)
 ml(_Flags, sign(=\=), X)
  => X = mo(&(ne)).
 
-ml(_Flags, sign(sdot), X)
+ml(_Flags, sign(dot), X)
  => X = mo(&(sdot)).
 
 ml(_Flags, sign(=<), X)
@@ -358,9 +361,6 @@ ml(_Flags, sign(;), X)
 
 ml(_Flags, sign(~), X)
  => X = mo(&('Tilde')).
-
-current(Prec, yfx, sdot)
- => current_op(Prec, yfx, *).
 
 ml(_Flags, sign(sum), X)
  => X = mo(&(sum)).
@@ -379,7 +379,7 @@ ml(_Flags, sign(A), X)
 denoting(_Flags, sign(_), Den)
  => Den = [].
 
-mathml :- mathml(sign(sdot)).
+mathml :- mathml(sign(dot)).
 
 %
 % Indices like s_D: needs operator []/2 for pretty printing
@@ -697,8 +697,8 @@ math(Flags, A * B, New, X)
 
 math(Flags, dot(A, B), New, X)
  => New = Flags,
-    current_op(Prec, yfx, *),
-    X = yfy(Prec, &(sdot), A, B).
+    current_op(Prec, yfx, dot),
+    X = yfy(Prec, dot, A, B).
 
 math(Flags, nodot(A, B), New, X)
  => New = Flags,
@@ -748,9 +748,8 @@ mathml :- mathml(a * b).
 mathml :- mathml(a * (b * c)).
 mathml :- mathml((a * b) * c).
 mathml :- mathml((2 * b) * c).
-mathml :- 
-    writeln("Unsure if this can be convinced to omit the parenthesis"), 
-    mathml((-2 * b) * c).
+mathml :- writeln("Unsure if this can be convinced to omit the parenthesis"), 
+          mathml((-2 * b) * c).
 mathml :- mathml((-2 * 2) * c).
 mathml :- mathml((-2 * -2) * c).
 
@@ -1263,15 +1262,15 @@ math(Flags, omit_left(_Bug, Expr), New, M),
     M = Expr.
 
 math(Flags, omit_left(bug(Bug), Expr), New, M),
-    option(error(fix), Flags, highlight),
-    Expr =.. [Op, L, R]
- => Flags = New,
+    option(error(fix), Flags, highlight)
+ => Expr =.. [Op, L, R],
+    Flags = New,
     M = list(space, [color(Bug, box(color("#000000", list(space, [L, sign(Op)])))), R]).
 
 math(Flags, omit_left(bug(Bug), Expr), New, M),
-    option(error(highlight), Flags, highlight),
-    Expr =.. [Op, L, R]
- => Flags = New,
+    option(error(highlight), Flags, highlight)
+ => Expr =.. [Op, L, R],
+    Flags = New,
     M = list(space, [color(Bug, cancel(color("#000000", list(space, [L, sign(Op)])))), R]).
 
 math(Flags, omit_right(_Bug, Expr), New, M),
@@ -1280,15 +1279,26 @@ math(Flags, omit_right(_Bug, Expr), New, M),
     M = Expr.
 
 math(Flags, omit_right(bug(Bug), Expr), New, M),
-    option(error(fix), Flags, highlight),
-    Expr =.. [Op, L, R]
- => Flags = New,
+    option(error(fix), Flags, highlight)
+ => ( math(Flags, Expr, New, Expr1)
+     -> Expr1 =.. [Op, L, R]
+      ; Expr =.. [Op, L, R], 
+        Flags = New
+    ),
     M = list(space, [L, color(Bug, box(color("#000000", list(space, [sign(Op), R]))))]).
 
 math(Flags, omit_right(bug(Bug), Expr), New, M),
-    option(error(highlight), Flags, highlight),
-    Expr =.. [Op, L, R]
- => Flags = New,
+    option(error(highlight), Flags, highlight)
+ => ( math(Flags, Expr, New, Expr1)
+     -> Expr1 =.. [Op, L, R]
+      ; Expr =.. [Op, L, R], Flags = New
+    ),
+    M = list(space, [L, color(Bug, cancel(color("#000000", list(space, [sign(Op), R]))))]).
+
+math(Flags, omit_right(bug(Bug), Expr), New, M),
+    option(error(highlight), Flags, highlight)
+ => Expr =.. [Op, L, R],
+    Flags = New,
     M = list(space, [L, color(Bug, cancel(color("#000000", list(space, [sign(Op), R]))))]).
 
 math(Flags, instead(_Bug, _Wrong, Correct), New, M),
