@@ -107,6 +107,7 @@ hint(dbinom, prod, [K, N, P0], Col, Hint) :-
 
 % Successes and failures
 intermediate(dbinom, successes).
+intermediate(dbinom, failures).
 expert(dbinom, stage(2), From, To, [step(expert, bern, [K, N, P0])]) :-
     From = bernoulli(K, N, P0),
     To   = successes(K, P0) * failures(N - K, 1 - P0).
@@ -138,5 +139,18 @@ hint(dbinom, success, [K, _P0], Col, Hint) :-
              "successes."
            ].
 
-% Failures
+% Failures - same as successes (this may change)
+expert(dbinom, stage(2), From, To, [step(expert, failure, [K, P0])]) :-
+    From = failures(K, P0),
+    To   = P0^K.
+
+feedback(dbinom, failure, [K, _P0], Col, Feed) :-
+    Feed = [ "Correctly determined the probability for ", \mml(Col, K), " ",
+             "independent failures."
+           ].
+
+hint(dbinom, failure, [K, _P0], Col, Hint) :-
+    Hint = [ "Determine the probability for ", \mml(Col, K), " independent ",
+             "failures."
+           ].
 
