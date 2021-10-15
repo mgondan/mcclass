@@ -154,3 +154,20 @@ hint(dbinom, failure, [K, _P0], Col, Hint) :-
              "failures."
            ].
 
+% Confuse successes and failures
+buggy(dbinom, stage(2), From, To, [step(buggy, succfail, [K, N, P0])]) :-
+    From = bernoulli(K, N, P0),
+    To   = successes(K, instead(bug(succfail), 1 - P0, P0)) * 
+           failures(N - K, instead(bug(succfail), P0, 1 - P0)).
+
+feedback(dbinom, succfail, [_K, _N, P0], Col, Feed) :-
+    Feed = [ "The probabilities ", \mmlm(Col, P0), " for success ",
+             "and ", \mmlm(Col, 1 - P0), " for failure were confused."
+           ].
+
+hint(dbinom, succfail, [_K, _N, P0], Col, Hint) :-
+    Hint = [ "Make sure not to confuse the ",
+             "probabilities ", \mmlm(Col, P0), " for success ",
+             "and ", \mmlm(Col, 1 - P0), " for failure."
+           ]. 
+
