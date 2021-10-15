@@ -12,6 +12,12 @@ complete(_, X) :-
     var(X),
     !.
 
+% The correct part of instead(Bug, Wrong, Correct) does not need to be 
+% complete.
+complete(Task, instead(_Bug, Wrong, _Correct)) :-
+    !,
+    complete(Task, Wrong).
+
 % Compounds are complete 
 % - if they haven't been declared as intermediate 
 % - and if all their arguments are complete
