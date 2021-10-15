@@ -161,8 +161,9 @@ buggy(dbinom, stage(2), From, To, [step(buggy, succfail, [K, N, P0])]) :-
            instead(bug(succfail), failures(N - K, P0), failures(N - K, 1 - P0)).
 
 feedback(dbinom, succfail, [_K, _N, P0], Col, Feed) :-
-    Feed = [ "The probabilities ", \mmlm(Col, P0), " for success ",
-             "and ", \mmlm(Col, 1 - P0), " for failure were confused."
+    Feed = [ "The probabilities ", \mmlm(Col, color(succfail, P0)), " for ",
+             "success and ", \mmlm(Col, color(succfail, 1 - P0)), " for ",
+             "failure were confused."
            ].
 
 hint(dbinom, succfail, [_K, _N, P0], Col, Hint) :-
@@ -170,4 +171,19 @@ hint(dbinom, succfail, [_K, _N, P0], Col, Hint) :-
              "probabilities ", \mmlm(Col, P0), " for success ",
              "and ", \mmlm(Col, 1 - P0), " for failure."
            ]. 
+
+% Forget failures
+buggy(dbinom, stage(2), From, To, [step(buggy, nofail, [K, N, P0])]) :-
+    From = bernoulli(K, N, P0),
+    To   = omit_right(bug(nofail), successes(K, P0) * failures(N - K, 1 - P0)).
+
+feedback(dbinom, nofail, [K, N, _P0], Col, Feed) :-
+    Feed = [ "The probability for the ", \mmlm(Col, color(nofail, N - K)), " ",
+             "failures was omitted."
+           ].
+
+hint(dbinom, nofail, [K, N, _P0], Col, Hint) :-
+    Hint = [ "Make sure not to forget the ",
+             "probability for the ", \mmlm(Col, N - K), " failures."
+           ].
 
