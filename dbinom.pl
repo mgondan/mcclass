@@ -154,6 +154,20 @@ hint(dbinom, failure, [K, _P0], Col, Hint) :-
              "failures."
            ].
 
+% Forget binomial coefficient
+buggy(dbinom, stage(2), From, To, [step(buggy, nochoose, [K, N])]) :-
+    From = dbinom(K, N, P0),
+    To   = omit_left(bug(nochoose), choose(N, K) * bernoulli(K, N, P0)).
+
+feedback(dbinom, nochoose, [_K, _N], _Col, Feed) :-
+    Feed = [ "The binomial coefficient with the number of permutations was ",
+             "omitted." ].
+
+hint(dbinom, nochoose, [K, N], Col, Hint) :-
+    Hint = [ "Do not forget to multiply everything with the number of ",
+             "permutations ", \mmlm(Col, choose(N, K)), "."
+           ].
+
 % Confuse successes and failures
 buggy(dbinom, stage(2), From, To, [step(buggy, succfail, [K, N, P0])]) :-
     From = bernoulli(K, N, P0),
