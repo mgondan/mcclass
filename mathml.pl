@@ -1264,14 +1264,16 @@ math(Flags, omit_left(_Bug, Expr), New, M),
 math(Flags, omit_left(bug(Bug), Expr), New, M),
     option(error(fix), Flags, highlight)
  => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, L, " "],
     Flags = New,
-    M = list(space, [color(Bug, box(color("#000000", list(space, [L, sign(Op)])))), R]).
+    M = list(space, [color(Bug, box(color("#000000", Expr1))), R]).
 
 math(Flags, omit_left(bug(Bug), Expr), New, M),
     option(error(highlight), Flags, highlight)
  => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, L, " "],
     Flags = New,
-    M = list(space, [color(Bug, cancel(color("#000000", list(space, [L, sign(Op)])))), R]).
+    M = list(space, [color(Bug, cancel(color("#000000", Expr1))), R]).
 
 math(Flags, omit_right(_Bug, Expr), New, M),
     option(error(ignore), Flags, highlight)
@@ -1280,15 +1282,17 @@ math(Flags, omit_right(_Bug, Expr), New, M),
 
 math(Flags, omit_right(bug(Bug), Expr), New, M),
     option(error(fix), Flags, highlight)
- => Expr =.. [Op, L, R], 
+ => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, " ", R],
     Flags = New,
-    M = list(space, [L, color(Bug, box(color("#000000", list(space, [sign(Op), R]))))]).
+    M = list(space, [L, color(Bug, box(color("#000000", Expr1)))]).
 
 math(Flags, omit_right(bug(Bug), Expr), New, M),
     option(error(highlight), Flags, highlight)
  => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, " ", R],
     Flags = New,
-    M = list(space, [L, color(Bug, cancel(color("#000000", list(space, [sign(Op), R]))))]).
+    M = list(space, [L, color(Bug, cancel(color("#000000", Expr1)))]).
 
 math(Flags, instead(_Bug, _Wrong, Correct), New, M),
     option(error(ignore), Flags, highlight)
