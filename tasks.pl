@@ -69,7 +69,10 @@ hints(task(Task, Data)) -->
       findall(li(H), 
         ( member(step(expert, Name, Arg), Flags), 
           member(Name, Hints), 
-          hint(Task, Name, Arg, Col, H)
+          (   hint(Task, Name, Arg, Col, H)
+           -> true
+           ;  throw(error(hint_argument(Name, Arg)))
+          )
         ), List)
     },
     html(div(class("card"),
