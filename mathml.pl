@@ -686,8 +686,8 @@ math(Flags, A - B, New, X)
 
 % Use dot or no dot instead of asterisk
 math(Flags, A * B, New, X),
-    type(Flags, B, Type),
-    Type = atomic
+    type(Flags, A, atomic),
+    type(Flags, B, atomic)
  => New = Flags,
     X = nodot(A, B).
 
