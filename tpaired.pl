@@ -95,7 +95,7 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'),
               [ "Does rfCBT lead to a relevant reduction (i.e., more than ",
-                \mmlm(r(mu)),
+                \mmlm([round(1)], r(mu)),
                 " units) in mean HDRS scores between ",
                 "baseline (T0) and End of Treatment (EOT)?"
               ]),
