@@ -598,6 +598,9 @@ denoting(_Flags, integer(_), D)
 ml(_Flags, number(1.0Inf), M)
  => M = mi(&('#x221E')).
 
+ml(_Flags, number(1.5NaN), M)
+ => M = mtext("?").
+
 ml(Flags, number(A), M),
     option(round(D), Flags, 2),
     D = 0
