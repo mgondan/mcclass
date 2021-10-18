@@ -1,274 +1,474 @@
-# Classification of intervals by sign
-# Hickey: Figure 1
-
-Mix = function(X) 
+# Classification of intervals by sign (Hickey, Figure 1)
+Mix = function(X)
 {
-  X[1] < 0 & X[2] > 0
+  X[1] < 0 & max(X) > 0
 }
 
 Pos = function(X)
 {
-  X[1] >= 0 & X[2] > 0
+  X[1] >= 0 & max(X) > 0
 }
 
-
-Pos0 = function(X) 
+Pos0 = function(X)
 {
-  X[1] == 0 & X[2] > 0
+  X[1] == 0 & max(X) > 0
 }
 
-Pos1 = function(X) 
+Pos1 = function(X)
 {
-  X[1] > 0 & X[2] > 0
+  X[1] > 0
 }
 
-Neg = function(X) 
+Neg = function(X)
 {
-  X[1] < 0 & X[2] <= 0
+  X[1] < 0 & max(X) <= 0
 }
 
-Neg0 = function(X) 
+Neg0 = function(X)
 {
-  X[1] < 0 & X[2] == 0
+  X[1] < 0 & max(X) == 0
 }
 
-Neg1 = function(X) 
+Neg1 = function(X)
 {
-  X[1] < 0 & X[2] < 0
+  max(X) < 0
 }
 
-# 
+# Typical R functions
+i_sqrt = function(X)
+{
+  l = X[1]
+  u = max(X)
+  
+  list(c(sqrt(l), sqrt(u)))
+}
 
-# Addition
+i_dbinom = function(x, size, prob, log=FALSE)
+{
+  l_prob = prob[1]
+  u_prob = max(prob)
+  
+  list(c(dbinom(x, size, l_prob, log), dbinom(x, size, u_prob, log)))
+}
+
+i_pnorm = function(z)
+{
+  l = z[1]
+  u = max(z)
+
+  list(c(pnorm(l), pnorm(u)))
+}
+
 # Hickey: Theorem 5
-
-iplus = function(X, Y)
+i_plus = function(X, Y)
 {
   a = X[1]
-  b = X[2]
+  b = max(X)
   c = Y[1]
-  d = Y[2]
+  d = max(Y)
   
-  return(list(c(a+c, b+d )))
-  
+  list(c(a + c, b + d))
 }
 
-# Substraction
+# Positive sign
+i_pos = function(X)
+{
+  a = X[1]
+  b = max(X)
+  
+  list(c(a, b))
+}
+
 # Hickey: Theorem 5
-
-iminus = function(X, Y)
+i_minus = function(X, Y)
 {
   a = X[1]
-  b = X[2]
+  b = max(X)
   c = Y[1]
-  d = Y[2]
+  d = max(Y)
   
-  return(list(c(a-d, b-c)))
+  list(c(a - d, b - c))
 }
 
-# Multiplication
-# Hickey: Theorem 6 
-
-imult = function(X,Y)
+# Negation
+i_neg = function(X)
 {
   a = X[1]
-  b = X[2]
-  c = Y[1]
-  d = Y[2]
+  b = max(X)
   
-  list(c(min(a*c, a*d, b*c, b*d), max(a*c, a*d, b*c, b*d)))
-  
+  list(c(-b, -a))
 }
 
-# Division
+# Hickey: Theorem 6
+i_mult = function(X, Y)
+{
+  a = X[1]
+  b = max(X)
+  c = Y[1]
+  d = max(Y)
+  
+  cand = c(a * c, a * d, b * c, b * d)
+  list(c(min(cand), max(cand)))
+}
+
 # Hickey: Figure 4
-# Case analysis for functional division of real intervals 
-
-idiv = function(X, Y)
-{ 
+i_div = function(X, Y)
+{
   a = X[1]
-  b = X[2]
+  b = max(X)
   c = Y[1]
-  d = Y[2]
+  d = max(Y)
   
-  if(Neg1(X) & Neg0(Y)) #exception case for N1,N
+  if(Neg1(X) & Neg0(Y)) # special case of N1 / N
   {
-    return(list(c(b/c, Inf)))
+    return(list(c(b / c, Inf)))
   }
   
-  if(Neg1(X) & Neg1(Y)) #general formula for N1,N
+  if(Neg1(X) & Neg1(Y))
   {
-    return(list(c(b/c, a/d)))
+    return(list(c(b / c, a / d)))
   }
-
-  if(Neg0(X) & Neg0(Y)) #exception case for N0,N
+  
+  if(Neg0(X) & Neg0(Y)) # special case
   {
     return(list(c(0, Inf)))
   }
   
-  if(Neg0(X) & Neg1(Y)) #general formula for N0,N
+  if(Neg0(X) & Neg1(Y))
   {
-    return(list(c(0, a/d)))
+    return(list(c(0, a / d)))
   }
   
-  if(Mix(X) & Neg0(Y)) #exception case for M,N
+  if(Mix(X) & Neg0(Y)) # special case
   {
     return(list(c(-Inf, Inf)))
   }
   
-  if(Mix(X) & Neg1(Y)) #general formula for M,N
+  if(Mix(X) & Neg1(Y))
   {
-    return(list(c(b/d, a/d)))
+    return(list(c(b / d, a / d)))
   }
   
-  if(Pos0(X) & Neg0(Y)) #exception case for P0,N
+  if(Pos0(X) & Neg0(Y)) # special case
   {
     return(list(c(-Inf, 0)))
   }
   
-  if(Pos0(X) & Neg1(Y)) #general formula for P0,N
+  if(Pos0(X) & Neg1(Y))
   {
-    return(list(c(b/d, 0)))
+    return(list(c(b / d, 0)))
   }
   
-  if(Pos1(X) & Neg0(Y)) #exception case for P1,N
+  if(Pos1(X) & Neg0(Y)) # special case
   {
-    return(list(c(-Inf, a/c)))
+    return(list(c(-Inf, a / c)))
   }
   
-  if(Pos1(X) & Neg1(Y)) #general formula for P1,N
+  if(Pos1(X) & Neg1(Y))
   {
-    return(list(c(b/d, a/c)))
+    return(list(c(b / d, a / c)))
   }
   
-  if(Neg1(X) & Mix(Y)) #general formula for N1,M
+  # two non-overlapping intervals
+  if(Neg1(X) & Mix(Y))
   {
-    return(list(c(-Inf, b/d), c(b/c, Inf)))
+    return(list(c(-Inf, b / d), c(b / c, Inf)))
   }
   
-  if(Pos1(X) & Mix(Y)) #general formula for P1,M
+  if(Pos1(X) & Mix(Y))
   {
-    return(list(c(-Inf, a/c), c(a/d, Inf)))
+    return(list(c(-Inf, a / c), c(a / d, Inf)))
   }
   
-  if(Neg0(X) & Mix(Y)) #general formula for N0,M
-  {
-    return(list(c(-Inf, Inf)))
-  }
-  
-  if(Mix(X) & Mix(Y)) #general formula for M,M
+  if(Neg0(X) & Mix(Y))
   {
     return(list(c(-Inf, Inf)))
   }
   
-  if(Pos0(X) & Mix(Y)) #general formula for P0,M
+  if(Mix(X) & Mix(Y))
   {
     return(list(c(-Inf, Inf)))
   }
   
-  if(Neg1(X) & Pos0(Y)) #exception case for N1,P
+  if(Pos0(X) & Mix(Y))
   {
-    return(list(C(-Inf, b/d)))
+    return(list(c(-Inf, Inf)))
   }
   
-  if(Neg1(X) & Pos1(Y)) #general formula for N1,P
+  if(Neg1(X) & Pos0(Y)) # special case
   {
-    return(list(c(a/c, b/d)))
+    return(list(C(-Inf, b / d)))
   }
   
-  if(Neg0(X) & Pos0(Y)) #exception case for N0,P
+  if(Neg1(X) & Pos1(Y))
+  {
+    return(list(c(a / c, b / d)))
+  }
+  
+  if(Neg0(X) & Pos0(Y)) # special case
   {
     return(list(c(-Inf, 0)))
   }
   
-  if(Neg0(X) & Pos1(Y)) #general formula for N0,P
+  if(Neg0(X) & Pos1(Y))
   {
-    return(list(c(a/c, 0)))
+    return(list(c(a / c, 0)))
   }
   
-  if(Mix(X) & Pos0(Y)) #exception case for M,P
+  if(Mix(X) & Pos0(Y)) # special case
   {
     return(list(c(-Inf, Inf)))
   }
   
-  if(Mix(X) & Pos1(Y)) #general formula for M,P
+  if(Mix(X) & Pos1(Y))
   {
-    return(list(c(a/c, b/c)))
+    return(list(c(a / c, b / c)))
   }
   
-  if(Pos0(X) & Pos0(Y)) #exception case for P0,P
+  if(Pos0(X) & Pos0(Y)) # special case
   {
     return(list(c(0, Inf)))
   }
   
-  if(Pos0(X) & Pos1(Y)) #general formular for P0,P
+  if(Pos0(X) & Pos1(Y))
   {
-    return(list(c(0, b/c)))
+    return(list(c(0, b / c)))
   }
   
-  if(Pos1(X) & Pos0(Y) ) #exception case for P1,P
+  if(Pos1(X) & Pos0(Y)) # special case
   {
-    return(list(c(a/d, Inf)))
-  } 
-  
-  if(Pos1(X) & Pos1(Y)) #general formular for P1,P
-  {
-    return(list(c(a/d, b/c)))
+    return(list(c(a / d, Inf)))
   }
   
+  if(Pos1(X) & Pos1(Y))
+  {
+    return(list(c(a / d, b / c)))
+  }
 }
 
-# Test i-functions
-Pzero = c(0, 1.4)
-Nzero = c(-1.4, 0)
-Mixed = c(-1.5, 1.5)
-Positive = c(1, 1.5)
-Negative = c(-2, -1.5)
+# Combine everything with everything
+outer1 = function(X, FUN, ...)
+{
+  r = list()
+  for(i in X)
+    r = c(r, FUN(i, ...))
+  r
+}
 
-iplus(Nzero, Negative)
-iminus(Negative, Pzero)
-imult(Mixed, Negative)
-
-idiv(Mixed, Nzero)
-idiv(Positive, Mixed)
-
-# O-function 
-
-outerl = function(X,Y, FUN)
+outer2 = function(X, Y, FUN, ...)
 {
   r = list()
   for(i in X)
     for(j in Y)
-      r = c(r, FUN(i,j))
+      r = c(r, FUN(i, j, ...))
   r
 }
 
-oplus = function(X, Y)
+o_sqrt = function(X)
 {
-  outerl(X, Y, FUN=`iplus`)
+  outer1(X, FUN=i_sqrt)
 }
 
-ominus = function(X, Y)
+o_dbinom = function(x, size, prob, log=FALSE)
 {
-  outerl(X, Y, FUN=`iminus`)
+  outer1(X=prob, FUN=i_dbinom, x=x, size=size, log=log)
 }
 
-omult = function(X, Y)
+o_pnorm = function(z)
 {
-  outerl(X, Y, FUN=`imult`)
+  outer1(z, FUN=i_pnorm)
 }
 
-odiv = function(X, Y)
+o_plus = function(X, Y)
 {
-  outerl(X, Y, FUN=`idiv`)
+  outer2(X, Y, FUN=i_plus)
 }
 
+o_pos = function(X)
+{
+  outer1(X, FUN=i_pos)
+}
 
-# Test o-functions
-X = list(c(0.6, 0.7), c(-0.8, 0.9))
-Y = list(c(-2.5, 2.6), c(0.8, 0.9))
+o_minus = function(X, Y)
+{
+  outer2(X, Y, FUN=i_minus)
+}
 
-A = odiv(X,Y)
-B = list(c(1.1, 1.2))
-C = omult(A,B)
-odiv(C,A)
+o_neg = function(X)
+{
+  outer1(X, FUN=i_neg)
+}
+
+o_mult = function(X, Y)
+{
+  outer2(X, Y, FUN=i_mult)
+}
+
+o_div = function(X, Y)
+{
+  outer2(X, Y, FUN=i_div)
+}
+
+i_name = function(X)
+{
+  l = X[1]
+  u = max(X)
+
+  list(c(l, u))
+}
+
+o_name = function(X)
+{
+  outer1(X, FUN=i_name)
+}
+
+i_numeric = function(X)
+{
+  l = X[1]
+  u = max(X)
+
+  list(c(l, u))
+}
+
+o_numeric = function(X)
+{
+  outer1(X, FUN=i_numeric)
+}
+
+# Substitution of o-functions in int(expr)
+int = function(expr)
+{
+  if(is.name(substitute(expr)))
+    return(o_name(expr))
+
+  if(is.numeric(substitute(expr)))
+    return(o_numeric(expr))
+
+  L = as.list(substitute(expr))
+  L1 = as.character(L[[1]])
+
+  if(L1 == '+' & length(L) == 2)
+  {
+    L[[1]] = quote(o_pos)
+    L[[2]] = call("int", L[[2]])
+    return(eval(as.call(L)))
+  }
+  
+  if(L1 == '+')
+  {
+    L[[1]] = quote(o_plus)
+    L[[2]] = call("int", L[[2]])
+    L[[3]] = call("int", L[[3]])
+    return(eval(as.call(L)))
+  }
+  
+  if(L1 == '-' & length(L) == 2)
+  {
+    L[[1]] = quote(o_neg)
+    L[[2]] = call("int", L[[2]])
+    return(eval(as.call(L)))
+  }
+  
+  if(L1 == '-')
+  {
+    L[[1]] = quote(o_minus)
+    L[[2]] = call("int", L[[2]])
+    L[[3]] = call("int", L[[3]])
+    return(eval(as.call(L)))
+  }
+  
+  if(L1 == '*')
+  {
+    L[[1]] = quote(o_mult)
+    L[[2]] = call("int", L[[2]])
+    L[[3]] = call("int", L[[3]])
+    return(eval(as.call(L)))
+  }
+  
+  if(L1 %in% c('/', 'frac', 'dfrac'))
+  {
+    L[[1]] = quote(o_div)
+    L[[2]] = call("int", L[[2]])
+    L[[3]] = call("int", L[[3]])
+    return(eval(as.call(L)))
+  }
+  
+  if(L1 == '(')
+  {
+    C = call('int', L[[2]])
+    return(eval(C))
+  }
+  
+  if(L1 == '{')
+  {
+    if(length(L) > 2)
+      for(i in 2:(length(L)-1))
+        eval(call('int', L[[i]]))
+    
+    return(eval(call('int', L[[length(L)]])))
+  }
+  
+  if(L1 %in% c('<-', '='))
+  {
+    L[[3]] = call('int', L[[3]])
+    return(eval(as.call(L), envir=parent.frame()))
+  }
+  
+  if(L1 == ';')
+  {
+    e = parent.frame(4)
+    
+    if(length(L) > 2)
+      for(i in 2:(length(L)-1))
+        eval(call('int', L[[i]]), envir=e)
+    
+    return(eval(call('int', L[[length(L)]]), envir=e))
+  }
+  
+  if(L1 == 'sqrt')
+  {
+    L[[1]] = quote(o_sqrt)
+    L[[2]] = call('int', L[[2]])
+    return(eval(as.call(L)))
+  }
+  
+  if(L1 == 'dbinom')
+  {
+    L[[1]] = quote(o_dbinom)
+    L$prob = call('int', L$prob)
+    return(eval(as.call(L)))
+  }
+
+  if(L1 == 'pnorm')
+  {
+    L[[1]] = quote(o_pnorm)
+    L[[2]] = call('int', L[[2]])
+    return(eval(as.call(L)))
+  }
+
+  if(L1 == 'instead')
+  {
+    C = call('int', L[[3]])
+    return(eval(C))
+  }
+
+  if(L1 == 'omit_right')
+  {
+    C = call('int', L[[3]][[2]])
+    return(eval(C))
+  }
+
+  if(L1 == 'omit_left')
+  {
+    C = call('int', L[[3]][[3]])
+    return(eval(C))
+  }
+
+  if(L1 == 'color')
+  {
+    C = call('int', L[[3]])
+    return(eval(C))
+  }
+  
+  eval(expr)
+}
