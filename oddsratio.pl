@@ -11,22 +11,12 @@
 :- multifile init/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 init(oddsratio) :-
-	r_init,
+    session_data(init(oddsratio)),
+    !.
 
-    {|r||
-        pi_A <- runif(1, min=0.25, max=0.85)
-        or <- runif(1, min=0.5, max=6)
-
-        odds <- function(p)
-        {
-          p / (1 - p)
-        }
-
-        prob <- function(odds)
-        {
-          odds / (1 + odds)
-        }
-    |}.
+init(oddsratio) :-
+    r(source("oddsratio.R")),
+    session_assert(init(oddsratio)).
 
 %
 % Prettier symbols for mathematical rendering
@@ -39,8 +29,8 @@ mathml:hook(Flags, or, Flags, 'OR').
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
-	R <- Expr,
-	[Res] = R,
+	r(Expr, R),
+	#(Res) = R,
 	number(Res).
 
 render(oddsratio, item(Pi_A, OR), Form) -->
@@ -84,9 +74,9 @@ start(oddsratio, item(pi_A, or)) :-
 
 expert(oddsratio, stage(2), X, Y, [step(expert, odd, [])]) :-
 	X = item(Pi_A, OR),
-	Y = { odds_A = frac(Pi_A, 1 - Pi_A) ;
-          odds_B = odds_A * OR ; 
-          pi_B = frac(odds_B, 1 + odds_B) ; 
+	Y = { '<-'(odds_A, frac(Pi_A, 1 - Pi_A)) ;
+          '<-'(odds_B, odds_A * OR) ; 
+          '<-'(pi_B, frac(odds_B, 1 + odds_B)) ; 
           pi_B 
         }.
 

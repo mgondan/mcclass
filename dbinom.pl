@@ -9,39 +9,20 @@
 :- multifile init/1, data/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 init(dbinom) :-
-    data(dbinom).
+    session_data(init(dbinom)),
+    !.
 
-data(dbinom) :-
-    r_init,
-    {|r||
-        k  <- 14
-	    n  <- 26
-	    p0 <- 0.6
-
-        bernoulli <- function(k, n, p0)
-        {
-          successes(k, p0) * failures(n - k, 1 - p0)
-        }
-
-        successes <- function(k, p0)
-        {
-          p0^k
-        }
-
-        # this may change
-        failures <- function(nk, q0)
-        {
-          q0^nk
-        }
-    |}.
+init(dbinom) :-
+    r(source("dbinom.R")),
+    session_assert(init(dbinom)).
 
 mathml:hook(Flags, n, Flags, 'N').
 mathml:hook(Flags, p0, Flags, pi).
 
 % Render R result - check if this is needed
 mathml:hook(Flags, r(Expr), Flags, Res) :-
-    R <- Expr,
-    [Res] = R,
+    r(Expr, R),
+    #(Res) = R,
     number(Res).
 
 render(dbinom, item(K, N, P0), Form) -->

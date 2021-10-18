@@ -7,24 +7,19 @@
 :- multifile init/1, data/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 init(ztrans) :-
-    data(ztrans).
+    session_data(init(ztrans)),
+    !.
 
-% Niko, schau in tpaired, da siehst Du, wie man daraus später Zufallswerte macht.
-data(ztrans) :-
-    r_init,
-
-    {|r||
-        x <- 88
-        mu <- 100
-        sigma <- 15
-    |}.
+init(ztrans) :-
+    r(source("ztrans.R")),
+    session_assert(init(ztrans)).
 
 mathml:hook(Flags, x, Flags, 'X').
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
-    R <- Expr,
-    [Res] = R,
+    r(Expr, R),
+    #(Res) = R,
     number(Res).
 
 render(ztrans, item(X, Mu, Sigma), Form) -->
@@ -65,8 +60,8 @@ start(ztrans, item(x, mu, sigma)) :-
 
 expert(ztrans, stage(2), From, To, [step(expert, allinone, [])]) :-
     From = item(X, Mu, Sigma),
-    To = { z = frac(X - Mu, Sigma) ;
-           p = pnorm(z) ; 
+    To = { '<-'(z, frac(X - Mu, Sigma)) ;
+           '<-'(p, pnorm(z)) ; 
            p
          }.
 

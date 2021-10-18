@@ -7,40 +7,20 @@
 :- multifile init/1, data/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 init(tpaired) :-
-    data(tpaired).
+    session_data(init(tpaired)),
+    !.
+
+init(tpaired) :-
+    r(source("tpaired.R")),
+    session_assert(init(tpaired)),
+    tmp_file_stream(File, Stream, []),
+    close(Stream),
+    atom_string(File, String),
+    r(tpaired_data(String)),
+    session_assert(download(tpaired, String)).
 
 data(tpaired, File) :-
     session_data(download(tpaired, File)).
-
-data(tpaired) :-
-    r_init,
-
-    {|r||
-        n <- round(runif(1, min=20, max=45))
-        Id <- 1:n
-        T0 <- round(runif(n, min=15, max=40))
-        EOT <- round(T0 + runif(n, min=-10, max=2))
-        data <- data.frame(Id, T0, EOT)
-
-        mu <- round(runif(1, min=2, max=5), 1)
-        t0 <- mean(data$T0)
-        s_t0 <- sd(data$T0)
-        eot <- mean(data$EOT)
-        s_eot <- sd(data$EOT)
-        d <- mean(data$T0 - data$EOT)
-        s_d <- sd(data$T0 - data$EOT)
-
-        tails <- "two-tailed"
-        alpha <- 0.05
-    |},
-
-    r_data_frame_colnames(data, Names),
-    r_data_frame_to_rows(data, row, Rows),
-    Header =.. [row | Names],
-    tmp_file_stream(File, Stream, []),
-    csv_write_stream(Stream, [Header | Rows], [separator(0';), encoding(utf8)]),
-    close(Stream),
-    session_assert(download(tpaired, File)).
 
 %
 % Prettier symbols for mathematical rendering
@@ -56,8 +36,8 @@ mathml:hook(Flags, s2p, Flags, sub(s, "pool")^2).
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
-    R <- Expr,
-    [Res] = R,
+    r(Expr, R),
+    #(Res) = R,
     number(Res).
 
 render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
@@ -83,10 +63,10 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
                     [ "HDRS", "T0", "EOT", \mmlm('D') ],
                     [ [ \mmlm([round(1)], r(t0)),
                         \mmlm([round(1)], r(eot)),
-                        \mmlm([round(1)], r(d)) ],
+                        \mmlm([round(1)], r(d1)) ],
                       [ \mmlm([round(1)], r(s_t0)),
                         \mmlm([round(1)], r(s_eot)),
-                        \mmlm([round(1)], r(s_d)) ]
+                        \mmlm([round(1)], r(s1_d)) ]
                     ])))),
               form(method('POST'),
                   button([ class('btn btn-secondary'), name(download), value(tpaired) ], "Download data"))
@@ -95,7 +75,7 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'),
               [ "Does rfCBT lead to a relevant reduction (i.e., more than ",
-                \mmlm([round(1)], r(mu)),
+                \mmlm([round(1)], mu),
                 " units) in mean HDRS scores between ",
                 "baseline (T0) and End of Treatment (EOT)?"
               ]),

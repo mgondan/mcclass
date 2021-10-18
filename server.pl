@@ -7,6 +7,8 @@
 :- use_module(feedback).
 :- use_module(mathml).
 
+:- debug.
+
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_error)).

@@ -356,6 +356,9 @@ ml(_Flags, sign(=<), X)
 ml(_Flags, sign(>=), X)
  => X = mo(&(ge)).
 
+ml(_Flags, sign(':='), X)
+ => X = mo(&('Assign')).
+
 ml(_Flags, sign(;), X)
  => X = mo(&(semi)).
 
@@ -1480,6 +1483,13 @@ math(Flags, pnorm(Z), New, X)
 math(Flags, '...'(L, U), New, X)
  => New = Flags,
     X = xfx(699, '...', L, U).
+
+%
+% R assignment
+%
+math(Flags, '<-'(L, R), New, X)
+ => New = Flags,
+    X = xfx(700, ':=', L, R).
 
 %
 % Functions like f(x) and f(x; a, b)

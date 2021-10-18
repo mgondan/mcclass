@@ -11,42 +11,20 @@
 :- multifile init/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 init(tgroups) :-
-    data(tgroups).
+    session_data(init(tgroups)),
+    !.
+
+init(tgroups) :-
+    r(source("tgroups.R")),
+    session_assert(init(tgroups)),
+    tmp_file_stream(File, Stream, []),
+    close(Stream),
+    atom_string(File, String),
+    r(tgroups_data(String)),
+    session_assert(download(tgroups, String)).
 
 data(tgroups, File) :-
     session_data(download(tgroups, File)).
-
-data(tgroups) :-
-    r_init,
-
-    {|r||
-	n <- round(runif(1, min=50, max=100))
-        N <- rbinom(n, 1, 0.5)
-        Id <- 1:n
-        B0 <- round(runif(n, min=15, max=40))
-        B1 <- round(runif(n, min=-10, max=2))
-        AV <- round(B0 + B1 * (1 - N))
-        data <- data.frame(Id, N, AV)
-
-        vr <- mean(data[data$N==1, 1])
-        s_vr <- sd(data[data$N==1, 1])
-        box <- mean(data[data$N==0, 1])
-        s_box <- sd(data[data$N==0, 1])
-        n_vr <- nrow(subset(data, N==1))
-        n_box <- nrow(subset(data, N==0))
-
-	tails <- "two-tailed"
-	alpha <- 0.05
-    |},
-
-    r_data_frame_colnames(data, Names),
-    r_data_frame_to_rows(data, row, Rows),
-    Header =.. [row1 | Names],
-    tmp_file_stream(File, Stream, []),
-    csv_write_stream(Stream, [Header | Rows], [separator(0';), encoding(utf8)]),
-    close(Stream),
-    session_assert(download(tgroups, File)).
-
 
 %
 % Prettier symbols for mathematical rendering
@@ -61,8 +39,8 @@ mathml:hook(Flags, s2p, Flags, sub(s, "pool")^2).
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
-    R <- Expr,
-    [Res] = R,
+    r(Expr, R),
+    #(Res) = R,
     number(Res).
 
 render(tgroups, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
