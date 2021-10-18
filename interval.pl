@@ -12,44 +12,44 @@ test :-
         # Classification of intervals by sign (Hickey, Figure 1)
         Mix = function(X)
         {
-            X[1] < 0 & X[2] > 0
+            X[1] < 0 & max(X) > 0
         }
 
         Pos = function(X)
         {
-            X[1] >= 0 & X[2] > 0
+            X[1] >= 0 & max(X) > 0
         }
 
         Pos0 = function(X)
         {
-            X[1] == 0 & X[2] > 0
+            X[1] == 0 & max(X) > 0
         }
 
         Pos1 = function(X)
         {
-            X[1] > 0 & X[2] > 0
+            X[1] > 0 & max(X) > 0
         }
 
         Neg = function(X)
         {
-            X[1] < 0 & X[2] <= 0
+            X[1] < 0 & max(X) <= 0
         }
 
         Neg0 = function(X)
         {
-            X[1] < 0 & X[2] == 0
+            X[1] < 0 & max(X) == 0
         }
 
         Neg1 = function(X)
         {
-            X[1] < 0 & X[2] < 0
+            X[1] < 0 & max(X) < 0
         }
 
         # Typical R functions
         i_sqrt = function(X)
         {
             l = X[1]
-            u = X[2]
+            u = max(X)
   
             list(c(sqrt(l), sqrt(u)))
         }
@@ -57,7 +57,7 @@ test :-
         i_dbinom = function(x, size, prob, log=FALSE)
         {
             l_prob = prob[1]
-            u_prob = prob[2]
+            u_prob = max(prob)
   
             list(c(dbinom(x, size, l_prob, log), dbinom(x, size, u_prob, log)))
         }
@@ -66,9 +66,9 @@ test :-
         i_plus = function(X, Y)
         {
             a = X[1]
-            b = X[2]
+            b = max(X)
             c = Y[1]
-            d = Y[2]
+            d = max(Y)
   
             list(c(a + c, b + d))
         }
@@ -77,7 +77,7 @@ test :-
         i_pos = function(X)
         {
             a = X[1]
-            b = X[2]
+            b = max(X)
   
             list(c(a, b))
         }
@@ -86,9 +86,9 @@ test :-
         i_minus = function(X, Y)
         {
             a = X[1]
-            b = X[2]
+            b = max(X)
             c = Y[1]
-            d = Y[2]
+            d = max(Y)
   
             list(c(a - d, b - c))
         }
@@ -97,7 +97,7 @@ test :-
         i_neg = function(X)
         {
             a = X[1]
-            b = X[2]
+            b = max(X)
   
             list(c(-b, -a))
         }
@@ -106,21 +106,21 @@ test :-
         i_mult = function(X, Y)
         {
             a = X[1]
-            b = X[2]
+            b = max(X)
             c = Y[1]
-            d = Y[2]
+            d = max(Y)
   
-            candidates = c(a * c, a * d, b * c, b * d)
-            list(c(min(candidates), max(candidates)))
+            cand = c(a * c, a * d, b * c, b * d)
+            list(c(min(cand), max(cand)))
         }
 
         # Hickey: Figure 4
         i_div = function(X, Y)
         {
             a = X[1]
-            b = X[2]
+            b = max(X)
             c = Y[1]
-            d = Y[2]
+            d = max(Y)
   
             if(Neg1(X) & Neg0(Y)) # special case of N1 / N
             {
@@ -384,9 +384,10 @@ test :-
     |}.
 
 test :-
-    d <- list(c(3.3, 3.4)),
-    mu <- list(c(2.5, 2.5)),
+    d <- list(c(3.3, 3.4), c(3.3, 3.4)),
+    mu <- list(2.5),
     s <- list(c(1.9, 1.9)),
     n <- list(c(20, 20)),
     r_int(dfrac(d - mu, s / sqrt(n)), Res),
     writeln(Res).
+
