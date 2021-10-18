@@ -1475,6 +1475,13 @@ math(Flags, pnorm(Z), New, X)
     X = fn('Phi', [Z]).
 
 %
+% Intervals
+%
+math(Flags, '...'(L, U), New, X)
+ => New = Flags,
+    X = xfx(699, '...', L, U).
+
+%
 % Functions like f(x) and f(x; a, b)
 %
 ml(Flags, fn(Name, (Args ; Params)), M)
