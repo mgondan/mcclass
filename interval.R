@@ -45,10 +45,23 @@ i_sqrt = function(X)
 
 i_dbinom = function(x, size, prob, log=FALSE)
 {
-  l_prob = prob[1]
-  u_prob = max(prob)
-  
-  list(c(dbinom(x, size, l_prob, log), dbinom(x, size, u_prob, log)))
+  if(max(prob) < x/size)
+  {
+    l_prob = prob[1]
+    u_prob = max(prob)
+    return(list(c(dbinom(x, size, l_prob, log), dbinom(x, size, u_prob, log))))
+  }
+
+  if(prob[1] > x/size)
+  {
+    l_prob = max(prob)
+    u_prob = prob[1]
+    return(list(c(dbinom(x, size, l_prob, log), dbinom(x, size, u_prob, log))))
+  }
+
+  # mixed case
+  r = dbinom(x, size, c(l_prob, x/size, u_prob), log)
+  list(c(min(r), max(r))) 
 }
 
 i_pnorm = function(z)
