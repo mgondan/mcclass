@@ -169,7 +169,7 @@ traps(task(Task, Data)) -->
 % ?- tasks:test.
 %
 test :-
-    test(oddsratio).
+    test(dbinom).
 
 test(Task) :-
     task(Task, TaskData),

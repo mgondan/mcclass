@@ -5,10 +5,16 @@
 :- use_module(session).
 :- use_module(library(http/http_log)).
 
+member_('...'(L, U), R) :-
+    member(#(L, U), R).
+
+member_('...'(M, M), R) :-
+    member(#(M), R).
+
 r_int(Expr, Res) :-
     init,
     r(int(Expr), R),
-    findall('...'(L, U), member(#(L, U), R), Res).
+    findall('...'(L, U), member_('...'(L, U), R), Res).
 
 init :-
     session_data(init(interval)),
