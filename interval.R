@@ -259,6 +259,13 @@ i_div = function(X, Y)
   }
 }
 
+i_pow = function(X, Y)
+{
+  # This works if the exponent is a single integer
+  pw = X^Y
+  list(c(min(pw), max(pw)))
+}
+
 # Combine everything with everything
 outer1 = function(X, FUN, ...)
 {
@@ -320,6 +327,11 @@ o_mult = function(X, Y)
 o_div = function(X, Y)
 {
   outer2(X, Y, FUN=i_div)
+}
+
+o_pow = function(X, Y)
+{
+  outer1(X=X, FUN=i_pow, Y=Y)
 }
 
 i_name = function(X)
@@ -406,6 +418,14 @@ int = function(expr)
     return(eval(as.call(L)))
   }
   
+  if(L1 %in% c('^', '**'))
+  {
+    L[[1]] = quote(o_pow)
+    L[[2]] = call("int", L[[2]])
+#    L[[3]] = call("int", L[[3]])
+    return(eval(as.call(L)))
+  }
+
   if(L1 == '(')
   {
     C = call('int', L[[2]])
