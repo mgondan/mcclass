@@ -1,5 +1,5 @@
-        k  <- 14
-        n  <- 26
+        k  <- 14L
+        n  <- 26L
         p0 <- 0.6
 
         bernoulli <- function(k, n, p0)
