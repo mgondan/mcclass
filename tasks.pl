@@ -1,4 +1,4 @@
-:- module(tasks, [task/2, solution//1, hints//1, wrongs//1, traps//1,
+:- module(tasks, [task/2, feedback//1, solution//1, hints//1, wrongs//1, traps//1,
                   start/2, init/1, data/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3]).
 
 :- use_module(library(http/html_write)).
@@ -39,6 +39,25 @@ task(Task, Data) :-
         wrongall(E_R_F_All), % this needs a better solution
         traps(T)
       ]).
+
+% Give some basic feedback
+feedback(Form) -->
+    { option(resp(R), Form) },
+    html(div(class("card"),
+          [ div(class("card-header text-white bg-secondary"),
+              "Feedback"),
+            div(class("card-body"),
+              p(class("card-text"), "Response: ~p"-[R]))
+          ])).
+
+feedback(_Form) -->
+    html(div(class("card"),
+          [ div(class("card-header text-white bg-secondary"),
+              "Feedback"),
+            div(class("card-body"),
+              p(class("card-text"), "Waiting for response..."))
+          ])).
+
 
 % Solution and correct numerical result
 %
