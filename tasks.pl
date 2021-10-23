@@ -42,12 +42,24 @@ task(Task, Data) :-
 
 % Give some basic feedback
 feedback(Form) -->
-    { option(resp(R), Form) },
+    { option(resp(R), Form),
+      atom_string(R, S),
+      catch(number_chars(_, S), error(syntax_error(_), context(_, _)), fail)
+    },
     html(div(class("card"),
           [ div(class("card-header text-white bg-secondary"),
               "Feedback"),
             div(class("card-body"),
               p(class("card-text"), "Response: ~p"-[R]))
+          ])).
+
+feedback(Form) -->
+    { option(resp(R), Form) },
+    html(div(class("card"),
+          [ div(class("card-header text-white bg-secondary"),
+              "Feedback"),
+            div(class("card-body"),
+              p(class("card-text"), "Response not recognized: ~p"-[R]))
           ])).
 
 feedback(_Form) -->
