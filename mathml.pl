@@ -615,7 +615,7 @@ ml(Flags, number(A), M),
 % format(string(F), '~~~df', D) and then use F in a second format command.
 % Therefore, I format the number with 99 decimals and then truncate the result.
 ml(Flags, number(A), M),
-    option(floor(D), Flags, 2),
+    option(floor(D), Flags),
     D =< 99
  => format(codes(X), '~99f', [A]),
     % Search for the comma
@@ -626,7 +626,7 @@ ml(Flags, number(A), M),
     M = mn(S).
 
 ml(Flags, number(A), M),
-    option(ceiling(D), Flags, 2),
+    option(ceiling(D), Flags),
     D =< 99
  => format(codes(X), '~99f', [A + 1.0*10^(-D)]),
     % Search for the comma
