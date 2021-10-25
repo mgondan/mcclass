@@ -45,14 +45,21 @@ task(Task, Data) :-
 feedback(Task, Form) -->
     { option(resp(R), Form),
       quantity(N, _Opt, R),
-      solution(Task, _Expr-Res/_Flags),
-      matches(N, Res)
+      solution(Task, Expr-Res/Flags),
+      matches(N, Res),
+      colors(Expr, Col),
+      findall(li(FB),
+        ( member(step(_, Name, Args), Flags),
+          feedback(Task, Name, Args, Col, FB)
+        ), Items)
     },
     html(div(class("card"),
           [ div(class("card-header text-white bg-success"),
               "Congratulation"),
             div(class("card-body"),
-              p(class("card-text"), "Correct response!"))
+              [ p(class("card-text"), "Correct response!"),
+                ul(class("card-text"), ul(Items))
+              ])
           ])).
 
 feedback(_Task, Form) -->
