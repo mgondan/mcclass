@@ -29,6 +29,25 @@ complete(Task, omit_right(_Bug, Expr)) :-
     Expr =.. [_Op, L, _R],
     complete(Task, L).
 
+complete(Task, drop_left(_Bug, Expr)) :-
+    !,
+    Expr =.. [_Op, _L, R],
+    complete(Task, R).
+
+complete(Task, drop_right(_Bug, Expr)) :-
+    !,
+    Expr =.. [_Op, L, _R],
+    complete(Task, L).
+
+% The invented parts need to be complete
+complete(Task, invent_left(_Bug, Expr)) :-
+    !,
+    complete(Task, Expr).
+
+complete(Task, invent_right(_Bug, Expr)) :-
+    !,
+    complete(Task, Expr).
+
 % Compounds are complete 
 % - if they haven't been declared as intermediate 
 % - and if all their arguments are complete
