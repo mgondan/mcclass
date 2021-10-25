@@ -1352,6 +1352,25 @@ math(Flags, instead(bug(Bug), Wrong, Correct), New, M),
  => Flags = New,
     M = underbrace(list(space, ["instead of", Correct]), color(Bug, Wrong)).
 
+math(Flags, invent_left(_Bug, Expr), New, M),
+    option(error(ignore), Flags, highlight)
+ => Expr =.. [_Op, _L, R],
+    Flags = New,
+    M = R.
+
+math(Flags, invent_left(bug(Bug), Expr), New, M),
+    option(error(fix), Flags, highlight)
+ => Expr =.. [_Op, _L, R],
+    Flags = New,
+    M = R.
+
+math(Flags, invent_left(bug(_Bug), Expr), New, M),
+    option(error(highlight), Flags, highlight)
+ => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, L, " "],
+    Flags = New,
+    M = list(space, [color(Bug, Expr1), R]).
+
 mathml :- mathml(dfrac(omit_right(bug(bug), overline('D') - mu),
                    sub(s, 'D') / sqrt('N'))).
 
