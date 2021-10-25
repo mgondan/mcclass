@@ -1580,12 +1580,12 @@ math(Flags, '...'(L, U), New, X)
  => New = Flags,
     X = xfx(699, '...', floor(L), ceiling(U)).
 
-math(Flags, floor(L), New, X) :-
+math(Flags, floor(L), New, X)
  => select_option(round(D), Flags, N, 2),
     New = [floor(D) | N],
     X = L.
  
-math(Flags, ceiling(L), New, X) :-
+math(Flags, ceiling(L), New, X)
  => select_option(round(D), Flags, N, 2),
     New = [ceiling(D) | N],
     X = L.
