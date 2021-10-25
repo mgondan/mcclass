@@ -5,7 +5,7 @@
             frac((n_A-1) * v_A + (n_B-1) * v_B, n_A+n_B-2)
         }
 
-        omit_left <- function(bug, expr)
+        omit_left <- drop_left <- function(bug, expr)
         {
             # use third element of [-, A, B]
             eval(substitute(expr)[[3]])
