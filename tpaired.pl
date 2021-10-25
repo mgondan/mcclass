@@ -58,7 +58,7 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
                 div(class("col-6"),
                   \htmltable(
                     [ em("Table 1. "), "Observed HDRS scores at T0, EOT, ",
-                      "and ", \mmlm("T0" - "EOT") ],
+                      "and ", \mmlm('D' = "T0" - "EOT") ],
                     [ "Average", "SD" ],
                     [ "HDRS", "T0", "EOT", \mmlm('D') ],
                     [ [ \mmlm([round(1)], r(t0)),
