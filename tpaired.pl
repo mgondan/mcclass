@@ -219,9 +219,9 @@ hint(tpaired, school2, [N], Col, FB) :-
 % name, bug1.
 buggy(tpaired, stage(2), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
     X = dfrac(D - Mu, S / SQRT_N),
-    DMu = drop_left(bug(bug1), D - Mu),
-    DSN = drop_right(bug(bug1), S / SQRT_N),
-    Y = invent_right(bug(bug1), invent_left(bug(bug1), D - dfrac(DMu, DSN)) / SQRT_N).
+    DD = drop_left(bug(bug1), D - Mu),
+    SS = drop_right(bug(bug1), S / SQRT_N),
+    Y = invent_left(bug(bug1), D - invent_right(bug(bug1), dfrac(DD, SS) / SQRT_N)).
 
 feedback(tpaired, bug1, [D, Mu, S, SQRT_N], Col, FB) :-
     FB = [ "Please do not forget the parentheses around the numerator and ",
