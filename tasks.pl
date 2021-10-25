@@ -7,6 +7,7 @@
 :- use_module(search).
 :- use_module(r).
 :- use_module(interval).
+:- use_module(library(quantity)).
 
 :- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
@@ -43,14 +44,13 @@ task(Task, Data) :-
 % Give some basic feedback
 feedback(Form) -->
     { option(resp(R), Form),
-      atom_string(R, S),
-      catch(number_chars(_, S), error(syntax_error(_), context(_, _)), fail)
+      quantity(N, Opt, R)
     },
     html(div(class("card"),
           [ div(class("card-header text-white bg-secondary"),
               "Feedback"),
             div(class("card-body"),
-              p(class("card-text"), "Response: ~p"-[R]))
+              p(class("card-text"), "Response: ~p, ~p"-[N, Opt]))
           ])).
 
 feedback(Form) -->
