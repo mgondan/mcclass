@@ -1330,7 +1330,7 @@ math(Flags, drop_right(bug(Bug), Expr), New, M),
     Flags = New,
     M = list(space, [L, color(Bug, Expr1)]).
 
-math(Flags, drop_right(bug(Bug), Expr), New, M),
+math(Flags, drop_right(bug(_Bug), Expr), New, M),
     option(error(highlight), Flags, highlight)
  => Expr =.. [_Op, L, _R],
     Flags = New,
