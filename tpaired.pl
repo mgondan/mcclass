@@ -221,7 +221,7 @@ buggy(tpaired, stage(2), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
     X = dfrac(D - Mu, S / SQRT_N),
     DMu = drop_left(bug(bug1), D - Mu),
     DSN = drop_right(bug(bug1), S / SQRT_N),
-    Y = invent_left(bug(bug1), D - invent_right(bug(bug1), dfrac(DMu, DSN) / SQRT_N)).
+    Y = invent_left(bug(bug1), D - dfrac(DMu, DSN) / SQRT_N).
 
 feedback(tpaired, bug1, [D, Mu, S, SQRT_N], Col, FB) :-
     FB = [ "Please do not forget the parentheses around the numerator and ",
