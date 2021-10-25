@@ -497,6 +497,12 @@ int = function(expr)
     return(eval(C))
   }
 
+  if(L1 == 'drop_left')
+  {
+    C = call('int', L[[3]][[3]])
+    return(eval(C))
+  }
+
   if(L1 == 'color')
   {
     C = call('int', L[[3]])
