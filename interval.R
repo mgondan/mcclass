@@ -485,21 +485,39 @@ int = function(expr)
     return(eval(C))
   }
 
-  if(L1 == 'omit_right')
-  {
-    C = call('int', L[[3]][[2]])
-    return(eval(C))
-  }
-
   if(L1 == 'omit_left')
   {
     C = call('int', L[[3]][[3]])
     return(eval(C))
   }
 
+  if(L1 == 'omit_right')
+  {
+    C = call('int', L[[3]][[2]])
+    return(eval(C))
+  }
+
   if(L1 == 'drop_left')
   {
     C = call('int', L[[3]][[3]])
+    return(eval(C))
+  }
+
+  if(L2 == 'drop_right')
+  {
+    C = call('int', L[[3]][[2]])
+    return(eval(C))
+  }
+
+  if(L1 == 'invent_left')
+  {
+    C = call('int', L[[3]])
+    return(eval(C))
+  }
+
+  if(L1 == 'invent_right')
+  {
+    C = call('int', L[[3]])
     return(eval(C))
   }
 
