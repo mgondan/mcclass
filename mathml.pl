@@ -1663,6 +1663,24 @@ bugs_(omit_right(bug(Bug), Expr), List)
     bugs_(L, Bugs),
     List = [Bug | Bugs].
 
+bugs_(drop_left(bug(Bug), Expr), List)
+ => Expr =.. [_Op, _L, R],
+    bugs_(R, Bugs),
+    List = [Bug | Bugs].
+
+bugs_(drop_right(bug(Bug), Expr), List)
+ => Expr =.. [_Op, L, _R],
+    bugs_(L, Bugs),
+    List = [Bug | Bugs].
+
+bugs_(invent_left(bug(Bug), Expr), List)
+ => bugs_(Expr, Bugs),
+    List = [Bug | Bugs].
+
+bugs_(invent_right(bug(Bug), Expr), List)
+ => bugs_(Expr, Bugs),
+    List = [Bug | Bugs].
+
 bugs_(color(Col, Expr), List),
     atom(Col)
  => bugs_(Expr, Bugs),
