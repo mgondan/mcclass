@@ -219,8 +219,7 @@ hint(tpaired, school2, [N], Col, FB) :-
 % name, bug1.
 buggy(tpaired, stage(2), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
     X = dfrac(D - Mu, S / SQRT_N),
-    % DMu = drop_left(bug(bug1), D - Mu),
-    DMu = Mu,
+    DMu = drop_left(bug(bug1), D - Mu),
     % DSN = drop_right(bug(bug1), S / SQRT_N),
     DSN = S,
     Y = D - dfrac(DMu, DSN) / SQRT_N.
