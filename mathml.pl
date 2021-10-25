@@ -1300,11 +1300,6 @@ math(Flags, omit_right(bug(Bug), Expr), New, M),
     Flags = New,
     M = list(space, [L, color(Bug, cancel(color("#000000", Expr1)))]).
 
-math(Flags, instead(_Bug, _Wrong, Correct), New, M),
-    option(error(ignore), Flags, highlight)
- => Flags = New,
-    M = Correct.
-
 math(Flags, drop_left(_Bug, Expr), New, M),
     option(error(ignore), Flags, highlight)
  => Flags = New,
@@ -1322,6 +1317,30 @@ math(Flags, drop_left(bug(_Bug), Expr), New, M),
  => Expr =.. [_Op, _L, R],
     Flags = New,
     M = R.
+
+math(Flags, drop_right(_Bug, Expr), New, M),
+    option(error(ignore), Flags, highlight)
+ => Flags = New,
+    M = Expr.
+
+math(Flags, drop_right(bug(Bug), Expr), New, M),
+    option(error(fix), Flags, highlight)
+ => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, " ", R],
+    Flags = New,
+    M = list(space, [L, color(Bug, box(color("#000000", Expr1)))]).
+
+math(Flags, drop_right(bug(Bug), Expr), New, M),
+    option(error(highlight), Flags, highlight)
+ => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, " ", R],
+    Flags = New,
+    M = list(space, [L, color(Bug, cancel(color("#000000", Expr1)))]).
+
+math(Flags, instead(_Bug, _Wrong, Correct), New, M),
+    option(error(ignore), Flags, highlight)
+ => Flags = New,
+    M = Correct.
 
 math(Flags, instead(bug(Bug), _Wrong, Correct), New, M),
     option(error(fix), Flags, highlight)
