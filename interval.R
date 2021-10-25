@@ -503,7 +503,7 @@ int = function(expr)
     return(eval(C))
   }
 
-  if(L2 == 'drop_right')
+  if(L1 == 'drop_right')
   {
     C = call('int', L[[3]][[2]])
     return(eval(C))
