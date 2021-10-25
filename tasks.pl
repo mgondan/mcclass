@@ -41,7 +41,7 @@ task(Task, Data) :-
         traps(T)
       ]).
 
-% Give some basic feedback
+% Correct response
 feedback(Task, Form) -->
     { option(resp(R), Form),
       quantity(N, _Opt, R),
@@ -58,6 +58,32 @@ feedback(Task, Form) -->
               "Congratulation"),
             div(class("card-body"),
               [ p(class("card-text"), "Correct response!"),
+                ul(class("card-text"), ul(Items))
+              ])
+          ])).
+
+% Buggy response
+feedback(Task, Form) -->
+    { option(resp(R), Form),
+      quantity(N, _Opt, R),
+      wrongall(Task, ERF),
+      member(Expr-Res/Flags, ERF),
+      matches(N, Res),
+      colors(Expr, Col),
+      findall(li(FB),
+        ( member(step(_, Name, Args), Flags),
+          feedback(Task, Name, Args, Col, FB)
+        ), Items)
+    },
+    html(div(class("card"),
+          [ div(class("card-header text-white bg-warning"),
+              "Careful"),
+            div(class("card-body"),
+              [ p(class("card-text"), "This is the correct expression:"),
+                p(class("card-text"), \mmlm([error(fix) | Col], Expr)),
+                p(class("card-text"), "Your response matches the following expression:"),
+                p(class("card-text"), \mmlm([error(highlight) | Col], Expr)),
+                p(class("card-text"), "Please check the following hints:"),
                 ul(class("card-text"), ul(Items))
               ])
           ])).
