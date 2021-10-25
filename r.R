@@ -1,32 +1,42 @@
-        dfrac <- frac <- `/`
+dfrac <- frac <- `/`
 
-        var_pool <- function(v_A, n_A, v_B, n_B)
-        {
-            frac((n_A-1) * v_A + (n_B-1) * v_B, n_A+n_B-2)
-        }
+var_pool <- function(v_A, n_A, v_B, n_B)
+{
+  frac((n_A-1) * v_A + (n_B-1) * v_B, n_A+n_B-2)
+}
 
-        omit_left <- drop_left <- function(bug, expr)
-        {
-            # use third element of [-, A, B]
-            eval(substitute(expr)[[3]])
-        }
+omit_left <- drop_left <- function(bug, expr)
+{
+   # use third element of [-, A, B]
+   eval(substitute(expr)[[3]])
+}
 
-        omit_right <- function(bug, expr)
-        {
-            eval(substitute(expr)[[2]])
-        }
+omit_right <- drop_right <- function(bug, expr)
+{
+  eval(substitute(expr)[[2]])
+}
 
-        instead <- function(bug, inst, of)
-        {
-            return(inst)
-        }
+invent_left <- function(bug, expr)
+{
+  return(expr)
+}
 
-        abbrev <- function(s, expr, text)
-        {
-            return(expr)
-        }
+invent_right <- function(bug, expr)
+{
+  return(expr)
+}
+        
+instead <- function(bug, inst, of)
+{
+  return(inst)
+}
 
-        color <- function(col, expr)
-        {
-            return(expr)
-        }
+abbrev <- function(s, expr, text)
+{
+  return(expr)
+}
+
+color <- function(col, expr)
+{
+   return(expr)
+}
