@@ -625,6 +625,28 @@ ml(Flags, number(A), M),
     string_codes(S, Round),
     M = mn(S).
 
+ml(Flags, number(A), M),
+    option(floor(D), Flags, 2),
+    D =< 99
+ => format(codes(X), '~99f', [A]),
+    % Search for the comma
+    nth1(Dot, X, 46),
+    N is Dot + D,
+    findall(E, (nth1(I, X, E), I =< N), Round),
+    string_codes(S, Round),
+    M = mn(S).
+
+ml(Flags, number(A), M),
+    option(ceiling(D), Flags, 2),
+    D =< 99
+ => format(codes(X), '~99f', [A + 1.0*10^(-D)]),
+    % Search for the comma
+    nth1(Dot, X, 46),
+    N is Dot + D,
+    findall(E, (nth1(I, X, E), I =< N), Round),
+    string_codes(S, Round),
+    M = mn(S).
+
 denoting(_Flags, number(_), D)
  => D = [].
 
@@ -1556,8 +1578,18 @@ math(Flags, pnorm(Z), New, X)
 %
 math(Flags, '...'(L, U), New, X)
  => New = Flags,
-    X = xfx(699, '...', L, U).
+    X = xfx(699, '...', floor(L), ceiling(U)).
 
+math(Flags, floor(L), New, X) :-
+ => select_option(round(D), Flags, N, 2),
+    New = [floor(D) | N],
+    X = L.
+ 
+math(Flags, ceiling(L), New, X) :-
+ => select_option(round(D), Flags, N, 2),
+    New = [ceiling(D) | N],
+    X = L.
+ 
 %
 % R assignment
 %
