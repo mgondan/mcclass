@@ -1,5 +1,5 @@
 % Interval arithmetics in R
-:- module(interval, [r_int/2]).
+:- module(interval, [r_int/2, matches/2]).
 
 :- reexport(r).
 :- use_module(session).
@@ -15,6 +15,13 @@ r_int(Expr, Res) :-
     init,
     r(int(Expr), R),
     findall('...'(L, U), member_('...'(L, U), R), Res).
+
+matches(Number, ['...'(L, U) | _]) :-
+    L =< Number,
+    Number =< U.
+
+matches(Number, [_ | T]) :-
+    matches(Number, T).
 
 init :-
     session_data(init(interval)),

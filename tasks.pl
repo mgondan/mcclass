@@ -1,4 +1,4 @@
-:- module(tasks, [task/2, feedback//1, solution//1, hints//1, wrongs//1, traps//1,
+:- module(tasks, [task/2, feedback//2, solution//1, hints//1, wrongs//1, traps//1,
                   start/2, init/1, data/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3]).
 
 :- use_module(library(http/html_write)).
@@ -42,7 +42,20 @@ task(Task, Data) :-
       ]).
 
 % Give some basic feedback
-feedback(Form) -->
+feedback(Task, Form) -->
+    { option(resp(R), Form),
+      quantity(N, _Opt, R),
+      solution(Task, _Expr-Res/_Flags),
+      matches(N, Res)
+    },
+    html(div(class("card"),
+          [ div(class("card-header text-white bg-success"),
+              "Congratulation"),
+            div(class("card-body"),
+              p(class("card-text"), "Correct response!"))
+          ])).
+
+feedback(_Task, Form) -->
     { option(resp(R), Form),
       quantity(N, Opt, R)
     },
@@ -50,10 +63,10 @@ feedback(Form) -->
           [ div(class("card-header text-white bg-secondary"),
               "Feedback"),
             div(class("card-body"),
-              p(class("card-text"), "Response: ~p, ~p"-[N, Opt]))
+              p(class("card-text"), "Response: ~p ~p"-[N, Opt]))
           ])).
 
-feedback(Form) -->
+feedback(_Task, Form) -->
     { option(resp(R), Form) },
     html(div(class("card"),
           [ div(class("card-header text-white bg-secondary"),
@@ -62,14 +75,13 @@ feedback(Form) -->
               p(class("card-text"), "Response not recognized: ~p"-[R]))
           ])).
 
-feedback(_Form) -->
+feedback(_Task, _Form) -->
     html(div(class("card"),
           [ div(class("card-header text-white bg-secondary"),
               "Feedback"),
             div(class("card-body"),
               p(class("card-text"), "Waiting for response..."))
           ])).
-
 
 % Solution and correct numerical result
 %
