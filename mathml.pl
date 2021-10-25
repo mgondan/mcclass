@@ -1358,13 +1358,13 @@ math(Flags, invent_left(_Bug, Expr), New, M),
     Flags = New,
     M = R.
 
-math(Flags, invent_left(bug(Bug), Expr), New, M),
+math(Flags, invent_left(bug(_Bug), Expr), New, M),
     option(error(fix), Flags, highlight)
  => Expr =.. [_Op, _L, R],
     Flags = New,
     M = R.
 
-math(Flags, invent_left(bug(_Bug), Expr), New, M),
+math(Flags, invent_left(bug(Bug), Expr), New, M),
     option(error(highlight), Flags, highlight)
  => Expr =.. [Op, L, R],
     Expr1 =.. [Op, L, " "],
