@@ -1319,7 +1319,7 @@ math(Flags, drop_left(bug(Bug), Expr), New, M),
 
 math(Flags, drop_left(bug(Bug), Expr), New, M),
     option(error(highlight), Flags, highlight)
- => Expr =.. [Op, L, R],
+ => Expr =.. [_Op, _L, R],
     Flags = New,
     M = R.
 
