@@ -62,6 +62,22 @@ expert(omit_right(_, _)) :-
     !,
     fail.
 
+expert(drop_left(_, _)) :-
+    !,
+    fail.
+
+expert(drop_right(_, _)) :-
+    !,
+    fail.
+
+expert(invent_left(_, _)) :-
+    !,
+    fail.
+
+expert(invent_right(_, _)) :-
+    !,
+    fail.
+
 expert(Term) :-
     compound(Term),
     Term =.. [_ | Args],
