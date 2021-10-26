@@ -1,4 +1,4 @@
-% swipl server.pl --port=8001 --pidfile=http.pid
+% swipl server.pl --port=8001 --workers=10 --pidfile=http.pid
 
 :- use_module(library(dcg/basics)).
 :- use_module(tasks).
