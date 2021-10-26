@@ -51,14 +51,14 @@ i_dbinom = function(x, size, prob, log=FALSE)
     u_prob = max(prob)
     return(list(c(dbinom(x, size, l_prob, log), dbinom(x, size, u_prob, log))))
   }
-
+  
   if(prob[1] > x/size)
   {
     l_prob = max(prob)
     u_prob = prob[1]
     return(list(c(dbinom(x, size, l_prob, log), dbinom(x, size, u_prob, log))))
   }
-
+  
   # mixed case
   r = dbinom(x, size, c(l_prob, x/size, u_prob), log)
   list(c(min(r), max(r))) 
@@ -68,7 +68,7 @@ i_pnorm = function(z)
 {
   l = z[1]
   u = max(z)
-
+  
   list(c(pnorm(l), pnorm(u)))
 }
 
@@ -338,7 +338,7 @@ i_name = function(X)
 {
   l = X[1]
   u = max(X)
-
+  
   list(c(l, u))
 }
 
@@ -351,7 +351,7 @@ i_numeric = function(X)
 {
   l = X[1]
   u = max(X)
-
+  
   list(c(l, u))
 }
 
@@ -365,18 +365,18 @@ int = function(expr)
 {
   if(is.name(substitute(expr)))
     return(o_name(expr))
-
+  
   if(is.numeric(substitute(expr)))
     return(o_numeric(expr))
-
+  
   L = as.list(substitute(expr))
   L1 = as.character(L[[1]])
-
+  
   if(L1 == '+' & length(L) == 2)
   {
     L[[1]] = quote(o_pos)
     L[[2]] = call("int", L[[2]])
-    return(eval(as.call(L)))
+    return(eval(as.call(L), envir=parent.frame()))
   }
   
   if(L1 == '+')
@@ -384,14 +384,14 @@ int = function(expr)
     L[[1]] = quote(o_plus)
     L[[2]] = call("int", L[[2]])
     L[[3]] = call("int", L[[3]])
-    return(eval(as.call(L)))
+    return(eval(as.call(L), envir=parent.frame()))
   }
   
   if(L1 == '-' & length(L) == 2)
   {
     L[[1]] = quote(o_neg)
     L[[2]] = call("int", L[[2]])
-    return(eval(as.call(L)))
+    return(eval(as.call(L), envir=parent.frame()))
   }
   
   if(L1 == '-')
@@ -399,7 +399,7 @@ int = function(expr)
     L[[1]] = quote(o_minus)
     L[[2]] = call("int", L[[2]])
     L[[3]] = call("int", L[[3]])
-    return(eval(as.call(L)))
+    return(eval(as.call(L), envir=parent.frame()))
   }
   
   if(L1 == '*')
@@ -407,7 +407,7 @@ int = function(expr)
     L[[1]] = quote(o_mult)
     L[[2]] = call("int", L[[2]])
     L[[3]] = call("int", L[[3]])
-    return(eval(as.call(L)))
+    return(eval(as.call(L), envir=parent.frame()))
   }
   
   if(L1 %in% c('/', 'frac', 'dfrac'))
@@ -415,30 +415,30 @@ int = function(expr)
     L[[1]] = quote(o_div)
     L[[2]] = call("int", L[[2]])
     L[[3]] = call("int", L[[3]])
-    return(eval(as.call(L)))
+    return(eval(as.call(L), envir=parent.frame()))
   }
   
   if(L1 %in% c('^', '**'))
   {
     L[[1]] = quote(o_pow)
     L[[2]] = call("int", L[[2]])
-#    L[[3]] = call("int", L[[3]])
-    return(eval(as.call(L)))
+    #    L[[3]] = call("int", L[[3]])
+    return(eval(as.call(L), envir=parent.frame()))
   }
-
+  
   if(L1 == '(')
   {
     C = call('int', L[[2]])
-    return(eval(C))
+    return(eval(as.call(C, envir=parent.frame())))
   }
   
   if(L1 == '{')
   {
     if(length(L) > 2)
       for(i in 2:(length(L)-1))
-        eval(call('int', L[[i]]))
+        eval(call('int', L[[i]]), envir=parent.frame())
     
-    return(eval(call('int', L[[length(L)]])))
+    return(eval(call('int', L[[length(L)]]), envir=parent.frame()))
   }
   
   if(L1 %in% c('<-', '='))
@@ -462,70 +462,82 @@ int = function(expr)
   {
     L[[1]] = quote(o_sqrt)
     L[[2]] = call('int', L[[2]])
-    return(eval(as.call(L)))
+    return(eval(as.call(L), envir=parent.frame()))
   }
   
   if(L1 == 'dbinom')
   {
     L[[1]] = quote(o_dbinom)
     L$prob = call('int', L$prob)
-    return(eval(as.call(L)))
+    return(eval(as.call(L), envir=parent.frame()))
   }
-
+  
   if(L1 == 'pnorm')
   {
     L[[1]] = quote(o_pnorm)
     L[[2]] = call('int', L[[2]])
-    return(eval(as.call(L)))
+    return(eval(as.call(L), envir=parent.frame()))
   }
-
+  
   if(L1 == 'instead')
   {
     C = call('int', L[[3]])
-    return(eval(C))
+    return(eval(C, envir=parent.frame()))
   }
-
+  
   if(L1 == 'omit_left')
   {
     C = call('int', L[[3]][[3]])
-    return(eval(C))
+    return(eval(C, envir=parent.frame()))
   }
-
+  
   if(L1 == 'omit_right')
   {
     C = call('int', L[[3]][[2]])
-    return(eval(C))
+    return(eval(C, envir=parent.frame()))
   }
-
+  
   if(L1 == 'drop_left')
   {
     C = call('int', L[[3]][[3]])
-    return(eval(C))
+    return(eval(C, envir=parent.frame()))
   }
-
+  
   if(L1 == 'drop_right')
   {
     C = call('int', L[[3]][[2]])
-    return(eval(C))
+    return(eval(C, envir=parent.frame()))
   }
-
+  
   if(L1 == 'invent_left')
   {
     C = call('int', L[[3]])
-    return(eval(C))
+    return(eval(C, envir=parent.frame()))
   }
-
+  
   if(L1 == 'invent_right')
   {
     C = call('int', L[[3]])
-    return(eval(C))
+    return(eval(C, envir=parent.frame()))
   }
-
+  
   if(L1 == 'color')
   {
     C = call('int', L[[3]])
-    return(eval(C))
+    return(eval(C, envir=parent.frame()))
   }
   
   eval(expr)
 }
+
+# default_session = new.env()
+#
+# with(default_session,
+# {
+#   d = list(c(3.3, 3.4), c(3.3, 3.4))
+#   mu = list(2.5)
+#   s = list(c(1.9, 1.9))
+#   n = list(c(20, 20))
+# })
+#
+# with(default_session, int(dfrac(d - mu, s / sqrt(n))))

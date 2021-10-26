@@ -123,7 +123,7 @@ feedback(_Task, _Form) -->
 % we allow, e.g., tasks with multiple correct solutions.
 solution(Task, Expr-Res/Flags) :-
     once(search(Task, Expr, Flags)),
-    r_int(Expr, Res).
+    r_session_int(Expr, Res).
 
 % Pretty print
 solution(task(_Task, Data)) -->

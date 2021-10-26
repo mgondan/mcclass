@@ -7,18 +7,13 @@
 :- multifile init/1, data/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 init(ztrans) :-
-    session_data(init(ztrans)),
-    !.
-
-init(ztrans) :-
-    r(source("ztrans.R")),
-    session_assert(init(ztrans)).
+    r_session_source(ztrans).
 
 mathml:hook(Flags, x, Flags, 'X').
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
-    r(Expr, R),
+    r_session(Expr, R),
     #(Res) = R,
     number(Res).
 

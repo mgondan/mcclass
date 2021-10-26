@@ -9,19 +9,14 @@
 :- multifile init/1, data/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 init(dbinom) :-
-    session_data(init(dbinom)),
-    !.
-
-init(dbinom) :-
-    r(source("dbinom.R")),
-    session_assert(init(dbinom)).
+    r_session_source(dbinom).
 
 mathml:hook(Flags, n, Flags, 'N').
 mathml:hook(Flags, p0, Flags, pi).
 
 % Render R result - check if this is needed
 mathml:hook(Flags, r(Expr), Flags, Res) :-
-    r(Expr, R),
+    r_session(Expr, R),
     #(Res) = R,
     number(Res).
 

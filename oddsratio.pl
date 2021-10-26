@@ -11,12 +11,7 @@
 :- multifile init/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 init(oddsratio) :-
-    session_data(init(oddsratio)),
-    !.
-
-init(oddsratio) :-
-    r(source("oddsratio.R")),
-    session_assert(init(oddsratio)).
+    r_session_source(oddsratio).
 
 %
 % Prettier symbols for mathematical rendering
@@ -29,7 +24,7 @@ mathml:hook(Flags, or, Flags, 'OR').
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
-	r(Expr, R),
+	r_session(Expr, R),
 	#(Res) = R,
 	number(Res).
 

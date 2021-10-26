@@ -6,8 +6,7 @@
 :- use_module(search).
 :- use_module(feedback).
 :- use_module(mathml).
-
-:- debug.
+:- use_module(session).
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
@@ -17,7 +16,6 @@
 :- use_module(library(http/http_files)).
 :- use_module(library(http/http_unix_daemon)).
 :- use_module(library(http/http_parameters)).
-:- use_module(library(http/http_session)).
 :- use_module(library(http/http_wrapper)).
 
 :- initialization http_daemon.
