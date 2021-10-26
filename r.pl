@@ -1,7 +1,7 @@
 :- module(r, 
   [ r/1, r/2, r//1, 
-    r_session_new/0, 
-    r_session_close/0, 
+    r_session_begin/0, 
+    r_session_end/0, 
     r_session/1, 
     r_session/2,
     r_session//1,
@@ -10,6 +10,8 @@
 
 :- use_module(library(rologp)).
 :- use_module(session).
+:- use_module(library(http/http_session)).
+:- use_module(library(http/http_log)).
 
 % Call R
 r(Expr) :-
@@ -28,12 +30,30 @@ r(Expr) -->
     html(S).
 
 % Evaluate R expressions in the current http_session
-r_session_new :-
-    session_id(Id),
-    r_call('<-'(Id, 'new.env'())).
+:- listen(http_session(begin(Id, _Peer)), r_session_begin(Id)).
 
-r_session_close :-
+r_session_begin :-
     session_id(Id),
+    r_session_begin(Id).
+
+% Avoid calling twice in case of redirection (see_other)
+r_session_begin(_Id) :-
+    session_data(session),
+    !.
+
+r_session_begin(Id) :-
+    http_log("begin session ~w~n", [Id]),
+    r_call('<-'(Id, 'new.env'())),
+    session_assert(session).
+
+:- listen(http_session(end(Id, _Peer)), r_session_end(Id)).
+
+r_session_end :-
+    session_id(Id),
+    r_session_end(Id).
+
+r_session_end(Id) :-
+    http_log("end session ~w~n", [Id]),
     r_call(rm(Id)).
 
 r_session(Expr) :-
@@ -65,7 +85,7 @@ init :-
 
 init :-
     r_call(source("r.R")),
-    r_session_new,
+    r_session_begin,
     session_assert(r).
 
 test :-
@@ -78,5 +98,6 @@ test :-
    writeln(session(a)=S),
    r_session_source(tpaired),
    r_session(mu, M),
-   writeln(session(mu)=M).
+   writeln(session(mu)=M),
+   r_session_end.
 
