@@ -11,10 +11,26 @@ session_assert(Data) :-
 session_assert(Data) :-
     assert(session_data(Data)).
 
+session_retract(Data) :-
+    http_in_session(_),
+    !,
+    http_session_retract(Data).
+
+session_retract(Data) :-
+    retract(session_data(Data)).
+
 session_data(Data) :-
     http_in_session(_),
     !,
     http_session_data(Data).
+
+:- listen(http_session(end(_Id, _Peer)), session_end).
+
+session_end :-
+    session_data(tmp(File)),
+    delete_file(File),
+    session_retract(tmp(File)),
+    fail.
 
 session_id(Id) :-
     http_in_session(S),

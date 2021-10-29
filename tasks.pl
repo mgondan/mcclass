@@ -181,7 +181,7 @@ wrong(task(Task, Data), Expr-_Res/Flags, Items) :-
 wrongs(task(Task, Data)) -->
     { member(wrong(Expr_Res_Flags), Data),
       findall(
-        li([ \mmlm(Col, E = R), ul(FB) ]), 
+        li([ \mmlm([error(highlight) | Col], E = R), ul(FB) ]), 
         ( member(E-R/F, Expr_Res_Flags),
           colors(E, Col),
           wrong(task(Task, Data), E-R/F, FB)

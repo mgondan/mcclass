@@ -42,7 +42,6 @@ r_session_begin(_Id) :-
     !.
 
 r_session_begin(Id) :-
-    http_log("begin session ~w~n", [Id]),
     r_call('<-'(Id, 'new.env'())),
     session_assert(session).
 
@@ -53,7 +52,6 @@ r_session_end :-
     r_session_end(Id).
 
 r_session_end(Id) :-
-    http_log("end session ~w~n", [Id]),
     r_call(rm(Id)).
 
 r_session(Expr) :-
