@@ -1051,7 +1051,7 @@ ml(Flags, #(Cells), M)
     M = mtr(X).
 
 paren(Flags, #(Cells), Paren)
- => maparg(paren(Flags), Cells, Ps),
+ => mapargs(paren(Flags), Cells, Ps),
     max_list(Ps, Paren).
 
 % with attributes (e.g., mathbackground(blue))
@@ -1061,7 +1061,7 @@ ml(Flags, #(Options, Cells), M)
     M = mtr(Options, X).
 
 paren(Flags, #(_Options, Cells), Paren)
- => maparg(paren(Flags), Cells, Ps),
+ => mapargs(paren(Flags), Cells, Ps),
     max_list(Ps, Paren).
 
 %
