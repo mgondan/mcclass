@@ -65,10 +65,10 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'),
-              [ "Does rfCBT lead to a relevant reduction (i.e., more than ",
-                \mmlm([round(1)], mu = r(mu)),
-                " units) in mean HDRS scores between ",
-                "baseline (T0) and End of Treatment (EOT)?"
+              [ "Does rfCBT lead to a relevant reduction (i.e., more ",
+                "than ", \mmlm([round(1)], mu = r(mu)), " units) in mean HDRS ",
+                "scores between baseline (T0) and End of Treatment (EOT)? ",
+                "Please report the ", \mmlm(hyph(t, "ratio."))
               ]),
             form([class(form), method('POST'), action('#tpaired-tratio')],
               [ div(class("input-group mb-3"),
