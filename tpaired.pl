@@ -9,11 +9,9 @@
 init(tpaired) :-
     r_session_source(tpaired).
 
-data(tpaired, String) :-
-    tmp_file_stream(File, Stream, []),
-    close(Stream),
-    atom_string(File, String),
-    r_session(tpaired_data(String)).
+data(tpaired, File) :-
+    session_tmpfile(File),
+    r_session(tpaired_data(File)).
 
 %
 % Prettier symbols for mathematical rendering

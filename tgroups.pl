@@ -13,11 +13,9 @@
 init(tgroups) :-
     r_session_source(tgroups).
 
-data(tgroups, String) :-
-    tmp_file_stream(File, Stream, []),
-    close(Stream),
-    atom_string(File, String),
-    r_session(tgroups_data(String)).
+data(tgroups, File) :-
+    session_tmpfile(File),
+    r_session(tgroups_data(File)).
 
 %
 % Prettier symbols for mathematical rendering
