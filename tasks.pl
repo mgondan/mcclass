@@ -16,6 +16,7 @@
 :- consult(tgroups).
 :- consult(ztrans).
 :- consult(dbinom).
+:- consult(qbinom).
 
 % Gather useful information
 %
