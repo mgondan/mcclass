@@ -18,6 +18,8 @@
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/http_wrapper)).
 
+:- set_prolog_flag(backtrace_goal_depth, 10).
+:- debug.
 :- initialization http_daemon.
 
 :- dynamic http:location/3.
