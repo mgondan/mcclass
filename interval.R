@@ -64,6 +64,12 @@ i_dbinom = function(x, size, prob, log=FALSE)
   list(c(min(r), max(r))) 
 }
 
+i_qbinom = function(x, size, prob, lower.tail)
+{
+    r = qbinom(x, size, prob, lower.tail)
+    list(c(min(r), max(r)))
+}
+
 i_pnorm = function(z)
 {
   l = z[1]
@@ -294,6 +300,11 @@ o_dbinom = function(x, size, prob, log=FALSE)
   outer1(X=prob, FUN=i_dbinom, x=x, size=size, log=log)
 }
 
+o_qbinom = function(x, size, prob, lower.tail=TRUE)
+{
+  outer1(X=prob, FUN=i_qbinom, x=x, size=size, lower.tail=lower.tail)
+}
+
 o_pnorm = function(z)
 {
   outer1(z, FUN=i_pnorm)
@@ -471,7 +482,14 @@ int = function(expr)
     L$prob = call('int', L$prob)
     return(eval(as.call(L), envir=parent.frame()))
   }
-  
+ 
+  if(L1 == 'qbinom'
+  {
+    L[[1]] = quote(o_qbinom)
+    L$prob = call('int', L$prob)
+    return(eval(as.call(L), envir=parent.frame()))
+  }
+
   if(L1 == 'pnorm')
   {
     L[[1]] = quote(o_pnorm)
