@@ -25,6 +25,6 @@ alpha <- 0.05
 # Export data for download
 tpaired_data = function(fname)
 {
-    write.csv2(data, fname)
+    write.csv2(data, fname, row.names=FALSE)
 }
 

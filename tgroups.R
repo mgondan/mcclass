@@ -19,6 +19,6 @@
 
 tgroups_data = function(fname)
 {
-    write.csv2(data, fname)
+    write.csv2(data, fname, row.names=FALSE)
 }
 
