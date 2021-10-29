@@ -483,7 +483,7 @@ int = function(expr)
     return(eval(as.call(L), envir=parent.frame()))
   }
  
-  if(L1 == 'qbinom'
+  if(L1 == 'qbinom')
   {
     L[[1]] = quote(o_qbinom)
     L$prob = call('int', L$prob)
