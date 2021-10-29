@@ -64,15 +64,15 @@ i_dbinom = function(x, size, prob, log=FALSE)
   list(c(min(r), max(r))) 
 }
 
-i_qbinom = function(x, size, prob)
+i_qbinom = function(q, size, prob)
 {
-    r = qbinom(x, size, prob)
+    r = qbinom(q, size, prob)
     list(c(min(r), max(r)))
 }
 
-i_uqbinom = function(x, size, prob)
+i_uqbinom = function(q, size, prob)
 {
-    r = qbinom(x, size, prob, lower.tail=FALSE) + 1
+    r = qbinom(q, size, prob, lower.tail=FALSE) + 1
     list(c(min(r), max(r)))
 }
 
@@ -311,9 +311,9 @@ o_qbinom = function(x, size, prob)
   outer1(X=prob, FUN=i_qbinom, x=x, size=size)
 }
 
-o_uqbinom = function(x, size, prob)
+o_uqbinom = function(q, size, prob)
 {
-  outer1(X=prob, FUN=i_uqbinom, x=x, size=size)
+  outer1(X=prob, FUN=i_uqbinom, q=q, size=size)
 }
 
 o_pnorm = function(z)
