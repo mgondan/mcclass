@@ -5,6 +5,7 @@
 
 :- discontiguous mathml/0, current/3, paren/3, prec/3, type/3, denoting/3, ml/3, math/4.
 :- use_module(library(http/html_write)).
+:- use_module(library(lists)).
 
 %
 % mathml/0: Show the examples
