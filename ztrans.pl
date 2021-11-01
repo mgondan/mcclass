@@ -13,8 +13,7 @@ mathml:hook(Flags, x, Flags, 'X').
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
-    r_session(Expr, R),
-    #(Res) = R,
+    r_session(Expr, Res),
     number(Res).
 
 render(ztrans, item(X, Mu, Sigma), Form) -->

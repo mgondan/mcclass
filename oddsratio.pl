@@ -24,8 +24,7 @@ mathml:hook(Flags, or, Flags, 'OR').
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
-	r_session(Expr, R),
-	#(Res) = R,
+	r_session(Expr, Res),
 	number(Res).
 
 render(oddsratio, item(Pi_A, OR), Form) -->

@@ -27,8 +27,7 @@ mathml:hook(Flags, s2p, Flags, sub(s, "pool")^2).
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
-    r_session(Expr, R),
-    #(Res) = R,
+    r_session(Expr, Res),
     number(Res).
 
 render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->

@@ -9,7 +9,8 @@ member_('...'(L, U), R) :-
     member(#(L, U), R).
 
 member_('...'(M, M), R) :-
-    member(#(M), R).
+    member(M, R), 
+    number(M).
 
 r_session_int(Expr, Res) :-
     init,
