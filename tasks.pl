@@ -47,7 +47,7 @@ feedback(Task, Form) -->
     { option(resp(R), Form),
       quantity(N, _Opt, R),
       solution(Task, Expr-Res/Flags),
-      matches(N, Res),
+      int(pl, N =@= Res, _),
       colors(Expr, Col),
       findall(li(FB),
         ( member(step(_, Name, Args), Flags),
@@ -69,7 +69,7 @@ feedback(Task, Form) -->
       quantity(N, _Opt, R),
       wrongall(Task, ERF),
       member(Expr-Res/Flags, ERF),
-      matches(N, Res),
+      int(pl, N =@= Res, _),
       colors(Expr, Col),
       findall(li(FB),
         ( member(step(_, Name, Args), Flags),
@@ -124,7 +124,7 @@ feedback(_Task, _Form) -->
 % we allow, e.g., tasks with multiple correct solutions.
 solution(Task, Expr-Res/Flags) :-
     once(search(Task, Expr, Flags)),
-    r_session_int(Expr, Res).
+    int(pl, Expr, Res). % todo: session
 
 % Pretty print
 solution(task(_Task, Data)) -->
@@ -246,7 +246,7 @@ traps(task(Task, Data)) -->
 % ?- tasks:test.
 %
 test :-
-    test(dbinom).
+    test(oddsratio).
 
 test(Task) :-
     task(Task, TaskData),

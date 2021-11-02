@@ -25,6 +25,18 @@ mathml:hook(Flags, eot, Flags, overline("EOT")).
 mathml:hook(Flags, s_eot, Flags, sub(s, "EOT")).
 mathml:hook(Flags, s2p, Flags, sub(s, "pool")^2).
 
+% R definitions
+interval:hook(pl, var_pool(N1, V1, N2, V2), r(var_pool(N1, V1, N2, V2))).
+
+interval:hook(pl, d, r(d)).
+interval:hook(pl, mu, r(mu)).
+interval:hook(pl, s_d, r(s_d)).
+interval:hook(pl, n, r(n)).
+interval:hook(pl, t0, r(t0)).
+interval:hook(pl, s_t0, r(s_t0)).
+interval:hook(pl, eot, r(eot)).
+interval:hook(pl, s_eot, r(s_eot)).
+
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
     r_session(Expr, Res),

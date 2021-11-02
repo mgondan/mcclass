@@ -22,6 +22,15 @@ mathml:hook(Flags, pi_B, Flags, sub(pi, "B")).
 mathml:hook(Flags, odds_B, Flags, sub(odds, "B")).
 mathml:hook(Flags, or, Flags, 'OR').
 
+%
+% R constants
+%
+interval:hook(pl, odds_A, r(odds_A)).
+interval:hook(pl, pi_A, r(pi_A)).
+interval:hook(pl, pi_B, r(pi_B)).
+interval:hook(pl, or, r(or)).
+interval:hook(pl, odds_B, r(odds_B)).
+
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
 	r_session(Expr, Res),

@@ -5,14 +5,21 @@
 :- use_module(table).
 :- use_module(r).
 :- use_module(mathml).
+:- use_module(interval).
 
 :- multifile init/1, data/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 init(dbinom) :-
     r_session_source(dbinom).
 
+% Render symbols
 mathml:hook(Flags, n, Flags, 'N').
 mathml:hook(Flags, p0, Flags, pi).
+
+% R definitions
+interval:hook(pl, n, r(n)).
+interval:hook(pl, k, r(k)).
+interval:hook(pl, p0, r(p0)).
 
 % Render R result - check if this is needed
 mathml:hook(Flags, r(Expr), Flags, Res) :-
