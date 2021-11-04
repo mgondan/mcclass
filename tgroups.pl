@@ -28,6 +28,14 @@ mathml:hook(Flags, box, Flags, overline("BOX")).
 mathml:hook(Flags, s_box, Flags, sub(s, "BOX")).
 mathml:hook(Flags, s2p, Flags, sub(s, "pool")^2).
 
+% Obtain information from R
+interval:hook(pl, n_vr, r(n_vr)).
+interval:hook(pl, n_box, r(n_box)).
+interval:hook(pl, vr, r(vr)).
+interval:hook(pl, s_vr, r(s_vr)).
+interval:hook(pl, box, r(box)).
+interval:hook(pl, s_box, r(s_box)).
+
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
     r_session(Expr, Res),
