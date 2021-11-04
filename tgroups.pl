@@ -213,14 +213,14 @@ buggy(tgroups, stage(1), X, Y, [step(buggy, bug1, [T0, EOT, P, N_T0, N_EOT])]) :
 feedback(tgroups, bug1, [T0, EOT, P, N_T0, N_EOT], Col, FB) :-
 	FB = [ "Please do not forget the parentheses around the numerator and ",
 	       "the denominator of a fraction, ", 
-	       \mmlm([error(ignore) | Col], dfrac(color(bug1, paren(color("#000000", T0 - EOT))), 
+	       \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", T0 - EOT))), 
 	       sqrt(color(bug1, color("#000000", P)) * color(bug1, paren(color("#000000", 1/N_T0 + 1/N_EOT)))))) 
 	     ].
 
 hint(tgroups, bug1, [T0, EOT, P, N_T0, N_EOT], Col, FB) :-
 	FB = [ "Remember to use parenthesis. The correct formula for the",
 	       \mmlm(Col, hyph(t, "ratio")), "is ", 
-	       \mmlm([error(ignore) | Col], dfrac(color(bug1, paren(color("#000000", T0 - EOT))), 
+	       \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", T0 - EOT))), 
 	       sqrt(color(bug1, color("#000000", P)) * color(bug1, paren(color("#000000", 1/N_T0 + 1/N_EOT)))))) 
 	     ].
 
@@ -230,13 +230,13 @@ buggy(tgroups, stage(2), X, Y, [step(buggy, scb1, [P, N_T0, N_EOT])]) :-
 	Y = P * color(scb1, 1) / color(scb1, N_T0) + color(scb1, N_EOT).
 
 feedback(tgroups, scb1, [P, N_T0, N_EOT], Col, FB) :-
-	FB = [ "Please do not forget school math ", \mmlm([error(ignore) | Col],
+	FB = [ "Please do not forget school math ", \mmlm([error(correct) | Col],
 	       P * 1 / color("#000000", N_T0) + color("#000000", N_EOT) 
 	       =\= P * (frac(1, color("#000000", N_T0)) + frac(1, color("#000000", N_EOT)))) 
 	     ].
 
 hint(tgroups, scb1, [P, N_T0, N_EOT], Col, FB) :-
-	FB = [ "Please do not forget school math",  \mmlm([error(ignore) | Col], 
+	FB = [ "Please do not forget school math",  \mmlm([error(correct) | Col], 
 	       P * 1 / color("#000000", N_T0) + color("#000000", N_EOT)
 	       =\= frac(1, color("#000000", N_T0)) + frac(1, color("#000000", N_EOT))) 
 	     ].

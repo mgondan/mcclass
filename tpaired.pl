@@ -228,13 +228,13 @@ buggy(tpaired, stage(2), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
 feedback(tpaired, bug1, [D, Mu, S, SQRT_N], Col, FB) :-
     FB = [ "Please do not forget the parentheses around the numerator and ",
            "the denominator of a fraction, ", 
-           \mmlm([error(ignore) | Col], dfrac(color(bug1, paren(color("#000000", D - Mu))), color(bug1, paren(color("#000000", S / SQRT_N))))) 
+           \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", D - Mu))), color(bug1, paren(color("#000000", S / SQRT_N))))) 
          ].
 
 hint(tpaired, bug1, [D, Mu, S, SQRT_N], Col, FB) :-
     FB = [ "Do not forget the parentheses around the numerator and ",
            "the denominator of a fraction, ",
-           \mmlm([error(ignore) | Col], dfrac(color(bug1, paren(color("#000000", D - Mu))), color(bug1, paren(color("#000000", S / SQRT_N)))))
+           \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", D - Mu))), color(bug1, paren(color("#000000", S / SQRT_N)))))
          ].
 
 % One challenging aspect of word problems ("Textaufgaben") is that students
