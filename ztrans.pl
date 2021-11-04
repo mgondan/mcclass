@@ -11,6 +11,12 @@ init(ztrans) :-
 
 mathml:hook(Flags, x, Flags, 'X').
 
+interval:hook(pl, x, r(x)).
+interval:hook(pl, sigma, r(sigma)).
+interval:hook(pl, z, r(z)).
+interval:hook(pl, pnorm(Z), r(pnorm(Z))).
+interval:hook(pl, p, r(p)).
+
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
     r_session(Expr, Res),
