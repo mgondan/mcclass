@@ -61,7 +61,7 @@ start(ztrans, item(x, mu, sigma)) :-
 intermediate(ztrans, pnorm_).
 expert(ztrans, stage(2), From, To, [step(expert, allinone, [])]) :-
     From = item(X, Mu, Sigma),
-    To = { '<-'(z, frac(X - Mu, Sigma)) ;
+    To = { '<-'(z, dfrac(X - Mu, Sigma)) ;
            '<-'(p, pnorm_(z)) ; 
            p
          }.
@@ -95,8 +95,8 @@ hint(ztrans, wrong_tail, [_Z], _Col, FB) :-
     FB = [ "Do not use the upper tail of the Normal distribution." ].
 
 buggy(ztrans, stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
-    From = frac(X - Mu, Sigma),
-    To = frac(instead(bug(plus), X + Mu, X - Mu), Sigma).
+    From = dfrac(X - Mu, Sigma),
+    To = dfrac(instead(bug(plus), X + Mu, X - Mu), Sigma).
 
 feedback(ztrans, plus, [X, Mu], Col, FB) :-
     FB = [ "Subtract ", \mmlm(Col, color(plus, Mu)), " from ", \mmlm(Col, color(plus, X)),
