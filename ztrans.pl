@@ -72,30 +72,6 @@ feedback(ztrans, allinone, [], _Col, FB) :-
 hint(ztrans, allinone, [], _Col, FB) :-
     FB = [ "Try to do everything correctly."].
 
-buggy(ztrans, stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
-    From = frac(X - Mu, Sigma),
-    To = frac(instead(bug(plus), X + Mu, X - Mu), Sigma).
-
-feedback(ztrans, plus, [X, Mu], Col, FB) :-
-    FB = [ "Subtract ", \mmlm(Col, color(plus, Mu)), " from ", \mmlm(Col, color(plus, X)),
-           " rather than adding them up." ].
-
-hint(ztrans, plus, [X, Mu], Col, FB) :-
-    FB = [ "Try using subtraction rather than addition in ", 
-           \mmlm(Col, color(plus, X + Mu)) ].
-
-buggy(ztrans, stage(1), From, To, [step(buggy, swap, [mu, sigma])]) :-
-    From = item(x, mu, sigma),
-    To = item(x, instead(bug(swap), sigma, mu), instead(bug(swap), mu, sigma)).
-
-feedback(ztrans, swap, [Mu, Sigma], Col, FB) :-
-    FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ", 
-	   \mmlm(Col, color(swap, Sigma)) ].
-
-hint(ztrans, swap, [Mu, Sigma], Col, FB) :-
-    FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
-	   \mmlm(Col, color(swap, Sigma)), " in a different configuration." ].
-
 % Expert rule (correct tail)
 expert(ztrans, stage(2), From, To, [step(expert, correct_tail, [Z])]) :-
     From = pnorm_(Z),
@@ -117,3 +93,27 @@ feedback(ztrans, wrong_tail, [_Z], _Col, FB) :-
 
 hint(ztrans, wrong_tail, [_Z], _Col, FB) :-
     FB = [ "Do not use the upper tail of the Normal distribution." ].
+
+buggy(ztrans, stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
+    From = frac(X - Mu, Sigma),
+    To = frac(instead(bug(plus), X + Mu, X - Mu), Sigma).
+
+feedback(ztrans, plus, [X, Mu], Col, FB) :-
+    FB = [ "Subtract ", \mmlm(Col, color(plus, Mu)), " from ", \mmlm(Col, color(plus, X)),
+           " rather than adding them up." ].
+
+hint(ztrans, plus, [X, Mu], Col, FB) :-
+    FB = [ "Try using subtraction rather than addition in ", 
+           \mmlm(Col, color(plus, X + Mu)) ].
+
+buggy(ztrans, stage(2), From, To, [step(buggy, swap, [mu, sigma])]) :-
+    From = item(x, mu, sigma),
+    To = item(x, instead(bug(swap), sigma, mu), instead(bug(swap), mu, sigma)).
+
+feedback(ztrans, swap, [Mu, Sigma], Col, FB) :-
+    FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ", 
+	   \mmlm(Col, color(swap, Sigma)) ].
+
+hint(ztrans, swap, [Mu, Sigma], Col, FB) :-
+    FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
+	   \mmlm(Col, color(swap, Sigma)), " in a different configuration." ].
