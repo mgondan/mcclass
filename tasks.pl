@@ -134,7 +134,7 @@ solution(task(_Task, Data)) -->
     html(div(class("card"),
           [ div(class("card-header text-white bg-success"), "Solution"),
             div(class("card-body"),
-              p(class("card-text"), \mmlm(Col, Expr = Result)))
+              p(class("card-text"), \mmlm([error(correct) | Col], Expr = Result)))
           ])).
 
 % Codes for correct steps    
