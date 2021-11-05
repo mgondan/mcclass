@@ -58,10 +58,11 @@ intermediate(_, item).
 start(ztrans, item(x, mu, sigma)) :-
     init(ztrans).
 
+intermediate(ztrans, pnorm_).
 expert(ztrans, stage(2), From, To, [step(expert, allinone, [])]) :-
     From = item(X, Mu, Sigma),
     To = { '<-'(z, frac(X - Mu, Sigma)) ;
-           '<-'(p, pnorm(z)) ; 
+           '<-'(p, pnorm_(z)) ; 
            p
          }.
 
@@ -72,8 +73,8 @@ hint(ztrans, allinone, [], _Col, FB) :-
     FB = [ "Try to do everything correctly."].
 
 buggy(ztrans, stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
-    From = X - Mu,
-    To = instead(bug(plus), X + Mu, X - Mu).
+    From = frac(X - Mu, Sigma),
+    To = frac(instead(bug(plus), X + Mu, X - Mu), Sigma).
 
 feedback(ztrans, plus, [X, Mu], Col, FB) :-
     FB = [ "Subtract ", \mmlm(Col, color(plus, Mu)), " from ", \mmlm(Col, color(plus, X)),
@@ -94,3 +95,26 @@ feedback(ztrans, swap, [Mu, Sigma], Col, FB) :-
 hint(ztrans, swap, [Mu, Sigma], Col, FB) :-
     FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
 	   \mmlm(Col, color(swap, Sigma)), " in a different configuration." ].
+
+% Expert rule (correct tail)
+expert(ztrans, stage(2), From, To, [step(expert, correct_tail, [Z])]) :-
+    From = pnorm_(Z),
+    To = pnorm(Z).
+
+feedback(ztrans, correct_tail, [_Z], _Col, FB) :-
+    FB = [ "The response matches the correct tail of the Normal distribution." ].
+
+hint(ztrans, correct_tail, [_Z], _Col, FB) :-
+    FB = [ "The lower tail of the Normal distribution is used." ].
+
+% Buggy rule (wrong tail)
+buggy(ztrans, stage(2), From, To, [step(buggy, wrong_tail, [Z])]) :-
+    From = pnorm_(Z),
+    To = 1 - pnorm(Z).
+
+feedback(ztrans, wrong_tail, [_Z], _Col, FB) :-
+    FB = [ "The response matches the wrong tail of the Normal distribution." ].
+
+hint(ztrans, wrong_tail, [_Z], _Col, FB) :-
+    FB = [ "Do not use the upper tail of the Normal distribution." ].
+

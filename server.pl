@@ -34,6 +34,7 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(ztrans), handler(ztrans), []).
 :- http_handler(mcclass(tgroups), handler(tgroups), []).
 :- http_handler(mcclass(dbinom), handler(dbinom), []).
+:- http_handler(mcclass(qbinom), handler(qbinom), []).
 
 handler(Task, Request) :-
     member(method(post), Request),
