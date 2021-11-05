@@ -152,7 +152,7 @@ buggy(tpaired, stage(2), X, Y, [step(buggy, indep, [])]) :-
     Y = indep(T0, S_T0, N, EOT, S_EOT, N).
 
 feedback(tpaired, indep, [], Col, FB) :-
-    FB = [ "The problem has mistakenly identified as ",
+    FB = [ "The problem was mistakenly identified as ",
            "a ", \mmlm(Col, hyph(t, "test")), " ",
            "for independent samples." ].
 
