@@ -106,7 +106,7 @@ hint(ztrans, plus, [X, Mu], Col, FB) :-
     FB = [ "Try using subtraction rather than addition in ", 
            \mmlm(Col, color(plus, X + Mu)) ].
 
-buggy(ztrans, stage(2), From, To, [step(buggy, swap, [mu, sigma])]) :-
+buggy(ztrans, stage(1), From, To, [step(buggy, swap, [mu, sigma])]) :-
     From = item(x, mu, sigma),
     To = item(x, instead(bug(swap), sigma, mu), instead(bug(swap), mu, sigma)).
 
