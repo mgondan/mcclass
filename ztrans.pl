@@ -28,7 +28,7 @@ render(ztrans, item(X, Mu, Sigma), Form) -->
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
           p(class('card-text'), 
-            [ "Let ", \mmlm([round(0)], X = r(x)), " follow a Normal distribution with ",
+            [ "Let ", \mmlm([round(0)], X), " follow a Normal distribution with ",
               "expectation ", \mmlm([round(0)], Mu = r(mu)), " and ",
               "standard deviation ", \mmlm([round(0)], [Sigma = r(sigma), "."]),
               "A table of the standard ",
@@ -39,7 +39,7 @@ render(ztrans, item(X, Mu, Sigma), Form) -->
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'),
               [ "How many realizations are ",
-                  "below ", \mmlm([round(0)], [X, "?"])
+                  "below ", \mmlm([round(0)], [r(x), "?"])
               ]),
             form([class(form), method('POST'), action('#ztrans-response')],
               [ div(class("input-group mb-3"),
