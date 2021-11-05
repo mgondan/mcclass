@@ -39,7 +39,7 @@ render(ztrans, item(X, Mu, Sigma), Form) -->
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'),
               [ "How many realizations are ",
-                  "below ", \mmlm([round(0)], [X, "?"])
+                  "below ", \mmlm([round(0)], [r(x), "?"])
               ]),
             form([class(form), method('POST'), action('#ztrans-response')],
               [ div(class("input-group mb-3"),
@@ -71,6 +71,28 @@ feedback(ztrans, allinone, [], _Col, FB) :-
 hint(ztrans, allinone, [], _Col, FB) :-
     FB = [ "Try to do everything correctly."].
 
+% Expert rule (correct tail)
+expert(ztrans, stage(2), From, To, [step(expert, correct_tail, [Z])]) :-
+    From = pnorm_(Z),
+    To = pnorm(Z).
+
+feedback(ztrans, correct_tail, [_Z], _Col, FB) :-
+    FB = [ "The response matches the correct tail of the Normal distribution." ].
+
+hint(ztrans, correct_tail, [_Z], _Col, FB) :-
+    FB = [ "The lower tail of the Normal distribution is used." ].
+
+% Buggy rule (wrong tail)
+buggy(ztrans, stage(2), From, To, [step(buggy, wrong_tail, [Z])]) :-
+    From = pnorm_(Z),
+    To = 1 - pnorm(Z).
+
+feedback(ztrans, wrong_tail, [_Z], _Col, FB) :-
+    FB = [ "The response matches the wrong tail of the Normal distribution." ].
+
+hint(ztrans, wrong_tail, [_Z], _Col, FB) :-
+    FB = [ "Do not use the upper tail of the Normal distribution." ].
+
 buggy(ztrans, stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
     From = frac(X - Mu, Sigma),
     To = frac(instead(bug(plus), X + Mu, X - Mu), Sigma).
@@ -94,15 +116,3 @@ feedback(ztrans, swap, [Mu, Sigma], Col, FB) :-
 hint(ztrans, swap, [Mu, Sigma], Col, FB) :-
     FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
 	   \mmlm(Col, color(swap, Sigma)), " in a different configuration." ].
-
-% Buggy rule (wrong tail)
-buggy(ztrans, stage(2), From, To, [step(buggy, wrong_tail, [Z])]) :-
-    From = '<-'(p, pnorm(Z)),
-    To = '<-'(p, 1 - pnorm(Z)).
-
-feedback(ztrans, wrong_tail, [_Z], _Col, FB) :-
-    FB = [ "The response matches the wrong tail of the Normal distribution." ].
-
-hint(ztrans, wrong_tail, [_Z], _Col, FB) :-
-    FB = [ "Do not use the upper tail of the Normal distribution." ].
-
