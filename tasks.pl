@@ -119,11 +119,14 @@ feedback(_Task, _Form) -->
 
 % Solution and correct numerical result
 %
-% At present, this is the first solution in the list, because expert rules are
-% tried before buggy rules (see steps.pl). This may change in the future, when
-% we allow, e.g., tasks with multiple correct solutions.
+% Most efficient if the correct solution appears early in the list. This may change in the
+% future, when we allow, e.g., tasks with multiple correct solutions.
 solution(Task, Expr-Res/Flags) :-
-    once(search(Task, Expr, Flags)),
+    search(Task, Expr_, Flags_),
+    findall(Bug, member(step(buggy, Bug, _), Flags_), []),
+    !,
+    Flags = Flags_,
+    Expr = Expr_,
     int(pl, Expr, Res). % todo: session
 
 % Pretty print
