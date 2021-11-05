@@ -23,14 +23,14 @@ mathml:hook(Flags, r(Expr), Flags, Res) :-
     number(Res).
 
 render(ztrans, item(X, Mu, Sigma), Form) -->
-    { option(resp(R), Form, '## %') },
+    { option(resp(R), Form, '#.##') },
     html(
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
           p(class('card-text'), 
-            [ "Let ", \mmlm('X'), " follow a Normal distribution with ",
-              "expectation ", \mmlm([round(0)], Mu), " and ",
-              "standard deviation ", \mmlm([round(0)], [Sigma, "."]),
+            [ "Let ", \mmlm([round(0)], X = r(x)), " follow a Normal distribution with ",
+              "expectation ", \mmlm([round(0)], Mu = r(mu)), " and ",
+              "standard deviation ", \mmlm([round(0)], [Sigma = r(sigma), "."]),
               "A table of the standard ",
               "Normal distribution is found below."
             ])
