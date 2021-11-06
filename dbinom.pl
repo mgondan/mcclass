@@ -21,11 +21,6 @@ interval:hook(pl, n, r(n)).
 interval:hook(pl, k, r(k)).
 interval:hook(pl, p0, r(p0)).
 
-% Render R result - check if this is needed
-mathml:hook(Flags, r(Expr), Flags, Res) :-
-    r_session(Expr, Res),
-    number(Res).
-
 render(dbinom, item(K, N, P0), Form) -->
     { option(resp(R), Form, '#.##') },
     html(

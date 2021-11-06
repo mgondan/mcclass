@@ -31,11 +31,6 @@ interval:hook(pl, pi_B, r(pi_B)).
 interval:hook(pl, or, r(or)).
 interval:hook(pl, odds_B, r(odds_B)).
 
-% Render R result
-mathml:hook(Flags, r(Expr), Flags, Res) :-
-	r_session(Expr, Res),
-	number(Res).
-
 render(oddsratio, item(Pi_A, OR), Form) -->
 	{ option(resp(R), Form, '#.##') },
 	html(

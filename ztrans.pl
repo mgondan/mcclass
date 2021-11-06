@@ -17,11 +17,6 @@ interval:hook(pl, z, r(z)).
 interval:hook(pl, pnorm(Z), r(pnorm(Z))).
 interval:hook(pl, p, r(p)).
 
-% Render R result
-mathml:hook(Flags, r(Expr), Flags, Res) :-
-    r_session(Expr, Res),
-    number(Res).
-
 render(ztrans, item(X, Mu, Sigma), Form) -->
     { option(resp(R), Form, '#.##') },
     html(

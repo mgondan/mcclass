@@ -37,11 +37,6 @@ interval:hook(pl, s_t0, r(s_t0)).
 interval:hook(pl, eot, r(eot)).
 interval:hook(pl, s_eot, r(s_eot)).
 
-% Render R result
-mathml:hook(Flags, r(Expr), Flags, Res) :-
-    r_session(Expr, Res),
-    number(Res).
-
 render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
     { option(resp(R), Form, '#.##') },
     html(

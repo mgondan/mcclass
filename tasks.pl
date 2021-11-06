@@ -18,6 +18,11 @@
 :- consult(dbinom).
 :- consult(qbinom).
 
+% Render R result
+mathml:hook(Flags, r(Expr), Flags, Res) :-
+    r_session_eval(Expr, Res),
+    number(Res).
+
 % Gather useful information
 %
 % 1. Identify (correct) solution

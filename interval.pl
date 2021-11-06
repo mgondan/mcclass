@@ -661,7 +661,7 @@ bound(X, X).
 rint(Function, Arguments, Res) :-
     maplist(bound, Arguments, Bounds),
     compound_name_arguments(Expr, Function, Bounds),
-    r_session(Expr, Res).
+    r_session_eval(Expr, Res).
 
 int(_, r(Expr), Res)
  => int(r, Expr, Res).
@@ -671,20 +671,20 @@ int(_, pl(Expr), Res)
 
 int(r, Expr, Res),
     atomic(Expr)
- => r_session(Expr, R),
+ => r_session_eval(Expr, R),
     (   R = _ ... _
      -> Res = R
       ; Res = R ... R
     ).
 
 int(r, X ... Y, Res)
- => r_session(X, ResX),
-    r_session(Y, ResY),
+ => r_session_eval(X, ResX),
+    r_session_eval(Y, ResY),
     Res = ResX ... ResY.
 
 int(r, <-(Var, Expr), Res)
  => int(r, Expr, Res),
-    r_session('<-'(Var, Res)).
+    r_session_call('<-'(Var, Res)).
 
 int(r, Expr, Res),
     compound_name_arguments(Expr, Function, Arguments)

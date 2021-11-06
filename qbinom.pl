@@ -13,49 +13,39 @@ init(qbinom) :-
 mathml:math_hook(Flags, p0, Flags, sub(pi, 0)).
 mathml:math_hook(Flags, n, Flags, 'N').
 
-% Render R result - check if this is needed
-mathml:hook(Flags, r(Expr), Flags, Res) :-
-    r_session(Expr, R),
-    #(Res) = R,
-    number(Res).
-
-render(qbinom, item(alpha, n, p0), Form) -->
-    { option(resp(R), Form, '#'),
-      r_session(alpha, #(Alpha)),
-      r_session(n, #(N)),
-      r_session(p0, #(P0))
-    }, 
+render(qbinom, item(Alpha, N, P0), Form) -->
+    { option(resp(R), Form, '#') }, 
     html(
       [ div(class(card), div(class('card-body'),
           [ h1(class('card-title'), "Binary outcomes"),
             p(class('card-text'), 
-              [ "Consider a clinical study with ", \mmlm(n = N), " ",
-                "patients. The variable ", \mmlm('X'), " represents the number ",
-                "of therapeutic successes in the sample. We assume that the ",
-		"successes occur independently, and under the null ",
-		"hypothesis, the success probability is ", \mmlm(P0), " in ",
-		"all patients. The binomial probabilities are given in the ",
-		"table below."
-	      ]),
-	    div(class(container),
-	       div(class("row justify-content-md-center"),
-	          div(class("col-6"),
-	            \htmltable(
-	              [ em("Table 1. "), "Binomial probabilities" ],
-                      [ \mmlm(10), \mmlm(11), \mmlm(12) ],
-                      [ \mmlm(dbinom(k, n, p0 = P0)) ],
-                      [ [ \mmlm(r(dbinom(10, n, p0))) ],
-		        [ \mmlm(r(dbinom(10, n, p0))) ],
-			[ \mmlm(r(dbinom(10, n, p0))) ]
-                      ]))))
-	  ])),
+              [ "Consider a clinical study with ", \mmlm(n = r(N)), " ",
+                "patients. The variable ", \mmlm('X'), " represents the ",
+                "number of therapeutic successes in the sample. We assume ",
+                "that the successes occur independently, and under the null ",
+                "hypothesis, the success probability is ", \mmlm(r(P0)), " ",
+                "in all patients. The binomial probabilities are given in ",
+                "the table below."
+	          ]),
+	        div(class(container),
+	          div(class("row justify-content-md-center"),
+	            div(class("col-6"),
+	              \htmltable(
+	                [ em("Table 1. "), "Binomial probabilities" ],
+                    [ \mmlm(10), \mmlm(11), \mmlm(12) ],
+                    [ \mmlm(dbinom(k, n, p0 = P0)) ],
+                    [ [ \mmlm(r(dbinom(10, n, p0))) ],
+                      [ \mmlm(r(dbinom(10, n, p0))) ],
+                      [ \mmlm(r(dbinom(10, n, p0))) ]
+                    ]))))
+	      ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), 
               "Question"]),
             p(class('card-text'),
               [ "How many successes are needed to rule out the null ",
                 "hypothesis at the one-tailed significance level ",
-                "of ", \mmlm(alpha = Alpha), "?"
+                "of ", \mmlm(alpha = r(Alpha)), "?"
               ]), 
             form([class(form), method('POST'), action('#dbinom-dbinom')],
               [ div(class("input-group mb-3"),
@@ -82,3 +72,4 @@ feedback(qbinom, quantile, [], _Col, Feed) :-
 
 hint(qbinom, quantile, [], _Col, Hint) :-
     Hint = [ "This is a binomial test." ].
+

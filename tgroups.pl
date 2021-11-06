@@ -36,11 +36,6 @@ interval:hook(pl, s_vr, r(s_vr)).
 interval:hook(pl, box, r(box)).
 interval:hook(pl, s_box, r(s_box)).
 
-% Render R result
-mathml:hook(Flags, r(Expr), Flags, Res) :-
-    r_session(Expr, Res),
-    number(Res).
-
 render(tgroups, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
     { option(resp(R), Form, '#.##') },
 	html(
