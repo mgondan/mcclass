@@ -122,7 +122,7 @@ buggy(ztrans, stage(1), From, To, [step(buggy, vardev_swap, [sigma])]) :-
     From = item(x, mu, sigma),
     To = item(x, mu, sigma^2).
 
-feedback(ztrans, vardev_swap, [sigma], _Col, FB) :-
+feedback(ztrans, vardev_swap, [sigma], Col, FB) :-
     FB = [ \mmlm(Col, color(vardev_swap, sigma)), "was squared incorrectly." ].
 
 hint(ztrans, vardev_swap, [sigma], _Col, FB) :-
