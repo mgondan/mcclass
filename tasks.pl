@@ -13,6 +13,7 @@
 
 :- consult(tpaired).
 :- consult(oddsratio).
+:- consult(oddsratio2).
 :- consult(tgroups).
 :- consult(ztrans).
 :- consult(dbinom).
