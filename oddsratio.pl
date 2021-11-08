@@ -31,11 +31,6 @@ interval:hook(pl, pi_B, r(pi_B)).
 interval:hook(pl, or, r(or)).
 interval:hook(pl, odds_B, r(odds_B)).
 
-% Render R result
-mathml:hook(Flags, r(Expr), Flags, Res) :-
-	r_session(Expr, Res),
-	number(Res).
-
 render(oddsratio, item(Pi_A, OR), Form) -->
 	{ option(resp(R), Form, '#.##') },
 	html(
@@ -77,9 +72,9 @@ start(oddsratio, item(pi_A, or)) :-
 
 expert(oddsratio, stage(2), X, Y, [step(expert, odd, [])]) :-
 	X = item(Pi_A, OR),
-	Y = { '<-'(odds_A, frac(Pi_A, 1 - Pi_A)) ;
+	Y = { '<-'(odds_A, dfrac(Pi_A, 1 - Pi_A)) ;
           '<-'(odds_B, odds_A * OR) ; 
-          '<-'(pi_B, frac(odds_B, 1 + odds_B)) ; 
+          '<-'(pi_B, dfrac(odds_B, 1 + odds_B)) ; 
           pi_B 
         }.
 
@@ -91,8 +86,8 @@ hint(oddsratio, odd, [], Col, FB) :-
 
 % Forgot conversion  of pi_a to odds.
 buggy(oddsratio, stage(2), X, Y, [step(buggy, cona, [Pi_A])]) :-
-	X = frac(Pi_A, (1 - Pi_A)),
-	Y = omit_right(bug(cona), frac(Pi_A, 1 - Pi_A)).
+	X = dfrac(Pi_A, (1 - Pi_A)),
+	Y = omit_right(bug(cona), dfrac(Pi_A, 1 - Pi_A)).
 
 feedback(oddsratio, cona, [Pi_A], Col, FB) :-
 	FB = [ "Please remember to convert ", \mmlm(Col, color(cona, Pi_A)), " to ",
@@ -118,7 +113,7 @@ hint(oddsratio, mult, [OR], Col, FB) :-
 % Divided odds_A and or rather then multiplying them.
 buggy(oddsratio, stage(2), From, To, [step(buggy, divi, [OR])]) :-
     From = odds_A * OR,
-    To = instead(bug(divi), frac(odds_A, OR), (odds_A * OR)).
+    To = instead(bug(divi), odds_A / OR, odds_A * OR).
 
 feedback(oddsratio, divi, [OR], Col, FB) :-
     FB = [ "It seems you divided ", \mmlm(Col, color(divi, odds_A)), " by ", 
@@ -130,8 +125,8 @@ hint(oddsratio, divi, [OR], Col, FB) :-
 
 % Forgot to convert odds_B to pi_B.
 buggy(oddsratio, stage(2), From, To, [step(buggy, nopi, [])]) :-
-    From = frac(odds_B, 1 + odds_B),
-    To = omit_right(bug(nopi), frac(odds_B, 1 + odds_b)).
+    From = dfrac(odds_B, 1 + odds_B),
+    To = omit_right(bug(nopi), dfrac(odds_B, 1 + odds_b)).
 
 feedback(oddsratio, nopi, [], Col, FB) :-
     FB = [ "It looks like you forgot to convert ", 

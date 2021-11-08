@@ -1147,6 +1147,34 @@ prec(_Flags, frac(_, _), Prec)
  => current(P, yfx, /),
     Prec is P - 1.
 
+math(Flags, omit_right(_Bug, Expr), New, M),
+    option(error(correct), Flags, fix),
+    Expr =.. [Op, Num, Den],
+    member(Op, [frac, dfrac])
+ => Flags = New,
+    M =.. [Op, Num, Den].
+
+math(Flags, omit_right(_Bug, Expr), New, M),
+    option(error(show), Flags, fix),
+    Expr =.. [Op, Num, _Den],
+    member(Op, [frac, dfrac])
+ => Flags = New,
+    M = Num.
+
+math(Flags, omit_right(bug(Bug), Expr), New, M),
+    option(error(fix), Flags, fix),
+    Expr =.. [Op, Num, Den],
+    member(Op, [frac, dfrac])
+ => Flags = New,
+    M =.. [Op, Num, color(Bug, box(color("#000000", Den)))].
+
+math(Flags, omit_right(bug(Bug), Expr), New, M),
+    option(error(highlight), Flags, fix),
+    Expr =.. [Op, Num, Den],
+    member(Op, [frac, dfrac])
+ => M =.. [Op, Num, color(Bug, cancel(color("#000000", Den)))],
+    Flags = New.
+
 mathml :- mathml(frac(1, pi)).
 
 %
