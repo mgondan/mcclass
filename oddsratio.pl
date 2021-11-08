@@ -31,6 +31,11 @@ interval:hook(pl, pi_B, r(pi_B)).
 interval:hook(pl, or, r(or)).
 interval:hook(pl, odds_B, r(odds_B)).
 
+% Render R result
+mathml:hook(Flags, r(Expr), Flags, Res) :-
+	r_session(Expr, Res),
+	number(Res).
+
 render(oddsratio, item(Pi_A, OR), Form) -->
 	{ option(resp(R), Form, '#.##') },
 	html(
@@ -87,7 +92,7 @@ hint(oddsratio, odd, [], Col, FB) :-
 % Forgot conversion  of pi_a to odds.
 buggy(oddsratio, stage(2), X, Y, [step(buggy, cona, [Pi_A])]) :-
 	X = frac(Pi_A, (1 - Pi_A)),
-	Y = omit_right(bug(cona), Pi_A / (1 - Pi_A)).
+	Y = omit_right(bug(cona), frac(Pi_A, 1 - Pi_A)).
 
 feedback(oddsratio, cona, [Pi_A], Col, FB) :-
 	FB = [ "Please remember to convert ", \mmlm(Col, color(cona, Pi_A)), " to ",
@@ -111,29 +116,29 @@ hint(oddsratio, mult, [OR], Col, FB) :-
 	       \mmlm(Col, color(mult, OR)) ].
 
 % Divided odds_A and or rather then multiplying them.
-buggy(oddsratio, stage(2), X, Y, [step(buggy, divi, [OR])]) :-
-	X = odds_A * OR,
-	Y = instead(bug(divi), frac(odds_A, OR), (odds_A * OR)).
+buggy(oddsratio, stage(2), From, To, [step(buggy, divi, [OR])]) :-
+    From = odds_A * OR,
+    To = instead(bug(divi), frac(odds_A, OR), (odds_A * OR)).
 
 feedback(oddsratio, divi, [OR], Col, FB) :-
-	FB = [ "It seems you divided ", \mmlm(Col, color(divi, odds_A)), " by ", 
-	       \mmlm(Col, color(divi, OR)), " rather than multiplying them." ].
+    FB = [ "It seems you divided ", \mmlm(Col, color(divi, odds_A)), " by ", 
+	   \mmlm(Col, color(divi, OR)), " rather than multiplying them." ].
 
 hint(oddsratio, divi, [OR], Col, FB) :-
-       	FB = [ "If I were you I would multiply ", \mmlm(Col, color(divi, odds_A)), " with ",
-	       \mmlm(Col, color(divi, OR)), " rather then dividing them." ].
+    FB = [ "If I were you I would multiply ", \mmlm(Col, color(divi, odds_A)), " with ",
+	   \mmlm(Col, color(divi, OR)), " rather then dividing them." ].
 
 % Forgot to convert odds_B to pi_B.
-buggy(oddsratio, stage(2), X, Y, [step(buggy, nopi, [])]) :-
-	X = frac(odds_B, 1 + odds_B),
-	Y = color(nopi, odds_B).
+buggy(oddsratio, stage(2), From, To, [step(buggy, nopi, [])]) :-
+    From = frac(odds_B, 1 + odds_B),
+    To = omit_right(bug(nopi), frac(odds_B, 1 + odds_b)).
 
 feedback(oddsratio, nopi, [], Col, FB) :-
-	FB = [ "It looks like you forgot to convert ", 
-	       \mmlm(Col, color(nopi, odds_B)),
-       	       " back into a probability ", \mmlm(Col, color(nopi, pi_B)), 
-	       ", with ", \mmlm(Col, color(nopi, pi_B = frac(odds_B, 1 + odds_B))) ].
+    FB = [ "It looks like you forgot to convert ", 
+	   \mmlm(Col, color(nopi, odds_B)),
+           " back into a probability ", \mmlm(Col, color(nopi, pi_B)), 
+	   ", with ", \mmlm(Col, color(nopi, pi_B = frac(odds_B, 1 + odds_B))) ].
 
 hint(oddsratio, nopi, [], Col, FB) :-
-       	FB = [ "Remember that your end result should be a probability ",
-	       "rather than ", \mmlm(Col, color(nopi, odds_B)) ].
+    FB = [ "Remember that your end result should be a probability ",
+	   "rather than ", \mmlm(Col, color(nopi, odds_B)) ].
