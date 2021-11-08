@@ -126,7 +126,7 @@ hint(oddsratio, divi, [OR], Col, FB) :-
 % Forgot to convert odds_B to pi_B.
 buggy(oddsratio, stage(2), From, To, [step(buggy, nopi, [])]) :-
     From = dfrac(odds_B, 1 + odds_B),
-    To = omit_right(bug(nopi), dfrac(odds_B, 1 + odds_b)).
+    To = omit_right(bug(nopi), dfrac(odds_B, 1 + odds_B)).
 
 feedback(oddsratio, nopi, [], Col, FB) :-
     FB = [ "It looks like you forgot to convert ", 
