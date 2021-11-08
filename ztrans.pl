@@ -107,7 +107,7 @@ buggy(ztrans, stage(1), From, To, [step(buggy, swap, [mu, sigma])]) :-
     From = item(x, mu, sigma),
     To = item(x, instead(bug(swap), sigma, mu), instead(bug(swap), mu, sigma));
     From = item(x, mu, sigma^2),
-    To = item(x, instead(bug(swap), sigma^2, mu), instead(bug(swap), mu, sigma^2)).
+    To = item(x, instead(bug(swap), sigma^2, mu), instead(bug(swap), mu, sigma)).
 
 feedback(ztrans, swap, [Mu, Sigma], Col, FB) :-
     FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ", 
@@ -123,7 +123,7 @@ buggy(ztrans, stage(1), From, To, [step(buggy, vardev_swap, [sigma])]) :-
     To = item(x, mu, sigma^2).
 
 feedback(ztrans, vardev_swap, [sigma], _Col, FB) :-
-    FB = [ "The denominator was squared incorrectly." ].
+    FB = [ \mmlm(Col, color(vardev_swap, sigma)), "was squared incorrectly." ].
 
 hint(ztrans, vardev_swap, [sigma], _Col, FB) :-
     FB = [ "Use the standard deviation instead of the variance." ].
