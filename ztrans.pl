@@ -78,7 +78,7 @@ feedback(ztrans, correct_tail, [_Z], _Col, FB) :-
 hint(ztrans, correct_tail, [_Z], _Col, FB) :-
     FB = [ "The lower tail of the Normal distribution is used." ].
 
-% Buggy rule (wrong tail)
+% Buggy rule (wrong tail) The wrong tail of the normal distribution was selected.
 buggy(ztrans, stage(2), From, To, [step(buggy, wrong_tail, [Z])]) :-
     From = pnorm_(Z),
     To = 1 - pnorm(Z).
@@ -89,6 +89,7 @@ feedback(ztrans, wrong_tail, [_Z], _Col, FB) :-
 hint(ztrans, wrong_tail, [_Z], _Col, FB) :-
     FB = [ "Do not use the upper tail of the Normal distribution." ].
 
+% Buggy Rule (plus) Mu was added to X, not subtracted.
 buggy(ztrans, stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
     From = dfrac(X - Mu, Sigma),
     To = dfrac(instead(bug(plus), X + Mu, X - Mu), Sigma).
@@ -101,9 +102,12 @@ hint(ztrans, plus, [X, Mu], Col, FB) :-
     FB = [ "Try using subtraction rather than addition in ", 
            \mmlm(Col, color(plus, X + Mu)) ].
 
+% Buggy Rule (swap) Mu and Sigma were swapped.
 buggy(ztrans, stage(1), From, To, [step(buggy, swap, [mu, sigma])]) :-
     From = item(x, mu, sigma),
-    To = item(x, instead(bug(swap), sigma, mu), instead(bug(swap), mu, sigma)).
+    To = item(x, instead(bug(swap), sigma, mu), instead(bug(swap), mu, sigma));
+    From = item(x, mu, sigma^2),
+    To = item(x, instead(bug(swap), sigma^2, mu), instead(bug(swap), mu, sigma^2)).
 
 feedback(ztrans, swap, [Mu, Sigma], Col, FB) :-
     FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ", 
@@ -112,3 +116,14 @@ feedback(ztrans, swap, [Mu, Sigma], Col, FB) :-
 hint(ztrans, swap, [Mu, Sigma], Col, FB) :-
     FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
 	   \mmlm(Col, color(swap, Sigma)), " in a different configuration." ].
+
+% Buggy Rule (vardev swap) standard deviation was mistaken with variance.
+buggy(ztrans, stage(1), From, To, [step(buggy, vardev_swap, [sigma])]) :-
+    From = item(x, mu, sigma),
+    To = item(x, mu, sigma^2).
+
+feedback(ztrans, vardev_swap, [sigma], _Col, FB) :-
+    FB = [ "The denominator was squared incorrectly." ].
+
+hint(ztrans, vardev_swap, [sigma], _Col, FB) :-
+    FB = [ "Use the standard deviation instead of the variance." ].
