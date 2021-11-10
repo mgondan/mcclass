@@ -117,3 +117,16 @@ feedback(oddsratio2, flip, [], Col, FB) :-
 hint(oddsratio2, flip, [], Col, FB) :-
     FB = [ "Try using ", \mmlm(Col, color(flip, odds_A)), " and ",
 	   \mmlm(Col, color(flip, odds_B)), " in a different configuration."  ].
+	   
+% 4) Multiplied odds_A and odds_B.
+buggy(oddsratio2, stage(2), From, To, [step(buggy, mult, [])]) :-
+    From = odds_A / odds_B,
+    To = instead(bug(mult), odds_A * odds_B, odds_A / odds_B).
+
+feedback(oddsratio2, mult, [], Col, FB) :-
+    FB = [ "Divide ", \mmlm(Col, color(mult, odds_A)), " by ",
+	   \mmlm(Col, color(mult, odds_B)), " instead of multiplying them." ].
+
+hint(oddsratio2, mult, [], Col, FB) :-
+    FB = [ "Do not multiply ", \mmlm(Col, color(mult, odds_A)), " and ",
+	   \mmlm(Col, color(mult, odds_B)) ].
