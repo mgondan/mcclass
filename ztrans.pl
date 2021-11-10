@@ -133,8 +133,13 @@ buggy(ztrans, stage(2), From, To, [step(buggy, xp, [x, p, z, mu, sigma]), depend
    From = dfrac(x - mu, sigma),
    To = omit_right(bug(xp), dfrac(omit_right(bug(xp), x - mu), sigma)).
 
+feedback(ztrans, xp, [], _Col, FB) :-
+    FB = [ "Remember to calculate the z-value." ].
+
+hint(ztrans, xp, [], Col, FB) :-
+    FB = [ "The z-value is calculated by calculating ", \mmlm(Col, dfrac(x - mu, sigma)) ].
 
 % Buggy Rule (xp2) x/100 was taken to be phi(z).
 buggy(ztrans, stage(2), From, To, [step(buggy, xp2, []), depends(xp)]) :-
     From = pnorm_(z),
-    To = z/100.
+    To = instead(bug(xp2), z/100, pnorm(z)).
