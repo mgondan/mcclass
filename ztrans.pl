@@ -127,3 +127,14 @@ feedback(ztrans, vardev_swap, [sigma], Col, FB) :-
 
 hint(ztrans, vardev_swap, [sigma], _Col, FB) :-
     FB = [ "Use the standard deviation instead of the variance." ].
+
+% Buggy Rule (xp) (x - mu)/sigma was skipped.
+buggy(ztrans, stage(2), From, To, [step(buggy, xp, [x, p, z, mu, sigma]), depends(xp2)]) :-
+   From = dfrac(x - mu, sigma),
+   To = omit_right(bug(xp), dfrac(omit_right(bug(xp), x - mu), sigma)).
+
+
+% Buggy Rule (xp2) x/100 was taken to be phi(z).
+buggy(ztrans, stage(2), From, To, [step(buggy, xp2, []), depends(xp)]) :-
+    From = pnorm_(z),
+    To = z/100.
