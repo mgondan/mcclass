@@ -47,3 +47,33 @@ render(ztrans2, item(X, Mu, Sigma), Form) -->
               ])
           ]))
       ]).
+
+
+intermediate(_, item).
+start(ztrans2, item(x, mu, sigma)) :-
+    init(ztrans2).
+
+intermediate(ztrans2, pnorm_).
+expert(ztrans2, stage(2), From, To, [step(expert, allinone, [])]) :-
+    From = item(X, Mu, Sigma),
+    To = { '<-'(z, dfrac(X - Mu, Sigma)) ;
+           '<-'(p, pnorm_(z)) ; 
+           p
+         }.
+
+feedback(ztrans2, allinone, [], _Col, FB) :-
+    FB = [ "Everything done correctly."].
+
+hint(ztrans2, allinone, [], _Col, FB) :-
+    FB = [ "Try to do everything correctly."].
+
+
+expert(ztrans2, stage(2), From, To, [step(expert, correct_tail, [Z])]) :-
+    From = pnorm_(Z),
+    To = pnorm(Z).
+
+feedback(ztrans2, correct_tail, [_Z], _Col, FB) :-
+    FB = [ "The response matches the correct tail of the Normal distribution." ].
+
+hint(ztrans2, correct_tail, [_Z], _Col, FB) :-
+    FB = [ "The lower tail of the Normal distribution is used." ].
