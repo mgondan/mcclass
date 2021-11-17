@@ -20,6 +20,7 @@
 :- consult(ztrans2).
 :- consult(dbinom).
 :- consult(qbinom).
+:- consult(chisq).
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
