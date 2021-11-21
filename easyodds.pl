@@ -4,7 +4,6 @@
 
 :- use_module(library(http/html_write)).
 :- use_module(session).
-:- use_module(table).
 :- use_module(r).
 :- use_module(mathml).
 
@@ -64,7 +63,7 @@ render(easyodds, item(_Odds_A, _Pi_B, _OR), Form) -->
 
 % Odds ratio with two probabilities. 
 intermediate(_, item).
-start(easyodds, item(odds_A, pi_b, or)) :-
+start(easyodds, item(odds_A, pi_B, or)) :-
     init(easyodds).
 
 expert(easyodds, stage(2), From, To, [step(expert, odd, [])]) :-
@@ -92,3 +91,25 @@ feedback(easyodds, sub, [Odds_A], Col, FB) :-
 
 hint(easyodds, sub, [Odds_A], Col, FB) :-
     FB = [ "Do not try to further convert ", \mmlm(Col, color(sub, Odds_A)), " to odds." ].
+
+% 2) Used pi_B rather than odds_A.
+buggy(easyodds, stage(1), From, To, [step(buggy, pi, [])]) :-
+    From = odds_A,
+    To = instead(bug(pi), pi_B, odds_A).
+
+feedback(easyodds, pi, [], Col, FB) :-
+    FB = [ "Please extract and use the value for ", \mmlm(Col, color(pi, odds_A)), " instead." ].
+
+hint(easyodds, pi, [], Col, FB) :-
+    FB = [ "Do not execute your calculations using ", \mmlm(Col, color(pi,  pi_B)) ].
+
+% 3) Used or rather than odds_A.
+buggy(easyodds, stage(1), From, To, [step(buggy, ratio, [])]) :-
+    From = odds_A,
+    To = instead(bug(ratio), or, odds_A).
+
+feedback(easyodds, ratio, [], Col, FB) :-
+    FB = [ "Please extract and use the value for ", \mmlm(Col, color(ratio, odds_A)), " instead." ].
+
+hint(easyodds, ratio, [], Col, FB) :-
+    FB = [ "Do not execute your calculations using the ", \mmlm(Col, color(ratio,  "OR")) ].
