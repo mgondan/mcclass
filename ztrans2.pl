@@ -14,16 +14,16 @@ mathml:hook(Flags, x, Flags, 'X').
 interval:hook(pl, x, r(x)).
 interval:hook(pl, sigma, r(sigma)).
 interval:hook(pl, z, r(z)).
-interval:hook(pl, pnorm(Z), r(pnorm(Z))).
+interval:hook(pl, qnorm(Z), r(qnorm(Z))).
 interval:hook(pl, p, r(p)).
 
-render(ztrans2, item(X, Mu, Sigma), Form) -->
+render(ztrans2, item(P, Mu, Sigma), Form) -->
     { option(resp(R), Form, '#.##') },
     html(
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
           p(class('card-text'), 
-            [ "Let ", \mmlm([round(0)], X), " follow a Normal distribution with ",
+            [ "Let ", \mmlm([round(0)], P), " follow a Normal distribution with ",
               "expectation ", \mmlm([round(0)], Mu = r(mu)), " and ",
               "standard deviation ", \mmlm([round(0)], [Sigma = r(sigma), "."]),
               "A table of the standard ",
@@ -34,7 +34,7 @@ render(ztrans2, item(X, Mu, Sigma), Form) -->
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'),
               [ "How many realizations are ",
-                  "below ", \mmlm([round(0)], [r(x), "?"])
+                  "below ", \mmlm([round(0)], [r(p), "%?"])
               ]),
             form([class(form), method('POST'), action('#ztrans2-response')],
               [ div(class("input-group mb-3"),
@@ -50,15 +50,15 @@ render(ztrans2, item(X, Mu, Sigma), Form) -->
 
 
 intermediate(_, item).
-start(ztrans2, item(x, mu, sigma)) :-
+start(ztrans2, item(p, mu, sigma)) :-
     init(ztrans2).
 
-intermediate(ztrans2, pnorm_).
+intermediate(ztrans2, qnorm_).
 expert(ztrans2, stage(2), From, To, [step(expert, allinone, [])]) :-
-    From = item(X, Mu, Sigma),
-    To = { '<-'(z, dfrac(X - Mu, Sigma)) ;
-           '<-'(p, pnorm_(z)) ; 
-           p
+    From = item(P, Mu, Sigma),
+    To = { '<-'( z, qnorm(P)) ;
+	   '<-'(x, z * Sigma + Mu) ;
+           x
          }.
 
 feedback(ztrans2, allinone, [], _Col, FB) :-
