@@ -176,3 +176,14 @@ feedback(chisq, paren3, [From], Col, FB) :-
 hint(chisq, paren3, [From], Col, FB) :-
     FB = [ "Do not forget to add parentheses around he different ",
 	   " elements in ", \mmlm(Col, color(paren3, From)) ].
+
+% 5) Forgot square.
+buggy(chisq, stage(2), From, To, [step(buggy, square, [P_VR, P_Box])]) :-
+    From = (P_VR - P_Box) ^ 2,
+    To = omit_right(bug(square), (P_VR - P_Box) ^ 2).
+
+feedback(chisq, square, [P_VR, P_Box], Col, FB) :-
+    FB = [ "Please remember to square ", \mmlm(Col, color(square, ["(", P_VR - P_Box, ")"])) ].
+
+hint(chisq, square, [P_VR, P_Box], Col, FB) :-
+    FB = [ "Do not forget the square in ", \mmlm(Col, color(square, (P_VR - P_Box)^2)) ].
