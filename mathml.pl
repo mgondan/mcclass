@@ -1666,9 +1666,9 @@ math(Flags, pnorm(Z), New, X)
  => New = Flags,
     X = fn('Phi', [Z]).
     
-math(Flags, qnorm(Z), New, X)
+math(Flags, qnorm(P), New, X)
  => New = Flags,
-    X = fn('Phi^-1', [Z]).
+    X = fn('Phi' ^(-1), [P]).
 
 %
 % Intervals
