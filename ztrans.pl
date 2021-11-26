@@ -123,7 +123,7 @@ buggy(ztrans, stage(1), From, To, [step(buggy, vardev_swap, [sigma])]) :-
     To = item(x, mu, sigma^2).
 
 feedback(ztrans, vardev_swap, [sigma], Col, FB) :-
-    FB = [ \mmlm(Col, color(vardev_swap, sigma)), "was squared incorrectly." ].
+    FB = [ \mmlm(Col, color(vardev_swap, sigma)), "was squared by mistake." ].
 
 hint(ztrans, vardev_swap, [sigma], _Col, FB) :-
     FB = [ "Use the standard deviation instead of the variance." ].
