@@ -48,6 +48,10 @@ render(ztrans2, item(P, Mu, Sigma), Form) -->
           ]))
       ]).
 
+% Prolog warns if the rules of a predicate are not adjacent. This
+% does not make sense here, so the definitions for intermediate, expert
+% and buggy are declared to be discontiguous.
+:- multifile intermediate/2, expert/5, buggy/5.
 
 intermediate(_, item).
 start(ztrans2, item(p, mu, sigma)) :-
@@ -56,7 +60,7 @@ start(ztrans2, item(p, mu, sigma)) :-
 intermediate(ztrans2, qnorm_).
 expert(ztrans2, stage(2), From, To, [step(expert, allinone, [])]) :-
     From = item(P, Mu, Sigma),
-    To = { '<-'( z, qnorm(P)) ;
+    To = { '<-'( z, qnorm_(P)) ;
 	   '<-'(x, z * Sigma + Mu) ;
            x
          }.
@@ -67,13 +71,50 @@ feedback(ztrans2, allinone, [], _Col, FB) :-
 hint(ztrans2, allinone, [], _Col, FB) :-
     FB = [ "Try to do everything correctly."].
 
+% Expert rule (correct tail)
+expert(ztrans2, stage(2), From, To, [step(expert, correct_tail, [P])]) :-
+    From = qnorm_(P),
+    To = qnorm(P).
 
-expert(ztrans2, stage(2), From, To, [step(expert, correct_tail, [Z])]) :-
-    From = pnorm_(Z),
-    To = pnorm(Z).
-
-feedback(ztrans2, correct_tail, [_Z], _Col, FB) :-
+feedback(ztrans2, correct_tail, [_P], _Col, FB) :-
     FB = [ "The response matches the correct tail of the Normal distribution." ].
 
-hint(ztrans2, correct_tail, [_Z], _Col, FB) :-
+hint(ztrans2, correct_tail, [_P], _Col, FB) :-
     FB = [ "The lower tail of the Normal distribution is used." ].
+
+% Buggy rule (wrong tail) The wrong tail of the normal distribution was selected.
+buggy(ztrans2, stage(2), From, To, [step(buggy, wrong_tail, [P])]) :-
+    From = qnorm_(P),
+    To = 1 - qnorm(P).
+
+feedback(ztrans2, wrong_tail, [_P], _Col, FB) :-
+    FB = [ "The response matches the wrong tail of the Normal distribution." ].
+
+hint(ztrans2, wrong_tail, [_P], _Col, FB) :-
+    FB = [ "Do not use the lower tail of the Normal distribution." ].
+
+% Buggy Rule (swap) Mu and Sigma were swapped.
+buggy(ztrans2, stage(1), From, To, [step(buggy, swap, [mu, sigma])]) :-
+    From = item(p, mu, sigma),
+    To = item(p, instead(bug(swap), sigma, mu), instead(bug(swap), mu, sigma));
+    From = item(p, mu, sigma^2),
+    To = item(p, instead(bug(swap), sigma^2, mu), instead(bug(swap), mu, sigma)).
+
+feedback(ztrans2, swap, [Mu, Sigma], Col, FB) :-
+    FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ", 
+	   \mmlm(Col, color(swap, Sigma)) ].
+
+hint(ztrans2, swap, [Mu, Sigma], Col, FB) :-
+    FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
+	   \mmlm(Col, color(swap, Sigma)), " in a different configuration." ].
+
+% Buggy Rule (vardev swap) standard deviation was mistaken with variance.
+buggy(ztrans2, stage(1), From, To, [step(buggy, vardev_swap, [sigma])]) :-
+    From = item(p, mu, sigma),
+    To = item(p, mu, sigma^2).
+
+feedback(ztrans2, vardev_swap, [sigma], Col, FB) :-
+    FB = [ \mmlm(Col, color(vardev_swap, sigma)), "was squared incorrectly." ].
+
+hint(ztrans2, vardev_swap, [sigma], _Col, FB) :-
+    FB = [ "Use the standard deviation instead of the variance." ].
