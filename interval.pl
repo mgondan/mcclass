@@ -304,10 +304,10 @@ example :-
 int(E, X / Y, Res)
  => int(E, X, ResX),
     int(E, Y, ResY),
-    interval(frac(ResX, ResY), Res).
+    interval(ResX / ResY, Res).
 
 % P1 / P (special case, then general case)
-interval(frac(A ... B, 0.0 ... D), Res) :-
+interval(A ... B / 0.0 ... D, Res) :-
     strictpos(A, B),
     positive(0.0, D),
     !,
@@ -315,7 +315,7 @@ interval(frac(A ... B, 0.0 ... D), Res) :-
     U is 1.0Inf,
     Res = L ... U.
 
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     strictpos(A, B),
     positive(C, D),
     !,
@@ -324,7 +324,7 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % P0 / P
-interval(frac(A ... B, 0.0 ... D), Res) :-
+interval(A ... B / 0.0 ... D, Res) :-
     zeropos(A, B),
     positive(0.0, D),
     !,
@@ -332,7 +332,7 @@ interval(frac(A ... B, 0.0 ... D), Res) :-
     U is 1.0Inf,
     Res = L ... U.
 
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     zeropos(A, B),
     positive(C, D),
     !,
@@ -341,7 +341,7 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % M / P
-interval(frac(A ... B, 0.0 ... D), Res) :-
+interval(A ... B / 0.0 ... D, Res) :-
     mixed(A, B),
     positive(0.0, D),
     !,
@@ -349,7 +349,7 @@ interval(frac(A ... B, 0.0 ... D), Res) :-
     U is 1.0Inf,
     Res = L ... U.
 
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     mixed(A, B),
     positive(C, D),
     !,
@@ -358,7 +358,7 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % N0 / P
-interval(frac(A ... B, 0.0 ... D), Res) :-
+interval(A ... B / 0.0 ... D, Res) :-
     zeroneg(A, B),
     positive(0.0, D),
     !,
@@ -366,7 +366,7 @@ interval(frac(A ... B, 0.0 ... D), Res) :-
     U is 0.0,
     Res = L ... U.
 
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     zeroneg(A, B),
     positive(C, D),
     !,
@@ -375,7 +375,7 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % N1 / P
-interval(frac(A ... B, 0.0 ... D), Res) :-
+interval(A ... B / 0.0 ... D, Res) :-
     strictneg(A, B),
     positive(0.0, D),
     !,
@@ -383,7 +383,7 @@ interval(frac(A ... B, 0.0 ... D), Res) :-
     U is B / D,
     Res = L ... U.
 
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     strictneg(A, B),
     positive(C, D),
     !,
@@ -392,14 +392,14 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % P1 / M (2 solutions)
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     strictpos(A, B),
     mixed(C, D),
     L is -1.0Inf,
     U is A / C,
     Res = L ... U.
 
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     strictpos(A, B),
     mixed(C, D),
     !,
@@ -408,7 +408,7 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % P0 / M
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     zeropos(A, B),
     mixed(C, D),
     !,
@@ -417,7 +417,7 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % M / M
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     mixed(A, B),
     mixed(C, D),
     !,
@@ -426,7 +426,7 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % N0 / M
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     zeroneg(A, B),
     mixed(C, D),
     !,
@@ -435,14 +435,14 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % N1 / M (2 solutions)
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     strictneg(A, B),
     mixed(C, D),
     L is -1.0Inf,
     U is B / D,
     Res = L ... U.
 
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     strictneg(A, B),
     mixed(C, D),
     !,
@@ -451,7 +451,7 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % P1 / N
-interval(frac(A ... B, C ... 0.0), Res) :-
+interval(A ... B / C ... 0.0, Res) :-
     strictpos(A, B),
     negative(C, 0.0),
     !,
@@ -459,7 +459,7 @@ interval(frac(A ... B, C ... 0.0), Res) :-
     U is A / C,
     Res = L ... U.
 
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     strictpos(A, B),
     negative(C, D),
     !,
@@ -468,7 +468,7 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % P0 / N
-interval(frac(A ... B, C ... 0.0), Res) :-
+interval(A ... B / C ... 0.0, Res) :-
     zeropos(A, B),
     negative(C, 0.0),
     !,
@@ -476,7 +476,7 @@ interval(frac(A ... B, C ... 0.0), Res) :-
     U is 0.0,
     Res = L ... U.
 
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     zeropos(A, B),
     negative(C, D),
     !,
@@ -485,7 +485,7 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % M / N
-interval(frac(A ... B, C ... 0.0), Res) :-
+interval(A ... B / C ... 0.0, Res) :-
     mixed(A, B),
     negative(C, 0.0),
     !,
@@ -493,7 +493,7 @@ interval(frac(A ... B, C ... 0.0), Res) :-
     U is 1.0Inf,
     Res = L ... U.
 
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     mixed(A, B),
     negative(C, D),
     !,
@@ -502,7 +502,7 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % N0 / N
-interval(frac(A ... B, C ... 0.0), Res) :-
+interval(A ... B / C ... 0.0, Res) :-
     zeroneg(A, B),
     negative(C, 0.0),
     !,
@@ -510,7 +510,7 @@ interval(frac(A ... B, C ... 0.0), Res) :-
     U is 1.0Inf,
     Res = L ... U.
 
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     zeroneg(A, B),
     negative(C, D),
     !,
@@ -519,7 +519,7 @@ interval(frac(A ... B, C ... D), Res) :-
     Res = L ... U.
 
 % N1 / N
-interval(frac(A ... B, C ... 0.0), Res) :-
+interval(A ... B / C ... 0.0, Res) :-
     strictneg(A, B),
     negative(C, 0.0),
     !,
@@ -527,7 +527,7 @@ interval(frac(A ... B, C ... 0.0), Res) :-
     U is 1.0Inf,
     Res = L ... U.
 
-interval(frac(A ... B, C ... D), Res) :-
+interval(A ... B / C ... D, Res) :-
     strictneg(A, B),
     negative(C, D),
     !,
