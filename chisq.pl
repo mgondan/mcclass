@@ -120,9 +120,11 @@ hint(chisq, allinone, [], _Col, FB) :-
     FB = [ "Try to do everything correctly." ].
 
 % 1) Forgot all parentheses in main equation.
-buggy(chisq, stage(2), From, To, [step(buggy, paren, [N_VR, N_Box]), depends(fuba)]) :-
+buggy(chisq, stage(2), From, To, Flags) :-
+    Flags = [step(buggy, paren, [N_VR, N_Box]), depends(fuba)],
     From = dfrac((P_VR - P_Box) ^ 2, P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box)),
-    To = instead(bug(paren), P_VR - dfrac(P_Box ^ 2, P_Pool) * 1 - P_Pool * 1 / N_VR + 1 / N_Box, From).
+    To = instead(bug(paren), 
+	 P_VR - dfrac(P_Box ^ 2, P_Pool) * 1 - P_Pool * 1 / N_VR + 1 / N_Box, From).
 
 % 1.2) Also forgot parentheses when calculating p_pool.
 buggy(chisq, stage(2), From, To, [step(buggy, fuba, []), depends(paren)]) :-
@@ -138,33 +140,34 @@ feedback(chisq, fuba, [], _Col, FB) :-
 hint(chisq, fuba, [], _Col, FB) :-
     FB = [ "Honestly, I don't even know where to begin..." ].
 
-% 2) Forgot parentheses around (1/N_VR + 1/N_Box).
-buggy(chisq, stage(2), From, To, [step(buggy, paren1, [N_VR, N_Box])]) :-
-    From = A * B * (1 / N_VR + 1 / N_Box),
-    To = A * B * color(paren1, 1) / color(paren1, N_VR) + color(paren1, 1) / color(paren1, N_Box).
-
-feedback(chisq, paren1, [N_VR, N_Box], Col, FB) :-
-    FB = [ "Please do not forget the parentheses around ", 
-	   \mmlm(Col, color(paren1, ["(", 1 / N_VR + 1 / N_Box, ")"])) ].
-
-hint(chisq, paren1, [N_VR, N_Box], Col, FB) :-
-    FB = [ "Do not forget to add parentheses around ", 
-	   \mmlm(Col, color(paren1, ["(", 1 / N_VR + 1 / N_Box, ")"])) ].
-
-% 3) Forgot parenthesis around the second binomial formula.
-buggy(chisq, stage(2), From, To, [step(buggy, paren2, [P_VR, P_Box])]) :-
+% 2) first instead of second binomial formula. happend 1 time
+buggy(chisq, stage(2), From, To, [step(buggy, firstbin, [P_VR, P_Box])]) :-
     From = (P_VR - P_Box) ^ 2,
-    To = instead(bug(paren2), P_VR - P_Box ^ 2, From).
+    To = instead(bug(firstbin), (P_VR + P_Box) ^ 2, From).
 
-feedback(chisq, paren2, [P_VR, P_Box], Col, FB) :-
-    FB = [ "Please do not forget the parentheses around ", 
-	   \mmlm(Col, color(paren2, ["(", P_VR - P_Box, ")"])) ].
+feedback(chisq, firstbin, [P_VR, P_Box], Col, FB) :-
+    FB = [ "Please subtract ", \mmlm(Col, color(firstbin, P_Box)), " from ",
+	   \mmlm(Col, color(firstbin, P_VR)), " rather than adding them up." ].
 
-hint(chisq, paren2, [P_VR, P_Box], Col, FB) :-
-    FB = [ "Do not forget to add parentheses around ", 
-	   \mmlm(Col, color(paren2, ["(", P_VR + P_Box, ")"])) ].
+hint(chisq, firstbin, [P_VR, P_Box], Col, FB) :-
+    FB = [ "Do not add ", \mmlm(Col, color(firstbin, P_Box)), " and ",
+	   \mmlm(Col, color(firstbin, P_VR)) ].
 
-% 4) Forgot parentheses around (1 - p_pool).
+% 3) Forgot parentheses around (1/N_VR + 1/N_Box). happend 1 time
+buggy(chisq, stage(2), From, To, [step(buggy, paren2, [N_VR, N_Box])]) :-
+    From = A * B * (1 / N_VR + 1 / N_Box),
+    X = paren2,
+    To = A * B * color(X, 1) / color(X, N_VR) + color(X, 1) / color(X, N_Box).
+
+feedback(chisq, paren2, [N_VR, N_Box], Col, FB) :-
+    FB = [ "Please do not forget the parenthesis around ", 
+	   \mmlm(Col, color(paren2, ["(", 1 / N_VR + 1 / N_Box, ")"])) ].
+
+hint(chisq, paren2, [N_VR, N_Box], Col, FB) :-
+    FB = [ "Do not forget to add parenthesis around ", 
+	   \mmlm(Col, color(paren2, ["(", 1 / N_VR + 1 / N_Box, ")"])) ].
+
+% 4) Forgot parentheses around denominator in main formula. maybe 1 time?
 buggy(chisq, stage(2), From, To, [step(buggy, paren3, [From])]) :-
     From = P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box),
     To = instead(bug(paren3), P_Pool * 1 - P_Pool * 1 / N_VR + 1 / N_Box, From).
@@ -177,13 +180,15 @@ hint(chisq, paren3, [From], Col, FB) :-
     FB = [ "Do not forget to add parentheses around he different ",
 	   " elements in ", \mmlm(Col, color(paren3, From)) ].
 
-% 5) Forgot square.
-buggy(chisq, stage(2), From, To, [step(buggy, square, [P_VR, P_Box])]) :-
-    From = (P_VR - P_Box) ^ 2,
-    To = omit_right(bug(square), (P_VR - P_Box) ^ 2).
+% 5) added +1 to the numerator of p_pool. happend 2 times
+buggy(chisq, stage(2), From, To, [step(buggy, add1, [From])]) :-
+    From = dfrac(s_VR + s_Box, n_VR + n_Box),
+    To = dfrac(invent_left(bug(add1), 1 + s_VR) + s_Box, n_VR + n_Box).
 
-feedback(chisq, square, [P_VR, P_Box], Col, FB) :-
-    FB = [ "Please remember to square ", \mmlm(Col, color(square, ["(", P_VR - P_Box, ")"])) ].
+feedback(chisq, add1, [From], Col, FB) :-
+    FB = [ "Please do not add ", \mmlm(Col, ["+", 1]), " to the numerator of ", 
+	   \mmlm(Col, color(add1, From)) ].
 
-hint(chisq, square, [P_VR, P_Box], Col, FB) :-
-    FB = [ "Do not forget the square in ", \mmlm(Col, color(square, (P_VR - P_Box)^2)) ].
+hint(chisq, add1, [_From], Col, FB) :-
+    FB = [ "Do not add ", \mmlm(Col, ["+", 1]), " to the numerator of ", 
+	   \mmlm(Col, p_pool) ].
