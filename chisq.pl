@@ -66,8 +66,8 @@ render(chisq, item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box), Form) -->
               [ "“Laparoscopy-naïve medical students were randomized into ",
                 "two groups. (...) The VR group completed the operation more ",
                 "often within 80 min than the Box ",
-                "group ", \mmlm(["(", (r(P_VR*100)), "%"]), " vs. ", 
-		\mmlm([(r(P_Box*100)), "%)."]), " The percentages ",
+                "group ", \mmlm([round(0)], ["(", (r(P_VR*100)), "%"]), " vs. ", 
+		\mmlm([round(0)], [(r(P_Box*100)), "%)."]), " The percentages ",
                 "correspond to ", \mmlm([round(0)], r(S_VR)), " people (out ",
                 "of ", \mmlm([round(0)], [r(N_VR), ")"]), " in the VR group ",
                 "and ", \mmlm([round(0)], r(S_Box)), " people (out ",
@@ -140,7 +140,7 @@ feedback(chisq, fuba, [], _Col, FB) :-
 hint(chisq, fuba, [], _Col, FB) :-
     FB = [ "Honestly, I don't even know where to begin..." ].
 
-% 2) first instead of second binomial formula. happend 1 time
+% 2) first instead of second binomial formula.
 buggy(chisq, stage(2), From, To, [step(buggy, firstbin, [P_VR, P_Box])]) :-
     From = (P_VR - P_Box) ^ 2,
     To = instead(bug(firstbin), (P_VR + P_Box) ^ 2, From).
@@ -153,7 +153,7 @@ hint(chisq, firstbin, [P_VR, P_Box], Col, FB) :-
     FB = [ "Do not add ", \mmlm(Col, color(firstbin, P_Box)), " and ",
 	   \mmlm(Col, color(firstbin, P_VR)) ].
 
-% 3) Forgot parentheses around (1/N_VR + 1/N_Box). happend 1 time
+% 3) Forgot parentheses around (1/N_VR + 1/N_Box).
 buggy(chisq, stage(2), From, To, [step(buggy, paren2, [N_VR, N_Box])]) :-
     From = A * B * (1 / N_VR + 1 / N_Box),
     X = paren2,
@@ -167,7 +167,7 @@ hint(chisq, paren2, [N_VR, N_Box], Col, FB) :-
     FB = [ "Do not forget to add parenthesis around ", 
 	   \mmlm(Col, color(paren2, ["(", 1 / N_VR + 1 / N_Box, ")"])) ].
 
-% 4) Forgot parentheses around denominator in main formula. maybe 1 time?
+% 4) Forgot parentheses around denominator in main formula.
 buggy(chisq, stage(2), From, To, [step(buggy, paren3, [From])]) :-
     From = P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box),
     To = instead(bug(paren3), P_Pool * 1 - P_Pool * 1 / N_VR + 1 / N_Box, From).
@@ -177,10 +177,10 @@ feedback(chisq, paren3, [From], Col, FB) :-
 	   " elements in ", \mmlm(Col, color(paren3, From)) ].
 
 hint(chisq, paren3, [From], Col, FB) :-
-    FB = [ "Do not forget to add parentheses around he different ",
+    FB = [ "Remember the parentheses around he different ",
 	   " elements in ", \mmlm(Col, color(paren3, From)) ].
 
-% 5) added +1 to the numerator of p_pool. happend 2 times
+% 5) added +1 to the numerator of p_pool.
 buggy(chisq, stage(2), From, To, [step(buggy, add1, [From])]) :-
     From = dfrac(s_VR + s_Box, n_VR + n_Box),
     To = dfrac(invent_left(bug(add1), 1 + s_VR) + s_Box, n_VR + n_Box).
@@ -192,3 +192,17 @@ feedback(chisq, add1, [From], Col, FB) :-
 hint(chisq, add1, [_From], Col, FB) :-
     FB = [ "Do not add ", \mmlm(Col, ["+", 1]), " to the numerator of ", 
 	   \mmlm(Col, p_pool) ].
+
+% 6) Forgot to square z.
+buggy(chisq, stage(2), From, To, [step(buggy, z, [])]) :-
+    From = dfrac((P_VR - P_Box) ^ 2, 
+		P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box)),
+    To = dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box))).
+
+feedback(chisq, z, [], Col, FB) :-
+    FB = [ "Keep in mind that you are supposed to calculate ", 
+	   \mmlm(Col, color(z, chi2)), " rather than ", \mmlm(Col, [color(z, z), "."]),
+	   " Square your answer for the correct result." ].
+
+hint(chisq, z, [], Col, FB) :-
+    FB = [ "Do not calculate ", \mmlm(Col, color(z, z)) ].
