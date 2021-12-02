@@ -41,11 +41,14 @@ search(Task, Expr, Flags, Sorted) :-
 %
 % The sort/4 in the 2nd-to-last line eliminates redundant solutions 
 % (redundant = same flags and same numerical result).
+%
+% Moreover, solutions with NA as numerical result are eliminated.
 searchdep(Task, Expr_Res_Flags) :-
     findall(res(E, R/S, F), 
       ( search(Task, E, F, S),
         dependencies(S),            % check dependencies here
-        int(pl, E, R)
+        int(pl, E, R),
+        int(pl, available(R), _)
       ), Results),
     sort(2, @<, Results, Sorted),
     findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).

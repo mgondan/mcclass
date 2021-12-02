@@ -258,7 +258,7 @@ traps(task(Task, Data)) -->
 % ?- tasks:test.
 %
 test :-
-    test(ztrans).
+    test(ztrans2).
 
 test(Task) :-
     task(Task, TaskData),

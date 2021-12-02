@@ -5,6 +5,9 @@
 :- use_module(session).
 
 :- set_prolog_flag(float_overflow, infinity).
+:- set_prolog_flag(float_undefined, nan).
+:- set_prolog_flag(float_zero_div, infinity).
+
 :- discontiguous int/3.
 :- discontiguous interval/2.
 :- discontiguous example/0.
@@ -590,6 +593,17 @@ example :-
     Y = 1.0 ... 1.0Inf,
     int(pl, X / Y, Z),
     writeln(X / Y --> Z).
+
+%
+% Available: not NA
+%
+int(E, available(X), Res)
+ => int(E, X, L ... U),
+    float_class(L, ClassL),
+    dif(ClassL, nan),
+    float_class(U, ClassU),
+    dif(ClassU, nan),
+    Res = L ... U .  % todo: boolean function
 
 %
 % Fraction
