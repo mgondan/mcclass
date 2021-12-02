@@ -82,78 +82,86 @@ feedback(ztrans2, correct_tail, [_P], _Col, FB) :-
 hint(ztrans2, correct_tail, [_P], _Col, FB) :-
     FB = [ "The lower tail of the Normal distribution is used." ].
 
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Buggy rule (wrong tail) The wrong tail of the normal distribution was selected.
 buggy(ztrans2, stage(2), From, To, [step(buggy, wrong_tail, [P])]) :-
     From = qnorm_(P),
-    To = 1 - qnorm(P).
+    To = instead(bug(wrong_tail), qnorm(1-P), qnorm(P)).
 
 feedback(ztrans2, wrong_tail, [_P], _Col, FB) :-
-    FB = [ "The response matches the wrong tail of the Normal distribution." ].
+    FB = [ "The response matches the wrong tail of the Normal distribution. (wrong_tail)" ].
 
 hint(ztrans2, wrong_tail, [_P], _Col, FB) :-
     FB = [ "Do not use the lower tail of the Normal distribution." ].
 
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Buggy Rule (swap) Mu and Sigma were swapped.
-buggy(ztrans2, stage(1), From, To, [step(buggy, swap, [mu, sigma])]) :-
-    From = item(p, mu, sigma),
-    To = item(p, instead(bug(swap), sigma, mu), instead(bug(swap), mu, sigma));
-    From = item(p, mu, sigma^2),
-    To = item(p, instead(bug(swap), sigma^2, mu), instead(bug(swap), mu, sigma)).
+buggy(ztrans2, stage(2), From, To, [step(buggy, swap, [mu, sigma])]) :-
+    From = z * sigma + mu,
+    To = instead(bug(swap), z * mu + sigma, From);
+    From = z * sigma^2 + mu,
+    To = instead(bug(swap), z * mu + sigma^2, From).
 
-feedback(ztrans2, swap, [Mu, Sigma], Col, FB) :-
-    FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ", 
-	   \mmlm(Col, color(swap, Sigma)) ].
+feedback(ztrans2, swap, [mu, sigma], Col, FB) :-
+    FB = [ "You swapped ", \mmlm(Col, color(swap, mu)), " and ", 
+	   \mmlm(Col, color(swap, sigma)), "(swap)" ].
 
-hint(ztrans2, swap, [Mu, Sigma], Col, FB) :-
-    FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
-	   \mmlm(Col, color(swap, Sigma)), " in a different configuration." ].
+hint(ztrans2, swap, [mu, sigma], Col, FB) :-
+    FB = [ "Try using ", \mmlm(Col, color(swap, mu)), " and ", 
+	   \mmlm(Col, color(swap, sigma)), " in a different configuration." ].
 
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Buggy Rule (vardev swap) standard deviation was mistaken with variance.
-buggy(ztrans2, stage(1), From, To, [step(buggy, vardev_swap, [])]) :-
-    From = item(p, mu, sigma),
-    To = item(p, mu, sigma^2).
+buggy(ztrans2, stage(2), From, To, [step(buggy, vardev_swap, [sigma])]) :-
+    From = z * sigma + mu,
+    To = z * sigma^2 + mu.
 
-feedback(ztrans2, vardev_swap, [], Col, FB) :-
-    FB = [ \mmlm(Col, color(vardev_swap, sigma)), "was squared by mistake" ].
+feedback(ztrans2, vardev_swap, [sigma], Col, FB) :-
+    FB = [ \mmlm(Col, color(vardev_swap, sigma)), "was squared by mistake. (vardev_swap)" ].
 
-hint(ztrans2, vardev_swap, [], _Col, FB) :-
+hint(ztrans2, vardev_swap, [sigma], _Col, FB) :-
     FB = [ "Use the standard deviation instead of the variance." ].
 
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Buggy Rule (pdecimal) p was taken to be a tenth of its true value (5% -/-> 0,05. 5% --> 0,005).
-buggy(ztrans2, stage(1), From, To, [step(buggy, pdecimal, [])]) :-
-    From = item( p , X , Y ),
-    To = item( p/10 , X , Y ).
+buggy(ztrans2, stage(2), From, To, [step(buggy, pdecimal, [P])]) :-
+    From = dfrac(P , 100),
+    To = instead(bug(pdecimal), dfrac( P , 1000), From).
 
-feedback(ztrans2, pdecimal, [], _Col , FB) :-
-    FB = [ "P-% was incorrectly converted to a decimal representation." ].
+feedback(ztrans2, pdecimal, [_P], _Col , FB) :-
+    FB = [ "P-% was incorrectly converted to a decimal representation. (pdecimal)" ].
 
-hint(ztrans2, pdecimal, [], Col, FB) :-
-    FB = [ \mmlm(Col, color(pdecimal, r(p))), "% in decimal representation is ", \mmlm(Col, color(pdecimal, r(p/100))) ].
+hint(ztrans2, pdecimal, [P], Col, FB) :-
+    FB = [ \mmlm(Col, color(pdecimal, r(P))), "% in decimal representation is ", \mmlm(Col, color(pdecimal, r(P/100))) ].
 
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Buggy Rule (pdecimal2) p was taken to be ten times its true value (5% -/-> 0,05. 5% --> 0,5).
-buggy(ztrans2, stage(1), From, To, [step(buggy, pdecimal2, [])]) :-
-    From = item( p , X , Y ),
-    To = item( p*10, X, Y ).
+buggy(ztrans2, stage(2), From, To, [step(buggy, pdecimal2, [P])]) :-
+    From = dfrac( P , 100 ),
+    To = instead(bug(pdecimal2), dfrac( P , 10 ), From).
 
-feedback(ztrans2, pdecimal2, [], _ , FB) :-
-    FB = [ "P-% was incorrectly converted to a decimal representation." ].
+feedback(ztrans2, pdecimal2, [_], _ , FB) :-
+    FB = [ "P-% was incorrectly converted to a decimal representation. (pdecimal2)" ].
 
-hint(ztrans2, pdecimal2, [], Col, FB) :-
-    FB = [ \mmlm(Col, color(pdecimal2, r(p))), "% in decimal representation is ", \mmlm(Col, color(pdecimal2, r(p/100))) ].
+hint(ztrans2, pdecimal2, [P], Col, FB) :-
+    FB = [ \mmlm(Col, color(pdecimal2, r(P))), "% in decimal representation is ", \mmlm(Col, color(pdecimal2, r(P/100))) ].
 
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Buggy Rule (zx) The z value was calculated but taken to be the endresult.
-buggy(ztrans2, stage(2), From, To, [step(buggy, zx, [z, Sigma, Mu])]) :-
-    From = z * Sigma + Mu,
-    To = instead(bug(zx), z , z * Sigma + Mu).
+buggy(ztrans2, stage(2), From, To, [step(buggy, zx, [z, sigma, mu])]) :-
+    From = z * sigma + mu,
+    To = instead(bug(zx), z , From).
 
-feedback(ztrans2, zx, [], _Col, FB) :-
-    FB = [ "To complete the exercise successfully you have to do the second calculation aswell." ].
+feedback(ztrans2, zx, [z, sigma, mu], _Col, FB) :-
+    FB = [ "To complete the exercise successfully you have to do the second calculation aswell. (zx)" ].
 
-hint(ztrans2, zx, [z, Sigma, Mu], Col, FB) :-
-    FB = [ \mmlm(Col, color(zx, z)), "is the correct answer of the first equation. To continue calculate ", \mmlm(Col, color(zx, z * Sigma + Mu)), "." ].
+hint(ztrans2, zx, [z, sigma, mu], Col, FB) :-
+    FB = [ \mmlm(Col, color(zx, z)), "is the correct answer of the first equation. To continue calculate ", \mmlm(Col, color(zx, z * sigma + mu)), "." ].
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
