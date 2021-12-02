@@ -73,8 +73,8 @@ hint(ztrans2, allinone, [], _Col, FB) :-
 
 % Expert rule (correct tail)
 expert(ztrans2, stage(2), From, To, [step(expert, correct_tail, [P])]) :-
-    From = qnorm_(P),
-    To = qnorm(P).
+    From = qnorm_(dfrac(P, 100)),
+    To = qnorm(dfrac(P, 100)).
 
 feedback(ztrans2, correct_tail, [_P], _Col, FB) :-
     FB = [ "The response matches the correct tail of the Normal distribution." ].
