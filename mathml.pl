@@ -1488,6 +1488,11 @@ math(Flags, invent_right(bug(_Bug), Expr), New, M),
     Flags = New,
     M = L.
 
+math(Flags, invent_right(bug(Bug), L^R), New, M),
+    option(error(highlight), Flags, fix)
+ => Flags = New,
+    M = L^color(Bug, R).
+
 math(Flags, invent_right(bug(Bug), Expr), New, M),
     option(error(highlight), Flags, fix)
  => Expr =.. [Op, L, R],
