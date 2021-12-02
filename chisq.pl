@@ -120,8 +120,7 @@ hint(chisq, allinone, [], _Col, FB) :-
     FB = [ "Try to do everything correctly." ].
 
 % 1) Forgot all parentheses in main equation.
-buggy(chisq, stage(2), From, To, Flags) :-
-    Flags = [step(buggy, paren, [N_VR, N_Box]), depends(fuba)],
+buggy(chisq, stage(2), From, To, [step(buggy, paren, []), depends(fuba)]) :-
     From = dfrac((P_VR - P_Box) ^ 2, P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box)),
     To = instead(bug(paren), 
 	 P_VR - dfrac(P_Box ^ 2, P_Pool) * 1 - P_Pool * 1 / N_VR + 1 / N_Box, From).
@@ -180,20 +179,7 @@ hint(chisq, paren3, [From], Col, FB) :-
     FB = [ "Remember the parentheses around he different ",
 	   " elements in ", \mmlm(Col, color(paren3, From)) ].
 
-% 5) added +1 to the numerator of p_pool.
-buggy(chisq, stage(2), From, To, [step(buggy, add1, [From])]) :-
-    From = dfrac(s_VR + s_Box, n_VR + n_Box),
-    To = dfrac(invent_left(bug(add1), 1 + s_VR) + s_Box, n_VR + n_Box).
-
-feedback(chisq, add1, [From], Col, FB) :-
-    FB = [ "Please do not add ", \mmlm(Col, ["+", 1]), " to the numerator of ", 
-	   \mmlm(Col, color(add1, From)) ].
-
-hint(chisq, add1, [_From], Col, FB) :-
-    FB = [ "Do not add ", \mmlm(Col, ["+", 1]), " to the numerator of ", 
-	   \mmlm(Col, p_pool) ].
-
-% 6) Forgot to square z.
+% 5) Forgot to square z.
 buggy(chisq, stage(2), From, To, [step(buggy, z, [])]) :-
     From = dfrac((P_VR - P_Box) ^ 2, 
 		P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box)),
@@ -206,3 +192,62 @@ feedback(chisq, z, [], Col, FB) :-
 
 hint(chisq, z, [], Col, FB) :-
     FB = [ "Do not calculate ", \mmlm(Col, color(z, z)) ].
+
+% 6) - instead of + for both parts of p_pool.
+buggy(chisq, stage(2), From, To, Flags) :-
+    Flags = [step(buggy, subt, [S_VR, S_Box, N_VR, N_Box])],
+    From = dfrac(S_VR + S_Box, N_VR + N_Box),
+    To = color(subt, dfrac(S_VR - S_Box, N_VR - N_Box)).
+
+feedback(chisq, subt, [_A, _B, _C, _D], Col, FB) :-
+    FB = [ "Please use addition rather than subtraction in both numerator ",
+	   "and denominator when calculating ",
+	   \mmlm(Col, color(subt, p_pool)) ].
+
+hint(chisq, subt, [S_VR, S_Box, N_VR, N_Box], Col, FB) :-
+    FB = [ "Do not subtract ", \mmlm(Col, color(subt, S_Box)), " from ", 
+	   \mmlm(Col, color(subt, S_VR)), " or ", \mmlm(Col, color(subt, N_Box)), 
+	   " from ", \mmlm(Col, color(subt, N_VR)), " in ", 
+	   \mmlm(Col, color(subt, p_pool)) ].
+
+% 7) flipped nominator and denominator in main equation.
+buggy(chisq, stage(2), From, To, [step(buggy, flip, [])]) :-
+    From = dfrac((P_VR - P_Box) ^ 2, 
+	   p_pool * (1 - p_pool) * (1 / N_VR + 1 / N_Box)),
+    To = instead(bug(flip), dfrac(p_pool * (1 - p_pool) * (1 / N_VR + 1 / N_Box), 
+	 (P_VR - P_Box) ^ 2), From).
+
+feedback(chisq, flip, [], Col, FB) :-
+    FB = [ "It appears you flipped the numerator and denominator of ", 
+	   \mmlm(Col, color(flip, chi2)) ].
+
+hint(chisq, flip, [], Col, FB) :-
+    FB = [ "Do not flip the numerator and denominator of the main ",
+	   \mmlm(Col, hyph(chi2, "Formula")) ].
+
+% 8) added +1 to the numerator of p_pool.
+%buggy(chisq, stage(2), From, To, [step(buggy, add1, [From])]) :-
+%    From = dfrac(s_VR + s_Box, n_VR + n_Box),
+%    To = dfrac(invent_left(bug(add1), 1 + s_VR) + s_Box, n_VR + n_Box).
+
+feedback(chisq, add1, [From], Col, FB) :-
+    FB = [ "Please do not add ", \mmlm(Col, ["+", 1]), " to the numerator of ", 
+	   \mmlm(Col, color(add1, From)) ].
+
+hint(chisq, add1, [_From], Col, FB) :-
+    FB = [ "Do not add ", \mmlm(Col, ["+", 1]), " to the numerator of ", 
+	   \mmlm(Col, p_pool) ].
+
+% 9) Used Percentage rather than Probability for p_VR and p_Box.
+%buggy(chisq, stage(1), From, To, [step(buggy, prob, [])]) :-
+%    From = item(p_VR, s_VR, n_VR, p_Box, s_Box, n_Box),
+%    To = item(instead(bug(prob), p_VR * 100, p_VR), s_VR, n_VR, 
+%	      instead(bug(prob), p_Box * 100, p_Box), s_Box, n_Box).
+
+feedback(chisq, prob, [], Col, FB) :-
+    FB = [ "Keep in mind that ", \mmlm(Col, color(prob, p_VR)), " and ",
+	   \mmlm(Col, color(prob, p_Box)), " are probabilites rather than percentages" ].
+
+hint(chisq, prob, [], Col, FB) :-
+    FB = [ "Do not use the percentages corresponding to ",
+	   \mmlm(Col, color(prob, p_VR)), " and ", \mmlm(Col, color(prob, p_Box)) ].
