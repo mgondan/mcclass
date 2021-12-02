@@ -59,7 +59,7 @@ start(ztrans2, item(p, mu, sigma)) :-
 intermediate(ztrans2, qnorm_).
 expert(ztrans2, stage(2), From, To, [step(expert, allinone, [])]) :-
     From = item(P, Mu, Sigma),
-    To = { '<-'( z, qnorm_(P/100)) ;
+    To = { '<-'( z, qnorm_(dfrac(P, 100))) ;
 	   '<-'(x, z * Sigma + Mu) ;
            x
          }.
@@ -98,19 +98,17 @@ hint(ztrans2, wrong_tail, [_P], _Col, FB) :-
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Buggy Rule (swap) Mu and Sigma were swapped.
-buggy(ztrans2, stage(2), From, To, [step(buggy, swap, [mu, sigma])]) :-
-    From = z * sigma + mu,
-    To = instead(bug(swap), z * mu + sigma, From);
-    From = z * sigma^2 + mu,
-    To = instead(bug(swap), z * mu + sigma^2, From).
+buggy(ztrans2, stage(2), From, To, [step(buggy, swap, [mu, Sigma])]) :-
+    From = z * Sigma + mu,
+    To = instead(bug(swap), z * mu + Sigma, From).
 
-feedback(ztrans2, swap, [mu, sigma], Col, FB) :-
-    FB = [ "You swapped ", \mmlm(Col, color(swap, mu)), " and ", 
-	   \mmlm(Col, color(swap, sigma)), "(swap)" ].
+feedback(ztrans2, swap, [Mu, Sigma], Col, FB) :-
+    FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ", 
+	   \mmlm(Col, color(swap, Sigma)), "(swap)" ].
 
-hint(ztrans2, swap, [mu, sigma], Col, FB) :-
-    FB = [ "Try using ", \mmlm(Col, color(swap, mu)), " and ", 
-	   \mmlm(Col, color(swap, sigma)), " in a different configuration." ].
+hint(ztrans2, swap, [Mu, Sigma], Col, FB) :-
+    FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
+	   \mmlm(Col, color(swap, Sigma)), " in a different configuration." ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
