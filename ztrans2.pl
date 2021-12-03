@@ -57,43 +57,49 @@ start(ztrans2, item(p, mu, sigma)) :-
     init(ztrans2).
 
 intermediate(ztrans2, qnorm_).
-expert(ztrans2, stage(2), From, To, [step(expert, allinone, [])]) :-
+expert(ztrans2, stage(2), From, To, [step(expert, steps, [])]) :-
     From = item(P, Mu, Sigma),
-    To = { '<-'( z, qnorm_(dfrac(P, 100))) ;
-	   '<-'(x, z * Sigma + Mu) ;
+    To = { '<-'( z, qnorm_(1 - dfrac(P, 100))) ;
+           '<-'(x, z * Sigma + Mu) ;
            x
          }.
 
-feedback(ztrans2, allinone, [], _Col, FB) :-
-    FB = [ "Everything done correctly."].
+feedback(ztrans2, steps, [], Col, FB) :-
+    FB = [ "Determined the ", \mmlm(Col, z), "-statistic and translated it ",
+           "to the original scale." ].
 
-hint(ztrans2, allinone, [], _Col, FB) :-
-    FB = [ "Try to do everything correctly."].
+hint(ztrans2, steps, [], Col, FB) :-
+    FB = [ "First determine the ", \mmlm(Col, z), "statistic. Then translate ",
+           "it to the original scale." ].
 
 
 % Expert rule (correct tail)
-expert(ztrans2, stage(2), From, To, [step(expert, correct_tail, [P])]) :-
-    From = qnorm_(dfrac(P, 100)),
-    To = qnorm(dfrac(P, 100)).
+expert(ztrans2, stage(2), From, To, [step(expert, correct_tail, [])]) :-
+    From = qnorm_(P),
+    To = qnorm(P).
 
-feedback(ztrans2, correct_tail, [_P], _Col, FB) :-
-    FB = [ "The response matches the correct tail of the Normal distribution." ].
+feedback(ztrans2, correct_tail, [], _Col, FB) :-
+    FB = [ "The response matches the lower tail of the Normal distribution." ].
 
-hint(ztrans2, correct_tail, [_P], _Col, FB) :-
-    FB = [ "The lower tail of the Normal distribution is used." ].
+hint(ztrans2, correct_tail, [], _Col, FB) :-
+    FB = [ "The upper tail of the Normal distribution is used." ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
-% Buggy rule (wrong tail) The wrong tail of the normal distribution was selected.
-buggy(ztrans2, stage(2), From, To, [step(buggy, wrong_tail, [P])]) :-
-    From = qnorm_(P),
-    To = instead(bug(wrong_tail), qnorm(1-P), qnorm(P)).
+% wrong_tail
+%
+% The wrong tail of the Normal distribution was selected.
+%
+buggy(ztrans2, stage(2), From, To, [step(buggy, wrong_tail, [])]) :-
+    From = qnorm_(1 - P),
+    To = qnorm(instead(bug(wrong_tail), P, 1 - P)).
 
-feedback(ztrans2, wrong_tail, [_P], _Col, FB) :-
-    FB = [ "The response matches the wrong tail of the Normal distribution. (wrong_tail)" ].
+feedback(ztrans2, wrong_tail, [], _Col, FB) :-
+    FB = [ "The response matches the lower tail of the Normal ",
+           "distribution. (wrong_tail)" ].
 
-hint(ztrans2, wrong_tail, [_P], _Col, FB) :-
-    FB = [ "Do not use the lower tail of the Normal distribution." ].
+hint(ztrans2, wrong_tail, [], _Col, FB) :-
+    FB = [ "Make sure to use the correct tail of the Normal distribution." ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
@@ -131,16 +137,16 @@ hint(ztrans2, wrong_tail, [_P], _Col, FB) :-
 % students divide by 1000 instead of 100 when translating percentages to
 % proportions.
 %
-buggy(ztrans2, stage(2), From, To, [step(buggy, pdec1000, [1000])]) :-
+buggy(ztrans2, stage(2), From, To, [step(buggy, perc1000, [1000])]) :-
     From = dfrac(P, 100),
-    To = dfrac(P, instead(bug(pdec1000), 1000, 100)).
+    To = dfrac(P, instead(bug(perc1000), 1000, 100)).
 
-feedback(ztrans2, pdec1000, [P], Col , FB) :-
+feedback(ztrans2, perc1000, [P], Col , FB) :-
     FB = [ "The percentage was divided ",
-           "by ", \mmlm(Col, color(pdec1000, P)), " instead of 100 to obtain ",
-           "a proportion (pdecimal)." ].
+           "by ", \mmlm(Col, color(perc1000, P)), " instead of 100 to obtain ",
+           "a proportion (perc1000)." ].
 
-hint(ztrans2, pdec1000, [_P], _Col, FB) :-
+hint(ztrans2, perc1000, [_P], _Col, FB) :-
     FB = [ "Make sure to divide by 100 when translating a percentage to a ",
            "proportion." ].
 
