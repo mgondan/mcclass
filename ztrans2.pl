@@ -139,15 +139,15 @@ hint(ztrans2, pdecimal, [P], Col, FB) :-
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Buggy Rule (pdecimal2) p was taken to be ten times its true value (5% -/-> 0,05. 5% --> 0,5).
-buggy(ztrans2, stage(2), From, To, [step(buggy, pdecimal2, [P])]) :-
-    From = dfrac( P , 100 ),
-    To = instead(bug(pdecimal2), dfrac( P , 10 ), From).
-
-feedback(ztrans2, pdecimal2, [_], _ , FB) :-
-    FB = [ "P-% was incorrectly converted to a decimal representation. (pdecimal2)" ].
-
-hint(ztrans2, pdecimal2, [P], Col, FB) :-
-    FB = [ \mmlm(Col, color(pdecimal2, r(P))), "% in decimal representation is ", \mmlm(Col, color(pdecimal2, r(P/100))) ].
+%buggy(ztrans2, stage(2), From, To, [step(buggy, pdecimal2, [P])]) :-
+%    From = dfrac( P , 100 ),
+%    To = instead(bug(pdecimal2), dfrac( P , 10 ), From).
+%
+%feedback(ztrans2, pdecimal2, [_], _ , FB) :-
+%    FB = [ "P-% was incorrectly converted to a decimal representation. (pdecimal2)" ].
+%
+%hint(ztrans2, pdecimal2, [P], Col, FB) :-
+%    FB = [ \mmlm(Col, color(pdecimal2, r(P))), "% in decimal representation is ", \mmlm(Col, color(pdecimal2, r(P/100))) ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
