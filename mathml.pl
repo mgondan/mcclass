@@ -1432,10 +1432,10 @@ math(Flags, instead(_Bug, _Wrong, Correct), New, M),
  => Flags = New,
     M = Correct.
 
-math(Flags, instead(_Bug, Wrong, _Correct), New, M),
+math(Flags, instead(bug(Bug), Wrong, _Correct), New, M),
     option(error(show), Flags, fix)
  => Flags = New,
-    M = Wrong.
+    M = color(Bug, Wrong).
 
 math(Flags, instead(bug(Bug), _Wrong, Correct), New, M),
     option(error(fix), Flags, fix)
