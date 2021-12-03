@@ -37,6 +37,10 @@ search(Task, Expr, Flags, Sorted) :-
     append(Flags2, Flags1, Flags),  % confusions (stage 1) last in feedback
     sort(Flags, Sorted).
 
+% Codes for steps
+codes(Steps, Codes) :-
+    findall(C, member(step(_Type, C, _Args), Steps), Codes).
+
 % Return all solutions for a given task
 %
 % The sort/4 in the 2nd-to-last line eliminates redundant solutions 
@@ -44,9 +48,10 @@ search(Task, Expr, Flags, Sorted) :-
 %
 % Moreover, solutions with NA as numerical result are eliminated.
 searchdep(Task, Expr_Res_Flags) :-
-    findall(res(E, R/S, F), 
+    findall(res(E, R/C, F), 
       ( search(Task, E, F, S),
         dependencies(S),            % check dependencies here
+        codes(S, C),
         int(pl, E, R),
         int(pl, available(R), _)
       ), Results),
