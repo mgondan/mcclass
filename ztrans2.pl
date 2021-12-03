@@ -98,37 +98,37 @@ hint(ztrans2, wrong_tail, [_P], _Col, FB) :-
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Buggy Rule (swap) Mu and Sigma were swapped.
-buggy(ztrans2, stage(2), From, To, [step(buggy, swap, [mu, Sigma])]) :-
-    From = z * Sigma + mu,
-    To = instead(bug(swap), z * mu + Sigma, From).
-
-feedback(ztrans2, swap, [Mu, Sigma], Col, FB) :-
-    FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ", 
-	   \mmlm(Col, color(swap, Sigma)), "(swap)" ].
-
-hint(ztrans2, swap, [Mu, Sigma], Col, FB) :-
-    FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
-	   \mmlm(Col, color(swap, Sigma)), " in a different configuration." ].
+%buggy(ztrans2, stage(2), From, To, [step(buggy, swap, [mu, Sigma])]) :-
+%    From = z * Sigma + mu,
+%    To = instead(bug(swap), z * mu + Sigma, From).
+%
+%feedback(ztrans2, swap, [Mu, Sigma], Col, FB) :-
+%    FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ",
+%	   \mmlm(Col, color(swap, Sigma)), "(swap)" ].
+%
+%hint(ztrans2, swap, [Mu, Sigma], Col, FB) :-
+%    FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
+%	   \mmlm(Col, color(swap, Sigma)), " in a different configuration." ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Buggy Rule (vardev swap) standard deviation was mistaken with variance.
-buggy(ztrans2, stage(2), From, To, [step(buggy, vardev_swap, [sigma])]) :-
-    From = Z * sigma + Mu,
-    To = Z * invent_right(bug(vardev_swap), sigma^2) + Mu.
-
-feedback(ztrans2, vardev_swap, [Sigma], Col, FB) :-
-    FB = [ \mmlm(Col, color(vardev_swap, Sigma)), "was squared by mistake. (vardev_swap)" ].
-
-hint(ztrans2, vardev_swap, [_Sigma], _Col, FB) :-
-    FB = [ "Use the standard deviation instead of the variance." ].
+%buggy(ztrans2, stage(2), From, To, [step(buggy, vardev_swap, [sigma])]) :-
+%    From = Z * sigma + Mu,
+%    To = Z * invent_right(bug(vardev_swap), sigma^2) + Mu.
+%
+%feedback(ztrans2, vardev_swap, [Sigma], Col, FB) :-
+%    FB = [ \mmlm(Col, color(vardev_swap, Sigma)), "was squared by mistake. (vardev_swap)" ].
+%
+%hint(ztrans2, vardev_swap, [_Sigma], _Col, FB) :-
+%    FB = [ "Use the standard deviation instead of the variance." ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Buggy Rule (pdecimal) p was taken to be a tenth of its true value (5% -/-> 0,05. 5% --> 0,005).
 buggy(ztrans2, stage(2), From, To, [step(buggy, pdecimal, [P])]) :-
     From = dfrac(P , 100),
-    To = instead(bug(pdecimal), dfrac( P , 1000), From).
+   To = instead(bug(pdecimal), dfrac( P , 1000), From).
 
 feedback(ztrans2, pdecimal, [_P], _Col , FB) :-
     FB = [ "P-% was incorrectly converted to a decimal representation. (pdecimal)" ].
@@ -152,14 +152,14 @@ hint(ztrans2, pdecimal2, [P], Col, FB) :-
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
 % Buggy Rule (zx) The z value was calculated but taken to be the endresult.
-buggy(ztrans2, stage(2), From, To, [step(buggy, zx, [z, sigma, mu])]) :-
-    From = z * sigma + mu,
-    To = instead(bug(zx), z , From).
-
-feedback(ztrans2, zx, [z, sigma, mu], _Col, FB) :-
-    FB = [ "To complete the exercise successfully you have to do the second calculation aswell. (zx)" ].
-
-hint(ztrans2, zx, [z, sigma, mu], Col, FB) :-
-    FB = [ \mmlm(Col, color(zx, z)), "is the correct answer of the first equation. To continue calculate ", \mmlm(Col, color(zx, z * sigma + mu)), "." ].
+%buggy(ztrans2, stage(2), From, To, [step(buggy, zx, [z, sigma, mu])]) :-
+%    From = z * sigma + mu,
+%    To = instead(bug(zx), z , From).
+%
+%feedback(ztrans2, zx, [z, sigma, mu], _Col, FB) :-
+%    FB = [ "To complete the exercise successfully you have to do the second calculation aswell. (zx)" ].
+%
+%hint(ztrans2, zx, [z, sigma, mu], Col, FB) :-
+%    FB = [ \mmlm(Col, color(zx, z)), "is the correct answer of the first equation. To continue calculate ", \mmlm(Col, color(zx, z * sigma + mu)), "." ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
