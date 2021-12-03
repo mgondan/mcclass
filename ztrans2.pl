@@ -125,16 +125,24 @@ hint(ztrans2, wrong_tail, [_P], _Col, FB) :-
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
-% Buggy Rule (pdecimal) p was taken to be a tenth of its true value (5% -/-> 0,05. 5% --> 0,005).
-buggy(ztrans2, stage(2), From, To, [step(buggy, pdecimal, [P])]) :-
-    From = dfrac(P , 100),
-   To = instead(bug(pdecimal), dfrac( P , 1000), From).
+% pdec1000
+%
+% Probably due to confusion with the omitted 0 in p-values like .05, some 
+% students divide by 1000 instead of 100 when translating percentages to
+% proportions.
+%
+buggy(ztrans2, stage(2), From, To, [step(buggy, pdec1000, [1000])]) :-
+    From = dfrac(P, 100),
+    To = dfrac(P, instead(bug(pdec1000), 1000, 100)).
 
-feedback(ztrans2, pdecimal, [_P], _Col , FB) :-
-    FB = [ "P-% was incorrectly converted to a decimal representation. (pdecimal)" ].
+feedback(ztrans2, pdec1000, [P], Col , FB) :-
+    FB = [ "The percentage was divided ",
+           "by ", \mmlm(Col, color(pdec1000, P)), " instead of 100 to obtain ",
+           "a proportion (pdecimal)." ].
 
-hint(ztrans2, pdecimal, [P], Col, FB) :-
-    FB = [ \mmlm(Col, color(pdecimal, r(P))), "% in decimal representation is ", \mmlm(Col, color(pdecimal, r(P/100))) ].
+hint(ztrans2, pdec1000, [_P], _Col, FB) :-
+    FB = [ "Make sure to divide by 100 when translating a percentage to a ",
+           "proportion." ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
