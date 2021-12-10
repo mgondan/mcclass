@@ -65,10 +65,10 @@ render(tgroups, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 		p(class('card-text'),
 		  [ "“Laparoscopy-naïve medical students were randomized into ",
 		    "two groups. The Box group (", 
-		    \mmlm(N_BOX = r(n_box)), ") used E-learning for ", 
+		    \mmlm([round(0)], N_BOX = r(n_box)), ") used E-learning for ", 
 		    "laparoscopic cholecystectomy and practiced ",
 		    "basic skills with Box trainers. The VR group (", 
-		    \mmlm(N_VR = r(n_vr)), ") trained ",
+		    \mmlm([round(0)], N_VR = r(n_vr)), ") trained ",
 		    "basic skills and laparoscopic cholecystectomy on ",
 		    "LAP Mentor II (Simbionix, Cleveland, USA). Each group ",
 		    "trained 3 × 4 hours followed by a knowledge test. Blinded ",
@@ -80,8 +80,9 @@ render(tgroups, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 		    "scored higher than the VR group in the knowledge ",
 		    "test (Box: 13.4 ± 1.2 vs. VR: 10.8 ± 1.8, p < 0.001). Both ",
 		    "groups showed equal operative performance in the OSATS score ",
-		    "(VR: ", \mmlm(r(vr)), " ± ", \mmlm(r(s_vr)), " vs. BOX: ", \mmlm(r(box)), 
-		    " ± ", \mmlm(r(s_box)), " p = 0.437). The significance level is set to ",
+		    "(VR: ", \mmlm([round(1)], r(vr)), " ± ", \mmlm([round(1)], r(s_vr)), 
+		    " vs. BOX: ", \mmlm([round(1)], r(box)), " ± ", \mmlm([round(1)], r(s_box)), 
+		    ", p = 0.437). The significance level is set to ",
 		    \mmlm(alpha = [5, "%"]), " two-tailed. ",
 		    "Students generally liked training and felt well prepared for ", 
 		    "assisting in laparoscopic surgery. The efficiency of the training ",
@@ -131,7 +132,7 @@ feedback(tgroups, indep, [], Col, FB) :-
 hint(tgroups, indep, [], _Col, FB) :-
     FB = [ "Try to do everthing correctly." ].
 
-% 1) Swap t0 and eot.
+% 1) Swap vr and box groups.
 buggy(tgroups, stage(1), From, To, [step(buggy, swap, [])]) :-
     From = item(vr, s_vr, n_vr, box, s_box, n_box),
     To = item(box, s_box, n_box, vr, s_vr, n_vr).
@@ -219,7 +220,8 @@ feedback(tgroups, nosr1, [A], Col, FB) :-
    FB = [ "Remeber to draw the square root of ", \mmlm(Col, color(nosr1, A))].
 
 hint(tgroups, nosr1, [A], Col, FB) :-
-    FB = [ "Keep in mind that you need to draw the square root of ", \mmlm(Col, color(nosr1, A))].
+    FB = [ "Keep in mind that you need to draw the square root of ", 
+	   \mmlm(Col, color(nosr1, A))].
 
 % 8) forgot square root and parenthesis.
 buggy(tgroups, stage(2), From, To,  [step(buggy, nosr2, [S2P])]) :-
@@ -232,6 +234,18 @@ feedback(tgroups, nosr2, [_S2P], _Col, FB) :-
 hint(tgroups, nosr2, [S2P], Col, FB) :-
     FB = [ "Keep in mind that you need to draw the square root of ", 
 	   \mmlm(Col, color(nosr2, S2P * (1 / "n_vr" + 1 / "n_box"))) ].
+
+% 8) Swapped N_VR and N_Box
+buggy(tgroups, stage(1), From, To, [step(buggy, nswap, [])]) :-
+    From = item(vr, s_vr, n_vr, box, s_box, n_box),
+    To = item(vr, s_vr, color(nswap, n_box), box, s_box, color(nswap, n_vr)).
+
+feedback(tgroups, nswap, [], Col, FB) :-
+    FB = [ "Please double check the sample sizes ", \mmlm(Col, color(nswap, n_vr)), 
+	   " and ", \mmlm(Col, color(nswap, n_box)), " of both groups." ].
+
+hint(tgroups, nswap, [], Col, FB) :-
+    FB = [ "Do not swap the sample sizes in ", \mmlm(Col, color(nswap, s2p)) ].
 
 
 % 6) forgot school math and parenthesis. 
