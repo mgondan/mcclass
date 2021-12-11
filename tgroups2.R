@@ -17,7 +17,7 @@
         alpha <- 0.05
 
 
-tgroups_data = function(fname)
+tgroups2_data = function(fname)
 {
     write.csv2(data, fname, row.names=FALSE)
 }
