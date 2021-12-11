@@ -22,6 +22,7 @@
 :- consult(dbinom).
 :- consult(qbinom).
 :- consult(chisq).
+:- consult(power).
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
