@@ -1,4 +1,4 @@
-%:- module(tgroups,
+%:- module(tgroups2,
 %	[ start/2, init/1, data/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, 
 %	render//3]).
 
@@ -10,12 +10,12 @@
 
 :- multifile init/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
-init(tgroups) :-
-    r_session_source(tgroups).
+init(tgroups2) :-
+    r_session_source(tgroups2).
 
-data(tgroups, File) :-
+data(tgroups2, File) :-
     session_tmpfile(File),
-    r_session(tgroups_data(File)).
+    r_session(tgroups2_data(File)).
 
 %
 % Prettier symbols for mathematical rendering
@@ -38,7 +38,7 @@ interval:hook(pl, s_box, r(s_box)).
 interval:hook(pl, s2p, r(s2p)).
 interval:hook(pl, t, r(t)).
 
-render(tgroups, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
+render(tgroups2, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
     { option(resp(R), Form, '#.##') },
 	html(
 	  [ div(class(card), div(class('card-body'),
@@ -88,15 +88,18 @@ render(tgroups, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 		    "assisting in laparoscopic surgery. The efficiency of the training ",
 		    "was judged higher by the VR group than by the Box group."
 		  ]), 
+		p(class('card-text'),
+		  [ "Compare the OSATS-Scores of both Groups, assuming homogeneity of variance."
+ 		  ]), 
 		 form(method('POST'),
-		    button([ class('btn btn-secondary'), name(download), value(tgroups) ], "Download data"))
+		    button([ class('btn btn-secondary'), name(download), value(tgroups2) ], "Download data"))
 	      ])),
 	    div(class(card), div(class('card-body'),
 	    [ h4(class('card-title'), [a(id(question), []), "Question"]),
 	      p(class('card-text'),
-		[ "Is VR training superior to traditional Box training?"
+		[ "Calculate the the pooled Variance ", \mmlm(s2p)
 		]),
-	      form([class(form), method('POST'), action('#tgroups-pnorm')],
+	      form([class(form), method('POST'), action('#tgroups2-indep')],
 		[ div(class("input-group mb-3"),
 		    [ div(class("input-group-prepend"), 
 			span(class("input-group-text"), "Response")),
@@ -114,23 +117,74 @@ render(tgroups, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 
 % t-test for independent groups
 intermediate(_, item).
-start(tgroups, item(vr, s_vr, n_vr, box, s_box, n_box)).
+start(tgroups2, item(vr, s_vr, n_vr, box, s_box, n_box)).
 
-% Correctly identified the problem as a t-test for independent groups.
-intermediate(tgroups, indep).
-expert(tgroups, stage(2), From, To, [step(expert, indep, [])]) :-
-    From = item(VR, S_VR, N_VR, BOX, S_BOX, N_BOX),
-    To = { '<-'(s2p, var_pool(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX)) ;
-	   '<-'(t, dfrac(VR - BOX, sqrt(s2p * (1/N_VR + 1/N_BOX)))) ;
-	   t
+
+%
+% This Task should be completed before tgroups.pl as it only covers the first 
+% half of the necessarry calculations to solve a full t-test.
+%
+% Correctly calculated the pooled variance.
+expert(tgroups2, stage(2), From, To, [step(expert, indep, [])]) :-
+    From = item(_VR, S_VR, N_VR, _BOX, S_BOX, N_BOX),
+    To = { '<-'(s2p, dfrac((N_VR - 1) * S_VR ^ 2 + (N_BOX - 1) * S_BOX ^ 2, 
+			   N_VR + N_BOX - 2)) ;
+	   s2p
 	 }.
 
-feedback(tgroups, indep, [], Col, FB) :-
-    FB = [ "You identified the problem as a ", \mmlm(Col, hyph(t, "test")),
-	   " for independent samples and solved it correctly." ].
+feedback(tgroups2, indep, [], _Col, FB) :-
+    FB = [ "You correctly reportet the pooled variance." ].
 
-hint(tgroups, indep, [], _Col, FB) :-
+hint(tgroups2, indep, [], _Col, FB) :-
     FB = [ "Try to do everthing correctly." ].
 
-% 1
+% 1) Used standard deviation instead of variance.
+buggy(tgroups2, stage(2), From, To, [step(buggy, sd, [S_VR, S_BOX])]) :-
+    From = dfrac(A * S_VR ^ 2 + B * S_BOX ^ 2, C),
+    To = dfrac(A * instead(bug(sd), S_VR, S_VR ^ 2) + B * instead(bug(sd), S_BOX, S_BOX ^ 2), C).
+
+feedback(tgroups2, sd, [S_VR, S_BOX], Col, FB) :-
+    FB = [ "Please remember to use the squares of ", 
+	   \mmlm(Col, color(sd, S_VR)), " and ", 
+	   \mmlm(Col, color(sd, S_BOX)), " in the pooled variance." ].
+
+hint(tgroups2, sd, [_S_VR, _S_BOX], _Col, FB) :-
+    FB = [ "Try using the variance rather than the standard deviation ",
+	   "when calculating the pooled variance." ].
+
+% 2) Forgot parentheses around numerator and denominator.
+buggy(tgroups2, stage(2), From, To, [step(buggy, bug1, [N_VR, N_BOX, S_VR, S_BOX])]) :-
+    From = dfrac((N_VR - 1) * S_VR ^ 2 + (N_BOX - 1) * S_BOX ^ 2, 
+		 N_VR + N_BOX - 2),
+    To = invent_right(bug(bug1), invent_left(bug(bug1), color(bug1, N_VR - 1 * S_VR ^ 2 + N_BOX) - 
+	 invent_left(bug(bug1), 1 * dfrac(S_BOX ^ 2, N_VR))) + (N_BOX - 2)).
+
+feedback(tgroups2, bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) :-
+    FB = [ "Please do not forget the parentheses around the numerator and ",
+	   "the denominator of a fraction, ", 
+	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", 
+	   color(bug1, paren(color("#000000", N_VR - 1))) * S_VR ^ 2 + 
+	   color(bug1, paren(color("#000000", N_BOX - 1))) * S_BOX ^ 2))),
+	   color(bug1, paren(color("#000000", N_VR + N_BOX - 2)))))
+	 ].
+
+hint(tgroups2, bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) :-
+    FB = [ "Do not forget the parentheses! The correct formula is ",
+	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", 
+	   color(bug1, paren(color("#000000", N_VR - 1))) * S_VR ^ 2 + 
+	   color(bug1, paren(color("#000000", N_BOX - 1))) * S_BOX ^ 2))),
+	   color(bug1, paren(color("#000000", N_VR + N_BOX - 2)))))
+	 ].
+
+% 3) Swapped N_VR and N_Box.
+buggy(tgroups2, stage(1), From, To, [step(buggy, nswap, [])]) :-
+    From = item(vr, s_vr, n_vr, box, s_box, n_box),
+    To = item(vr, s_vr, color(nswap, n_box), box, s_box, color(nswap, n_vr)).
+
+feedback(tgroups2, nswap, [], Col, FB) :-
+    FB = [ "Please double check the sample sizes ", \mmlm(Col, color(nswap, n_vr)), 
+	   " and ", \mmlm(Col, color(nswap, n_box)), " of both groups." ].
+
+hint(tgroups2, nswap, [], Col, FB) :-
+    FB = [ "Do not swap the sample sizes in ", \mmlm(Col, color(nswap, s2p)) ].
 
