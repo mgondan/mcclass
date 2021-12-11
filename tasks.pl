@@ -16,6 +16,7 @@
 :- consult(oddsratio2).
 :- consult(easyodds).
 :- consult(tgroups).
+:- consult(tgroups2).
 :- consult(ztrans).
 :- consult(ztrans2).
 :- consult(dbinom).
