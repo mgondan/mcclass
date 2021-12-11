@@ -117,7 +117,6 @@ intermediate(_, item).
 start(tgroups, item(vr, s_vr, n_vr, box, s_box, n_box)).
 
 % Correctly identified the problem as a t-test for independent groups.
-intermediate(tgroups, indep).
 expert(tgroups, stage(2), From, To, [step(expert, indep, [])]) :-
     From = item(VR, S_VR, N_VR, BOX, S_BOX, N_BOX),
     To = { '<-'(s2p, var_pool(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX)) ;
