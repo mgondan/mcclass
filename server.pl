@@ -37,6 +37,7 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(ztrans2), handler(ztrans2), []).
 :- http_handler(mcclass(tgroups), handler(tgroups), []).
 :- http_handler(mcclass(tgroups2), handler(tgroups2), []).
+:- http_handler(mcclass(tgroupsdf), handler(tgroupsdf), []).
 :- http_handler(mcclass(dbinom), handler(dbinom), []).
 :- http_handler(mcclass(qbinom), handler(qbinom), []).
 :- http_handler(mcclass(chisq), handler(chisq), []).
