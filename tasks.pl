@@ -17,6 +17,7 @@
 :- consult(easyodds).
 :- consult(tgroups).
 :- consult(tgroups2).
+:- consult(tgroupspl).
 :- consult(ztrans).
 :- consult(ztrans2).
 :- consult(dbinom).
