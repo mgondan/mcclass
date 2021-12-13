@@ -1,4 +1,4 @@
-%:- module(tgroups,
+%:- module(power,
 %	[ start/2, init/1, data/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, 
 %	render//3]).
 
@@ -10,12 +10,12 @@
 
 :- multifile init/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
-init(tgroups) :-
-    r_session_source(tgroups).
+init(power) :-
+    r_session_source(power).
 
-data(tgroups, File) :-
+data(power, File) :-
     session_tmpfile(File),
-    r_session(tgroups_data(File)).
+    r_session(power_data(File)).
 
 %
 % Prettier symbols for mathematical rendering
@@ -38,7 +38,7 @@ interval:hook(pl, s_box, r(s_box)).
 interval:hook(pl, s2p, r(s2p)).
 interval:hook(pl, t, r(t)).
 
-render(tgroups, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
+render(power, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
     { option(resp(R), Form, '#.##') },
 	html(
 	  [ div(class(card), div(class('card-body'),
@@ -89,14 +89,14 @@ render(tgroups, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 		    "was judged higher by the VR group than by the Box group."
 		  ]), 
 		 form(method('POST'),
-		    button([ class('btn btn-secondary'), name(download), value(tgroups) ], "Download data"))
+		    button([ class('btn btn-secondary'), name(download), value(power) ], "Download data"))
 	      ])),
 	    div(class(card), div(class('card-body'),
 	    [ h4(class('card-title'), [a(id(question), []), "Question"]),
 	      p(class('card-text'),
 		[ "Is VR training superior to traditional Box training?"
 		]),
-	      form([class(form), method('POST'), action('#tgroups-pnorm')],
+	      form([class(form), method('POST'), action('#power-pnorm')],
 		[ div(class("input-group mb-3"),
 		    [ div(class("input-group-prepend"), 
 			span(class("input-group-text"), "Response")),
@@ -114,23 +114,22 @@ render(tgroups, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 
 % t-test for independent groups
 intermediate(_, item).
-start(tgroups, item(vr, s_vr, n_vr, box, s_box, n_box)).
+start(power, item(vr, s_vr, n_vr, box, s_box, n_box)).
 
 % Correctly identified the problem as a t-test for independent groups.
-intermediate(tgroups, indep).
-expert(tgroups, stage(2), From, To, [step(expert, indep, [])]) :-
+intermediate(power, indep).
+expert(power, stage(2), From, To, [step(expert, indep, [])]) :-
     From = item(VR, S_VR, N_VR, BOX, S_BOX, N_BOX),
     To = { '<-'(s2p, var_pool(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX)) ;
 	   '<-'(t, dfrac(VR - BOX, sqrt(s2p * (1/N_VR + 1/N_BOX)))) ;
 	   t
 	 }.
 
-feedback(tgroups, indep, [], Col, FB) :-
+feedback(power, indep, [], Col, FB) :-
     FB = [ "You identified the problem as a ", \mmlm(Col, hyph(t, "test")),
 	   " for independent samples and solved it correctly." ].
 
-hint(tgroups, indep, [], _Col, FB) :-
+hint(power, indep, [], _Col, FB) :-
     FB = [ "Try to do everthing correctly." ].
 
 % 1
-
