@@ -160,7 +160,7 @@ buggy(ztrans2, stage(2), From, To, [step(buggy, pdecimal2, [P])]) :-
 feedback(ztrans2, pdecimal2, [_], _ , FB) :-
     FB = [ "P-% was incorrectly converted to a decimal representation. (pdecimal2)" ].
 
-%hint(ztrans2, pdecimal2, [P], Col, FB) :-
+hint(ztrans2, pdecimal2, [P], Col, FB) :-
     FB = [ \mmlm(Col, color(pdecimal2, r(P))), "% in decimal representation is ", \mmlm(Col, color(pdecimal2, r(P/100))) ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
