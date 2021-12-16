@@ -293,6 +293,6 @@ test(Task) :-
     format("Traps: ~w~n", [T]),
     html(\traps(TaskData), Traps, []),
     writeln(Traps),
-    r_task(Task, download(tpaired, File)),
+    download(Task, File),
     writeln(download-File).
 
