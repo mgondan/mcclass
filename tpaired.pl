@@ -89,7 +89,7 @@ start(tpaired, item(t0, s_t0, eot, s_eot, d, s_d, n, mu)).
 intermediate(tpaired, paired).
 expert(tpaired, stage(2), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu),
-    Y = paired(D, Mu, S_D, N).
+    Y = { '<-'(t, paired(D, Mu, S_D, N)) ; t }.
 
 feedback(tpaired, paired, [], Col, FB) :-
     FB = [ "Correctly recognised the problem as ",
@@ -137,7 +137,7 @@ hint(tpaired, mu, [Mu], Col, FB) :-
 intermediate(tpaired, indep).
 buggy(tpaired, stage(2), X, Y, [step(buggy, indep, [])]) :-
     X = item(T0, S_T0, EOT, S_EOT, _, _, N, _),
-    Y = indep(T0, S_T0, N, EOT, S_EOT, N).
+    Y = { '<-'(t, indep(T0, S_T0, N, EOT, S_EOT, N)) ; t }.
 
 feedback(tpaired, indep, [], Col, FB) :-
     FB = [ "The problem was mistakenly identified as ",
@@ -151,7 +151,8 @@ hint(tpaired, indep, [], Col, FB) :-
 % This step is used to determine the test statistic for the t-test for
 % independent samples. The step itself is correct, although it is only needed
 % if a wrong decision has been made before [bug(indep)].
-expert(tpaired, stage(2), X, Y, [step(expert, tratio_indep, [T0, S_T0, N, EOT, S_EOT])]) :-
+expert(tpaired, stage(2), X, Y, 
+        [step(expert, tratio_indep, [T0, S_T0, N, EOT, S_EOT])]) :-
     X = indep(T0, S_T0, N, EOT, S_EOT, N),
     P = abbrev(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
     Y = dfrac(T0 - EOT, sqrt(P * (1/N + 1/N))).
@@ -196,11 +197,13 @@ buggy(tpaired, stage(2), X, Y, [step(buggy, school2, [N])]) :-
 
 feedback(tpaired, school2, [N], Col, FB) :-
     FB = [ "Please do not forget school ",
-           "math, ", \mmlm(Col, frac(1, color(school2, N)) + frac(1, color(school2, N)) =\= frac(1, color(school2, 2*N))) ].
+           "math, ", \mmlm(Col, frac(1, color(school2, N)) + 
+	       frac(1, color(school2, N)) =\= frac(1, color(school2, 2*N))) ].
 
 hint(tpaired, school2, [N], Col, FB) :-
     FB = [ "Please do not forget school ",
-           "math, ", \mmlm(Col, frac(1, color(school2, N)) + frac(1, color(school2, N)) =\= frac(1, color(school2, 2*N))) ].
+           "math, ", \mmlm(Col, frac(1, color(school2, N)) + 
+	       frac(1, color(school2, N)) =\= frac(1, color(school2, 2*N))) ].
 
 % Forget parentheses in numerator and denominator of X / Y, with X = A - B and
 % Y = C / D. That is, calculate A - (B / C) / D instead of (A - B) / (C / D).
@@ -209,20 +212,25 @@ hint(tpaired, school2, [N], Col, FB) :-
 % name, bug1.
 buggy(tpaired, stage(2), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
     X = dfrac(D - Mu, S / SQRT_N),
-    DD = drop_left(bug(bug1), D - Mu),
-    SS = drop_right(bug(bug1), S / SQRT_N),
-    Y = invent_left(bug(bug1), D - invent_right(bug(bug1), dfrac(DD, SS) / SQRT_N)).
+    M0 = drop_left(bug(bug1), D - Mu),
+    S0 = drop_right(bug(bug1), S / SQRT_N),
+    Y = invent_left(bug(bug1), 
+        D - invent_right(bug(bug1), dfrac(M0, S0) / SQRT_N)).
 
 feedback(tpaired, bug1, [D, Mu, S, SQRT_N], Col, FB) :-
     FB = [ "Please do not forget the parentheses around the numerator and ",
            "the denominator of a fraction, ", 
-           \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", D - Mu))), color(bug1, paren(color("#000000", S / SQRT_N))))) 
+           \mmlm([error(correct) | Col], 
+	       dfrac(color(bug1, paren(color("#000000", D - Mu))), 
+	           color(bug1, paren(color("#000000", S / SQRT_N))))) 
          ].
 
 hint(tpaired, bug1, [D, Mu, S, SQRT_N], Col, FB) :-
     FB = [ "Do not forget the parentheses around the numerator and ",
            "the denominator of a fraction, ",
-           \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", D - Mu))), color(bug1, paren(color("#000000", S / SQRT_N)))))
+           \mmlm([error(correct) | Col], 
+	       dfrac(color(bug1, paren(color("#000000", D - Mu))), 
+	           color(bug1, paren(color("#000000", S / SQRT_N)))))
          ].
 
 % One challenging aspect of word problems ("Textaufgaben") is that students
@@ -231,7 +239,8 @@ hint(tpaired, bug1, [D, Mu, S, SQRT_N], Col, FB) :-
 % 
 % The depends means: This bug is limited to the paired t-test and co-occurs
 % with s_t0.
-buggy(tpaired, stage(1), X, Y, [step(buggy, t0, [d, t0]), depends(s_t0), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, 
+        [step(buggy, t0, [d, t0]), depends(s_t0), depends(paired)]) :-
     X = d,
     Y = instead(bug(t0), t0, d).
 
@@ -263,7 +272,8 @@ hint(tpaired, s_t0, [_S, S_T0], Col, FB) :-
            "instead." ].
 
 % Use mean EOT instead of mean D
-buggy(tpaired, stage(1), X, Y, [step(buggy, eot, [d, eot]), depends(s_eot), depends(paired)]) :-
+buggy(tpaired, stage(1), X, Y, [step(buggy, eot, [d, eot]), 
+        depends(s_eot), depends(paired)]) :-
     X = d,
     Y = instead(bug(eot), eot, d).
 
