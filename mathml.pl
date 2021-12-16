@@ -33,13 +33,26 @@ mml(Flags, A) -->
 mmlm(A) -->
     mmlm([], A).
 
+mmlm(Flags, {}(Args) = Res) -->
+    { colors({}(Args), Colors),
+      append(Flags, Colors, List),
+      semi(Args, ArgList0),
+      reverse(ArgList0, [H | Reversed]),
+      reverse([H = Res | Reversed], ArgList),
+      maplist(mathml(List), ArgList, MList, WList),
+      pairs_keys_values(Pairs, MList, WList),
+      findall(li([M, W]), member(M-W, Pairs), Items)
+    },
+    !,
+    html(ol(type(a), Items)).
+
 mmlm(Flags, A) -->
     { colors(A, Colors),
       append(Flags, Colors, List),
       mathml(List, A, M, With) 
     },
     html([M, With]).
-    
+
 % 2. Show example
 mathml :-
     writeln("Mathml examples").
