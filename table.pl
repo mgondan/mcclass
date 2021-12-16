@@ -5,7 +5,11 @@
 
 htmltable(Caption, RowNames, ColNames, Data) -->
     html(table(class("table caption-top"), 
-        [\caption(Caption), \thead(ColNames), \tbody(RowNames, Data)])).
+      [ \caption(Caption), 
+        \thead(ColNames), 
+        \tbody(RowNames, Data),
+        \tfoot("")
+      ])).
 
 caption(Caption) -->
     html(caption(Caption)).
@@ -16,6 +20,9 @@ thead(ColNames) -->
 tbody(RowNames, Data) -->
     {pairs_keys_values(Pairs, RowNames, Data)},
     html(tbody(\foreach(member(R-D, Pairs), html(\trow(R, D))))).
+
+tfoot(Foot) -->
+    html(tfoot(tr(Foot))).
 
 trow(Row, Data) -->
     html(tr([th(scope(row), Row) | \foreach(member(D, Data), html(td(D)))])).
