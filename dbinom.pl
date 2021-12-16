@@ -7,10 +7,7 @@
 :- use_module(mathml).
 :- use_module(interval).
 
-:- multifile init/1, data/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
-
-init(dbinom) :-
-    r_session_source(dbinom).
+:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 % Render symbols
 mathml:hook(Flags, n, Flags, 'N').

@@ -4,11 +4,7 @@
 :- use_module(r).
 :- use_module(mathml).
 
-:- multifile download/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
-
-download(tpaired, File) :-
-    session_tmpfile(File),
-    r_task(tpaired, download(File)).
+:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 %
 % Prettier symbols for mathematical rendering

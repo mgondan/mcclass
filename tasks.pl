@@ -30,7 +30,7 @@ mathml:hook(Flags, r(Expr), Flags, Res) :-
     b_getval(task, Task),
     r_task(Task, Expr, Res),
     number(Res).
-    
+
 % Gather useful information
 %
 % 1. Identify (correct) solution
@@ -254,6 +254,11 @@ traps(task(Task, Data)) -->
             div(class("card-body"),
               [ p(class("card-text"), "Avoid these traps"),
                 p(class("card-text"), ul(Traps))])])).
+
+% Download task data
+download(Task, File) :-
+    session_tmpfile(File),
+    r_task(Task, download(File)).
 
 %
 % Run example outside of webserver

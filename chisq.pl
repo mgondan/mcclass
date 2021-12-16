@@ -8,11 +8,7 @@
 :- use_module(r).
 :- use_module(mathml).
 
-:- multifile init/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
-
-
-init(chisq) :-
-    r_session_source(chisq).
+:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 %
 % Prettier symbols for mathematical rendering

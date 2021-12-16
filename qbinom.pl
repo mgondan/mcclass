@@ -5,10 +5,7 @@
 :- use_module(r).
 :- use_module(mathml).
 
-:- multifile init/1, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
-
-init(qbinom) :-
-    r_session_source(qbinom).
+:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 mathml:math_hook(Flags, p0, Flags, sub(pi, 0)).
 mathml:math_hook(Flags, n, Flags, 'N').
