@@ -27,9 +27,10 @@
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
-    r_session_eval(Expr, Res),
+    b_getval(task, Task),
+    r_task(Task, Expr, Res),
     number(Res).
-
+    
 % Gather useful information
 %
 % 1. Identify (correct) solution
@@ -59,7 +60,7 @@ feedback(Task, Form) -->
     { option(resp(R), Form),
       quantity(N, _Opt, R),
       solution(Task, Expr-Res/Flags),
-      int(pl, N =@= Res, _),
+      interval(Task, N =@= Res, _),
       colors(Expr, Col),
       findall(li(FB),
         ( member(step(_, Name, Args), Flags),
@@ -81,7 +82,7 @@ feedback(Task, Form) -->
       quantity(N, _Opt, R),
       wrongall(Task, ERF),
       member(Expr-Res/Flags, ERF),
-      int(pl, N =@= Res, _),
+      interval(Task, N =@= Res, _),
       colors(Expr, Col),
       findall(li(FB),
         ( member(step(_, Name, Args), Flags),
@@ -139,7 +140,7 @@ solution(Task, Expr-Res/Flags) :-
     !,
     Flags = Flags_,
     Expr = Expr_,
-    int(pl, Expr, Res). % todo: session
+    interval(Task, Expr, Res).
 
 % Pretty print
 solution(task(_Task, Data)) -->
@@ -261,9 +262,10 @@ traps(task(Task, Data)) -->
 % ?- tasks:test.
 %
 test :-
-    test(ztrans2).
+    test(tpaired).
 
 test(Task) :-
+    r_initialize,
     task(Task, TaskData),
     TaskData = task(Task, Data),
     writeln("Task data"),

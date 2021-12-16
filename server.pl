@@ -25,7 +25,7 @@
 :- dynamic http:location/3.
 http:location(mcclass, root(mcclass), []).
 
-:- http_handler(mcclass('favicon.ico'), http_reply_file('favicon.ico', []), []).
+:- http_handler(root('favicon.ico'), http_reply_file('favicon.ico', []), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
@@ -67,6 +67,7 @@ handle(Task, Form) :-
 
 % Task sheet
 handle(Task, Form) :-
+    r_initialize,
     task(Task, TaskData),
     start(Task, Item),
     reply_html_page(

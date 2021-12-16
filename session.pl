@@ -1,63 +1,55 @@
-% Session management help functions for web and console applications
+% Session management for web and console applications
 :- module(session, 
     [ session_id/1,
       session_assert/1,
-      session_assert/2,
       session_data/1,
-      session_data/2,
       session_retract/1,
-      session_retract/2,
+      session_retractall/1,
       session_tmpfile/1
     ]).
 
 :- use_module(library(http/http_session)).
 
 :- dynamic session_data/1.
-:- dynamic session_data/2.
 
-% Session management for web and console applications
-session_id(Id) :-
-    http_in_session(S),
-    !,
-    Id = S.
+session_id(Session),
+    http_in_session(S)
+ => Session = S.
 
-session_id(default_session).
+session_id(Session)
+ => Session = default_session.
 
-% Store information for a session, either in the session or as a dynamic 
-% predicate
-session_assert(Data) :-
-    session_assert(no_task, Data).
+% Store information for a session, either in the session or as a dynamic
+% predicate session_data/1
+session_assert(Data),
+    http_in_session(_)
+ => http_session_assert(Data).
 
-% Task-specific session information
-session_assert(Task, Data) :-
-    http_in_session(_),
-    !,
-    http_session_assert(session_data(Task, Data)).
-
-session_assert(Task, Data) :-
-    assert(session_data(Task, Data)).
+session_assert(Data)
+ => assert(session_data(Data)).
 
 % Retrieve information. If no http session is running, the dynamic predicate
-% session_data/1,2 is used.
+% session_data/1 is used.
 session_data(Data) :-
-    session_data(no_task, Data).
-
-session_data(Task, Data) :-
     http_in_session(_),
     !,
-    http_session_data(session_data(Task, Data)).
+    http_session_data(Data).
 
-% Remove information
+% Remove information, same as above
 session_retract(Data) :-
-    session_retract(no_task, Data).
-
-session_retract(Task, Data) :-
     http_in_session(_),
     !,
-    http_session_retract(session_task(Task, Data)).
+    http_session_retract(Data).
 
-session_retract(Task, Data) :-
-    retract(session_data(Task, Data)).
+session_retract(Data) :-
+    retract(session_data(Data)).
+
+session_retractall(Data),
+    http_in_session(_)
+ => http_session_retractall(Data).
+
+session_retractall(Data)
+ => retractall(session_data(Data)).
 
 % Create a session-specific temporary file
 session_tmpfile(String) :-
@@ -73,5 +65,13 @@ session_end :-
     session_data(tmp(File)),
     delete_file(File),
     session_retract(tmp(File)),
-    fail.
+    fail. % force backtracking
+
+test(session) :-
+    session_assert(data),
+    session_data(D),
+    writeln(D),
+    session_retract(data),
+    session_tmpfile(Temp),
+    writeln(Temp).
 

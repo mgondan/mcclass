@@ -1,5 +1,5 @@
 % Interval arithmetic in Prolog
-:- module(interval, [ int/3, op(150, xfx, ...) ]).
+:- module(interval, [ interval/3, op(150, xfx, ...) ]).
 
 :- use_module(r).
 :- use_module(session).
@@ -14,6 +14,10 @@
 
 :- multifile hook/3.
 
+interval(Task, Expr, Res) :-
+    b_setval(task, Task),
+    int(pl, Expr, Res).
+    
 % Allows for external definitions
 int(Engine, Expr, Res),
     hook(Engine, Expr, Hook)
@@ -104,12 +108,12 @@ interval(A ... B, Res) :-
 
 example :-
     writeln(type-1),
-    int(pl, 1.0, X),
+    interval(pl, 1.0, X),
     writeln(X).
 
 example :-
     writeln(type-2),
-    int(pl, 0.99 ... 1.01, X),
+    interval(pl, 0.99 ... 1.01, X),
     writeln(X).
 
 %
@@ -127,14 +131,14 @@ example :-
     writeln(equality-1),
     X = 1.00 ... 1.02,
     Y = 1.01 ... 1.0Inf,
-    int(pl, X =@= Y, Z),
+    interval(pl, X =@= Y, Z),
     writeln(X =@= Y --> Z).
 
 example :-
     writeln(equality-2),
     interval(1.00 ... 1.02, X),
     interval(1.03 ... 1.04, Y),
-    \+ int(pl, X =@= Y, _),
+    \+ interval(pl, X =@= Y, _),
     writeln(X =@= Y --> fails).
 
 %
@@ -154,14 +158,14 @@ example :-
     writeln(sum-1),
     X = 1.00 ... 1.02,
     Y = 1.01 ... 1.0Inf,
-    int(pl, X + Y, Z),
+    interval(pl, X + Y, Z),
     writeln(X + Y --> Z).
 
 example :-
     writeln(sum-2),
     X = 1.00 ... 1.02,
     Y = 1.03 ... 1.04,
-    int(pl, X + Y, Z),
+    interval(pl, X + Y, Z),
     writeln(X + Y --> Z).
 
 %
@@ -181,14 +185,14 @@ example :-
     writeln(diff-1),
     X = 0.99 ... 1.01,
     Y = 0.99 ... 1.01,
-    int(pl, X - Y, Z),
+    interval(pl, X - Y, Z),
     writeln(X - Y --> Z).
 
 example :-
     writeln(diff-2),
     interval(1.00 ... 1.02, X),
     interval(1.03 ... 1.0Inf, Y),
-    int(pl, X - Y, Z),
+    interval(pl, X - Y, Z),
     writeln(X - Y --> Z).
 
 %
@@ -290,15 +294,15 @@ interval(A ... B * C ... D, Res) :-
 
 example :-
     writeln(example-4.2-1),
-    int(pl, pi ... pi, Y),
-    int(pl, 2 * Y, Z),
+    interval(pl, pi ... pi, Y),
+    interval(pl, 2 * Y, Z),
     writeln(2 * Y --> Z).
 
 example :-
     writeln(example-4.2-2),
-    int(pl, 0.0 ... 0.0, X),
-    int(pl, -1.0Inf ... 1.0Inf, Y),
-    int(pl, X * Y, Z),
+    interval(pl, 0.0 ... 0.0, X),
+    interval(pl, -1.0Inf ... 1.0Inf, Y),
+    interval(pl, X * Y, Z),
     writeln(X * Y --> Z).
 
 %
@@ -542,56 +546,56 @@ example :-
     writeln(page-3-(-inf ... 0, 1...inf)),
     X = 1.00 ... 1.00,
     Y = -1.0Inf ... 1.0,
-    int(pl, X / Y, Z),
+    interval(pl, X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(example-4.2-3-(0 ... inf)),
     X = 0.00 ... 1.00,
     Y = 0.00 ... 1.00,
-    int(pl, X / Y, Z),
+    interval(pl, X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(example-4.2-4-(r-without-0)),
     X = 1.00 ... 1.00,
     Y = -1.0Inf ... 1.0Inf,
-    int(pl, X / Y, Z),
+    interval(pl, X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(example-4.2-5-(-inf ... -1, 1 ... inf)),
     X = 1.0 ... 1.0,
     Y = -1.0 ... 1.0,
-    int(pl, X / Y, Z),
+    interval(pl, X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(example-4.2-6-(-inf ... -1, +0 ... inf)),
     X = 1.0 ... 1.0,
     Y = -1.0 ... 1.0Inf,
-    int(pl, X / Y, Z),
+    interval(pl, X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(page-8-(-inf ... -0, 1 ... inf)),
     X = 1.0 ... 1.0,
     Y = -1.0Inf ... 1.0,
-    int(pl, X / Y, Z),
+    interval(pl, X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(page-9-a-(0 ... inf)),
     X = 0.0 ... 1.0,
     Y = 0.0 ... 2.0,
-    int(pl, X / Y, Z),
+    interval(pl, X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(page-9-b-(0 ... 1)),
     X = 1.0 ... 1.0,
     Y = 1.0 ... 1.0Inf,
-    int(pl, X / Y, Z),
+    interval(pl, X / Y, Z),
     writeln(X / Y --> Z).
 
 %
@@ -617,7 +621,7 @@ int(E, dfrac(Num, Den), Res)
 example :-
     writeln(frac),
     X = 2.0 ... 2.0,
-    int(pl, 1 + frac(1, X), Z),
+    interval(pl, 1 + frac(1, X), Z),
     writeln(1 + frac(1, X) --> Z).
 
 %
@@ -641,7 +645,7 @@ interval(sqrt(A ... B), Res) :-
 example :-
     writeln(sqrt-1),
     X = 2.0 ... 2.0,
-    int(pl, 1 + sqrt(X), Z),
+    interval(pl, 1 + sqrt(X), Z),
     writeln(1 + sqrt(X) --> Z).
 
 %
@@ -675,7 +679,8 @@ bound(X, X).
 rint(Function, Arguments, Res) :-
     maplist(bound, Arguments, Bounds),
     compound_name_arguments(Expr, Function, Bounds),
-    r_session_eval(Expr, Res).
+    b_getval(task, Task),
+    r_task(Task, Expr, Res).
 
 int(_, r(Expr), Res)
  => int(r, Expr, Res).
@@ -685,20 +690,28 @@ int(_, pl(Expr), Res)
 
 int(r, Expr, Res),
     atomic(Expr)
- => r_session_eval(Expr, R),
+ => b_getval(task, Task),
+    r_task(Task, Expr, R),
     (   R = _ ... _
      -> Res = R
       ; Res = R ... R
     ).
 
 int(r, X ... Y, Res)
- => r_session_eval(X, ResX),
-    r_session_eval(Y, ResY),
+ => b_getval(task, Task),
+    r_task(Task, X, ResX),
+    r_task(Task, Y, ResY),
     Res = ResX ... ResY.
 
 int(r, <-(Var, Expr), Res)
  => int(r, Expr, Res),
-    r_session_call('<-'(Var, Res)).
+    b_getval(task, Task),
+    r_task(Task, '<-'(Var, Res)).
+
+int(r, $(Env, Var), Res)
+ => b_getval(task, Task),
+    r_task(Task, $(Env, Var), R),
+    int(pl, R, Res).
 
 int(r, Expr, Res),
     compound_name_arguments(Expr, Function, Arguments)
@@ -710,12 +723,15 @@ int(r, Expr, Res),
 
 example :-
     writeln(sin-1),
-    int(r, sin(0.1), Z),
+    r_initialize,
+    r_session('<-'(r, 'new.env'())),
+    interval(r, r(sin(0.1)), Z),
     writeln(sin(0.1) --> Z).
 
 example :-
     writeln(sin-2),
-    int(r, sin(0.1 ... 0.2), Z),
+    r_session('<-'(r, 'new.env'())),
+    interval(r, r(sin(0.1 ... 0.2)), Z),
     writeln(sin(0.1 ... 0.2) --> Z).
 
 example :-
@@ -723,7 +739,8 @@ example :-
     X = 3,
     Size = 10,
     Prob = 0.6 ... 0.7,
-    int(r, pbinom(X, Size, Prob), P),
+    r_session('<-'(r, 'new.env'())),
+    interval(r, r(pbinom(X, Size, Prob)), P),
     writeln(pbinom(X, Size, Prob) --> P).
 
 example :-
@@ -731,7 +748,8 @@ example :-
     X = 3,
     Size = 11,
     Prob = 0.6 ... 0.7,
-    int(r, pbinom(X, Size, Prob), P),
+    r_session('<-'(r, 'new.env'())),
+    interval(r, r(pbinom(X, Size, Prob)), P),
     writeln(pbinom(X, Size, Prob) --> P).
 
 example :-
@@ -739,7 +757,8 @@ example :-
     X = 3,
     Size = 10 ... 11,
     Prob = 0.6 ... 0.7,
-    int(r, pbinom(X, Size, Prob), P),
+    r_session('<-'(r, 'new.env'())),
+    interval(r, r(pbinom(X, Size, Prob)), P),
     writeln(pbinom(X, Size, Prob) --> P).
 
 example :-
@@ -747,8 +766,16 @@ example :-
     X = 3,
     Size = 10.0 ... 11.0,
     Prob = 0.6 ... 0.7,
-    int(r, pbinom(X, Size, Prob, 'log.p'=true), P),
+    r_session('<-'(r, 'new.env'())),
+    interval(r, r(pbinom(X, Size, Prob, 'log.p'=true)), P),
     writeln(pbinom(X, Size, Prob, 'log.p'=true) --> P).
+
+example :-
+    writeln($(x, y)),
+    r_initialize,
+    r_session_source(tpaired),
+    interval(tpaired, r(mu), X),
+    writeln($(tpaired, mu) = X).
 
 %
 % (Non-R) general functions that do not account for intervals.
@@ -780,17 +807,17 @@ int(pl, X, Res),
 
 example :-
     writeln(power-generic),
-    int(pl, 2 ... 3 ^ (-(2 ... 3)), Z),
+    interval(pl, 2 ... 3 ^ (-(2 ... 3)), Z),
     writeln("2 ... 3 ^ (-(2 ... 3))" --> Z).
 
 example :-
     writeln(sin-1),
-    int(pl, sin(0.1), Z),
+    interval(pl, sin(0.1), Z),
     writeln(sin(0.1) --> Z).
 
 example :-
     writeln(sin-1),
-    int(pl, sin(0.1 ... 0.2), Z),
+    interval(pl, sin(0.1 ... 0.2), Z),
     writeln(sin(0.1 ... 0.2) --> Z).
 
 %
@@ -802,7 +829,7 @@ example :-
     Mu = 4.0 ... 4.0,
     S = 3.8 ... 3.8,
     N = 24,
-    int(pl, frac(D - Mu, S / sqrt(N)), T),
+    interval(pl, frac(D - Mu, S / sqrt(N)), T),
     writeln(t --> T).
 
 init :-
