@@ -1,21 +1,14 @@
-%:- module(tgroups,
-%	[ start/2, init/1, data/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, 
-%	render//3]).
-
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
 :- use_module(r).
 :- use_module(mathml).
 
-:- multifile init/1, data/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
+:- multifile download/2, start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
-init(tgroups) :-
-    r_session_source(tgroups).
-
-data(tgroups, File) :-
+download(tgroups, File) :-
     session_tmpfile(File),
-    r_session(tgroups_data(File)).
+    r_task(tgroups, download(File)).
 
 %
 % Prettier symbols for mathematical rendering

@@ -53,11 +53,11 @@ handler(Task, _) :-
     handle(Task, []).
 
 % Download csv data
-:- dynamic temp/3.
 handle(Task, Form) :-
     member(download=_, Form),
-    init(Task),
-    data(Task, Local),
+    task(Task, _TaskData),
+    download(Task, Local),
+    http_log("Local=~w~n", [Local]),
     format(atom(File), "attachment; filename=~k.csv", [Task]),
     http_current_request(Request),
     http_reply_file(Local,

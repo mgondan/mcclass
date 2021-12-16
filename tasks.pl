@@ -1,5 +1,5 @@
 :- module(tasks, [task/2, feedback//2, solution//1, hints//1, wrongs//1, traps//1,
-                  start/2, init/1, data/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3]).
+                  start/2, download/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3]).
 
 :- use_module(library(http/html_write)).
 :- use_module(library(http/http_log)).
@@ -41,7 +41,8 @@ mathml:hook(Flags, r(Expr), Flags, Res) :-
 %
 % more to come
 task(Task, Data) :-
-    init(Task),
+    r_initialize,
+    r_session_source(Task),
     solution(Task, Expr-Res/Flags),
     hints(Flags, H),
     wrong(Task, E_R_F),
@@ -286,5 +287,7 @@ test(Task) :-
     memberchk(traps(T), Data),
     format("Traps: ~w~n", [T]),
     html(\traps(TaskData), Traps, []),
-    writeln(Traps).
+    writeln(Traps),
+    r_task(Task, download(tpaired, File)),
+    writeln(download-File).
 
