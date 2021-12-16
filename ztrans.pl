@@ -47,8 +47,7 @@ render(ztrans, item(X, Mu, Sigma), Form) -->
 
 % z-transformation and Normal distribution
 intermediate(_, item).
-start(ztrans, item(x, mu, sigma)) :-
-    init(ztrans).
+start(ztrans, item(x, mu, sigma)).
 
 intermediate(ztrans, pnorm_).
 expert(ztrans, stage(2), From, To, [step(expert, allinone, [])]) :-

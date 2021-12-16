@@ -58,8 +58,7 @@ render(oddsratio2, item(Pi_A, Pi_B), Form) -->
 
 % Odds ratio with two probabilities. 
 intermediate(_, item).
-start(oddsratio2, item(pi_A, pi_B)) :-
-    init(oddsratio2).
+start(oddsratio2, item(pi_A, pi_B)).
 
 expert(oddsratio2, stage(2), From, To, [step(expert, odd, [])]) :-
     From = item(Pi_A, Pi_B),

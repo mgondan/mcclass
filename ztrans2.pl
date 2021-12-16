@@ -50,8 +50,7 @@ render(ztrans2, item(P, Mu, Sigma), Form) -->
 :- multifile intermediate/2, expert/5, buggy/5.
 
 intermediate(_, item).
-start(ztrans2, item(p, mu, sigma)) :-
-    init(ztrans2).
+start(ztrans2, item(p, mu, sigma)).
 
 intermediate(ztrans2, qnorm_).
 expert(ztrans2, stage(2), From, To, [step(expert, steps, [])]) :-

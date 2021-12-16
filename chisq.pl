@@ -97,8 +97,7 @@ render(chisq, item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box), Form) -->
 
 % chi squared test.
 intermediate(_, item).
-start(chisq, item(p_VR, s_VR, n_VR, p_Box, s_Box, n_Box)):-
-    init(oddsratio).
+start(chisq, item(p_VR, s_VR, n_VR, p_Box, s_Box, n_Box)).
 
 % Correct soultion.
 expert(chisq, stage(2), From, To, [step(expert, allinone, [])]) :-
