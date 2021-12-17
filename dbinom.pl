@@ -31,7 +31,7 @@ render(dbinom, item(K, N, P0), Form) -->
 	      ])
           ])),
         \htmlform([ "What is the probability for exactly ", \mmlm(r(K)), " ",
-                    "successes?" ], "#dbinom-dbinom", R)
+                    "successes?" ], "#dbinom", R)
       ]).
 
 intermediate(dbinom, item).
