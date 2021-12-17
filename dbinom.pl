@@ -24,7 +24,7 @@ render(dbinom, item(K, N, P0), Form) -->
       [ div(class(card), div(class("card-body"),
           [ h1(class("card-title"), "Binary outcomes"),
             p(class("card-text"),
-              [ "Consider a clinical study with ", \mmlm(r(N)), " patients.",
+              [ "Consider a clinical study with ", \mmlm(r(N)), " patients. ",
                 "We assume that the success probability ",
                 "is ", \mmlm(r(P0)), " in all patients, and that the ",
                 "successes occur independently."
@@ -124,6 +124,22 @@ feedback(dbinom, nochoose, [_K, _N], _Col, Feed) :-
 hint(dbinom, nochoose, [K, N], Col, Hint) :-
     Hint = [ "Do not forget to multiply everything with the number of ",
              "permutations ", \mmlm(Col, choose(N, K)), "."
+           ].
+
+% Treat binomial coefficient like a fraction
+buggy(dbinom, stage(2), From, To, [step(buggy, choosefrac, [K, N])]) :-
+    From = choose(N, K),
+    To   = instead(bug(choosefrac), dfrac(N, K), choose(N, K)).
+
+feedback(dbinom, choosefrac, [K, N], Col, Feed) :-
+    Feed = [ "Please determine the number of permutations using the ",
+             "binomial coefficient ", 
+             \mmlm(Col, choose(N, K) = 
+               dfrac(factorial(N), factorial(K)*factorial(N-K))), "." ].
+
+hint(dbinom, choosefrac, [K, N], Col, Hint) :-
+    Hint = [ "The number of permutations is determined using the binomial ",
+             "coefficient ", \mmlm(Col, choose(N, K)), "."
            ].
 
 % Confuse successes and failures

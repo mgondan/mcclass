@@ -407,6 +407,13 @@ ml(_Flags, sign(sum), X)
 current(Prec, fy, sum)
  => current_op(Prec, yfx, +).
 
+ml(_Flags, sign(!), X)
+ => X = mo(!).
+
+current(Prec, yf, !)
+ => current_op(P, yfx, *),
+    Prec is P - 1.
+
 % default
 ml(_Flags, sign(A), X)
  => X = mo(A).
@@ -820,6 +827,11 @@ mathml :- mathml((-2 * -2) * c).
 %
 % Render
 %
+ml(Flags, yf(Prec, Op, A), M)
+ => ml(Flags, sign(Op), S),
+    ml(Flags, left(Prec, A), X),
+    M = mrow([X, S]).
+
 ml(Flags, fy(Prec, Op, A), M)
  => ml(Flags, sign(Op), S),
     ml(Flags, right(Prec, A), X),
@@ -1607,6 +1619,19 @@ type(_Flags, choose(_, _), Type)
 mathml :- mathml(choose('N', k)).
 
 mathml :- mathml(choose('N', k) * pi^k * (1 - pi)^('N' - k)).
+
+math(Flags, factorial(N), New, M)
+ => Flags = New,
+    current(Prec, yf, !),
+    M = yf(Prec, !, N).
+
+mathml :- mathml(factorial('N')).
+
+mathml :- mathml(factorial('N'-k)).
+
+mathml :- mathml(factorial('N'*k)).
+
+mathml :- mathml(factorial('N')^2).
 
 % The name is a bit unfortunate
 math(Flags, bernoulli(K, N, Pi), New, M)

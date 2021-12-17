@@ -272,7 +272,7 @@ download(Task, File) :-
 % ?- tasks:test.
 %
 test :-
-    test(tpaired).
+    test(dbinom).
 
 test(Task) :-
     r_initialize,
@@ -298,6 +298,7 @@ test(Task) :-
     format("Traps: ~w~n", [T]),
     html(\traps(TaskData), Traps, []),
     writeln(Traps),
-    download(Task, File),
-    writeln(download-File).
+    % download(Task, File),
+    % writeln(download-File),
+    true.
 
