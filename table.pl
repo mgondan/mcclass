@@ -1,4 +1,4 @@
-:- module(table, [ htmltable//4 ]).
+:- module(table, [ htmltable//4, htmlform//3 ]).
 
 /** <module> APA tables in HTML
 
@@ -40,6 +40,22 @@ tfoot -->
 
 trow(Row, Data) -->
     html(tr([th(scope(row), Row) | \foreach(member(D, Data), html(td(D)))])).
+
+htmlform(Question, Action, Response) -->
+    html(div(class(card), div(class("card-body"),
+      [ h4(class("card-title"), [a(id(question), []), "Question"]),
+        p(class("card-text"), Question),
+        form([class(form), method("POST"), action(Action)],
+          [ div(class("input-group mb-3"),
+              [ div(class("input-group-prepend"),
+                  span(class("input-group-text"), "Response")),
+                input([class("form-control"), type(text), name(resp), 
+                  value(Response)]),
+                div(class("input-group-append"),
+                  button([class("btn btn-primary"), type(submit)], "Submit"))
+              ])
+          ])
+      ]))).
 
 test :-
     phrase(html(\htmltable("A table", 

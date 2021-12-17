@@ -21,33 +21,17 @@ interval:hook(pl, p0, r(p0)).
 render(dbinom, item(K, N, P0), Form) -->
     { option(resp(R), Form, '#.##') },
     html(
-      [ div(class(card), div(class('card-body'),
-          [ h1(class('card-title'), 
-              "Binary outcomes"),
-            p(class('card-text'),
-            [ "Consider a clinical study with ", \mmlm(N = r(N)), " ",
-              "patients. We assume that the success probability ",
-              "is ", \mmlm(r(P0)), " in all patients, and that the successes ",
-              "occur independently."
-	        ])
+      [ div(class(card), div(class("card-body"),
+          [ h1(class("card-title"), "Binary outcomes"),
+            p(class("card-text"),
+              [ "Consider a clinical study with ", \mmlm(r(N)), " patients.",
+                "We assume that the success probability ",
+                "is ", \mmlm(r(P0)), " in all patients, and that the ",
+                "successes occur independently."
+	      ])
           ])),
-        div(class(card), div(class('card-body'),
-          [ h4(class('card-title'), [a(id(question), []), 
-              "Question"]),
-            p(class('card-text'),
-            [ "What is the probability for exactly ", \mmlm(r(K)), " ",
-                "successes?" 
-            ]), 
-            form([class(form), method('POST'), action('#dbinom-dbinom')],
-              [ div(class("input-group mb-3"),
-                  [ div(class("input-group-prepend"), 
-                      span(class("input-group-text"), "Response")),
-                    input([class("form-control"), type(text), name(resp), value(R)]),
-                      div(class("input-group-append"),
-                        button([class('btn btn-primary'), type(submit)], "Submit"))
-                  ])
-              ])
-          ]))
+        \htmlform([ "What is the probability for exactly ", \mmlm(r(K)), " ",
+                    "successes?" ], "#dbinom-dbinom", R)
       ]).
 
 intermediate(dbinom, item).
