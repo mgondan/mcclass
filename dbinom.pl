@@ -17,6 +17,7 @@ mathml:hook(Flags, p0, Flags, pi).
 interval:hook(pl, n, r(n)).
 interval:hook(pl, k, r(k)).
 interval:hook(pl, p0, r(p0)).
+interval:hook(pl, factorial(N), r(factorial(N))).
 
 render(dbinom, item(K, N, P0), Form) -->
     { option(resp(R), Form, '#.##') },
@@ -140,6 +141,23 @@ feedback(dbinom, choosefrac, [K, N], Col, Feed) :-
 hint(dbinom, choosefrac, [K, N], Col, Hint) :-
     Hint = [ "The number of permutations is determined using the binomial ",
              "coefficient ", \mmlm(Col, choose(N, K)), "."
+           ].
+
+% Omit (N-k)! in the denominator of the binomial coefficient
+buggy(dbinom, stage(2), From, To, [step(buggy, choosefail, [K, N])]) :-
+    From = choose(N, K),
+    To   = instead(bug(choosefail), dfrac(factorial(N), factorial(K)), choose(N, K)).
+
+feedback(dbinom, choosefail, [K, N], Col, Feed) :-
+    Feed = [ "Please determine the number of permutations using the ",
+             "binomial coefficient ",
+             \mmlm(Col, choose(N, K) =
+               dfrac(factorial(N), factorial(K) * color(choosefail, factorial(N-K)))), "." ].
+
+hint(dbinom, choosefail, [K, N], Col, Hint) :-
+    Hint = [ "The number of permutations is determined using the binomial ",
+             "coefficient ", \mmlm(Col, choose(N, K) =
+               dfrac(factorial(N), factorial(K)*factorial(N-K))), "."
            ].
 
 % Confuse successes and failures
