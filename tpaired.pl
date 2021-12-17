@@ -62,9 +62,9 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
                   button([ class('btn btn-secondary'), name(download), value(tpaired) ], "Download data"))
           ])),
         \htmlform([ "Does rfCBT lead to a relevant reduction (i.e., more ",
-                "than ", \mmlm([round(1)], mu = r(mu)), " units) in mean HDRS ",
-                "scores between baseline (T0) and End of Treatment (EOT)? ",
-                "Please report the ", \mmlm(hyph(t, "ratio.")) ], "#tratio", R)
+            "than ", \mmlm([round(1)], mu = r(mu)), " units) in mean HDRS ",
+            "scores between baseline (T0) and End of Treatment (EOT)? ",
+            "Please report the ", \mmlm(hyph(t, "ratio.")) ], "#tratio", R)
       ]).
 
 % t-test for paired samples

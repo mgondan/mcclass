@@ -29,17 +29,17 @@ compatible(omit_right(_, Expr)) :-
     compatible(L).
 
 % Same for dropped things
-compatible(drop_left(_, Expr)) :-
-    Expr =.. [_, L, R],
-    !,
-    expert(L),
-    compatible(R).
-
-compatible(drop_right(_, Expr)) :-
-    Expr =.. [_, L, R],
-    !,
-    expert(R),
-    compatible(L).
+%compatible(drop_left(_, Expr)) :-
+%    Expr =.. [_, L, R],
+%    !,
+%    expert(L),
+%    compatible(R).
+%
+%compatible(drop_right(_, Expr)) :-
+%    Expr =.. [_, L, R],
+%    !,
+%    expert(R),
+%    compatible(L).
 
 compatible(Term) :-
     compound(Term),
