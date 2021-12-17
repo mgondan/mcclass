@@ -59,9 +59,11 @@ task(Task, Data) :-
 % Correct response
 feedback(Task, Form) -->
     { option(resp(R), Form),
-      quantity(N, _Opt, R),
-      solution(Task, Expr-Res/Flags),
-      interval(Task, N =@= Res, _),
+      quantity(N0, Opt, R),
+      interval(Task, @(N0, Opt), Num),
+      solution(Task, Expr-Res0/Flags),
+      interval(Task, @(Res0, Opt), Res),
+      interval(Task, Num =@= Res, _),
       colors(Expr, Col),
       findall(li(FB),
         ( member(step(_, Name, Args), Flags),
@@ -80,10 +82,12 @@ feedback(Task, Form) -->
 % Buggy response
 feedback(Task, Form) -->
     { option(resp(R), Form),
-      quantity(N, _Opt, R),
+      quantity(N0, Opt, R),
+      interval(Task, @(N0, Opt), Num),
       wrongall(Task, ERF),
-      member(Expr-Res/Flags, ERF),
-      interval(Task, N =@= Res, _),
+      member(Expr-Res0/Flags, ERF),
+      interval(Task, @(Res0, Opt), Res),
+      interval(Task, Num =@= Res, _),
       colors(Expr, Col),
       findall(li(FB),
         ( member(step(_, Name, Args), Flags),
@@ -268,10 +272,11 @@ download(Task, File) :-
 % ?- tasks:test.
 %
 test :-
-    test(chisq).
+    test(tpaired).
 
 test(Task) :-
     r_initialize,
+    r('set.seed'(4711)),
     task(Task, TaskData),
     TaskData = task(Task, Data),
     writeln("Task data"),

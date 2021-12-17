@@ -57,6 +57,22 @@ hook(E, ';'(Expr1, Expr2), Res) :-
 hook(E, '{}'(Expr), Res) :-
     int(E, Expr, Res).
 
+hook(E, @(N, Options), Res) :-
+    member(digits(D), Options),
+    interval(E, N, L0 ... U0),
+    L is L0 - 0.5/10^D,
+    U is U0 + 0.5/10^D,
+    Res = L ... U.
+
+example :-
+    writeln(quantity-1),
+    interval(pl, @(1.0, [digits(2)]), X),
+    writeln(X).
+
+example :-
+    writeln(quantity-2),
+    interval(pl, @(2 ... 3, [digits(2)]), X),
+    writeln(X).
 
 %
 % Hickey Figure 1
