@@ -6,6 +6,7 @@
 :- use_module(mathml).
 :- use_module(search).
 :- use_module(r).
+:- use_module(session).
 :- use_module(interval).
 :- use_module(library(quantity)).
 
@@ -272,7 +273,7 @@ download(Task, File) :-
 % ?- tasks:test.
 %
 test :-
-    test(dbinom).
+    test(chisq).
 
 test(Task) :-
     r_initialize,
@@ -281,8 +282,14 @@ test(Task) :-
     TaskData = task(Task, Data),
     writeln("Task data"),
     writeln(Data),
+    writeln("Task"),
+    start(Task, I),
+    html(\render(Task, I, []), Item, []),
+    writeln("Task as HTML"),
+    writeln(Item),
     memberchk(sol(S), Data), 
-    format("Solution: ~w~n", [S]),
+    writeln("Solution"),
+    writeln(S),
     html(\solution(TaskData), Sol, []),
     writeln(Sol),
     memberchk(hints(H), Data),
