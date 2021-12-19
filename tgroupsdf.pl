@@ -8,13 +8,13 @@
 %
 % Prettier symbols for mathematical rendering
 %
-mathml:hook(Flags, n_vr, Flags, sub(n, "VR")).
-mathml:hook(Flags, n_box, Flags, sub(n, "BOX")).
-mathml:hook(Flags, vr, Flags, overline("VR")).
-mathml:hook(Flags, s_vr, Flags, sub(s, "VR")).
-mathml:hook(Flags, box, Flags, overline("BOX")).
-mathml:hook(Flags, s_box, Flags, sub(s, "BOX")).
-mathml:hook(Flags, nt, Flags, sub(n, "total")).
+mathml:hook(Flags, n_vr, [task(tgroupsdf) | Flags], sub(n, "VR")).
+mathml:hook(Flags, n_box, [task(tgroupsdf) | Flags], sub(n, "BOX")).
+mathml:hook(Flags, vr, [task(tgroupsdf) | Flags], overline("VR")).
+mathml:hook(Flags, s_vr, [task(tgroupsdf) | Flags], sub(s, "VR")).
+mathml:hook(Flags, box, [task(tgroupsdf) | Flags], overline("BOX")).
+mathml:hook(Flags, s_box, [task(tgroupsdf) | Flags], sub(s, "BOX")).
+mathml:hook(Flags, nt, [task(tgroupsdf) | Flags], sub(n, "total")).
 
 % Obtain information from R
 interval:hook(pl, n_vr, r(n_vr)).

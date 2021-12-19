@@ -9,11 +9,11 @@
 %
 % Prettier symbols for mathematical rendering
 %
-mathml:hook(Flags, pi_A, Flags, sub(pi, "A")).
-mathml:hook(Flags, odds_A, Flags, sub(odds, "A")).
-mathml:hook(Flags, pi_B, Flags, sub(pi, "B")).
-mathml:hook(Flags, odds_B, Flags, sub(odds, "B")).
-mathml:hook(Flags, or, Flags, 'OR').
+mathml:hook(Flags, pi_A, [task(oddsratio) | Flags], sub(pi, "A")).
+mathml:hook(Flags, odds_A, [task(oddsratio) | Flags], sub(odds, "A")).
+mathml:hook(Flags, pi_B, [task(oddsratio) | Flags], sub(pi, "B")).
+mathml:hook(Flags, odds_B, [task(oddsratio) | Flags], sub(odds, "B")).
+mathml:hook(Flags, or, [task(oddsratio) | Flags], 'OR').
 
 %
 % R constants

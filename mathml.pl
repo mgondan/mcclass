@@ -120,7 +120,9 @@ math(Flags, A, New, X),
 % Check if a macro has been defined in an external module
 %
 math(Flags, A, New, X),
-    hook(Flags, A, New0, X0)
+    option(task(Task), Flags, default),
+    hook(Flags, A, New0, X0),
+    option(task(Task), New0, Task)
  => New = New0,
     X = X0.
 

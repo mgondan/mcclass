@@ -9,13 +9,13 @@
 %
 % Prettier symbols for mathematical rendering
 %
-mathml:hook(Flags, n_vr, Flags, sub(n, "VR")).
-mathml:hook(Flags, n_box, Flags, sub(n, "BOX")).
-mathml:hook(Flags, vr, Flags, overline("VR")).
-mathml:hook(Flags, s_vr, Flags, sub(s, "VR")).
-mathml:hook(Flags, box, Flags, overline("BOX")).
-mathml:hook(Flags, s_box, Flags, sub(s, "BOX")).
-mathml:hook(Flags, s2p, Flags, sub(s, "pool")^2).
+mathml:hook(Flags, n_vr, [task(tgroups2) | Flags], sub(n, "VR")).
+mathml:hook(Flags, n_box, [task(tgroups2) | Flags], sub(n, "BOX")).
+mathml:hook(Flags, vr, [task(tgroups2) | Flags], overline("VR")).
+mathml:hook(Flags, s_vr, [task(tgroups2) | Flags], sub(s, "VR")).
+mathml:hook(Flags, box, [task(tgroups2) | Flags], overline("BOX")).
+mathml:hook(Flags, s_box, [task(tgroups2) | Flags], sub(s, "BOX")).
+mathml:hook(Flags, s2p, [task(tgroups2) | Flags], sub(s, "pool")^2).
 
 % Obtain information from R
 interval:hook(pl, n_vr, r(n_vr)).

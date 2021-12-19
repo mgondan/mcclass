@@ -9,14 +9,14 @@
 %
 % Prettier symbols for mathematical rendering
 %
-mathml:hook(Flags, d, Flags, overline('D')).
-mathml:hook(Flags, s_d, Flags, sub(s, 'D')).
-mathml:hook(Flags, n, Flags, 'N').
-mathml:hook(Flags, t0, Flags, overline("T0")).
-mathml:hook(Flags, s_t0, Flags, sub(s, "T0")).
-mathml:hook(Flags, eot, Flags, overline("EOT")).
-mathml:hook(Flags, s_eot, Flags, sub(s, "EOT")).
-mathml:hook(Flags, s2p, Flags, sub(s, "pool")^2).
+mathml:hook(Flags, d, [task(tpaired) | Flags], overline('D')).
+mathml:hook(Flags, s_d, [task(tpaired) | Flags], sub(s, 'D')).
+mathml:hook(Flags, n, [task(tpaired) | Flags], 'N').
+mathml:hook(Flags, t0, [task(tpaired) | Flags], overline("T0")).
+mathml:hook(Flags, s_t0, [task(tpaired) | Flags], sub(s, "T0")).
+mathml:hook(Flags, eot, [task(tpaired) | Flags], overline("EOT")).
+mathml:hook(Flags, s_eot, [task(tpaired) | Flags], sub(s, "EOT")).
+mathml:hook(Flags, s2p, [task(tpaired) | Flags], sub(s, "pool")^2).
 
 % R definitions
 interval:hook(pl, var_pool(N1, V1, N2, V2), r(var_pool(N1, V1, N2, V2))).

@@ -7,8 +7,8 @@
 
 :- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
-mathml:math_hook(Flags, p0, Flags, sub(pi, 0)).
-mathml:math_hook(Flags, n, Flags, 'N').
+mathml:math_hook(Flags, p0, [task(qbinom) | Flags], sub(pi, 0)).
+mathml:math_hook(Flags, n, [task(qbinom) | Flags], 'N').
 
 render(qbinom, item(Alpha, N, P0), Form) -->
     { option(resp(R), Form, '#') }, 

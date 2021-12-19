@@ -6,7 +6,7 @@
 
 :- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
-mathml:hook(Flags, x, Flags, 'X').
+mathml:hook(Flags, x, [task(ztrans) | Flags], 'X').
 
 interval:hook(pl, x, r(x)).
 interval:hook(pl, sigma, r(sigma)).

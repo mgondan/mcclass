@@ -1,12 +1,12 @@
 % Prettier symbols for mathematical rendering
-mathml:hook(Flags, p_VR, Flags, sub(p, "VR")).
-mathml:hook(Flags, p_Box, Flags, sub(p, "Box")).
-mathml:hook(Flags, s_VR, Flags, sub(s, "VR")).
-mathml:hook(Flags, s_Box, Flags, sub(s, "Box")).
-mathml:hook(Flags, n_VR, Flags, sub(n, "VR")).
-mathml:hook(Flags, n_Box, Flags, sub(n, "Box")).
-mathml:hook(Flags, chi2, Flags, chi^2).
-mathml:hook(Flags, p_pool, Flags, sub(p, "pool")).
+mathml:hook(Flags, p_VR, [task(chisq) | Flags], sub(p, "VR")).
+mathml:hook(Flags, p_Box, [task(chisq) | Flags], sub(p, "Box")).
+mathml:hook(Flags, s_VR, [task(chisq) | Flags], sub(s, "VR")).
+mathml:hook(Flags, s_Box, [task(chisq) | Flags], sub(s, "Box")).
+mathml:hook(Flags, n_VR, [task(chisq) | Flags], sub(n, "VR")).
+mathml:hook(Flags, n_Box, [task(chisq) | Flags], sub(n, "Box")).
+mathml:hook(Flags, chi2, [task(chisq) | Flags], chi^2).
+mathml:hook(Flags, p_pool, [task(chisq) | Flags], sub(p, "pool")).
 
 % R constants
 interval:hook(pl, p_VR, r(p_VR)).

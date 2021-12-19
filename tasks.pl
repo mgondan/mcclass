@@ -68,7 +68,7 @@ feedback(Task, Form) -->
       colors(Expr, Col),
       findall(li(FB),
         ( member(step(_, Name, Args), Flags),
-          feedback(Task, Name, Args, Col, FB)
+          feedback(Task, Name, Args, [task(Task) | Col], FB)
         ), Items)
     },
     html(div(class("card"),
@@ -92,7 +92,7 @@ feedback(Task, Form) -->
       colors(Expr, Col),
       findall(li(FB),
         ( member(step(_, Name, Args), Flags),
-          feedback(Task, Name, Args, Col, FB)
+          feedback(Task, Name, Args, [task(Task) | Col], FB)
         ), Items)
     },
     html(div(class("card"),
@@ -100,9 +100,9 @@ feedback(Task, Form) -->
               "Careful"),
             div(class("card-body"),
               [ p(class("card-text"), "This is the correct expression:"),
-                p(class("card-text"), \mmlm([error(fix) | Col], Expr)),
+                p(class("card-text"), \mmlm([task(Task), error(fix) | Col], Expr)),
                 p(class("card-text"), "Your response matches the following expression:"),
-                p(class("card-text"), \mmlm([error(highlight) | Col], Expr)),
+                p(class("card-text"), \mmlm([task(Task), error(highlight) | Col], Expr)),
                 p(class("card-text"), "Please check the following hints:"),
                 ul(class("card-text"), ul(Items))
               ])
@@ -149,15 +149,15 @@ solution(Task, Expr-Res/Flags) :-
     interval(Task, Expr, Res).
 
 % Pretty print
-solution(task(_Task, Data)) -->
+solution(task(Task, Data)) -->
     { member(sol(Expr-Result/_Flags), Data),
       colors(Expr, Col)
     },
     html(div(class("card"),
-          [ div(class("card-header text-white bg-success"), "Solution"),
-            div(class("card-body"),
-              p(class("card-text"), \mmlm([error(correct) | Col], Expr = Result)))
-          ])).
+      [ div(class("card-header text-white bg-success"), "Solution"),
+        div(class("card-body"),
+        p(class("card-text"), \mmlm([task(Task), error(correct) | Col], Expr = Result)))
+      ])).
 
 % Codes for correct steps    
 hints(Flags, Hints) :-
@@ -171,17 +171,19 @@ hints(task(Task, Data)) -->
       findall(li(H), 
         ( member(step(expert, Name, Arg), Flags), 
           member(Name, Hints), 
-          (   hint(Task, Name, Arg, Col, H)
+          (   hint(Task, Name, Arg, [task(Task) | Col], H)
            -> true
            ;  throw(error(hint_argument(Name, Arg)))
           )
         ), List)
     },
     html(div(class("card"),
-          [ div(class("card-header text-white bg-info"), "Hints"),
-            div(class("card-body"),
-              [ p(class("card-text"), "Steps to the solution"),
-                p(class("card-text"), ul(List))])])).
+      [ div(class("card-header text-white bg-info"), "Hints"),
+        div(class("card-body"),
+          [ p(class("card-text"), "Steps to the solution"),
+            p(class("card-text"), ul(List))
+          ])
+      ])).
 
 % The incorrect response alternatives
 wrong(Task, Expr_Res_Flags) :-
@@ -198,13 +200,13 @@ wrong(task(Task, Data), Expr-_Res/Flags, Items) :-
     findall(li(FB), 
       ( member(step(_, Name, Args), Flags),
         member(Name, Traps), % show only relevant feedback
-        feedback(Task, Name, Args, Col, FB)
+        feedback(Task, Name, Args, [task(Task) | Col], FB)
       ), Items).
 
 wrongs(task(Task, Data)) -->
     { member(wrong(Expr_Res_Flags), Data),
       findall(
-        li([ \mmlm([error(highlight) | Col], E = R), ul(FB) ]), 
+        li([ \mmlm([task(Task), error(highlight) | Col], E = R), ul(FB) ]), 
         ( member(E-R/F, Expr_Res_Flags),
           colors(E, Col),
           wrong(task(Task, Data), E-R/F, FB)
@@ -245,7 +247,7 @@ trap(task(Task, Data), Expr-_Res/Flags, li(Trap)) :-
     colors(Expr, Col),
     member(traps(Traps), Data),
     member(Name, Traps),
-    hint(Task, Name, Args, Col, Trap).
+    hint(Task, Name, Args, [task(Task) | Col], Trap).
 
 traps(task(Task, Data)) -->
     { member(wrongall(E_R_F), Data),

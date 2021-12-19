@@ -10,8 +10,8 @@
 :- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
 % Render symbols
-mathml:hook(Flags, n, Flags, 'N').
-mathml:hook(Flags, p0, Flags, pi).
+mathml:hook(Flags, n, [task(dbinom) | Flags], 'N').
+mathml:hook(Flags, p0, [task(dbinom) | Flags], pi).
 
 % R definitions
 interval:hook(pl, n, r(n)).
