@@ -197,6 +197,16 @@ math(Flags, sum(I, From, To, A), New, M)
 mathml :- mathml(sum(i, 1, 10, sub(x, i))).
 
 %
+% Absolute value
+%
+ml(Flags, abs(A), M)
+ => ml(Flags, A, X),
+    M = mrow([mo(&(vert)), X, mo(&(vert))]).
+
+paren(Flags, abs(A), Paren)
+ => paren(Flags, A, Paren).
+
+%
 % Integral
 %
 math(Flags, integrate(F), New, X),

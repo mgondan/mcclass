@@ -626,6 +626,47 @@ int(E, available(X), Res)
     Res = L ... U .  % todo: boolean function
 
 %
+% Absolute value
+%
+int(E, abs(X), Res)
+ => int(E, X, L ... U),
+    (   positive(L, U)
+     -> RL is L,
+        RU is U
+      ; negative(L, U)
+     -> RL is abs(U),
+        RU is abs(L)
+      ; % mixed
+        RL is 0.0,
+        RU is max(abs(L), U)
+    ),
+    Res = RL ... RU.
+
+example :-
+    writeln(abs-1),
+    X = -0.2 ... -0.1,
+    interval(pl, abs(X), Res),
+    writeln(abs(X) --> Res).
+
+example :-
+    writeln(abs-2),
+    X = 0.1 ... 0.2,
+    interval(pl, abs(X), Res),
+    writeln(abs(X) --> Res).
+    
+example :-
+    writeln(abs-3),
+    X = -0.2 ... 0.1,
+    interval(pl, abs(X), Res),
+    writeln(abs(X) --> Res).
+
+example :-
+    writeln(abs-4),
+    X = -0.1 ... 0.2,
+    interval(pl, abs(X), Res),
+    writeln(abs(X) --> Res).
+
+%
 % Fraction
 %
 int(E, frac(X, Y), Res)
