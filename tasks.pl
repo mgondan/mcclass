@@ -150,13 +150,20 @@ solution(Task, Expr-Res/Flags) :-
 
 % Pretty print
 solution(task(Task, Data)) -->
-    { member(sol(Expr-Result/_Flags), Data),
-      colors(Expr, Col)
+    { member(sol(Expr-Result/Flags), Data),
+      colors(Expr, Col),
+      findall(li(FB),
+        ( member(step(expert, Name, Args), Flags),
+          feedback(Task, Name, Args, [task(Task) | Col], FB)
+        ), Items)
     },
     html(div(class("card"),
       [ div(class("card-header text-white bg-success"), "Solution"),
         div(class("card-body"),
-        p(class("card-text"), \mmlm([task(Task), error(correct) | Col], Expr = Result)))
+          [ p(class("card-text"), \mmlm([task(Task), error(correct) | Col], Expr = Result)),
+            p(class("card-text"), "Comments"),
+            ul(Items)
+          ])
       ])).
 
 % Codes for correct steps    
