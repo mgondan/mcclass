@@ -73,10 +73,10 @@ feedback(Task, Form) -->
     },
     html(div(class("card"),
           [ div(class("card-header text-white bg-success"),
-              "Congratulation"),
+              "Congratulations"),
             div(class("card-body"),
               [ p(class("card-text"), "Correct response!"),
-                ul(class("card-text"), ul(Items))
+                ul(Items)
               ])
           ])).
 
