@@ -765,7 +765,7 @@ math(Flags, -A, New, X)
 math(Flags, A - B, New, X)
  => New = Flags,
     current_op(Prec, yfx, -),
-    X = yfy(Prec, -, A, B).
+    X = yfx(Prec, -, A, B).
 
 % Use dot or no dot instead of asterisk
 math(Flags, A * B, New, X),
