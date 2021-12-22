@@ -851,11 +851,13 @@ ml(Flags, fy(Prec, Op, A), M)
 
 ml(Flags, fx(Prec, Op, A), M)
  => ml(Flags, sign(Op), S),
-    ml(Flags, right(Prec-1, A), X),
+    Prec1 is Prec - 1,
+    ml(Flags, right(Prec1, A), X),
     M = mrow([S, X]).
 
 ml(Flags, xfx(Prec, Op, A, B), M)
- => ml(Flags, left(Prec-1, A), X),
+ => Prec1 is Prec - 1,
+    ml(Flags, left(Prec1, A), X),
     ml(Flags, sign(Op), S),
     ml(Flags, right(Prec-1, B), Y),
     M = mrow([X, S, Y]).
@@ -863,11 +865,13 @@ ml(Flags, xfx(Prec, Op, A, B), M)
 ml(Flags, yfx(Prec, Op, A, B), M)
  => ml(Flags, left(Prec, A), X),
     ml(Flags, sign(Op), S),
-    ml(Flags, right(Prec-1, B), Y),
+    Prec1 is Prec - 1,
+    ml(Flags, right(Prec1, B), Y),
     M = mrow([X, S, Y]).
 
 ml(Flags, xfy(Prec, Op, A, B), M)
- => ml(Flags, left(Prec-1, A), X),
+ => Prec1 is Prec - 1,
+    ml(Flags, left(Prec1, A), X),
     ml(Flags, sign(Op), S),
     ml(Flags, right(Prec, B), Y),
     M = mrow([X, S, Y]).
@@ -936,6 +940,9 @@ denoting(Flags, yfy(_, _, A, B), Den)
     append(DenA, DenB, Den).
 
 prec(_Flags, fy(P, _, _), Prec)
+ => Prec = P.
+
+prec(_Flags, fx(P, _, _), Prec)
  => Prec = P.
 
 prec(_Flags, xfx(P, _, _, _), Prec)
@@ -1522,6 +1529,10 @@ math(Flags, invent_left(_Bug, Expr), New, M),
  => M = Expr,
     Flags = New.
 
+prec(Flags, invent_left(_, Expr), Prec),
+    option(error(show), Flags, fix)
+ => prec(Flags, Expr, Prec).
+
 math(Flags, invent_left(bug(_Bug), Expr), New, M),
     option(error(fix), Flags, fix)
  => Expr =.. [_Op, _L, R],
@@ -1535,6 +1546,10 @@ math(Flags, invent_left(bug(Bug), Expr), New, M),
     Flags = New,
     M = list(space, [color(Bug, Expr1), R]).
 
+prec(Flags, invent_left(_, Expr), Prec),
+    option(error(highlight), Flags, fix)
+ => prec(Flags, Expr, Prec).
+
 math(Flags, invent_right(_Bug, Expr), New, M),
     option(error(correct), Flags, fix)
  => Expr =.. [_Op, L, _R],
@@ -1545,6 +1560,10 @@ math(Flags, invent_right(_Bug, Expr), New, M),
     option(error(show), Flags, fix)
  => M = Expr,
     Flags = New.
+
+prec(Flags, invent_right(_, Expr), Prec),
+    option(error(show), Flags, fix)
+ => prec(Flags, Expr, Prec).
 
 math(Flags, invent_right(bug(_Bug), Expr), New, M),
     option(error(fix), Flags, fix)
@@ -1563,6 +1582,10 @@ math(Flags, invent_right(bug(Bug), Expr), New, M),
     Expr1 =.. [Op, " ", R],
     Flags = New,
     M = list(space, [L, color(Bug, Expr1)]).
+
+prec(Flags, invent_right(_, Expr), Prec),
+    option(error(highlight), Flags, fix)
+ => prec(Flags, Expr, Prec).
 
 mathml :- mathml(dfrac(omit_right(bug(bug), overline('D') - mu),
                    sub(s, 'D') / sqrt('N'))).
