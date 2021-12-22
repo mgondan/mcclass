@@ -64,9 +64,9 @@ expert(qbinom, stage(2), From, To, [step(expert, quantile, [])]) :-
     From = item(Alpha, N, P0),
     To   = uqbinom(Alpha, N, prob=P0).
 
-feedback(qbinom, quantile, [], _Col, Feed) :-
+feedback(qbinom, quantile, [], _Col, Feed) =>
     Feed = [ "Correctly recognised the problem as a binomial test." ].
 
-hint(qbinom, quantile, [], _Col, Hint) :-
+hint(qbinom, quantile, [], _Col, Hint) =>
     Hint = [ "This is a binomial test." ].
 

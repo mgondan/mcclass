@@ -75,10 +75,10 @@ expert(chisq, stage(2), From, To, [step(expert, allinone, [])]) :-
 	    chi2
 	 }.
 
-feedback(chisq, allinone, [], _Col, FB) :-
+feedback(chisq, allinone, [], _Col, FB) =>
     FB = [ "Everything done correctly." ].
 
-hint(chisq, allinone, [], _Col, FB) :-
+hint(chisq, allinone, [], _Col, FB) =>
     FB = [ "Try to do everything correctly." ].
 
 % 1) Forgot all parentheses in main equation.
@@ -95,10 +95,10 @@ buggy(chisq, stage(2), From, To, [step(buggy, fuba, []), depends(paren)]) :-
     BB = drop_right(X, N_VR + N_Box),
     To = invent_left(X, S_VR + invent_right(X, dfrac(AA, BB) + N_Box)).
 
-feedback(chisq, fuba, [], _Col, FB) :-
+feedback(chisq, fuba, [], _Col, FB) =>
     FB = [ "Please, for the love of whatever you hold dear, use parentheses!" ].
 
-hint(chisq, fuba, [], _Col, FB) :-
+hint(chisq, fuba, [], _Col, FB) =>
     FB = [ "Honestly, I don't even know where to begin..." ].
 
 % 2) first instead of second binomial formula.
@@ -106,11 +106,11 @@ buggy(chisq, stage(2), From, To, [step(buggy, firstbin, [P_VR, P_Box])]) :-
     From = (P_VR - P_Box) ^ 2,
     To = instead(bug(firstbin), (P_VR + P_Box) ^ 2, From).
 
-feedback(chisq, firstbin, [P_VR, P_Box], Col, FB) :-
+feedback(chisq, firstbin, [P_VR, P_Box], Col, FB) =>
     FB = [ "Please subtract ", \mmlm(Col, color(firstbin, P_Box)), " from ",
 	   \mmlm(Col, color(firstbin, P_VR)), " rather than adding them up." ].
 
-hint(chisq, firstbin, [P_VR, P_Box], Col, FB) :-
+hint(chisq, firstbin, [P_VR, P_Box], Col, FB) =>
     FB = [ "Do not add ", \mmlm(Col, color(firstbin, P_Box)), " and ",
 	   \mmlm(Col, color(firstbin, P_VR)) ].
 
@@ -120,11 +120,11 @@ buggy(chisq, stage(2), From, To, [step(buggy, paren2, [N_VR, N_Box])]) :-
     X = paren2,
     To = A * B * color(X, 1) / color(X, N_VR) + color(X, 1) / color(X, N_Box).
 
-feedback(chisq, paren2, [N_VR, N_Box], Col, FB) :-
+feedback(chisq, paren2, [N_VR, N_Box], Col, FB) =>
     FB = [ "Please do not forget the parenthesis around ", 
 	   \mmlm(Col, color(paren2, ["(", 1 / N_VR + 1 / N_Box, ")"])) ].
 
-hint(chisq, paren2, [N_VR, N_Box], Col, FB) :-
+hint(chisq, paren2, [N_VR, N_Box], Col, FB) =>
     FB = [ "Do not forget to add parenthesis around ", 
 	   \mmlm(Col, color(paren2, ["(", 1 / N_VR + 1 / N_Box, ")"])) ].
 
@@ -133,11 +133,11 @@ buggy(chisq, stage(2), From, To, [step(buggy, paren3, [From])]) :-
     From = P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box),
     To = instead(bug(paren3), P_Pool * 1 - P_Pool * 1 / N_VR + 1 / N_Box, From).
 
-feedback(chisq, paren3, [From], Col, FB) :-
+feedback(chisq, paren3, [From], Col, FB) =>
     FB = [ "Please do not forget the parentheses around the different ",
 	   " elements in ", \mmlm(Col, color(paren3, From)) ].
 
-hint(chisq, paren3, [From], Col, FB) :-
+hint(chisq, paren3, [From], Col, FB) =>
     FB = [ "Remember the parentheses around he different ",
 	   " elements in ", \mmlm(Col, color(paren3, From)) ].
 
@@ -147,12 +147,12 @@ buggy(chisq, stage(2), From, To, [step(buggy, z, [])]) :-
 		P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box)),
     To = dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box))).
 
-feedback(chisq, z, [], Col, FB) :-
+feedback(chisq, z, [], Col, FB) =>
     FB = [ "Keep in mind that you are supposed to calculate ", 
 	   \mmlm(Col, color(z, chi2)), " rather than ", \mmlm(Col, [color(z, z), "."]),
 	   " Square your answer for the correct result." ].
 
-hint(chisq, z, [], Col, FB) :-
+hint(chisq, z, [], Col, FB) =>
     FB = [ "Do not calculate ", \mmlm(Col, color(z, z)) ].
 
 % 6) - instead of + for both parts of p_pool.
@@ -161,12 +161,12 @@ buggy(chisq, stage(2), From, To, Flags) :-
     From = dfrac(S_VR + S_Box, N_VR + N_Box),
     To = color(subt, dfrac(S_VR - S_Box, N_VR - N_Box)).
 
-feedback(chisq, subt, [_A, _B, _C, _D], Col, FB) :-
+feedback(chisq, subt, [_A, _B, _C, _D], Col, FB) =>
     FB = [ "Please use addition rather than subtraction in both numerator ",
 	   "and denominator when calculating ",
 	   \mmlm(Col, color(subt, p_pool)) ].
 
-hint(chisq, subt, [S_VR, S_Box, N_VR, N_Box], Col, FB) :-
+hint(chisq, subt, [S_VR, S_Box, N_VR, N_Box], Col, FB) =>
     FB = [ "Do not subtract ", \mmlm(Col, color(subt, S_Box)), " from ", 
 	   \mmlm(Col, color(subt, S_VR)), " or ", \mmlm(Col, color(subt, N_Box)), 
 	   " from ", \mmlm(Col, color(subt, N_VR)), " in ", 
@@ -179,11 +179,11 @@ buggy(chisq, stage(2), From, To, [step(buggy, flip, [])]) :-
     To = instead(bug(flip), dfrac(p_pool * (1 - p_pool) * (1 / N_VR + 1 / N_Box), 
 	 (P_VR - P_Box) ^ 2), From).
 
-feedback(chisq, flip, [], Col, FB) :-
+feedback(chisq, flip, [], Col, FB) =>
     FB = [ "It appears you flipped the numerator and denominator of ", 
 	   \mmlm(Col, color(flip, chi2)) ].
 
-hint(chisq, flip, [], Col, FB) :-
+hint(chisq, flip, [], Col, FB) =>
     FB = [ "Do not flip the numerator and denominator of the main ",
 	   \mmlm(Col, hyph(chi2, "Formula")) ].
 
@@ -192,11 +192,11 @@ hint(chisq, flip, [], Col, FB) :-
 %    From = dfrac(s_VR + s_Box, n_VR + n_Box),
 %    To = dfrac(invent_left(bug(add1), 1 + s_VR) + s_Box, n_VR + n_Box).
 
-feedback(chisq, add1, [From], Col, FB) :-
+feedback(chisq, add1, [From], Col, FB) =>
     FB = [ "Please do not add ", \mmlm(Col, ["+", 1]), " to the numerator of ", 
 	   \mmlm(Col, color(add1, From)) ].
 
-hint(chisq, add1, [_From], Col, FB) :-
+hint(chisq, add1, [_From], Col, FB) =>
     FB = [ "Do not add ", \mmlm(Col, ["+", 1]), " to the numerator of ", 
 	   \mmlm(Col, p_pool) ].
 
@@ -206,10 +206,11 @@ hint(chisq, add1, [_From], Col, FB) :-
 %    To = item(instead(bug(prob), p_VR * 100, p_VR), s_VR, n_VR, 
 %	      instead(bug(prob), p_Box * 100, p_Box), s_Box, n_Box).
 
-feedback(chisq, prob, [], Col, FB) :-
+feedback(chisq, prob, [], Col, FB) =>
     FB = [ "Keep in mind that ", \mmlm(Col, color(prob, p_VR)), " and ",
 	   \mmlm(Col, color(prob, p_Box)), " are probabilites rather than percentages" ].
 
-hint(chisq, prob, [], Col, FB) :-
+hint(chisq, prob, [], Col, FB) =>
     FB = [ "Do not use the percentages corresponding to ",
 	   \mmlm(Col, color(prob, p_VR)), " and ", \mmlm(Col, color(prob, p_Box)) ].
+

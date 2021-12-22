@@ -60,11 +60,11 @@ expert(ztrans2, stage(2), From, To, [step(expert, steps, [])]) :-
            x
          }.
 
-feedback(ztrans2, steps, [], Col, FB) :-
+feedback(ztrans2, steps, [], Col, FB) =>
     FB = [ "Determined the ", \mmlm(Col, z), "-statistic and translated it ",
            "to the original scale." ].
 
-hint(ztrans2, steps, [], Col, FB) :-
+hint(ztrans2, steps, [], Col, FB) =>
     FB = [ "First determine the ", \mmlm(Col, z), "statistic. Then translate ",
            "it to the original scale." ].
 
@@ -74,10 +74,10 @@ expert(ztrans2, stage(2), From, To, [step(expert, correct_tail, [])]) :-
     From = qnorm_(P),
     To = qnorm(P).
 
-feedback(ztrans2, correct_tail, [], _Col, FB) :-
+feedback(ztrans2, correct_tail, [], _Col, FB) =>
     FB = [ "The response matches the lower tail of the Normal distribution." ].
 
-hint(ztrans2, correct_tail, [], _Col, FB) :-
+hint(ztrans2, correct_tail, [], _Col, FB) =>
     FB = [ "The upper tail of the Normal distribution is used." ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -90,11 +90,11 @@ buggy(ztrans2, stage(2), From, To, [step(buggy, wrong_tail, [])]) :-
     From = qnorm_(1 - P),
     To = qnorm(instead(bug(wrong_tail), P, 1 - P)).
 
-feedback(ztrans2, wrong_tail, [], _Col, FB) :-
+feedback(ztrans2, wrong_tail, [], _Col, FB) =>
     FB = [ "The response matches the lower tail of the Normal ",
            "distribution. (wrong_tail)" ].
 
-hint(ztrans2, wrong_tail, [], _Col, FB) :-
+hint(ztrans2, wrong_tail, [], _Col, FB) =>
     FB = [ "Make sure to use the correct tail of the Normal distribution." ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -104,11 +104,11 @@ buggy(ztrans2, stage(2), From, To, [step(buggy, swap, [mu, Sigma])]) :-
     From = z * Sigma + mu,
     To = instead(bug(swap), z * mu + Sigma, From).
 
-feedback(ztrans2, swap, [Mu, Sigma], Col, FB) :-
+feedback(ztrans2, swap, [Mu, Sigma], Col, FB) =>
     FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ",
 	   \mmlm(Col, color(swap, Sigma)), "(swap)" ].
 
-hint(ztrans2, swap, [Mu, Sigma], Col, FB) :-
+hint(ztrans2, swap, [Mu, Sigma], Col, FB) =>
     FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
 	   \mmlm(Col, color(swap, Sigma)), " in a different configuration." ].
 
@@ -119,10 +119,10 @@ buggy(ztrans2, stage(2), From, To, [step(buggy, vardev_swap, [sigma])]) :-
     From = Z * sigma + Mu,
     To = Z * invent_right(bug(vardev_swap), sigma^2) + Mu.
 
-feedback(ztrans2, vardev_swap, [Sigma], Col, FB) :-
+feedback(ztrans2, vardev_swap, [Sigma], Col, FB) =>
     FB = [ \mmlm(Col, color(vardev_swap, Sigma)), "was squared by mistake. (vardev_swap)" ].
 
-hint(ztrans2, vardev_swap, [_Sigma], _Col, FB) :-
+hint(ztrans2, vardev_swap, [_Sigma], _Col, FB) =>
     FB = [ "Use the standard deviation instead of the variance." ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -137,12 +137,12 @@ buggy(ztrans2, stage(2), From, To, [step(buggy, perc1000, [1000])]) :-
     From = dfrac(P, 100),
     To = dfrac(P, instead(bug(perc1000), 1000, 100)).
 
-feedback(ztrans2, perc1000, [P], Col , FB) :-
+feedback(ztrans2, perc1000, [P], Col , FB) =>
     FB = [ "The percentage was divided ",
            "by ", \mmlm(Col, color(perc1000, P)), " instead of 100 to obtain ",
            "a proportion (perc1000)." ].
 
-hint(ztrans2, perc1000, [_P], _Col, FB) :-
+hint(ztrans2, perc1000, [_P], _Col, FB) =>
     FB = [ "Make sure to divide by 100 when translating a percentage to a ",
            "proportion." ].
 
@@ -153,10 +153,10 @@ buggy(ztrans2, stage(2), From, To, [step(buggy, pdecimal2, [P])]) :-
     From = dfrac( P , 100 ),
     To = instead(bug(pdecimal2), dfrac( P , 10 ), From).
 
-feedback(ztrans2, pdecimal2, [_], _ , FB) :-
+feedback(ztrans2, pdecimal2, [_], _ , FB) =>
     FB = [ "P-% was incorrectly converted to a decimal representation. (pdecimal2)" ].
 
-hint(ztrans2, pdecimal2, [P], Col, FB) :-
+hint(ztrans2, pdecimal2, [P], Col, FB) =>
     FB = [ \mmlm(Col, color(pdecimal2, r(P))), "% in decimal representation is ", \mmlm(Col, color(pdecimal2, r(P/100))) ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
@@ -166,9 +166,9 @@ buggy(ztrans2, stage(2), From, To, [step(buggy, zx, [z, sigma, mu])]) :-
     From = z * sigma + mu,
     To = instead(bug(zx), z , From).
 
-feedback(ztrans2, zx, [z, sigma, mu], _Col, FB) :-
+feedback(ztrans2, zx, [z, sigma, mu], _Col, FB) =>
     FB = [ "To complete the exercise successfully you have to do the second calculation aswell. (zx)" ].
 
-hint(ztrans2, zx, [z, sigma, mu], Col, FB) :-
+hint(ztrans2, zx, [z, sigma, mu], Col, FB) =>
     FB = [ \mmlm(Col, color(zx, z)), "is the correct answer of the first equation. To continue calculate ", \mmlm(Col, color(zx, z * sigma + mu)), "." ].
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%

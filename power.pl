@@ -114,11 +114,11 @@ expert(power, stage(2), From, To, [step(expert, indep, [])]) :-
 	   t
 	 }.
 
-feedback(power, indep, [], Col, FB) :-
+feedback(power, indep, [], Col, FB) =>
     FB = [ "You identified the problem as a ", \mmlm(Col, hyph(t, "test")),
 	   " for independent samples and solved it correctly." ].
 
-hint(power, indep, [], _Col, FB) :-
+hint(power, indep, [], _Col, FB) =>
     FB = [ "Try to do everthing correctly." ].
 
 % 1

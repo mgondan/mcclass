@@ -57,7 +57,6 @@ handle(Task, Form) :-
     member(download=_, Form),
     task(Task, _TaskData),
     download(Task, Local),
-    http_log("Local=~w~n", [Local]),
     format(atom(File), "attachment; filename=~k.csv", [Task]),
     http_current_request(Request),
     http_reply_file(Local,
@@ -68,6 +67,7 @@ handle(Task, Form) :-
 % Task sheet
 handle(Task, Form) :-
     r_initialize,
+    b_setval(task, Task),
     task(Task, TaskData),
     start(Task, Item),
     reply_html_page(
@@ -89,7 +89,7 @@ handle(Task, Form) :-
           ],
       [ \render(Task, Item, Form),
         \feedback(Task, Form),
-        \solution(TaskData),
+        \solutions(TaskData),
         \hints(TaskData),
         \wrongs(TaskData),
         \traps(TaskData)

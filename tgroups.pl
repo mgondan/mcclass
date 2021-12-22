@@ -113,11 +113,11 @@ expert(tgroups, stage(2), From, To, [step(expert, indep, [])]) :-
 	   t
 	 }.
 
-feedback(tgroups, indep, [], Col, FB) :-
+feedback(tgroups, indep, [], Col, FB) =>
     FB = [ "You identified the problem as a ", \mmlm(Col, hyph(t, "test")),
 	   " for independent samples and solved it correctly." ].
 
-hint(tgroups, indep, [], _Col, FB) :-
+hint(tgroups, indep, [], _Col, FB) =>
     FB = [ "Try to do everthing correctly." ].
 
 % 1) Swap vr and box groups.
@@ -125,11 +125,11 @@ buggy(tgroups, stage(1), From, To, [step(buggy, swap, [])]) :-
     From = item(vr, s_vr, n_vr, box, s_box, n_box),
     To = item(box, s_box, n_box, vr, s_vr, n_vr).
 
-feedback(tgroups, swap, [], Col, FB) :-
+feedback(tgroups, swap, [], Col, FB) =>
     FB = [ "It appears you swapped the ", \mmlm(Col, color(swap, "VR")), " and ",
 	   \mmlm(Col, color(swap, "BOX")), " variables." ].
 
-hint(tgroups, swap, [], _Col, FB) :-
+hint(tgroups, swap, [], _Col, FB) =>
     FB = [ "Please keep in mind that you analyse the changes caused by the ",
 	   "treatment at it's end and arrange the variables accordingly." ].
 
@@ -139,12 +139,12 @@ buggy(tgroups, stage(2), From, To, [step(buggy, sqsd, [S_VR, S_BOX])]) :-
     To = var_pool(instead(bug(sqsd), S_VR, S_VR ^ 2), N_VR, 
 	 instead(bug(sqsd), S_BOX, S_BOX ^ 2), N_BOX).
 
-feedback(tgroups, sqsd, [S_VR, S_BOX], Col, FB) :-
+feedback(tgroups, sqsd, [S_VR, S_BOX], Col, FB) =>
     FB = [ "Please remember to use the squares of ", 
 	   \mmlm(Col, color(sqsd, S_VR)), " and ", 
 	   \mmlm(Col, color(sqsd, S_BOX)), " in the pooled variance." ].
 
-hint(tgroups, sqsd, [_S_VR, _S_BOX], _Col, FB) :-
+hint(tgroups, sqsd, [_S_VR, _S_BOX], _Col, FB) =>
     FB = [ "Try using the variance rather than the standard deviation ",
 	   "when calculating the pooled variance." ].
 
@@ -154,12 +154,12 @@ buggy(tgroups, stage(2), From, To, [step(buggy, school, [From, N_VR, N_BOX])]) :
     From = 1 / N_VR + 1 / N_BOX,
     To = color(school, frac(1, N_VR + N_BOX)).
 
-feedback(tgroups, school, [From, N_VR, N_BOX], Col, FB) :-
+feedback(tgroups, school, [From, N_VR, N_BOX], Col, FB) =>
     FB = [ "Please do not forget school math, ", 
 	   \mmlm(Col, color(school, From) 
 	   =\= color(school, frac(1, N_VR + N_BOX))) ].
 
-hint(tgroups, school, [From, N_VR, N_BOX], Col, FB) :-
+hint(tgroups, school, [From, N_VR, N_BOX], Col, FB) =>
     FB = [ "Do not forget school math, ", 
 	   \mmlm(Col, color(school, From) =\= color(school, frac(1, N_VR + N_BOX))) ].
 
@@ -168,11 +168,11 @@ buggy(tgroups, stage(2), From, To, [step(buggy, school2, [From, N])]) :-
     From = 1 / N + 1 / N,
     To = color(school2, frac(1, 2 * N)).
 
-feedback(tgroups, school2, [From, N], Col, FB) :-
+feedback(tgroups, school2, [From, N], Col, FB) =>
     FB = [ "Please do not forget school math, ", 
 	   \mmlm(Col, color(school2, From) =\= color(school2, frac(1, 2 * N))) ].
 
-hint(tgroups, school2, [From, N], Col, FB) :-
+hint(tgroups, school2, [From, N], Col, FB) =>
     FB = [ "Do not forget school math, ", 
 	   \mmlm(Col, color(school2, From) =\= color(school2, frac(1, 2 * N))) ].
 
@@ -182,7 +182,7 @@ buggy(tgroups, stage(2), From, To, [step(buggy, bug1, [VR, BOX, S2P, N_VR, N_BOX
     To =  invent_left(bug(bug1), VR - dfrac(BOX, 
 	  color(bug1, sqrt(S2P)))) * color(bug1, 1) / color(bug1, N_VR) + color(bug1, 1 / N_BOX).
 
-feedback(tgroups, bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) :-
+feedback(tgroups, bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) =>
     FB = [ "Please do not forget the parentheses around the numerator and ",
 	   "the denominator of a fraction, ", 
 	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", VR - BOX))), 
@@ -190,7 +190,7 @@ feedback(tgroups, bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) :-
 	   color(bug1, paren(color("#000000", 1/N_VR + 1/N_BOX)))))) 
 	 ].
 
-hint(tgroups, bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) :-
+hint(tgroups, bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) =>
     FB = [ "Remember to use parenthesis. The correct formula for the ",
 	   \mmlm(Col, hyph(t, "ratio")), "is ", 
 	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", VR - BOX))), 
@@ -204,10 +204,10 @@ buggy(tgroups, stage(2), From, To, [step(buggy, nosr1, [A])]) :-
     A = S2P * (1/N_VR + 1/N_BOX),
     To = instead(bug(nosr1), A, sqrt(A)).
 
-feedback(tgroups, nosr1, [A], Col, FB) :-
+feedback(tgroups, nosr1, [A], Col, FB) =>
    FB = [ "Remeber to draw the square root of ", \mmlm(Col, color(nosr1, A))].
 
-hint(tgroups, nosr1, [A], Col, FB) :-
+hint(tgroups, nosr1, [A], Col, FB) =>
     FB = [ "Keep in mind that you need to draw the square root of ", 
 	   \mmlm(Col, color(nosr1, A))].
 
@@ -216,10 +216,10 @@ buggy(tgroups, stage(2), From, To,  [step(buggy, nosr2, [S2P])]) :-
     From = dfrac(BOX, color(_, sqrt(S2P))),
     To = dfrac(BOX, color(nosr2, S2P)).
 
-feedback(tgroups, nosr2, [_S2P], _Col, FB) :-
+feedback(tgroups, nosr2, [_S2P], _Col, FB) =>
     FB = [ "Please remeber to draw the square root of the main functions denominator."].
 
-hint(tgroups, nosr2, [S2P], Col, FB) :-
+hint(tgroups, nosr2, [S2P], Col, FB) =>
     FB = [ "Keep in mind that you need to draw the square root of ", 
 	   \mmlm(Col, color(nosr2, S2P * (1 / "n_vr" + 1 / "n_box"))) ].
 
@@ -228,11 +228,11 @@ buggy(tgroups, stage(1), From, To, [step(buggy, nswap, [])]) :-
     From = item(vr, s_vr, n_vr, box, s_box, n_box),
     To = item(vr, s_vr, color(nswap, n_box), box, s_box, color(nswap, n_vr)).
 
-feedback(tgroups, nswap, [], Col, FB) :-
+feedback(tgroups, nswap, [], Col, FB) =>
     FB = [ "Please double check the sample sizes ", \mmlm(Col, color(nswap, n_vr)), 
 	   " and ", \mmlm(Col, color(nswap, n_box)), " of both groups." ].
 
-hint(tgroups, nswap, [], Col, FB) :-
+hint(tgroups, nswap, [], Col, FB) =>
     FB = [ "Do not swap the sample sizes in ", \mmlm(Col, color(nswap, s2p)) ].
 
 
@@ -242,13 +242,13 @@ hint(tgroups, nswap, [], Col, FB) :-
 %    From = color(_, N_VR) + color(_, 1 / N_BOX),
 %    To = color(scb1, N_VR) + omit_left(bug(scb1), 1 / N_BOX).
 
-%feedback(tgroups, scb1, [N_VR, N_BOX], Col, FB) :-
+%feedback(tgroups, scb1, [N_VR, N_BOX], Col, FB) =>
 %    FB = [ "Please do not forget school math ", \mmlm([error(correct) | Col],
 %	   frac(1, color("#000000", N_VR)) + frac(1, color("#000000", N_BOX))
 %	    =\= 1 / color("#000000", N_VR) + color("#000000", N_BOX)) 
 %	 ].
 
-%hint(tgroups, scb1, [N_VR, N_BOX], Col, FB) :-
+%hint(tgroups, scb1, [N_VR, N_BOX], Col, FB) =>
 %    FB = [ "Do not forget school math",  \mmlm([error(correct) | Col], 
 %	   frac(1, color("#000000", N_VR)) + frac(1, color("#000000", N_BOX))
 %	   =\= 1 / color("#000000", N_VR) + color("#000000", N_BOX)) 

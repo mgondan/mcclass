@@ -1,8 +1,9 @@
-:- module(tasks, [task/2, feedback//2, solution//1, hints//1, wrongs//1, traps//1,
-                  start/2, download/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3]).
+:- module(tasks, [task/2, feedback//2, solutions//1, hints//1, wrongs//1, traps//1,
+                  start/2, download/2, intermediate/2, expert/5, buggy/5, feedback/5, hints/2, render//3]).
 
 :- use_module(library(http/html_write)).
 :- use_module(library(http/http_log)).
+:- use_module(library(dcg/high_order)).
 :- use_module(mathml).
 :- use_module(search).
 :- use_module(r).
@@ -44,13 +45,14 @@ mathml:hook(Flags, r(Expr), Flags, Res) :-
 task(Task, Data) :-
     r_initialize,
     r_session_source(Task),
-    solution(Task, Expr-Res/Flags),
+    solutions(Task, Sol),
+    memberchk(_-_/Flags, Sol),
     hints(Flags, H),
     wrong(Task, E_R_F),
     wrongall(Task, E_R_F_All),
     traps(E_R_F_All, T),
     Data = task(Task, 
-      [ sol(Expr-Res/Flags), 
+      [ solutions(Sol), 
         hints(H), 
         wrong(E_R_F),
         wrongall(E_R_F_All), % this needs a better solution
@@ -137,66 +139,88 @@ feedback(_Task, _Form) -->
           ])).
 
 % Solution and correct numerical result
-%
-% Most efficient if the correct solution appears early in the list. This may change in the
-% future, when we allow, e.g., tasks with multiple correct solutions.
 solution(Task, Expr-Res/Flags) :-
-    search(Task, Expr_, Flags_),
-    findall(Bug, member(step(buggy, Bug, _), Flags_), []),
-    !,
-    Flags = Flags_,
-    Expr = Expr_,
+    search(Task, Expr, Flags),
+    findall(Bug, member(step(buggy, Bug, _), Flags), []),
     interval(Task, Expr, Res).
 
+solutions(Task, List) :-
+    findall(ERF, solution(Task, ERF), List).
+
 % Pretty print
-solution(task(Task, Data)) -->
-    { member(sol(Expr-Result/Flags), Data),
-      colors(Expr, Col),
+solution(Task, Expr-Result/Flags) -->
+    { colors(Expr, Col),
       findall(li(FB),
-        ( member(step(expert, Name, Args), Flags),
-          feedback(Task, Name, Args, [task(Task) | Col], FB)
-        ), Items)
+      ( member(step(expert, Name, Args), Flags),
+        feedback(Task, Name, Args, [task(Task) | Col], FB)
+      ), Items)
     },
+    html(div(class("accordion-item"),
+      [ h2(class("accordion-header"),
+          button([class("accordion-button"), type("button")], 
+            \mmlm([task(Task) | Col], Result))),
+        div(class("accordion-collapse collapse show"),
+          div(class("accordion-body"), 
+           [ p(\mmlm([task(Task) | Col], Expr)), 
+             ul(Items)
+           ]))
+      ])).
+
+solutions(task(Task, Data)) -->
+    { member(solutions(Expr_Res_Flags), Data) },
     html(div(class("card"),
-      [ div(class("card-header text-white bg-success"), "Solution"),
+      [ div(class("card-header text-white bg-success"), "Solution(s)"),
         div(class("card-body"),
-          [ p(class("card-text"), \mmlm([task(Task), error(correct) | Col], Expr = Result)),
-            p(class("card-text"), "Comments"),
-            ul(Items)
+          [ p(class("card-text"), "The system accepts the following correct response(s)"),
+            div(class("accordion accordion-flush"), 
+              \foreach(member(ERF, Expr_Res_Flags), html(\solution(Task, ERF))))
           ])
       ])).
 
 % Codes for correct steps    
-hints(Flags, Hints) :-
-    findall(H, member(step(expert, H, _), Flags), Hints).
+hint(_Expr-_Res/Flags, Hint) :-
+    findall(H, member(step(expert, H, _), Flags), Hint).
+
+% Cycle through all solutions of a given task
+hints(Task, Hints) :-
+    solutions(Task, Sol),
+    maplist(hint, Sol, Hints).
 
 % Pretty print
-hints(task(Task, Data)) -->
-    { member(sol(Expr-_Result/Flags), Data),
-      colors(Expr, Col),
-      member(hints(Hints), Data),
-      findall(li(H), 
+hint(Task, Expr-Result/Flags) -->
+    { colors(Expr, Col),
+      hint(Expr-Result/Flags, Hints),
+      findall(li(H),
         ( member(step(expert, Name, Arg), Flags), 
           member(Name, Hints), 
-          (   hint(Task, Name, Arg, [task(Task) | Col], H)
-           -> true
-           ;  throw(error(hint_argument(Name, Arg)))
-          )
-        ), List)
+          hint(Task, Name, Arg, [task(Task) | Col], H)
+        ), Items)
     },
+    html(div(class("accordion-item"),
+      [ h2(class("accordion-header"),
+          button([class("accordion-button"), type("button")],
+            \mmlm([task(Task) | Col], Result))),
+        div(class("accordion-collapse collapse show"),
+          div(class("accordion-body"),
+           ul(Items)))
+      ])).
+
+hints(task(Task, Data)) -->
+    { member(solutions(Expr_Res_Flags), Data) },
     html(div(class("card"),
       [ div(class("card-header text-white bg-info"), "Hints"),
         div(class("card-body"),
-          [ p(class("card-text"), "Steps to the solution"),
-            p(class("card-text"), ul(List))
+          [ p(class("card-text"), "Steps to the solution(s)"),
+            div(class("accordion accordion-flush"), 
+              html(\foreach(member(ERF, Expr_Res_Flags), html(\hint(Task, ERF)))))
           ])
       ])).
 
 % The incorrect response alternatives
 wrong(Task, Expr_Res_Flags) :-
-    searchdep(Task, E_R_F),
+    searchdep(Task, ERF),
     findall(E-R/F, 
-      ( member(E-R/F, E_R_F), 
+      ( member(E-R/F, ERF), 
         memberchk(step(buggy, _, _), F)
       ), Expr_Res_Flags).
 
@@ -206,7 +230,7 @@ wrong(task(Task, Data), Expr-_Res/Flags, Items) :-
     colors(Expr, Col),
     findall(li(FB), 
       ( member(step(_, Name, Args), Flags),
-        member(Name, Traps), % show only relevant feedback
+        memberchk(Name, Traps), % show only relevant feedback
         feedback(Task, Name, Args, [task(Task) | Col], FB)
       ), Items).
 
@@ -220,10 +244,12 @@ wrongs(task(Task, Data)) -->
         ), List)
     },
     html(div(class("card"),
-          [ div(class("card-header text-white bg-danger"), "Wrong alternatives"),
-            div(class("card-body"),
-              [ p(class("card-text"), "These wrong responses are recognized by the system"),
-                p(class("card-text"), ol(List))])])).
+      [ div(class("card-header text-white bg-danger"), "Wrong alternatives"),
+        div(class("card-body"),
+          [ p(class("card-text"), "These wrong responses are recognized by the system"),
+            p(class("card-text"), ol(List))
+          ])
+      ])).
 
 % Succeeds if Flags include exactly one (critical) bug
 %
@@ -245,15 +271,17 @@ trap(Flags, Trap) :-
     findall(T, member(step(buggy, T, _), Flags), [Trap]).
 
 % Codes for wrong steps
-traps(E_R_F, Traps) :-
-    findall(T, (member(_E-_R/Flags, E_R_F), trap(Flags, T)), Traps).
+traps(E_R_F, Sorted) :-
+    findall(T, (member(_E-_R/Flags, E_R_F), trap(Flags, T)), Traps),
+    % Duplicates occur if there are multiple solutions
+    sort(Traps, Sorted).
 
 % Pretty print
 trap(task(Task, Data), Expr-_Res/Flags, li(Trap)) :-
     findall(N-A, member(step(buggy, N, A), Flags), [Name-Args]),
     colors(Expr, Col),
     member(traps(Traps), Data),
-    member(Name, Traps),
+    memberchk(Name, Traps),
     hint(Task, Name, Args, [task(Task) | Col], Trap).
 
 traps(task(Task, Data)) -->
@@ -261,13 +289,14 @@ traps(task(Task, Data)) -->
       findall(L, 
         ( member(Wrong, E_R_F), 
           trap(task(Task, Data), Wrong, L)
-        ), Traps)
+        ), Traps),
+      sort(Traps, Sorted) % Duplicates due to multiple solutions
     },
     html(div(class("card"),
           [ div(class("card-header text-white bg-warning"), "Traps"),
             div(class("card-body"),
               [ p(class("card-text"), "Avoid these traps"),
-                p(class("card-text"), ul(Traps))])])).
+                p(class("card-text"), ul(Sorted))])])).
 
 % Download task data
 download(Task, File) :-
@@ -282,11 +311,19 @@ download(Task, File) :-
 % ?- tasks:test.
 %
 test :-
-    test(chisq).
+    test(tpaired).
 
 test(Task) :-
     r_initialize,
     r('set.seed'(4711)),
+    b_setval(task, Task),
+    r_session_source(Task),
+    writeln("All solutions"),
+    solutions(Task, AllSolutions),
+    writeln(AllSolutions),
+    writeln("All hints"),
+    hints(Task, AllHints),
+    writeln(AllHints),
     task(Task, TaskData),
     TaskData = task(Task, Data),
     writeln("Task data"),
@@ -296,10 +333,10 @@ test(Task) :-
     html(\render(Task, I, []), Item, []),
     writeln("Task as HTML"),
     writeln(Item),
-    memberchk(sol(S), Data), 
-    writeln("Solution"),
+    memberchk(solutions(S), Data), 
+    writeln("Solutions"),
     writeln(S),
-    html(\solution(TaskData), Sol, []),
+    html(\solutions(TaskData), Sol, []),
     writeln(Sol),
     memberchk(hints(H), Data),
     format("Hints: ~w~n", [H]),
@@ -317,4 +354,13 @@ test(Task) :-
     % download(Task, File),
     % writeln(download-File),
     true.
+
+test2(Task) :-
+    r_initialize,
+    r('set.seed'(4711)),
+    b_setval(task, Task),
+    r_session_source(Task),
+    task(Task, task(Task, Data)),
+    memberchk(traps(Traps), Data),
+    writeln(Traps).
 

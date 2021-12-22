@@ -64,11 +64,11 @@ expert(easyodds, stage(2), From, To, [step(expert, odd, [])]) :-
 	   pi_A
 	 }.
 
-feedback(easyodds, odd, [], Col, FB) :-
+feedback(easyodds, odd, [], Col, FB) =>
     FB = [ "Correctly recognised the problem as an ", 
            \mmlm(Col, hyph(odds, "ratio")), "."].
 
-hint(easyodds, odd, [], Col, FB) :-
+hint(easyodds, odd, [], Col, FB) =>
     FB = [ "This is an ", \mmlm(Col, hyph(odds, "ratio")), "."].
 
 % 1) Tried conversion from odds to odds, as if starting with 
@@ -77,11 +77,11 @@ buggy(easyodds, stage(2), From, To, [step(buggy, sub, [Odds_A])]) :-
     From = 1 + Odds_A,
     To = instead(bug(sub), 1 - Odds_A, 1 + Odds_A).
 
-feedback(easyodds, sub, [Odds_A], Col, FB) :-
+feedback(easyodds, sub, [Odds_A], Col, FB) =>
     FB = [ "Please use the formula converting, ", \mmlm(Col, color(sub, Odds_A)), " to ", 
 	   \mmlm(Col, color(sub, pi_A)) ].
 
-hint(easyodds, sub, [Odds_A], Col, FB) :-
+hint(easyodds, sub, [Odds_A], Col, FB) =>
     FB = [ "Do not try to further convert ", \mmlm(Col, color(sub, Odds_A)), " to odds." ].
 
 % 2) Used pi_B rather than odds_A.
@@ -89,10 +89,10 @@ buggy(easyodds, stage(1), From, To, [step(buggy, pi, [])]) :-
     From = odds_A,
     To = instead(bug(pi), pi_B, odds_A).
 
-feedback(easyodds, pi, [], Col, FB) :-
+feedback(easyodds, pi, [], Col, FB) =>
     FB = [ "Please extract and use the value for ", \mmlm(Col, color(pi, odds_A)), " instead." ].
 
-hint(easyodds, pi, [], Col, FB) :-
+hint(easyodds, pi, [], Col, FB) =>
     FB = [ "Do not execute your calculations using ", \mmlm(Col, color(pi,  pi_B)) ].
 
 % 3) Used or rather than odds_A.
@@ -100,8 +100,8 @@ buggy(easyodds, stage(1), From, To, [step(buggy, ratio, [])]) :-
     From = odds_A,
     To = instead(bug(ratio), or, odds_A).
 
-feedback(easyodds, ratio, [], Col, FB) :-
+feedback(easyodds, ratio, [], Col, FB) =>
     FB = [ "Please extract and use the value for ", \mmlm(Col, color(ratio, odds_A)), " instead." ].
 
-hint(easyodds, ratio, [], Col, FB) :-
+hint(easyodds, ratio, [], Col, FB) =>
     FB = [ "Do not execute your calculations using the ", \mmlm(Col, color(ratio,  "OR")) ].

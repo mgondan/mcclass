@@ -109,10 +109,10 @@ expert(tgroupsdf, stage(2), From, To, [step(expert, indep, [])]) :-
 	   df
 	 }.
 
-feedback(tgroupsdf, indep, [], _Col, FB) :-
+feedback(tgroupsdf, indep, [], _Col, FB) =>
     FB = [ "You correctly calculated the degrees of freedom." ].
 
-hint(tgroupsdf, indep, [], _Col, FB) :-
+hint(tgroupsdf, indep, [], _Col, FB) =>
     FB = [ "Try to do everthing correctly." ].
 
 % 1) subtracted 1 rather than 2
@@ -120,11 +120,11 @@ buggy(tgroupsdf, stage(2), From, To, [step(buggy, one, [])]) :-
     From = N_VR + N_BOX - 2,
     To = N_VR + N_BOX - color(one, 1).
 
-feedback(tgroupsdf, one, [], Col, FB) :-
+feedback(tgroupsdf, one, [], Col, FB) =>
     FB = [ "Please remember to subtract ", \mmlm(Col, 1), 
 	   \mmlm(Col, color(one, " per")), " sample." ].
 
-hint(tgroupsdf, one, [], Col, FB) :-
+hint(tgroupsdf, one, [], Col, FB) =>
     FB = [ "Subtract ", \mmlm(Col, color(one, 2)), " instead of ", 
 	   \mmlm(Col, color(one, 1)) ].
 
@@ -136,14 +136,15 @@ buggy(tgroupsdf, stage(2), From, To, [step(buggy, singlen2, [N_VR, N_BOX])]) :-
     From = N_VR + N_BOX - 2,
     To = omit_left(bug(singlen2), N_VR + N_BOX) - 2.
 
-feedback(tgroupsdf, singlen, [N_VR, N_BOX], Col, FB) :-
+feedback(tgroupsdf, singlen, [N_VR, N_BOX], Col, FB) =>
     FB = [ "Please remember to add up ", \mmlm(Col, color(singlen, N_VR + N_BOX)) ].
-feedback(tgroupsdf, singlen2, [N_VR, N_BOX], Col, FB) :-
+
+feedback(tgroupsdf, singlen2, [N_VR, N_BOX], Col, FB) =>
     FB = [ "Please remember to add up ", \mmlm(Col, color(singlen2, N_VR + N_BOX)) ].
 
-hint(tgroupsdf, singlen, [N_VR, N_BOX], Col, FB) :-
+hint(tgroupsdf, singlen, [N_VR, N_BOX], Col, FB) =>
     FB = [ "Do not forget to add up ", \mmlm(Col, color(singlen, N_VR + N_BOX)) ].
-hint(tgroupsdf, singlen2, [N_VR, N_BOX], Col, FB) :-
+hint(tgroupsdf, singlen2, [N_VR, N_BOX], Col, FB) =>
     FB = [ "Do not forget to add up ", \mmlm(Col, color(singlen2, N_VR + N_BOX)) ].
 
 % 3) and again, but with -1.
@@ -154,20 +155,20 @@ buggy(tgroupsdf, stage(2), From, To, [step(buggy, singlen4, [N_VR, N_BOX])]) :-
     From = N_VR + N_BOX - 2,
     To = omit_right(bug(singlen4), N_VR + N_BOX) - color(singlen4, 1).
 
-feedback(tgroupsdf, singlen3, [N_VR, N_BOX], Col, FB) :-
+feedback(tgroupsdf, singlen3, [N_VR, N_BOX], Col, FB) =>
     FB = [ "Please remember to add up ", 
 	   \mmlm(Col, color(singlen3, N_VR + N_BOX)), " and to subtract ", 
 	   \mmlm(Col, 1), \mmlm(Col, color(singlen3, " per")), " sample."].
-feedback(tgroupsdf, singlen4, [N_VR, N_BOX], Col, FB) :-
+feedback(tgroupsdf, singlen4, [N_VR, N_BOX], Col, FB) =>
     FB = [ "Please remember to add up ", 
 	   \mmlm(Col, color(singlen4, N_VR + N_BOX)), " and to subtract ",
 	   \mmlm(Col, 1), \mmlm(Col, color(singlen4, " per")), " sample."].
 
-hint(tgroupsdf, singlen3, [N_VR, N_BOX], Col, FB) :-
+hint(tgroupsdf, singlen3, [N_VR, N_BOX], Col, FB) =>
     FB = [ "Do not forget to add up ", 
 	   \mmlm(Col, color(singlen3, N_VR + N_BOX)), " and to subtract ", 
 	   \mmlm(Col, 1), \mmlm(Col, color(singlen3, " per")), " sample." ].
-hint(tgroupsdf, singlen4, [N_VR, N_BOX], Col, FB) :-
+hint(tgroupsdf, singlen4, [N_VR, N_BOX], Col, FB) =>
     FB = [ "Do not forget to add up ",
 	   \mmlm(Col, color(singlen4, N_VR + N_BOX)), " and to subtract ", 
 	   \mmlm(Col, 1), \mmlm(Col, color(singlen4, " per")), " sample." ].
@@ -177,11 +178,11 @@ buggy(tgroupsdf, stage(2), From, To, [step(buggy, guess, [From])]) :-
     From = N_VR + N_BOX - 2,
     To = instead(bug(guess), 2.00, N_VR + N_BOX - 2).
 
-feedback(tgroupsdf, guess, [_From], Col, FB) :-
+feedback(tgroupsdf, guess, [_From], Col, FB) =>
     FB = [ "While the ", \mmlm(Col, "df"), " depend on the number of groups ",
 	   " they are more than just the number of groups." ].
 
-hint(tgroupsdf, guess, [From], Col, FB) :-
+hint(tgroupsdf, guess, [From], Col, FB) =>
     FB = [ "The correct formula for ", \mmlm(Col, "df"), " is ", 
 	   \mmlm(Col, color(guess, From)) ].
 
@@ -190,9 +191,9 @@ buggy(tgroupsdf, stage(2), From, To, [step(buggy, nosub, [N_VR, N_BOX])]) :-
     From = N_VR + N_BOX - 2,
     To = omit_right(bug(nosub), (N_VR + N_BOX) - 2).
 
-feedback(tgroupsdf, nosub, [_N_VR, _N_BOX], Col, FB) :-
+feedback(tgroupsdf, nosub, [_N_VR, _N_BOX], Col, FB) =>
     FB = [ "Please remember to subtract ", \mmlm(Col, color(nosub, 2)), 
 	   " from the sum of test subjects ." ].
-hint(tgroupsdf, nosub, [N_VR, N_BOX], Col, FB) :-
+hint(tgroupsdf, nosub, [N_VR, N_BOX], Col, FB) =>
     FB = [ "Do not forget to subtract ", \mmlm(Col, color(nosub, 2)), 
 	   " from ", \mmlm(Col, N_VR + N_BOX) ].

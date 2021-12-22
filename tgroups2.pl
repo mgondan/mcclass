@@ -121,10 +121,10 @@ expert(tgroups2, stage(2), From, To, [step(expert, indep, [])]) :-
 	   s2p
 	 }.
 
-feedback(tgroups2, indep, [], _Col, FB) :-
+feedback(tgroups2, indep, [], _Col, FB) =>
     FB = [ "You correctly reportet the pooled variance." ].
 
-hint(tgroups2, indep, [], _Col, FB) :-
+hint(tgroups2, indep, [], _Col, FB) =>
     FB = [ "Try to do everthing correctly." ].
 
 % 1) Used standard deviation instead of variance.
@@ -132,12 +132,12 @@ buggy(tgroups2, stage(2), From, To, [step(buggy, sd, [S_VR, S_BOX])]) :-
     From = dfrac(A * S_VR ^ 2 + B * S_BOX ^ 2, C),
     To = dfrac(A * instead(bug(sd), S_VR, S_VR ^ 2) + B * instead(bug(sd), S_BOX, S_BOX ^ 2), C).
 
-feedback(tgroups2, sd, [S_VR, S_BOX], Col, FB) :-
+feedback(tgroups2, sd, [S_VR, S_BOX], Col, FB) =>
     FB = [ "Please remember to use the squares of ", 
 	   \mmlm(Col, color(sd, S_VR)), " and ", 
 	   \mmlm(Col, color(sd, S_BOX)), " in the pooled variance." ].
 
-hint(tgroups2, sd, [_S_VR, _S_BOX], _Col, FB) :-
+hint(tgroups2, sd, [_S_VR, _S_BOX], _Col, FB) =>
     FB = [ "Try using the variance rather than the standard deviation ",
 	   "when calculating the pooled variance." ].
 
@@ -148,7 +148,7 @@ buggy(tgroups2, stage(2), From, To, [step(buggy, bug1, [N_VR, N_BOX, S_VR, S_BOX
     To = invent_right(bug(bug1), invent_left(bug(bug1), color(bug1, N_VR - 1 * S_VR ^ 2 + N_BOX) - 
 	 invent_left(bug(bug1), 1 * dfrac(S_BOX ^ 2, N_VR))) + (N_BOX - 2)).
 
-feedback(tgroups2, bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) :-
+feedback(tgroups2, bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) =>
     FB = [ "Please do not forget the parentheses around the numerator and ",
 	   "the denominator of a fraction, ", 
 	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", 
@@ -157,7 +157,7 @@ feedback(tgroups2, bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) :-
 	   color(bug1, paren(color("#000000", N_VR + N_BOX - 2)))))
 	 ].
 
-hint(tgroups2, bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) :-
+hint(tgroups2, bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) =>
     FB = [ "Do not forget the parentheses! The correct formula is ",
 	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", 
 	   color(bug1, paren(color("#000000", N_VR - 1))) * S_VR ^ 2 + 
@@ -170,10 +170,10 @@ buggy(tgroups2, stage(1), From, To, [step(buggy, nswap, [])]) :-
     From = item(vr, s_vr, n_vr, box, s_box, n_box),
     To = item(vr, s_vr, color(nswap, n_box), box, s_box, color(nswap, n_vr)).
 
-feedback(tgroups2, nswap, [], Col, FB) :-
+feedback(tgroups2, nswap, [], Col, FB) =>
     FB = [ "Please double check the sample sizes ", \mmlm(Col, color(nswap, n_vr)), 
 	   " and ", \mmlm(Col, color(nswap, n_box)), " of both groups." ].
 
-hint(tgroups2, nswap, [], Col, FB) :-
+hint(tgroups2, nswap, [], Col, FB) =>
     FB = [ "Do not swap the sample sizes in ", \mmlm(Col, color(nswap, s2p)) ].
 

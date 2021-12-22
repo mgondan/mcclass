@@ -68,10 +68,10 @@ expert(oddsratio2, stage(2), From, To, [step(expert, odd, [])]) :-
 	   or
 	 }.
 
-feedback(oddsratio2, odd, [], Col, FB) :-
+feedback(oddsratio2, odd, [], Col, FB) =>
     FB = [ "Correctly recognised the problem as an ", \mmlm(Col, hyph(odds, "ratio")), "."].
 
-hint(oddsratio2, odd, [], Col, FB) :-
+hint(oddsratio2, odd, [], Col, FB) =>
     FB = [ "This is an ", \mmlm(Col, hyph(odds, "ratio")), "."].
 
 % 1) Forgot conversion  of pi_a to odds.
@@ -79,7 +79,7 @@ buggy(oddsratio2, stage(2), From, To, [step(buggy, cona, [pi_A]), depends(conb)]
     From = dfrac(pi_A, (1 - pi_A)),
     To = omit_right(bug(cona), dfrac(pi_A, 1 - pi_A)).
 
-feedback(oddsratio2, cona, [pi_A], Col, FB) :-
+feedback(oddsratio2, cona, [pi_A], Col, FB) =>
     FB = [ "Please remember to convert ", \mmlm(Col, color(cona, pi_A)), " to ",
 	   \mmlm(Col, color(cona, odds_A)), ", with ", \mmlm(Col, color(cona, odds_A = frac(pi_A, 1 - pi_A)))  ].
 
@@ -88,11 +88,11 @@ buggy(oddsratio2, stage(2), From, To, [step(buggy, conb, [pi_B]), depends(cona)]
     From = dfrac(pi_B, (1 - pi_B)),
     To = omit_right(bug(conb), dfrac(pi_B, 1 - pi_B)).
 
-feedback(oddsratio2, conb, [pi_B], Col, FB) :-
+feedback(oddsratio2, conb, [pi_B], Col, FB) =>
     FB = [ "Please remember to convert ", \mmlm(Col, color(conb, pi_B)), " to ",
 	   \mmlm(Col, color(conb, odds_B)), ", with ", \mmlm(Col, color(conb, odds_B = frac(pi_B, 1 - pi_B)))  ].
 
-hint(oddsratio2, conb, [pi_B], Col, FB) :-
+hint(oddsratio2, conb, [pi_B], Col, FB) =>
     FB = [ "Do not forget to convert ", \mmlm(Col, color(conb, pi_A)), " and ",
 	   \mmlm(Col, color(conb, pi_B)), " to odds before continuing." ].
 
@@ -101,12 +101,12 @@ buggy(oddsratio2, stage(2), From, To, [step(buggy, flip, [])]) :-
     From = odds_A / odds_B,
     To = instead(bug(flip), odds_B / odds_A, odds_A / odds_B).
 
-feedback(oddsratio2, flip, [], Col, FB) :-
+feedback(oddsratio2, flip, [], Col, FB) =>
     FB = [ "Divide ", \mmlm(Col, color(flip, odds_A)), " by ",
 	   \mmlm(Col, color(flip, odds_B)), " instead of ", 
 	   \mmlm(Col, color(flip, odds_B / odds_A)) ].
 
-hint(oddsratio2, flip, [], Col, FB) :-
+hint(oddsratio2, flip, [], Col, FB) =>
     FB = [ "Try using ", \mmlm(Col, color(flip, odds_A)), " and ",
 	   \mmlm(Col, color(flip, odds_B)), " in a different configuration."  ].
 	   
@@ -115,10 +115,10 @@ buggy(oddsratio2, stage(2), From, To, [step(buggy, mult, [])]) :-
     From = odds_A / odds_B,
     To = instead(bug(mult), odds_A * odds_B, odds_A / odds_B).
 
-feedback(oddsratio2, mult, [], Col, FB) :-
+feedback(oddsratio2, mult, [], Col, FB) =>
     FB = [ "Divide ", \mmlm(Col, color(mult, odds_A)), " by ",
 	   \mmlm(Col, color(mult, odds_B)), " instead of multiplying them." ].
 
-hint(oddsratio2, mult, [], Col, FB) :-
+hint(oddsratio2, mult, [], Col, FB) =>
     FB = [ "Do not multiply ", \mmlm(Col, color(mult, odds_A)), " and ",
 	   \mmlm(Col, color(mult, odds_B)) ].
