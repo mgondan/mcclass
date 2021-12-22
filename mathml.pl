@@ -760,7 +760,7 @@ math(Flags, A + B, New, X)
 math(Flags, -A, New, X)
  => New = Flags,
     current_op(Prec, yfx, -),
-    X = fy(Prec, -, A).
+    X = fx(Prec, -, A).
 
 math(Flags, A - B, New, X)
  => New = Flags,
@@ -847,6 +847,11 @@ ml(Flags, yf(Prec, Op, A), M)
 ml(Flags, fy(Prec, Op, A), M)
  => ml(Flags, sign(Op), S),
     ml(Flags, right(Prec, A), X),
+    M = mrow([S, X]).
+
+ml(Flags, fx(Prec, Op, A), M)
+ => ml(Flags, sign(Op), S),
+    ml(Flags, right(Prec-1, A), X),
     M = mrow([S, X]).
 
 ml(Flags, xfx(Prec, Op, A, B), M)
