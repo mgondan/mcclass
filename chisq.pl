@@ -99,7 +99,7 @@ hint(chisq, z, [], Col, FB) =>
     FB = [ "Your goal is to calculate ", \mmlm(Col, color(z, chi^2)), 
 	   " you can get there by squaring ", \mmlm(Col, color(z, z)) ].
 
-% 2) first instead of second binomial formula. 
+% 2) first instead of second binomial function. 
 % Appeared 3-8 times in the 2018 exams.
 buggy(chisq, stage(2), From, To, [step(buggy, firstbin, [P_VR, P_Box])]) :-
     From = (P_VR - P_Box) ^ 2,
