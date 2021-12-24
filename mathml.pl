@@ -1782,7 +1782,21 @@ math(Flags, '...'(L, U), New, X)
  => New = Flags,
     X = xfx(699, '...', floor(L), ceiling(U)).
 
+math(Flags, floor(L), New, X),
+    number(L),
+    L < 0
+ => select_option(round(D), Flags, N, 2),
+    New = [ceiling(D) | N],
+    X = L.
+
 math(Flags, floor(L), New, X)
+ => select_option(round(D), Flags, N, 2),
+    New = [floor(D) | N],
+    X = L.
+
+math(Flags, ceiling(L), New, X),
+    number(L),
+    L < 0
  => select_option(round(D), Flags, N, 2),
     New = [floor(D) | N],
     X = L.
@@ -1791,7 +1805,16 @@ math(Flags, ceiling(L), New, X)
  => select_option(round(D), Flags, N, 2),
     New = [ceiling(D) | N],
     X = L.
- 
+
+mathml :-
+    mathml('...'(-1.655, -1.555)).
+
+mathml :-
+    mathml('...'(1.555, 1.655)).
+
+mathml :-
+    mathml('...'(-1.655, 1.555)).
+
 %
 % R assignment
 %
