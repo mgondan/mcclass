@@ -986,6 +986,13 @@ mathml :- mathml(dot((a - b), (c + d))).
 mathml :- mathml(-2 * -2).
 
 %
+% t-ratio: with 2 decimals
+%
+math(Flags, tratio(A), New, X)
+ => New = [round(2) | Flags],
+    A = X.
+
+%
 % Abbreviations
 %
 % with s^2_pool denoting the pooled variance
