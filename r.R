@@ -41,3 +41,4 @@ color <- function(col, expr)
    return(expr)
 }
 
+tratio = identity
