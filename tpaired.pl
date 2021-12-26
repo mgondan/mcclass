@@ -29,6 +29,7 @@ interval:hook(pl, t0, r(t0)).
 interval:hook(pl, s_t0, r(s_t0)).
 interval:hook(pl, eot, r(eot)).
 interval:hook(pl, s_eot, r(s_eot)).
+interval:hook(pl, tratio(A), r(tratio(A))).
 
 render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
     { option(resp(R), Form, '#.##') },

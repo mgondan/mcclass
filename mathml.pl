@@ -989,8 +989,11 @@ mathml :- mathml(-2 * -2).
 % t-ratio: with 2 decimals
 %
 math(Flags, tratio(A), New, X)
- => New = [round(2) | Flags],
+ => New = [round(3) | Flags],
     A = X.
+
+mathml :- mathml(tratio(1.5)).
+mathml :- mathml(tratio('...'(1.1, 1.2))).
 
 %
 % Abbreviations

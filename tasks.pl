@@ -153,7 +153,8 @@ solution(Task, Expr-Result/Flags) -->
       findall(li(FB),
       ( member(step(expert, Name, Args), Flags),
         feedback(Task, Name, Args, [task(Task) | Col], FB)
-      ), Items)
+      ), Items),
+      http_log("~w~n", Expr)
     },
     html(div(class("accordion-item"),
       [ h2(class("accordion-header"),
