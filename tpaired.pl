@@ -52,12 +52,12 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
                       "and ", \mmlm([task(tpaired)], 'D' = "T0" - "EOT") ],
                     [ "Average", "SD" ],
                     [ "HDRS", "T0", "EOT", \mmlm([task(tpaired)], 'D') ],
-                    [ [ \mmlm([task(tpaired), round(1)], r(t0)),
-                        \mmlm([task(tpaired), round(1)], r(eot)),
-                        \mmlm([task(tpaired), round(1)], r(d1)) ],
-                      [ \mmlm([task(tpaired), round(1)], r(s_t0)),
-                        \mmlm([task(tpaired), round(1)], r(s_eot)),
-                        \mmlm([task(tpaired), round(1)], r(s1_d)) ]
+                    [ [ \mmlm([task(tpaired), digits(1)], r(t0)),
+                        \mmlm([task(tpaired), digits(1)], r(eot)),
+                        \mmlm([task(tpaired), digits(1)], r(d1)) ],
+                      [ \mmlm([task(tpaired), digits(1)], r(s_t0)),
+                        \mmlm([task(tpaired), digits(1)], r(s_eot)),
+                        \mmlm([task(tpaired), digits(1)], r(s1_d)) ]
                     ])))),
               form(method('POST'),
                   button([ class('btn btn-secondary'), name(download), value(tpaired) ], "Download data"))
