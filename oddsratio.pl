@@ -6,23 +6,19 @@
 
 :- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
-%
 % Prettier symbols for mathematical rendering
-%
 mathml:hook(Flags, pi_A, [task(oddsratio) | Flags], sub(pi, "A")).
 mathml:hook(Flags, odds_A, [task(oddsratio) | Flags], sub(odds, "A")).
 mathml:hook(Flags, pi_B, [task(oddsratio) | Flags], sub(pi, "B")).
 mathml:hook(Flags, odds_B, [task(oddsratio) | Flags], sub(odds, "B")).
 mathml:hook(Flags, or, [task(oddsratio) | Flags], 'OR').
 
-%
 % R constants
-%
-interval:hook(pl, odds_A, r(odds_A)).
-interval:hook(pl, pi_A, r(pi_A)).
-interval:hook(pl, pi_B, r(pi_B)).
-interval:hook(pl, or, r(or)).
-interval:hook(pl, odds_B, r(odds_B)).
+interval:r_hook(odds_A).
+interval:r_hook(pi_A).
+interval:r_hook(pi_B).
+interval:r_hook(or).
+interval:r_hook(odds_B).
 
 render(oddsratio, item(Pi_A, OR), Form) -->
 	{ option(resp(R), Form, '#.##') },
@@ -32,8 +28,8 @@ render(oddsratio, item(Pi_A, OR), Form) -->
 		      p(class('card-text'),
 		       [ "Compare the effectiveness of ",
 		         "two therapies. Therapy A has a probability of success of ",
-		          \mmlm(Pi_A = r(pi_A)), ". The Odds Ratio is ",
-		          \mmlm(OR = r(or)), " in favor of Therapy A." 
+		          \mmlm([task(oddsratio)], Pi_A = r(pi_A)), ". The Odds Ratio is ",
+		          \mmlm([task(oddsratio)], OR = r(or)), " in favor of Therapy A." 
 		       ])
 		    ])),
 	          div(class(card), div(class('card-body'),
@@ -60,8 +56,7 @@ render(oddsratio, item(Pi_A, OR), Form) -->
 % Odds ratio with two probabilities.
 % sr_a = sucess rate of a; or = odds ratio; 
 intermediate(_, item).
-start(oddsratio, item(pi_A, or)) :-
-	init(oddsratio).
+start(oddsratio, item(pi_A, or)).
 
 expert(oddsratio, stage(2), X, Y, [step(expert, odd, [])]) :-
 	X = item(Pi_A, OR),

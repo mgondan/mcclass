@@ -12,66 +12,69 @@
 :- discontiguous interval/2.
 :- discontiguous example/0.
 
-:- multifile hook/3.
+:- multifile r_hook/1, hook/4.
 
-interval(Task, Expr, Res) :-
-    b_setval(task, Task),
-    int(pl, Expr, Res).
-    
+% Determine result using integer arithmetic
+interval(Flags, Expr, Res) :-
+    int([engine(pl) | Flags], Expr, Res).
+
 % Allows for external definitions
-int(Engine, Expr, Res),
-    hook(Engine, Expr, Hook)
- => int(Engine, Hook, Res).
+int(Flags, Expr, Res),
+    option(engine(pl), Flags),
+    r_hook(Expr)
+ => int([engine(r) | Flags], Expr, Res).
 
-% Some standard R functions and own definitions. This will be moved elsewhere.
-hook(pl, choose(N, K), r(choose(N, K))).
+int(Flags, Expr, Res),
+    hook(Flags, Expr, New, Hook)
+ => int(New, Hook, Res).
 
-hook(_, instead(_Bug, Wrong, _Correct), Wrong).
+% Some standard R functions and own definitions. These will be moved elsewhere.
+hook(Flags, choose(N, K), Flags, r(choose(N, K))) :-
+    option(engine(pl), Flags).
 
-hook(_, omit_right(_Bug, Expr), Left) :-
+hook(Flags, instead(_Bug, Wrong, _Correct), Flags, Wrong).
+
+hook(Flags, omit_right(_Bug, Expr), Flags, Left) :-
     Expr =.. [_Op, Left, _Right].
 
-hook(_, omit_left(_Bug, Expr), Right) :-
+hook(Flags, omit_left(_Bug, Expr), Flags, Right) :-
     Expr =.. [_Op, _Left, Right].
 
-hook(_, drop_right(_Bug, Expr), Left) :-
+hook(Flags, drop_right(_Bug, Expr), Flags, Left) :-
     Expr =.. [_Op, Left, _Right].
 
-hook(_, drop_left(_Bug, Expr), Right) :-
+hook(Flags, drop_left(_Bug, Expr), Flags, Right) :-
     Expr =.. [_Op, _Left, Right].
 
-hook(_, invent_left(_Bug, Expr), Expr).
+hook(Flags, invent_left(_Bug, Expr), Flags, Expr).
 
-hook(_, invent_right(_Bug, Expr), Expr).
+hook(Flags, invent_right(_Bug, Expr), Flags, Expr).
 
-hook(_, abbrev(_Sym, Expr, _Text), Expr).
+hook(Flags, abbrev(_Sym, Expr, _Text), Flags, Expr).
 
-hook(_, color(_Col, Expr), Expr).
+hook(Flags, color(_Col, Expr), Flags, Expr).
 
-hook(pl, '<-'(Var, Expr), r('<-'(Var, pl(Expr)))).
+hook(Flags, '<-'(Var, Expr), Flags, r('<-'(Var, pl(Expr)))) :-
+    option(engine(pl), Flags).
 
-hook(E, ';'(Expr1, Expr2), Res) :-
-    int(E, Expr1, _),
-    int(E, Expr2, Res).
+hook(Flags, ';'(Expr1, Expr2), Flags, Res) :-
+    int(Flags, Expr1, _),
+    int(Flags, Expr2, Res).
 
-hook(E, '{}'(Expr), Res) :-
-    int(E, Expr, Res).
+hook(Flags, '{}'(Expr), Flags, Res) :-
+    int(Flags, Expr, Res).
 
-hook(E, @(N, Options), Res) :-
-    member(digits(D), Options),
-    interval(E, N, L0 ... U0),
-    L is L0 - 0.5/10^D,
-    U is U0 + 0.5/10^D,
-    Res = L ... U.
+hook(Flags, @(Expr, Options), New, Expr) :-
+    append(Options, Flags, New).
 
 example :-
     writeln(quantity-1),
-    interval(pl, @(1.0, [digits(2)]), X),
+    interval([], @(1.0, [digits(2)]), X),
     writeln(X).
 
 example :-
     writeln(quantity-2),
-    interval(pl, @(2 ... 3, [digits(2)]), X),
+    interval([], @(2 ... 3, [digits(2)]), X),
     writeln(X).
 
 %
@@ -106,13 +109,15 @@ strictneg(_, U) :-
 %
 % Convert to interval
 %
-int(pl, X, Res),
-    atomic(X)
+int(Flags, X, Res),
+    atomic(X),
+    option(engine(pl), Flags)
  => L is X,
     U is X,
     Res = L ... U.
 
-int(pl, X ... Y, Res)
+int(Flags, X ... Y, Res),
+    option(engine(pl), Flags)
  => interval(X ... Y, Res).
 
 % compatible with atoms like pi
@@ -124,20 +129,20 @@ interval(A ... B, Res) :-
 
 example :-
     writeln(type-1),
-    interval(pl, 1.0, X),
+    interval([], 1.0, X),
     writeln(X).
 
 example :-
     writeln(type-2),
-    interval(pl, 0.99 ... 1.01, X),
+    interval([], 0.99 ... 1.01, X),
     writeln(X).
 
 %
 % Equality = overlapping
 %
-int(E, X =@= Y, Res)
- => int(E, X, A ... B),
-    int(E, Y, C ... D),
+int(Flags, X =@= Y, Res)
+ => int(Flags, X, A ... B),
+    int(Flags, Y, C ... D),
     L is max(A, C),
     U is min(B, D),
     L =< U,
@@ -147,22 +152,22 @@ example :-
     writeln(equality-1),
     X = 1.00 ... 1.02,
     Y = 1.01 ... 1.0Inf,
-    interval(pl, X =@= Y, Z),
+    interval([], X =@= Y, Z),
     writeln(X =@= Y --> Z).
 
 example :-
     writeln(equality-2),
     interval(1.00 ... 1.02, X),
     interval(1.03 ... 1.04, Y),
-    \+ interval(pl, X =@= Y, _),
+    \+ interval([], X =@= Y, _),
     writeln(X =@= Y --> fails).
 
 %
 % Hickey, Theorem 4
 %
-int(E, X + Y, Res)
- => int(E, X, ResX),
-    int(E, Y, ResY),
+int(Flags, X + Y, Res)
+ => int(Flags, X, ResX),
+    int(Flags, Y, ResY),
     interval(ResX + ResY, Res).
 
 interval(A...B + C...D, Res) :-
@@ -174,22 +179,22 @@ example :-
     writeln(sum-1),
     X = 1.00 ... 1.02,
     Y = 1.01 ... 1.0Inf,
-    interval(pl, X + Y, Z),
+    interval([], X + Y, Z),
     writeln(X + Y --> Z).
 
 example :-
     writeln(sum-2),
     X = 1.00 ... 1.02,
     Y = 1.03 ... 1.04,
-    interval(pl, X + Y, Z),
+    interval([], X + Y, Z),
     writeln(X + Y --> Z).
 
 %
 % Hickey, Theorem 4
 %
-int(E, X - Y, Res)
- => int(E, X, ResX),
-    int(E, Y, ResY),
+int(Flags, X - Y, Res)
+ => int(Flags, X, ResX),
+    int(Flags, Y, ResY),
     interval(ResX - ResY, Res).
 
 interval(A...B - C...D, Res) :-
@@ -201,22 +206,22 @@ example :-
     writeln(diff-1),
     X = 0.99 ... 1.01,
     Y = 0.99 ... 1.01,
-    interval(pl, X - Y, Z),
+    interval([], X - Y, Z),
     writeln(X - Y --> Z).
 
 example :-
     writeln(diff-2),
     interval(1.00 ... 1.02, X),
     interval(1.03 ... 1.0Inf, Y),
-    interval(pl, X - Y, Z),
+    interval([], X - Y, Z),
     writeln(X - Y --> Z).
 
 %
 % Hickey Theorem 6 and Figure 3
 %
-int(E, X * Y, Res)
- => int(E, X, ResX),
-    int(E, Y, ResY),
+int(Flags, X * Y, Res)
+ => int(Flags, X, ResX),
+    int(Flags, Y, ResY),
     interval(ResX * ResY, Res).
 
 %
@@ -310,23 +315,23 @@ interval(A ... B * C ... D, Res) :-
 
 example :-
     writeln(example-4.2-1),
-    interval(pl, pi ... pi, Y),
-    interval(pl, 2 * Y, Z),
+    interval([], pi ... pi, Y),
+    interval([], 2 * Y, Z),
     writeln(2 * Y --> Z).
 
 example :-
     writeln(example-4.2-2),
-    interval(pl, 0.0 ... 0.0, X),
-    interval(pl, -1.0Inf ... 1.0Inf, Y),
-    interval(pl, X * Y, Z),
+    interval([], 0.0 ... 0.0, X),
+    interval([], -1.0Inf ... 1.0Inf, Y),
+    interval([], X * Y, Z),
     writeln(X * Y --> Z).
 
 %
 % Hickey Theorem 8 and Figure 4
 %
-int(E, X / Y, Res)
- => int(E, X, ResX),
-    int(E, Y, ResY),
+int(Flags, X / Y, Res)
+ => int(Flags, X, ResX),
+    int(Flags, Y, ResY),
     interval(ResX / ResY, Res).
 
 % P1 / P (special case, then general case)
@@ -562,74 +567,76 @@ example :-
     writeln(page-3-(-inf ... 0, 1...inf)),
     X = 1.00 ... 1.00,
     Y = -1.0Inf ... 1.0,
-    interval(pl, X / Y, Z),
+    interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(example-4.2-3-(0 ... inf)),
     X = 0.00 ... 1.00,
     Y = 0.00 ... 1.00,
-    interval(pl, X / Y, Z),
+    interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(example-4.2-4-(r-without-0)),
     X = 1.00 ... 1.00,
     Y = -1.0Inf ... 1.0Inf,
-    interval(pl, X / Y, Z),
+    interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(example-4.2-5-(-inf ... -1, 1 ... inf)),
     X = 1.0 ... 1.0,
     Y = -1.0 ... 1.0,
-    interval(pl, X / Y, Z),
+    interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(example-4.2-6-(-inf ... -1, +0 ... inf)),
     X = 1.0 ... 1.0,
     Y = -1.0 ... 1.0Inf,
-    interval(pl, X / Y, Z),
+    interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(page-8-(-inf ... -0, 1 ... inf)),
     X = 1.0 ... 1.0,
     Y = -1.0Inf ... 1.0,
-    interval(pl, X / Y, Z),
+    interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(page-9-a-(0 ... inf)),
     X = 0.0 ... 1.0,
     Y = 0.0 ... 2.0,
-    interval(pl, X / Y, Z),
+    interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
 example :-
     writeln(page-9-b-(0 ... 1)),
     X = 1.0 ... 1.0,
     Y = 1.0 ... 1.0Inf,
-    interval(pl, X / Y, Z),
+    interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
 %
 % Available: not NA
 %
-int(E, available(X), Res)
- => int(E, X, L ... U),
+int(Flags, available(X), Res),
+    option(engine(pl), Flags)
+ => int(Flags, X, L ... U),
     float_class(L, ClassL),
     dif(ClassL, nan),
     float_class(U, ClassU),
     dif(ClassU, nan),
-    Res = L ... U .  % todo: boolean function
+    Res = L ... U.  % todo: rewrite as a boolean function
 
 %
 % Absolute value
 %
-int(E, abs(X), Res)
- => int(E, X, L ... U),
+int(Flags, abs(X), Res),
+    option(engine(pl), Flags)
+ => int(Flags, X, L ... U),
     (   positive(L, U)
      -> RL is L,
         RU is U
@@ -645,55 +652,70 @@ int(E, abs(X), Res)
 example :-
     writeln(abs-1),
     X = -0.2 ... -0.1,
-    interval(pl, abs(X), Res),
+    interval([], abs(X), Res),
     writeln(abs(X) --> Res).
 
 example :-
     writeln(abs-2),
     X = 0.1 ... 0.2,
-    interval(pl, abs(X), Res),
+    interval([], abs(X), Res),
     writeln(abs(X) --> Res).
     
 example :-
     writeln(abs-3),
     X = -0.2 ... 0.1,
-    interval(pl, abs(X), Res),
+    interval([], abs(X), Res),
     writeln(abs(X) --> Res).
 
 example :-
     writeln(abs-4),
     X = -0.1 ... 0.2,
-    interval(pl, abs(X), Res),
+    interval([], abs(X), Res),
     writeln(abs(X) --> Res).
 
 %
 % Fraction
 %
-int(E, frac(X, Y), Res)
- => int(E, X / Y, Res).
+int(Flags, frac(X, Y), Res),
+    option(engine(pl), Flags)
+ => int(Flags, X / Y, Res).
 
-int(E, dfrac(Num, Den), Res)
- => int(E, frac(Num, Den), Res).
+int(Flags, dfrac(Num, Den), Res)
+ => int(Flags, frac(Num, Den), Res).
 
 example :-
     writeln(frac),
     X = 2.0 ... 2.0,
-    interval(pl, 1 + frac(1, X), Z),
+    interval([], 1 + frac(1, X), Z),
     writeln(1 + frac(1, X) --> Z).
+
+%
+% Format result as a t-ratio
+%
+int(Flags, tratio(X), Res),
+    option(engine(pl), Flags)
+ => int([digits(2) | Flags], format(X), Res).
+
+int(Flags, format(X), Res),
+    option(engine(pl), Flags)
+ => option(digits(D), Flags, 2),
+    interval(Flags, X, L0 ... U0),
+    L is floor(L0*10^D) / 10^D,
+    U is ceiling(U0*10^D) / 10^D,
+    Res = L ... U.
 
 %
 % Square root. This declaration should be dropped because it
 % only applies the sqrt function to the two bounds of the
 % interval, which is the default.
 %
-int(E, sqrt(X), Res)
- => int(E, X, ResX),
+int(Flags, sqrt(X), Res),
+    option(engine(pl), Flags)
+ => int(Flags, X, ResX),
     interval(sqrt(ResX), Res).
 
 interval(sqrt(A ... B), Res) :-
-    (   zero(A, B) ;
-        positive(A, B)
-    ),
+    (zero(A, B) ; positive(A, B)),
     !,
     L is sqrt(A),
     U is sqrt(B),
@@ -702,21 +724,24 @@ interval(sqrt(A ... B), Res) :-
 example :-
     writeln(sqrt-1),
     X = 2.0 ... 2.0,
-    interval(pl, 1 + sqrt(X), Z),
+    interval([], 1 + sqrt(X), Z),
     writeln(1 + sqrt(X) --> Z).
 
 %
 % Handle lists
 %
-int(E, X, Res),
-    is_list(X)
- => maplist(int(E), X, Res).
+int(_Flags, [], Res)
+ => Res = [].
+
+int(Flags, [H | T], Res)
+ => maplist(int(Flags), [H | T], Res).
 
 %
-% Equation sign: named arguments in R functions (leave unchanged)
+% Equation sign: named arguments in R functions (leave name unchanged)
 %
-int(r, Name = X, Res)
- => int(r, X, ResA),
+int(Flags, Name=X, Res),
+    option(engine(r), Flags)
+ => int(Flags, X, ResA),
     Res = (Name = ResA).
 
 %
@@ -733,71 +758,86 @@ bound(X, X).
 % Evaluate function for all possible combinations of bounds
 % e.g., rint(^(2 ... 3, 4 ... 5), Res) yields 2^3, 2^5, 3^4, and 3^5
 %
-rint(Function, Arguments, Res) :-
+rint(Flags, Function, Arguments, Res) :-
     maplist(bound, Arguments, Bounds),
     compound_name_arguments(Expr, Function, Bounds),
-    b_getval(task, Task),
+    option(task(Task), Flags),
     r_task(Task, Expr, Res).
 
-int(_, r(Expr), Res)
- => int(r, Expr, Res).
+int(Flags, r(Expr), Res)
+ => int([engine(r) | Flags], Expr, Res).
 
-int(_, pl(Expr), Res)
- => int(pl, Expr, Res).
+int(Flags, pl(Expr), Res)
+ => int([engine(pl) | Flags], Expr, Res).
 
-int(r, Expr, Res),
-    atomic(Expr)
- => b_getval(task, Task),
+int(Flags, Expr, Res),
+    atomic(Expr),
+    option(engine(r), Flags)
+ => option(task(Task), Flags),
     r_task(Task, Expr, R),
     (   R = _ ... _
      -> Res = R
       ; Res = R ... R
     ).
 
-int(r, X ... Y, Res)
- => b_getval(task, Task),
+int(Flags, X ... Y, Res),
+    option(engine(r), Flags)
+ => option(task(Task), Flags),
     r_task(Task, X, ResX),
     r_task(Task, Y, ResY),
     Res = ResX ... ResY.
 
-int(r, <-(Var, Expr), Res)
- => int(r, Expr, Res),
-    b_getval(task, Task),
+int(Flags, '<-'(Var, Expr), Res),
+    option(engine(r), Flags)
+ => int(Flags, Expr, Res),
+    option(task(Task), Flags),
     r_task(Task, '<-'(Var, Res)).
 
-int(r, $(Env, Var), Res)
- => b_getval(task, Task),
+int(Flags, $(Env, Var), Res),
+    option(engine(r), Flags)
+ => option(task(Task), Flags),
     r_task(Task, $(Env, Var), R),
-    int(pl, R, Res).
+    int([engine(pl) | Flags], R, Res).
 
-int(r, Expr, Res),
-    compound_name_arguments(Expr, Function, Arguments)
- => maplist(int(r), Arguments, New),
-    findall(R, rint(Function, New, R), Bounds),
+int(Flags, Expr, Res),
+    option(engine(r), Flags),
+    compound(Expr)
+ => compound_name_arguments(Expr, Function, Arguments),
+    maplist(int(Flags), Arguments, New),
+    findall(R, rint(Flags, Function, New, R), Bounds),
     min_member(L, Bounds),
     max_member(U, Bounds),
     Res = L ... U.
+
+int(Flags, Expr, Res),
+    option(engine(r), Flags),
+    atomic(Expr)
+ => option(task(Task), Flags),
+    r_task(Task, Expr, R),
+    Res = R...R.
 
 example :-
     writeln(sin-1),
     r_initialize,
     r_session('<-'(r, 'new.env'())),
-    interval(r, r(sin(0.1)), Z),
+    interval([], r(sin(0.1)), Z),
     writeln(sin(0.1) --> Z).
 
 example :-
     writeln(sin-2),
     r_session('<-'(r, 'new.env'())),
-    interval(r, r(sin(0.1 ... 0.2)), Z),
+    interval([], r(sin(0.1 ... 0.2)), Z),
     writeln(sin(0.1 ... 0.2) --> Z).
 
-example :-
+example(1) :-
     writeln(pbinom),
+    r_initialize,
     X = 3,
     Size = 10,
     Prob = 0.6 ... 0.7,
     r_session('<-'(r, 'new.env'())),
-    interval(r, r(pbinom(X, Size, Prob)), P),
+    r_session_source(tpaired),
+    interval([task(tpaired)], r(pbinom(X, Size, Prob)), P),
     writeln(pbinom(X, Size, Prob) --> P).
 
 example :-
@@ -806,7 +846,7 @@ example :-
     Size = 11,
     Prob = 0.6 ... 0.7,
     r_session('<-'(r, 'new.env'())),
-    interval(r, r(pbinom(X, Size, Prob)), P),
+    interval([], r(pbinom(X, Size, Prob)), P),
     writeln(pbinom(X, Size, Prob) --> P).
 
 example :-
@@ -815,7 +855,7 @@ example :-
     Size = 10 ... 11,
     Prob = 0.6 ... 0.7,
     r_session('<-'(r, 'new.env'())),
-    interval(r, r(pbinom(X, Size, Prob)), P),
+    interval([], r(pbinom(X, Size, Prob)), P),
     writeln(pbinom(X, Size, Prob) --> P).
 
 example :-
@@ -824,14 +864,14 @@ example :-
     Size = 10.0 ... 11.0,
     Prob = 0.6 ... 0.7,
     r_session('<-'(r, 'new.env'())),
-    interval(r, r(pbinom(X, Size, Prob, 'log.p'=true)), P),
+    interval([], r(pbinom(X, Size, Prob, 'log.p'=true)), P),
     writeln(pbinom(X, Size, Prob, 'log.p'=true) --> P).
 
 example :-
     writeln($(x, y)),
     r_initialize,
     r_session_source(tpaired),
-    interval(tpaired, r(mu), X),
+    interval([task(tpaired)], r(mu), X),
     writeln($(tpaired, mu) = X).
 
 %
@@ -846,10 +886,11 @@ example :-
 % works for functions that behave monotonically in all their
 % arguments.
 %
-int(pl, X, Res),
-    compound(X)
+int(Flags, X, Res),
+    compound(X),
+    option(engine(pl), Flags)
  => compound_name_arguments(X, Name, Arguments),
-    maplist(int(pl), Arguments, Results),
+    maplist(int(Flags), Arguments, Results),
     findall(R,
         (   maplist(bound, Results, Bounds),
             compound_name_arguments(New, Name, Bounds),
@@ -864,17 +905,17 @@ int(pl, X, Res),
 
 example :-
     writeln(power-generic),
-    interval(pl, 2 ... 3 ^ (-(2 ... 3)), Z),
+    interval([], 2 ... 3 ^ (-(2 ... 3)), Z),
     writeln("2 ... 3 ^ (-(2 ... 3))" --> Z).
 
 example :-
     writeln(sin-1),
-    interval(pl, sin(0.1), Z),
+    interval([], sin(0.1), Z),
     writeln(sin(0.1) --> Z).
 
 example :-
     writeln(sin-1),
-    interval(pl, sin(0.1 ... 0.2), Z),
+    interval([], sin(0.1 ... 0.2), Z),
     writeln(sin(0.1 ... 0.2) --> Z).
 
 %
@@ -886,7 +927,7 @@ example :-
     Mu = 4.0 ... 4.0,
     S = 3.8 ... 3.8,
     N = 24,
-    interval(pl, frac(D - Mu, S / sqrt(N)), T),
+    interval([], frac(D - Mu, S / sqrt(N)), T),
     writeln(t --> T).
 
 init :-

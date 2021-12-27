@@ -17,19 +17,19 @@ mathml:hook(Flags, s_t0, [task(tpaired) | Flags], sub(s, "T0")).
 mathml:hook(Flags, eot, [task(tpaired) | Flags], overline("EOT")).
 mathml:hook(Flags, s_eot, [task(tpaired) | Flags], sub(s, "EOT")).
 mathml:hook(Flags, s2p, [task(tpaired) | Flags], sub(s, "pool")^2).
+mathml:hook(Flags, paired(D, Mu, S_D, N), [task(tpaired) | Flags], fn("paired", [D, Mu, S_D, N])).
 
 % R definitions
-interval:hook(pl, var_pool(N1, V1, N2, V2), r(var_pool(N1, V1, N2, V2))).
-interval:hook(pl, t, r(t)).
-interval:hook(pl, d, r(d)).
-interval:hook(pl, mu, r(mu)).
-interval:hook(pl, s_d, r(s_d)).
-interval:hook(pl, n, r(n)).
-interval:hook(pl, t0, r(t0)).
-interval:hook(pl, s_t0, r(s_t0)).
-interval:hook(pl, eot, r(eot)).
-interval:hook(pl, s_eot, r(s_eot)).
-interval:hook(pl, tratio(A), r(tratio(A))).
+interval:r_hook(var_pool(_N1, _V1, _N2, _V2)).
+interval:r_hook(t).
+interval:r_hook(d).
+interval:r_hook(mu).
+interval:r_hook(s_d).
+interval:r_hook(n).
+interval:r_hook(t0).
+interval:r_hook(s_t0).
+interval:r_hook(eot).
+interval:r_hook(s_eot).
 
 render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
     { option(resp(R), Form, '#.##') },
@@ -39,33 +39,33 @@ render(tpaired, item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
             p(class('card-text'),
             [ "Consider a clinical study on rumination-focused Cognitive ",
               "Behavioral Therapy (rfCBT) with ",
-              \mmlm(N = r(n)), " patients. The primary ",
+              \mmlm([task(tpaired)], N = r(n)), " patients. The primary ",
               "outcome is the score on the Hamilton Rating Scale for ", 
               "Depression (HDRS, range from best = 0 to worst = 42). ",
               "The significance level is set to ",
-              \mmlm(alpha = [5, "%"]), " two-tailed."]),
+              \mmlm([task(tpaired)], alpha = [5, "%"]), " two-tailed."]),
             div(class('container'),
               div(class("row justify-content-md-center"),
                 div(class("col-6"),
                   \htmltable(
                     [ em("Table 1. "), "Observed HDRS scores at T0, EOT, ",
-                      "and ", \mmlm('D' = "T0" - "EOT") ],
+                      "and ", \mmlm([task(tpaired)], 'D' = "T0" - "EOT") ],
                     [ "Average", "SD" ],
-                    [ "HDRS", "T0", "EOT", \mmlm('D') ],
-                    [ [ \mmlm([round(1)], r(t0)),
-                        \mmlm([round(1)], r(eot)),
-                        \mmlm([round(1)], r(d1)) ],
-                      [ \mmlm([round(1)], r(s_t0)),
-                        \mmlm([round(1)], r(s_eot)),
-                        \mmlm([round(1)], r(s1_d)) ]
+                    [ "HDRS", "T0", "EOT", \mmlm([task(tpaired)], 'D') ],
+                    [ [ \mmlm([task(tpaired), round(1)], r(t0)),
+                        \mmlm([task(tpaired), round(1)], r(eot)),
+                        \mmlm([task(tpaired), round(1)], r(d1)) ],
+                      [ \mmlm([task(tpaired), round(1)], r(s_t0)),
+                        \mmlm([task(tpaired), round(1)], r(s_eot)),
+                        \mmlm([task(tpaired), round(1)], r(s1_d)) ]
                     ])))),
               form(method('POST'),
                   button([ class('btn btn-secondary'), name(download), value(tpaired) ], "Download data"))
           ])),
         \htmlform([ "Does rfCBT lead to a relevant reduction (i.e., more ",
-            "than ", \mmlm([round(1)], mu = r(mu)), " units) in mean HDRS ",
+            "than ", \mmlm([task(tpaired), round(1)], mu = r(mu)), " units) in mean HDRS ",
             "scores between baseline (T0) and End of Treatment (EOT)? ",
-            "Please report the ", \mmlm(hyph(t, "ratio.")) ], "#tratio", R)
+            "Please report the ", \mmlm([task(tpaired)], hyph(t, "ratio.")) ], "#tratio", R)
       ]).
 
 % t-test for paired samples
@@ -136,8 +136,8 @@ hint(tpaired, mu, [Mu], Col, FB) =>
 % measurements.
 intermediate(tpaired, indep).
 buggy(tpaired, stage(2), X, Y, [step(buggy, indep, [])]) :-
-    X = item(T0, S_T0, EOT, S_EOT, _, _, N, _),
-    Y = { '<-'(t, indep(T0, S_T0, N, EOT, S_EOT, N)) ; t }.
+    X = item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu),
+    Y = { '<-'(t, instead(bug(indep), indep(T0, S_T0, N, EOT, S_EOT, N), paired(D, Mu, S_D, N))) ; t }.
 
 feedback(tpaired, indep, [], Col, FB) =>
     FB = [ "The problem was mistakenly identified as ",

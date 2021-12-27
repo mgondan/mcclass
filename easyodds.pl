@@ -16,10 +16,10 @@ mathml:hook(Flags, or, [task(easyodds) | Flags], 'OR').
 %
 % R constants
 %
-interval:hook(pl, odds_A, r(odds_A)).
-interval:hook(pl, pi_A, r(pi_A)).
-interval:hook(pl, pi_B, r(pi_B)).
-interval:hook(pl, or, r(or)).
+interval:r_hook(odds_A).
+interval:r_hook(pi_A).
+interval:r_hook(pi_B).
+interval:r_hook(or).
 
 render(easyodds, item(_Odds_A, _Pi_B, _OR), Form) -->
 	{ option(resp(R), Form, '#.##') },
@@ -28,9 +28,9 @@ render(easyodds, item(_Odds_A, _Pi_B, _OR), Form) -->
 		    [ h1(class('card-title'), "Clinical Study"),
 		      p(class('card-text'),
 		       [ "The Odds for sucess with treatment A are ", 
-			 \mmlm([r(odds_A), ","]), " treatment B has a probability of success of ",
-			 \mmlm(r(pi_B)), " and the Odds Ratio between both treatments is ",
-		         \mmlm([r(or), "."])
+			 \mmlm([task(easyodds)], [r(odds_A), ","]), " treatment B has a probability of success of ",
+			 \mmlm([task(easyodds)], r(pi_B)), " and the Odds Ratio between both treatments is ",
+		         \mmlm([task(easyodds)], [r(or), "."])
 		       ])
 		    ])),
 	          div(class(card), div(class('card-body'),

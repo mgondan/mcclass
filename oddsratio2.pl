@@ -18,11 +18,11 @@ mathml:hook(Flags, or, [task(oddsratio2) | Flags], 'OR').
 %
 % R constants
 %
-interval:hook(pl, odds_A, r(odds_A)).
-interval:hook(pl, pi_A, r(pi_A)).
-interval:hook(pl, pi_B, r(pi_B)).
-interval:hook(pl, or, r(or)).
-interval:hook(pl, odds_B, r(odds_B)).
+interval:r_hook(odds_A).
+interval:r_hook(pi_A).
+interval:r_hook(pi_B).
+interval:r_hook(or).
+interval:r_hook(odds_B).
 
 render(oddsratio2, item(Pi_A, Pi_B), Form) -->
 	{ option(resp(R), Form, '#.##') },
@@ -32,7 +32,7 @@ render(oddsratio2, item(Pi_A, Pi_B), Form) -->
 		      p(class('card-text'),
 		       [ "Compare the effectiveness of ",
 		         "two therapies. Therapy A has a probability of success of ",
-		          \mmlm(Pi_A = r(pi_A)), ". Therapy B one of ", \mmlm(Pi_B = r(pi_B))
+		          \mmlm([task(oddsratio2)], Pi_A = r(pi_A)), ". Therapy B one of ", \mmlm([task(oddsratio2)], Pi_B = r(pi_B))
 		       ])
 		    ])),
 	          div(class(card), div(class('card-body'),
@@ -82,6 +82,10 @@ buggy(oddsratio2, stage(2), From, To, [step(buggy, cona, [pi_A]), depends(conb)]
 feedback(oddsratio2, cona, [pi_A], Col, FB) =>
     FB = [ "Please remember to convert ", \mmlm(Col, color(cona, pi_A)), " to ",
 	   \mmlm(Col, color(cona, odds_A)), ", with ", \mmlm(Col, color(cona, odds_A = frac(pi_A, 1 - pi_A)))  ].
+
+hint(oddsratio2, cona, [pi_A], Col, FB) =>
+    FB = [ "Do not forget to convert ", \mmlm(Col, color(cona, pi_A)), " and ",
+       \mmlm(Col, color(cona, pi_B)), " to odds before continuing." ].
 
 % 2) Forgot conversion  of pi_b to odds.
 buggy(oddsratio2, stage(2), From, To, [step(buggy, conb, [pi_B]), depends(cona)]) :-

@@ -628,6 +628,21 @@ type(_Flags, underover(A, B, C), Type)
 mathml :- mathml(underover(sign(&(sum)), i=1, 'N')).
 
 %
+% Formatting numbers
+%
+math(Flags, tratio(A), New, X)
+ => New = [format(tratio) | Flags],
+    A = X.
+
+mathml :- mathml(tratio(1.5)).
+mathml :- mathml(tratio('...'(1.1, 1.2))).
+
+math(Flags, A, New, X),
+    select_option(format(tratio), Flags, F)
+ => New = [digits(2) | F],
+    A = X.
+
+%
 % Numbers
 %
 math(Flags, A, New, X),
@@ -660,47 +675,22 @@ ml(_Flags, number(1.5NaN), M)
  => M = mtext("?").
 
 ml(Flags, number(A), M),
-    option(round(D), Flags, 2),
-    D = 0
- => format(string(R), '~0f', [A]),
+    option(floor(D), Flags)
+ => format(string(Mask), '~~~df', [D]),
+    format(string(R), Mask, [A - 0.5*10^(-D)]),
     M = mn(R).
 
-% This code is a bit nonstandard. Due to sandbox restrictions (format allows
-% executing code), I cannot put the desired precision in a string such as 
-% format(string(F), '~~~df', D) and then use F in a second format command.
-% Therefore, I format the number with 99 decimals and then truncate the result.
 ml(Flags, number(A), M),
-    option(floor(D), Flags),
-    D =< 99
- => format(codes(X), '~99f', [A]),
-    % Search for the comma
-    nth1(Dot, X, 46),
-    N is Dot + D,
-    findall(E, (nth1(I, X, E), I =< N), Round),
-    string_codes(S, Round),
-    M = mn(S).
+    option(ceiling(D), Flags)
+ => format(string(Mask), '~~~df', [D]),
+    format(string(R), Mask, [A + 0.5*10^(-D)]),
+    M = mn(R).
 
 ml(Flags, number(A), M),
-    option(ceiling(D), Flags),
-    D =< 99
- => format(codes(X), '~99f', [A + 1.0*10^(-D)]),
-    % Search for the comma
-    nth1(Dot, X, 46),
-    N is Dot + D,
-    findall(E, (nth1(I, X, E), I =< N), Round),
-    string_codes(S, Round),
-    M = mn(S).
-
-ml(Flags, number(A), M),
-    option(round(D), Flags, 2),
-    D =< 99
- => format(codes(X), '~99f', [A + 0.5*10^(-D)]),
-    % Search for the comma
-    nth1(Dot, X, 46),
-    N is Dot + D,
-    findall(E, (nth1(I, X, E), I =< N), Round),
-    string_codes(S, Round),
-    M = mn(S).
+    option(digits(D), Flags, 2)
+ => format(string(Mask), '~~~df', [D]),
+    format(string(R), Mask, [A]),
+    M = mn(R).
 
 denoting(_Flags, number(_), D)
  => D = [].
@@ -984,16 +974,6 @@ mathml :- mathml(a + b + c + d).
 mathml :- mathml((a - b) - (c + d)).
 mathml :- mathml(dot((a - b), (c + d))).
 mathml :- mathml(-2 * -2).
-
-%
-% t-ratio: with 2 decimals
-%
-math(Flags, tratio(A), New, X)
- => New = [round(3) | Flags],
-    A = X.
-
-mathml :- mathml(tratio(1.5)).
-mathml :- mathml(tratio('...'(1.1, 1.2))).
 
 %
 % Abbreviations
@@ -1792,29 +1772,29 @@ math(Flags, '...'(L, U), New, X)
  => New = Flags,
     X = xfx(699, '...', floor(L), ceiling(U)).
 
-math(Flags, floor(L), New, X),
-    number(L),
-    L < 0
- => select_option(round(D), Flags, N, 2),
-    New = [ceiling(D) | N],
-    X = L.
+math(Flags, floor(A), New, X),
+    number(A),
+    A < 0
+ => select_option(digits(D), Flags, New0, 2),
+    New = [ceiling(D) | New0],
+    X = A.
 
-math(Flags, floor(L), New, X)
- => select_option(round(D), Flags, N, 2),
-    New = [floor(D) | N],
-    X = L.
+math(Flags, floor(A), New, X)
+ => select_option(digits(D), Flags, New0, 2),
+    New = [floor(D) | New0],
+    X = A.
 
-math(Flags, ceiling(L), New, X),
-    number(L),
-    L < 0
- => select_option(round(D), Flags, N, 2),
-    New = [floor(D) | N],
-    X = L.
+math(Flags, ceiling(A), New, X),
+    number(A),
+    A < 0
+ => select_option(digits(D), Flags, New0, 2),
+    New = [floor(D) | New0],
+    X = A.
  
-math(Flags, ceiling(L), New, X)
- => select_option(round(D), Flags, N, 2),
+math(Flags, ceiling(A), New, X)
+ => select_option(digits(D), Flags, N, 2),
     New = [ceiling(D) | N],
-    X = L.
+    X = A.
 
 mathml :-
     mathml('...'(-1.655, -1.555)).
@@ -1985,4 +1965,23 @@ bugs_(X, List),
 colors(Expr, Flags) :-
     bugs(Expr, Bugs),
     findall(C, color(C), Colors),
-    findall(color(B, C), (nth0(N, Bugs, B), N10 is N mod 10, nth0(N10, Colors, C)), Flags).
+    findall(color(B, C), (nth0(N, Bugs, B), N10 is N mod 10, nth0(N10, Colors, C)), Flags0),
+    fmt(Flags0, Expr, Res),
+    sort(Res, Flags).
+
+fmt(Flags, Expr, F),
+    atomic(Expr)
+ => F = Flags.
+
+fmt(Flags, tratio(Expr), F)
+ => fmt([format(tratio) | Flags], Expr, F).
+
+fmt(Flags, fratio(Expr), F)
+ => fmt([format(fratio) | Flags], Expr, F).
+
+fmt(Flags, Expr, F),
+    compound(Expr)
+ => compound_name_arguments(Expr, _, Args),
+    maplist(fmt(Flags), Args, Res),
+    append(Res, F).
+

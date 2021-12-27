@@ -8,11 +8,11 @@
 
 mathml:hook(Flags, x, [task(ztrans) | Flags], 'X').
 
-interval:hook(pl, x, r(x)).
-interval:hook(pl, sigma, r(sigma)).
-interval:hook(pl, z, r(z)).
-interval:hook(pl, pnorm(Z), r(pnorm(Z))).
-interval:hook(pl, p, r(p)).
+interval:r_hook(x).
+interval:r_hook(sigma).
+interval:r_hook(z).
+interval:r_hook(pnorm(_Z)).
+interval:r_hook(p).
 
 render(ztrans, item(X, Mu, Sigma), Form) -->
     { option(resp(R), Form, '#.##') },
@@ -20,9 +20,9 @@ render(ztrans, item(X, Mu, Sigma), Form) -->
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
           p(class('card-text'), 
-            [ "Let ", \mmlm([round(0)], X), " follow a Normal distribution with ",
-              "expectation ", \mmlm([round(0)], Mu = r(mu)), " and ",
-              "standard deviation ", \mmlm([round(0)], [Sigma = r(sigma), "."]),
+            [ "Let ", \mmlm([task(ztrans), round(0)], X), " follow a Normal distribution with ",
+              "expectation ", \mmlm([task(ztrans), round(0)], Mu = r(mu)), " and ",
+              "standard deviation ", \mmlm([task(ztrans), round(0)], [Sigma = r(sigma), "."]),
               "A table of the standard ",
               "Normal distribution is found below."
             ])
@@ -31,7 +31,7 @@ render(ztrans, item(X, Mu, Sigma), Form) -->
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'),
               [ "How many realizations are ",
-                  "below ", \mmlm([round(0)], [r(x), "?"])
+                  "below ", \mmlm([task(ztrans), round(0)], [r(x), "?"])
               ]),
             form([class(form), method('POST'), action('#ztrans-response')],
               [ div(class("input-group mb-3"),
@@ -125,7 +125,7 @@ hint(ztrans, vardev_swap, [sigma], _Col, FB) =>
     FB = [ "Use the standard deviation instead of the variance." ].
 
 % Buggy Rule (xp) (x - mu)/sigma was skipped.
-buggy(ztrans, stage(2), From, To, [step(buggy, xp, [x, p, z, mu, sigma]), depends(xp2)]) :-
+buggy(ztrans, stage(2), From, To, [step(buggy, xp, []), depends(xp2)]) :-
    From = dfrac(x - mu, sigma),
    To = omit_right(bug(xp), dfrac(omit_right(bug(xp), x - mu), sigma)).
 
@@ -139,3 +139,10 @@ hint(ztrans, xp, [], Col, FB) =>
 buggy(ztrans, stage(2), From, To, [step(buggy, xp2, []), depends(xp)]) :-
     From = pnorm_(z),
     To = instead(bug(xp2), z/100, pnorm(z)).
+
+feedback(ztrans, xp2, [], _Col, FB) =>
+    FB = [ "von Matthias hinzugefuegt." ].
+
+hint(ztrans, xp2, [], Col, FB) =>
+    FB = [ "von Matthias hinzugefuegt ", \mmlm(Col, dfrac(x - mu, sigma)) ].
+

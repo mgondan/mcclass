@@ -14,10 +14,10 @@ mathml:hook(Flags, n, [task(dbinom) | Flags], 'N').
 mathml:hook(Flags, p0, [task(dbinom) | Flags], pi).
 
 % R definitions
-interval:hook(pl, n, r(n)).
-interval:hook(pl, k, r(k)).
-interval:hook(pl, p0, r(p0)).
-interval:hook(pl, factorial(N), r(factorial(N))).
+interval:r_hook(n).
+interval:r_hook(k).
+interval:r_hook(p0).
+interval:r_hook(factorial(_N)).
 
 render(dbinom, item(K, N, P0), Form) -->
     { option(resp(R), Form, '#.##') },
@@ -25,13 +25,13 @@ render(dbinom, item(K, N, P0), Form) -->
       [ div(class(card), div(class("card-body"),
           [ h1(class("card-title"), "Binary outcomes"),
             p(class("card-text"),
-              [ "Consider a clinical study with ", \mmlm(r(N)), " patients. ",
+              [ "Consider a clinical study with ", \mmlm([task(dbinom)], r(N)), " patients. ",
                 "We assume that the success probability ",
-                "is ", \mmlm(r(P0)), " in all patients, and that the ",
+                "is ", \mmlm([task(dbinom)], r(P0)), " in all patients, and that the ",
                 "successes occur independently."
-	      ])
+              ])
           ])),
-        \htmlform([ "What is the probability for exactly ", \mmlm(r(K)), " ",
+        \htmlform([ "What is the probability for exactly ", \mmlm([task(dbinom)], r(K)), " ",
                     "successes?" ], "#dbinom", R)
       ]).
 

@@ -8,11 +8,11 @@
 
 mathml:hook(Flags, x, [task(ztrans2) | Flags], 'X').
 
-interval:hook(pl, x, r(x)).
-interval:hook(pl, sigma, r(sigma)).
-interval:hook(pl, z, r(z)).
-interval:hook(pl, qnorm(Z), r(qnorm(Z))).
-interval:hook(pl, p, r(p)).
+interval:r_hook(x).
+interval:r_hook(sigma).
+interval:r_hook(z).
+interval:r_hook(qnorm(_P)).
+interval:r_hook(p).
 
 render(ztrans2, item(P, Mu, Sigma), Form) -->
     { option(resp(R), Form, '#.##') },
@@ -20,9 +20,9 @@ render(ztrans2, item(P, Mu, Sigma), Form) -->
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
           p(class('card-text'), 
-            [ "Let ", \mmlm([round(0)], P), " follow a Normal distribution with ",
-              "expectation ", \mmlm([round(0)], Mu = r(mu)), " and ",
-              "standard deviation ", \mmlm([round(0)], [Sigma = r(sigma), "."]),
+            [ "Let ", \mmlm([task(ztrans2), round(0)], P), " follow a Normal distribution with ",
+              "expectation ", \mmlm([task(ztrans2), round(0)], Mu = r(mu)), " and ",
+              "standard deviation ", \mmlm([task(ztrans2), round(0)], [Sigma = r(sigma), "."]),
               "A table of the standard ",
               "Normal distribution is found below."
             ])
@@ -30,7 +30,7 @@ render(ztrans2, item(P, Mu, Sigma), Form) -->
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'),
-              [ "In which area do the upper ", \mmlm([round(0)], [r(p), "% fall?"])
+              [ "In which area do the upper ", \mmlm([task(ztrans2), round(0)], [r(p), "% fall?"])
               ]),
             form([class(form), method('POST'), action('#ztrans2-response')],
               [ div(class("input-group mb-3"),

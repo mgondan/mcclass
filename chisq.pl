@@ -9,14 +9,14 @@ mathml:hook(Flags, chi2, [task(chisq) | Flags], chi^2).
 mathml:hook(Flags, p_pool, [task(chisq) | Flags], sub(p, "pool")).
 
 % R constants
-interval:hook(pl, p_VR, r(p_VR)).
-interval:hook(pl, s_VR, r(s_VR)).
-interval:hook(pl, n_VR, r(n_VR)).
-interval:hook(pl, p_Box, r(p_Box)).
-interval:hook(pl, s_Box, r(s_Box)).
-interval:hook(pl, n_Box, r(n_Box)).
-interval:hook(pl, chi2, r(chi2)).
-interval:hook(pl, p_pool, r(p_pool)).
+interval:r_hook(p_VR).
+interval:r_hook(s_VR).
+interval:r_hook(n_VR).
+interval:r_hook(p_Box).
+interval:r_hook(s_Box).
+interval:r_hook(n_Box).
+interval:r_hook(chi2).
+interval:r_hook(p_pool).
 
 render(chisq, item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box), Form) -->
     { option(resp(R), Form, "#.##") },
@@ -49,18 +49,18 @@ render(chisq, item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box), Form) -->
                 [ "“Laparoscopy-naïve medical students were randomized into ",
                   "two groups. (...) The VR group completed the operation more ",
                   "often within 80 min than the Box ",
-                  "group ", \mmlm([round(0)], ["(", (r(P_VR*100)), "%"]), " ",
-                  "vs. ", \mmlm([round(0)], [(r(P_Box*100)), "%)."]), " The ",
-                  "percentages correspond to ", \mmlm([round(0)], r(S_VR)), " ",
-                  "people (out of ", \mmlm([round(0)], [r(N_VR), ")"]), " in ",
-                  "the VR group and ", \mmlm([round(0)], r(S_Box)), " people ",
-                  "(out of ", \mmlm([round(0)], [r(N_Box), ")"]), " in the Box ",
+                  "group ", \mmlm([task(chisq), round(0)], ["(", (r(P_VR*100)), "%"]), " ",
+                  "vs. ", \mmlm([task(chisq), round(0)], [(r(P_Box*100)), "%)."]), " The ",
+                  "percentages correspond to ", \mmlm([task(chisq), round(0)], r(S_VR)), " ",
+                  "people (out of ", \mmlm([task(chisq), round(0)], [r(N_VR), ")"]), " in ",
+                  "the VR group and ", \mmlm([task(chisq), round(0)], r(S_Box)), " people ",
+                  "(out of ", \mmlm([task(chisq), round(0)], [r(N_Box), ")"]), " in the Box ",
                   "group.”"
               ])))
 	      ])),
         \htmlform([ "Does VR training lead to faster surgery times than ",
             "traditional Box training? Please ",
-            "determine ", \mmlm([], hyph(chi^2, "statistic.")) ], "#chisq", R)
+            "determine ", \mmlm([task(chisq)], hyph(chi^2, "statistic.")) ], "#chisq", R)
       ]).
 
 intermediate(_, item).

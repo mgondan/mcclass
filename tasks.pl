@@ -29,7 +29,7 @@
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
-    b_getval(task, Task),
+    option(task(Task), Flags),
     r_task(Task, Expr, Res),
     number(Res).
 
@@ -63,11 +63,10 @@ task(Task, Data) :-
 feedback(Task, Form) -->
     { option(resp(R), Form),
       quantity(N0, Opt, R),
-      interval(Task, @(N0, Opt), Num),
-      solution(Task, Expr-Res0/Flags),
-      interval(Task, @(Res0, Opt), Res),
-      interval(Task, Num =@= Res, _),
+      interval([task(Task)], @(N0, Opt), Num),
+      solution(Task, Expr-Res/Flags),
       colors(Expr, Col),
+      interval([task(Task) | Col], Num =@= Res, _),
       findall(li(FB),
         ( member(step(_, Name, Args), Flags),
           feedback(Task, Name, Args, [task(Task) | Col], FB)
@@ -86,12 +85,13 @@ feedback(Task, Form) -->
 feedback(Task, Form) -->
     { option(resp(R), Form),
       quantity(N0, Opt, R),
-      interval(Task, @(N0, Opt), Num),
+      interval([task(Task)], @(N0, Opt), Num),
       wrongall(Task, ERF),
-      member(Expr-Res0/Flags, ERF),
-      interval(Task, @(Res0, Opt), Res),
-      interval(Task, Num =@= Res, _),
+      member(Expr-Res/Flags, ERF),
       colors(Expr, Col),
+      http_log("Num: ~w, Res: ~w~n", [Num, Res]),
+      interval([task(Task) | Col], Num =@= Res, _),
+      http_log("equal ~w, ~w~n", [Num, Res]),
       findall(li(FB),
         ( member(step(_, Name, Args), Flags),
           feedback(Task, Name, Args, [task(Task) | Col], FB)
@@ -142,7 +142,7 @@ feedback(_Task, _Form) -->
 solution(Task, Expr-Res/Flags) :-
     search(Task, Expr, Flags),
     findall(Bug, member(step(buggy, Bug, _), Flags), []),
-    interval(Task, Expr, Res).
+    interval([task(Task)], Expr, Res).
 
 solutions(Task, List) :-
     findall(ERF, solution(Task, ERF), List).
@@ -153,8 +153,7 @@ solution(Task, Expr-Result/Flags) -->
       findall(li(FB),
       ( member(step(expert, Name, Args), Flags),
         feedback(Task, Name, Args, [task(Task) | Col], FB)
-      ), Items),
-      http_log("~w~n", Expr)
+      ), Items)
     },
     html(div(class("accordion-item"),
       [ h2(class("accordion-header"),
@@ -317,7 +316,6 @@ test :-
 test(Task) :-
     r_initialize,
     r('set.seed'(4711)),
-    b_setval(task, Task),
     r_session_source(Task),
     writeln("All solutions"),
     solutions(Task, AllSolutions),
@@ -355,13 +353,4 @@ test(Task) :-
     % download(Task, File),
     % writeln(download-File),
     true.
-
-test2(Task) :-
-    r_initialize,
-    r('set.seed'(4711)),
-    b_setval(task, Task),
-    r_session_source(Task),
-    task(Task, task(Task, Data)),
-    memberchk(traps(Traps), Data),
-    writeln(Traps).
 
