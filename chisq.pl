@@ -67,19 +67,30 @@ intermediate(_, item).
 start(chisq, item(p_VR, s_VR, n_VR, p_Box, s_Box, n_Box)).
 
 % Correct soultion.
-expert(chisq, stage(2), From, To, [step(expert, allinone, [])]) :-
+intermediate(chisq, chisqd).
+expert(chisq, stage(2), From, To, [step(expert, allinone, [S_VR, S_Box, N_VR, N_Box])]) :-
     From = item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box),
     To = { '<-'(p_pool, dfrac(S_VR + S_Box, N_VR + N_Box)) ;
-	   '<-'(chi2, dfrac((P_VR - P_Box) ^ 2, 
-		p_pool * (1 - p_pool) * (1 / N_VR + 1 / N_Box)));
+	   '<-'(chi2, chisqd(P_VR, P_Box, p_pool, N_VR, N_Box)) ;
 	    chi2
 	 }.
 
-feedback(chisq, allinone, [], Col, FB) =>
-    FB = [ "Good job, you correctly calculated the ", \mmlm(Col, hyph(chi^2, "statistic.")) ].
+feedback(chisq, allinone, [_S_VR, _S_Box, _N_VR, _N_Box], _Col, FB) =>
+    FB = [ "Correctly calculated the pooled variance." ].
 
-hint(chisq, allinone, [], _Col, FB) =>
-    FB = [ "Try to do everything correctly." ].
+hint(chisq, allinone, [S_VR, S_Box, N_VR, N_Box], Col, FB) =>
+    FB = [ "You will need the pooled variance ", \mmlm(Col, p_pool = dfrac(S_VR + S_Box, N_VR + N_Box)) ].
+
+expert(chisq, stage(2), From, To, [step(expert, chi, [P_VR, P_Box, P_Pool, N_VR, N_Box])]) :-
+    From = chisqd(P_VR, P_Box, P_Pool, N_VR, N_Box),
+    To = dfrac((P_VR - P_Box) ^ 2, P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box)).
+
+feedback(chisq, chi, [_P_VR, _P_Box, _P_Pool, _N_VR, _N_Box], Col, FB) =>
+    FB = [ "Good job, you correctly solved for the ", \mmlm(Col, hyph(chi^2, "statistic.")) ].
+
+hint(chisq, chi, [P_VR, P_Box, P_Pool, N_VR, N_Box], Col, FB) =>
+    FB = [ "The ", \mmlm(Col, hyph(chi^2, "statistic")), " is ",
+	   \mmlm(Col, dfrac((P_VR - P_Box) ^ 2, P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box))) ].
 
 % 1) Forgot to square z. 
 % Appeared 41-49 times in the 2018 exams (upper end of interval represents results
