@@ -89,9 +89,8 @@ feedback(Task, Form) -->
       wrongall(Task, ERF),
       member(Expr-Res/Flags, ERF),
       colors(Expr, Col),
-      http_log("Num: ~w, Res: ~w~n", [Num, Res]),
       interval([task(Task) | Col], Num =@= Res, _),
-      http_log("equal ~w, ~w~n", [Num, Res]),
+      http_log("Expr: ~w~n", [Expr]),
       findall(li(FB),
         ( member(step(_, Name, Args), Flags),
           feedback(Task, Name, Args, [task(Task) | Col], FB)

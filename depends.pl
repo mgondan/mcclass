@@ -41,6 +41,11 @@ compatible(omit_right(_, Expr)) :-
 %    expert(R),
 %    compatible(L).
 
+compatible(instead(_, Wrong, Correct)) :-
+    !,
+    compatible(Wrong),
+    expert(Correct).
+
 compatible(Term) :-
     compound(Term),
     Term =.. [_ | Args],
