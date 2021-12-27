@@ -46,6 +46,12 @@ compatible(instead(_, Wrong, Correct)) :-
     compatible(Wrong),
     expert(Correct).
 
+compatible(instead(_, Wrong, Correct0, Correct)) :-
+    !,
+    compatible(Wrong),
+    expert(Correct0),
+    expert(Correct).
+
 compatible(Term) :-
     compound(Term),
     Term =.. [_ | Args],
@@ -56,6 +62,10 @@ expert(Term) :-
     atomic(Term).
 
 expert(instead(_, _, _)) :-
+    !,
+    fail.
+
+expert(instead(_, _, _, _)) :-
     !,
     fail.
 

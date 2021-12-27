@@ -18,6 +18,11 @@ complete(Task, instead(_Bug, Wrong, _Correct)) :-
     !,
     complete(Task, Wrong).
 
+complete(Task, instead(_Bug, Wrong, _Correct0, Correct)) :-
+    !,
+    complete(Task, Wrong),
+    complete(Task, Correct).
+
 % The omitted part does not need to be complete
 complete(Task, omit_left(_Bug, Expr)) :-
     !,

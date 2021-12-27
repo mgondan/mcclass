@@ -14,7 +14,16 @@ step(Task, Stage, X, Y, Flags) :-
 step(Task, Stage, instead(Bug, X, Of), Z, Flags) :-
     !,
     step(Task, Stage, X, Y, Flags),
-    Z = instead(Bug, Y, Of).
+    Z = instead(Bug, Y, Of, Of).
+
+step(Task, Stage, instead(Bug, X, Of0, Of), Z, Flags) :-
+    step(Task, Stage, X, Y, Flags),
+    Z = instead(Bug, Y, Of0, Of).
+
+step(Task, Stage, instead(Bug, Wrong, Of0, X), Z, Flags) :-
+    !,
+    step(Task, Stage, X, Y, Flags),
+    Z = instead(Bug, Wrong, Of0, Y).
 
 step(Task, Stage, omit_left(Bug, Expr), Z, Flags) :-
     !,

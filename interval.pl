@@ -34,6 +34,8 @@ hook(Flags, choose(N, K), Flags, r(choose(N, K))) :-
 
 hook(Flags, instead(_Bug, Wrong, _Correct), Flags, Wrong).
 
+hook(Flags, instead(_Bug, Wrong, _Correct0, _Correct), Flags, Wrong).
+
 hook(Flags, omit_right(_Bug, Expr), Flags, Left) :-
     Expr =.. [_Op, Left, _Right].
 

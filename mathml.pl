@@ -1508,6 +1508,26 @@ math(Flags, instead(bug(Bug), Wrong, Correct), New, M),
  => New = Flags,
     M = underbrace(list(space, ["instead of", correct(Correct)]), color(Bug, show(Wrong))).
 
+math(Flags, instead(_Bug, _Wrong, _Correct0, Correct), New, M),
+    option(error(correct), Flags, fix)
+ => Flags = New,
+    M = Correct.
+
+math(Flags, instead(bug(Bug), Wrong, _Correct0, _Correct), New, M),
+    option(error(show), Flags, fix)
+ => Flags = New,
+    M = color(Bug, Wrong).
+
+math(Flags, instead(bug(Bug), _Wrong, _Correct0, Correct), New, M),
+    option(error(fix), Flags, fix)
+ => Flags = New,
+    M = color(Bug, box(color("#000000", Correct))).
+
+math(Flags, instead(bug(Bug), Wrong, Correct0, _Correct), New, M),
+    option(error(highlight), Flags, fix)
+ => New = Flags,
+    M = underbrace(list(space, ["instead of", correct(Correct0)]), color(Bug, show(Wrong))).
+
 math(Flags, invent_left(_Bug, Expr), New, M),
     option(error(correct), Flags, fix)
  => Expr =.. [_Op, _L, R],
@@ -1916,6 +1936,10 @@ bugs(Expr, Bugs) :-
     sort(List, Bugs).
 
 bugs_(instead(bug(Bug), Wrong, _Correct), List)
+ => bugs_(Wrong, Bugs),
+    List = [Bug | Bugs].
+
+bugs_(instead(bug(Bug), Wrong, _Correct0, _Correct), List)
  => bugs_(Wrong, Bugs),
     List = [Bug | Bugs].
 
