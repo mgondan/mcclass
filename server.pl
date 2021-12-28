@@ -88,7 +88,7 @@ handle(Task, Form) :-
             content('width=device-width, initial-scale=1')])
           ],
       [ \render(Task, Item, Form),
-        \feedback(Task, Form),
+        \feedback(TaskData, Form),
         \solutions(TaskData),
         \hints(TaskData),
         \wrongs(TaskData),

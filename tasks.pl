@@ -60,11 +60,12 @@ task(Task, Data) :-
       ]).
 
 % Correct response
-feedback(Task, Form) -->
+feedback(task(Task, Data), Form) -->
     { option(resp(R), Form),
       quantity(N0, Opt, R),
       interval([task(Task)], @(N0, Opt), Num),
-      solution(Task, Expr-Res/Flags),
+      member(solutions(Expr-Res/Flags), Data),
+      % solution(Task, Expr-Res/Flags),
       colors(Expr, Col),
       interval([task(Task) | Col], Num =@= Res, _),
       findall(li(FB),
@@ -73,69 +74,76 @@ feedback(Task, Form) -->
         ), Items)
     },
     html(div(class("card"),
-          [ div(class("card-header text-white bg-success"),
-              "Congratulations"),
-            div(class("card-body"),
-              [ p(class("card-text"), "Correct response!"),
-                ul(Items)
-              ])
-          ])).
+      [ div(class("card-header text-white bg-success"), "Congratulations"),
+        div(class("card-body"),
+          [ p(class("card-text"), "Correct response!"),
+            ul(Items)
+          ])
+      ])).
 
 % Buggy response
-feedback(Task, Form) -->
+feedback(task(Task, Data), Form) -->
     { option(resp(R), Form),
       quantity(N0, Opt, R),
       interval([task(Task)], @(N0, Opt), Num),
-      wrongall(Task, ERF),
+      member(traps(Traps), Data),
+      member(traps(Hints), Data),
+      member(wrongall(ERF), Data),
       member(Expr-Res/Flags, ERF),
       colors(Expr, Col),
       interval([task(Task) | Col], Num =@= Res, _),
-      http_log("Expr: ~w~n", [Expr]),
       findall(li(FB),
         ( member(step(_, Name, Args), Flags),
+          % show only relevant feedback
+          ( memberchk(Name, Traps) ; memberchk(Name, Hints) ),
           feedback(Task, Name, Args, [task(Task) | Col], FB)
-        ), Items)
+        ), Items),
+      sort(Items, Sorted), % remove duplicates from Hints
+      findall(li(FB),
+        ( member(step(_, Name, Args), Flags),
+          \+ member(Name, Traps), % this is the irrelevant feedback
+          \+ member(Name, Hints),
+          feedback(Task, Name, Args, [task(Task) | Col], FB)
+        ), Other)
     },
     html(div(class("card"),
-          [ div(class("card-header text-white bg-warning"),
-              "Careful"),
-            div(class("card-body"),
-              [ p(class("card-text"), "This is the correct expression:"),
-                p(class("card-text"), \mmlm([task(Task), error(fix) | Col], Expr)),
-                p(class("card-text"), "Your response matches the following expression:"),
-                p(class("card-text"), \mmlm([task(Task), error(highlight) | Col], Expr)),
-                p(class("card-text"), "Please check the following hints:"),
-                ul(class("card-text"), ul(Items))
-              ])
-          ])).
+      [ div(class("card-header text-white bg-warning"), "Careful"),
+        div(class("card-body"),
+          [ p(class("card-text"), "This is the correct expression:"),
+            p(class("card-text"), \mmlm([task(Task), error(fix) | Col], Expr)),
+            p(class("card-text"), "Your response matches the following expression:"),
+            p(class("card-text"), \mmlm([task(Task), error(highlight) | Col], Expr)),
+            p(class("card-text"), "Please check the following hints:"),
+            ul(class("card-text"), ul(Sorted)),
+            p(class("card-text"), "Moreover:"),
+            ul(class("card-text"), ul(Other))
+          ])
+      ])).
 
 feedback(_Task, Form) -->
     { option(resp(R), Form),
       quantity(N, Opt, R)
     },
     html(div(class("card"),
-          [ div(class("card-header text-white bg-secondary"),
-              "Feedback"),
-            div(class("card-body"),
-              p(class("card-text"), "Response: ~p ~p"-[N, Opt]))
-          ])).
+      [ div(class("card-header text-white bg-secondary"), "Feedback"),
+        div(class("card-body"),
+          p(class("card-text"), "Response: ~p ~p"-[N, Opt]))
+      ])).
 
 feedback(_Task, Form) -->
     { option(resp(R), Form) },
     html(div(class("card"),
-          [ div(class("card-header text-white bg-secondary"),
-              "Feedback"),
-            div(class("card-body"),
-              p(class("card-text"), "Response not recognized: ~p"-[R]))
-          ])).
+      [ div(class("card-header text-white bg-secondary"), "Feedback"),
+        div(class("card-body"),
+          p(class("card-text"), "Response not recognized: ~p"-[R]))
+      ])).
 
 feedback(_Task, _Form) -->
     html(div(class("card"),
-          [ div(class("card-header text-white bg-secondary"),
-              "Feedback"),
-            div(class("card-body"),
-              p(class("card-text"), "Waiting for response..."))
-          ])).
+      [ div(class("card-header text-white bg-secondary"), "Feedback"),
+        div(class("card-body"),
+          p(class("card-text"), "Waiting for response..."))
+      ])).
 
 % Solution and correct numerical result
 solution(Task, Expr-Res/Flags) :-
@@ -292,10 +300,12 @@ traps(task(Task, Data)) -->
       sort(Traps, Sorted) % Duplicates due to multiple solutions
     },
     html(div(class("card"),
-          [ div(class("card-header text-white bg-warning"), "Traps"),
-            div(class("card-body"),
-              [ p(class("card-text"), "Avoid these traps"),
-                p(class("card-text"), ul(Sorted))])])).
+      [ div(class("card-header text-white bg-warning"), "Traps"),
+        div(class("card-body"),
+          [ p(class("card-text"), "Avoid these traps"),
+            p(class("card-text"), ul(Sorted))
+          ])
+      ])).
 
 % Download task data
 download(Task, File) :-
