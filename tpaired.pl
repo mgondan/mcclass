@@ -94,7 +94,8 @@ expert(tpaired, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
     Y = tratio(dfrac(D - Mu, S_D / sqrt(N))).
 
 feedback(tpaired, tratio, [_D, _Mu, _S_D, _N], Col, FB) =>
-    FB = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio.")) ].
+    FB = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
+           "paired samples." ].
 
 hint(tpaired, tratio, [D, Mu, S_D, N], Col, Hint) =>
     Hint = [ "The ", \mmlm(Col, hyph(t, "ratio")), " ",
@@ -106,7 +107,8 @@ expert(tpaired, stage(2), X, Y, [step(expert, abs_tratio, [D, Mu, S_D, N])]) :-
     Y = tratio(abs(dfrac(D - Mu, S_D / sqrt(N)))).
 
 feedback(tpaired, abs_tratio, [_D, _Mu, _S_D, _N], Col, FB) =>
-    FB = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio.")) ].
+    FB = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
+           "paired samples." ].
 
 hint(tpaired, abs_tratio, [D, Mu, S_D, N], Col, Hint) =>
     Hint = [ "The ", \mmlm(Col, hyph(t, "ratio")), " ",
