@@ -49,12 +49,12 @@ render(chisq, item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box), Form) -->
                 [ "“Laparoscopy-naïve medical students were randomized into ",
                   "two groups. (...) The VR group completed the operation more ",
                   "often within 80 min than the Box ",
-                  "group ", \mmlm([task(chisq), round(0)], ["(", (r(P_VR*100)), "%"]), " ",
-                  "vs. ", \mmlm([task(chisq), round(0)], [(r(P_Box*100)), "%)."]), " The ",
-                  "percentages correspond to ", \mmlm([task(chisq), round(0)], r(S_VR)), " ",
-                  "people (out of ", \mmlm([task(chisq), round(0)], [r(N_VR), ")"]), " in ",
-                  "the VR group and ", \mmlm([task(chisq), round(0)], r(S_Box)), " people ",
-                  "(out of ", \mmlm([task(chisq), round(0)], [r(N_Box), ")"]), " in the Box ",
+                  "group ", \mmlm([task(chisq), digits(0)], ["(", (r(P_VR*100)), "%"]), " ",
+                  "vs. ", \mmlm([task(chisq), digits(0)], [(r(P_Box*100)), "%)."]), " The ",
+                  "percentages correspond to ", \mmlm([task(chisq), digits(0)], r(S_VR)), " ",
+                  "people (out of ", \mmlm([task(chisq), digits(0)], [r(N_VR), ")"]), " in ",
+                  "the VR group and ", \mmlm([task(chisq), digits(0)], r(S_Box)), " people ",
+                  "(out of ", \mmlm([task(chisq), digits(0)], [r(N_Box), ")"]), " in the Box ",
                   "group.”"
               ])))
 	      ])),
