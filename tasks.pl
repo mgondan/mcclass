@@ -1,5 +1,8 @@
-:- module(tasks, [task/2, feedback//2, solutions//1, hints//1, wrongs//1, traps//1,
-                  start/2, download/2, intermediate/2, expert/5, buggy/5, feedback/5, hints/2, render//3]).
+:- module(tasks, 
+  [ task/2, feedback//2, solutions//1, hints//1, wrongs//1,
+    traps//1, start/2, download/2, intermediate/2, expert/5, buggy/5, 
+    feedback/5, hints/2, render//3
+  ]).
 
 :- use_module(library(http/html_write)).
 :- use_module(library(http/http_log)).
@@ -45,18 +48,17 @@ mathml:hook(Flags, r(Expr), Flags, Res) :-
 task(Task, Data) :-
     r_initialize,
     r_session_source(Task),
-    solutions(Task, Sol),
-    memberchk(_-_/Flags, Sol),
-    hints(Flags, H),
+    solutions(Task, Solutions),
+    hints(Task, Hints),
     wrong(Task, E_R_F),
     wrongall(Task, E_R_F_All),
-    traps(E_R_F_All, T),
+    traps(E_R_F_All, Traps),
     Data = task(Task, 
-      [ solutions(Sol), 
-        hints(H), 
+      [ solutions(Solutions), 
+        hints(Hints), 
         wrong(E_R_F),
         wrongall(E_R_F_All), % this needs a better solution
-        traps(T)
+        traps(Traps)
       ]).
 
 % Correct response
@@ -64,12 +66,12 @@ feedback(task(Task, Data), Form) -->
     { option(resp(R), Form),
       quantity(N0, Opt, R),
       interval([task(Task)], @(N0, Opt), Num),
-      member(solutions(Expr-Res/Flags), Data),
-      % solution(Task, Expr-Res/Flags),
+      memberchk(solutions(Solutions), Data),
+      member(Expr-Res/Flags, Solutions),
       colors(Expr, Col),
       interval([task(Task) | Col], Num =@= Res, _),
       findall(li(FB),
-        ( member(step(_, Name, Args), Flags),
+        ( member(step(expert, Name, Args), Flags),
           feedback(Task, Name, Args, [task(Task) | Col], FB)
         ), Items)
     },
@@ -87,24 +89,63 @@ feedback(task(Task, Data), Form) -->
       quantity(N0, Opt, R),
       interval([task(Task)], @(N0, Opt), Num),
       member(traps(Traps), Data),
-      member(traps(Hints), Data),
+      member(hints(Hints0), Data),
+      append(Hints0, Hints1),
+      sort(Hints1, Hints),
       member(wrongall(ERF), Data),
       member(Expr-Res/Flags, ERF),
       colors(Expr, Col),
       interval([task(Task) | Col], Num =@= Res, _),
+      % relevant feedback
       findall(li(FB),
-        ( member(step(_, Name, Args), Flags),
-          % show only relevant feedback
-          ( memberchk(Name, Traps) ; memberchk(Name, Hints) ),
+        ( member(step(expert, Name, Args), Flags),
+          memberchk(Name, Hints),
           feedback(Task, Name, Args, [task(Task) | Col], FB)
-        ), Items),
-      sort(Items, Sorted), % remove duplicates from Hints
+        ), Correct0),
+      ( Correct0 = []
+        -> Correct = p(class("card-text"), "")
+         ; Correct = p(class("card-text"), 
+                       [ "Correct steps",
+                         ul(class("card-text"), ul(Correct0))
+                       ])
+      ),
       findall(li(FB),
-        ( member(step(_, Name, Args), Flags),
-          \+ member(Name, Traps), % this is the irrelevant feedback
-          \+ member(Name, Hints),
+        ( member(step(buggy, Name, Args), Flags),
+          memberchk(Name, Traps),
           feedback(Task, Name, Args, [task(Task) | Col], FB)
-        ), Other)
+        ), Wrong0),
+      ( Wrong0 = []
+        -> Wrong = p(class("card-text"), "")
+         ; Wrong = p(class("card-text"),
+                       [ "Wrong steps",
+                         ul(class("card-text"), ul(Wrong0))
+                       ])
+      ),
+      % irrelevant feedback
+      findall(li(FB),
+        ( member(step(expert, Name, Args), Flags),
+          \+ memberchk(Name, Hints),
+          feedback(Task, Name, Args, [task(Task) | Col], FB)
+        ), Praise0),
+      ( Praise0 = []
+        -> Praise = p(class("card-text"), "")
+         ; Praise = p(class("card-text"),
+                       [ "Other praise",
+                         ul(class("card-text"), ul(Praise0))
+                       ])
+      ),
+      findall(li(FB),
+        ( member(step(buggy, Name, Args), Flags),
+          \+ memberchk(Name, Traps),
+          feedback(Task, Name, Args, [task(Task) | Col], FB)
+        ), Blame0),
+      ( Blame0 = []
+        -> Blame = p(class("card-text"), "")
+         ; Blame = p(class("card-text"),
+                       [ "Other mistakes",
+                         ul(class("card-text"), ul(Blame0))
+                       ])
+      )
     },
     html(div(class("card"),
       [ div(class("card-header text-white bg-warning"), "Careful"),
@@ -113,10 +154,7 @@ feedback(task(Task, Data), Form) -->
             p(class("card-text"), \mmlm([task(Task), error(fix) | Col], Expr)),
             p(class("card-text"), "Your response matches the following expression:"),
             p(class("card-text"), \mmlm([task(Task), error(highlight) | Col], Expr)),
-            p(class("card-text"), "Please check the following hints:"),
-            ul(class("card-text"), ul(Sorted)),
-            p(class("card-text"), "Moreover:"),
-            ul(class("card-text"), ul(Other))
+            Correct, Wrong, Praise, Blame
           ])
       ])).
 
