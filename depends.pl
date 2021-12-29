@@ -9,7 +9,8 @@ dependencies(Flags) :-
 
 % Check if bugs are compatible
 compatible(Term) :-
-    atomic(Term).
+    atomic(Term),
+    !.
 
 % Experimental
 compatible(Term) :-
