@@ -34,7 +34,7 @@ search(Task, Expr, Flags, Sorted) :-
     search_(Task, stage(2), Y, Expr, Flags2),
     complete(Task, Expr),           % no intermediate solutions
     compatible(Expr),               % no incompatible bugs
-    append(Flags2, Flags1, Flags),  % confusions (stage 1) last in feedback
+    append(Flags1, Flags2, Flags),  % confusions (stage 1) last in feedback
     sort(Flags, Sorted).
 
 % Codes for steps

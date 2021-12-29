@@ -358,7 +358,7 @@ download(Task, File) :-
 % ?- tasks:test.
 %
 test :-
-    test(tpaired).
+    test(chisq).
 
 test(Task) :-
     r_initialize,
