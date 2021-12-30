@@ -2013,7 +2013,7 @@ fmt(Flags, tratio(Expr), F)
  => fmt([format(tratio) | Flags], Expr, F).
 
 fmt(Flags, chi2ratio(Expr), F)
- => fmt([format(chi2ratio) | Flags]), Expr, F).
+ => fmt([format(chi2ratio) | Flags], Expr, F).
 
 fmt(Flags, fratio(Expr), F)
  => fmt([format(fratio) | Flags], Expr, F).
