@@ -642,6 +642,18 @@ math(Flags, A, New, X),
  => New = [digits(2) | F],
     A = X.
 
+math(Flags, chi2ratio(A), New, X)
+ => New = [format(chi2ratio) | Flags],
+    A = X.
+
+mathml :- mathml(chi2ratio(1.5)).
+mathml :- mathml(chi2ratio('...'(1.1, 1.2))).
+
+math(Flags, A, New, X),
+    select_option(format(chi2ratio), Flags, F)
+ => New = [digits(2) | F],
+    A = X.
+
 %
 % Numbers
 %
@@ -1999,6 +2011,9 @@ fmt(Flags, Expr, F),
 
 fmt(Flags, tratio(Expr), F)
  => fmt([format(tratio) | Flags], Expr, F).
+
+fmt(Flags, chi2ratio(Expr), F)
+ => fmt([format(chi2ratio) | Flags]), Expr, F).
 
 fmt(Flags, fratio(Expr), F)
  => fmt([format(fratio) | Flags], Expr, F).
