@@ -41,4 +41,4 @@ color <- function(col, expr)
    return(expr)
 }
 
-tratio = identity
+tratio = chi2ratio = identity
