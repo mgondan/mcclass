@@ -73,10 +73,10 @@ intermediate(chisq, zstat).
 expert(chisq, stage(1), From, To, [step(expert, steps, [])]) :-
     From = item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box),
     To = { '<-'(p_pool, ppool(S_VR, S_Box, N_VR, N_Box)) ;
-	       '<-'(z, zstat(P_VR, P_Box, p_pool, N_VR, N_Box)) ;
-           '<-'(chi2, z^2) ;
-	       chi2
-	     }.
+           '<-'(z, zstat(P_VR, P_Box, p_pool, N_VR, N_Box)) ;
+           '<-'(chi2, chi2ratio(z^2)) ;
+           chi2
+         }.
 
 feedback(chisq, steps, [], _Col, FB) =>
     FB = [ "Correctly identified the main steps of the calculation." ].
@@ -137,8 +137,8 @@ hint(chisq, zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box], Col, FB) =>
 % that could be caused by the listed error but erroneously rounded, 
 % lower end is number of exact matches).
 buggy(chisq, stage(2), From, To, [step(buggy, square, [])]) :-
-    From = ('<-'(chi2, Z^2) ; chi2),
-    To = omit_left(bug(square), ('<-'(chi2, Z^2) ; Z)).
+    From = ('<-'(chi2, chi2ratio(Z^2)) ; chi2),
+    To = omit_left(bug(square), ('<-'(chi2, Z^2) ; tratio(Z))).
 
 feedback(chisq, square, [], Col, FB) =>
     FB = [ "The result matches ",
