@@ -698,6 +698,10 @@ int(Flags, tratio(X), Res),
     option(engine(pl), Flags)
  => int([digits(2) | Flags], format(X), Res).
 
+int(Flags, chi2ratio(X), Res),
+    option(engine(pl), Flags)
+ => int([digits(2) | Flags], format(X), Res).
+
 int(Flags, format(X), Res),
     option(engine(pl), Flags)
  => option(digits(D), Flags, 2),
