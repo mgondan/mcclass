@@ -627,10 +627,8 @@ example :-
 int(Flags, available(X), Res),
     option(engine(pl), Flags)
  => int(Flags, X, L ... U),
-    float_class(L, ClassL),
-    dif(ClassL, nan),
-    float_class(U, ClassU),
-    dif(ClassU, nan),
+    (integer(L); (float_class(L, ClassL), dif(ClassL, nan))),
+    (integer(U); (float_class(U, ClassU), dif(ClassU, nan))),
     Res = L ... U.  % todo: rewrite as a boolean function
 
 %
