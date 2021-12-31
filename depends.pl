@@ -29,6 +29,10 @@ compatible(omit_right(_, Expr)) :-
     expert(R),
     compatible(L).
 
+compatible(omit(_, X)) :-
+    !,
+    expert(X).
+
 % Same for dropped things
 %compatible(drop_left(_, Expr)) :-
 %    Expr =.. [_, L, R],
@@ -75,6 +79,10 @@ expert(omit_left(_, _)) :-
     fail.
 
 expert(omit_right(_, _)) :-
+    !,
+    fail.
+
+expert(omit(_, _X)) :-
     !,
     fail.
 

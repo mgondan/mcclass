@@ -34,6 +34,8 @@ complete(Task, omit_right(_Bug, Expr)) :-
     Expr =.. [_Op, L, _R],
     complete(Task, L).
 
+complete(_Task, omit(_Bug, _Expr)).
+
 complete(Task, drop_left(_Bug, Expr)) :-
     !,
     Expr =.. [_Op, _L, R],

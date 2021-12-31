@@ -738,7 +738,10 @@ int(_Flags, [], Res)
  => Res = [].
 
 int(Flags, [H | T], Res)
- => maplist(int(Flags), [H | T], Res).
+ => exclude(omit(Flags), [H | T], Excluded),
+    maplist(int(Flags), Excluded, Res).
+
+omit(_Flags, omit(_, _)).
 
 %
 % Equation sign: named arguments in R functions (leave name unchanged)

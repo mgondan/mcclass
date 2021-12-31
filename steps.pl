@@ -39,6 +39,11 @@ step(Task, Stage, omit_right(Bug, Expr), Z, Flags) :-
     Y =.. [Op, New, R],
     Z = omit_right(Bug, Y).
 
+step(Task, Stage, omit(Bug, Expr), Z, Flags) :-
+    !,
+    step(Task, Stage, Expr, New, Flags),
+    Z = omit(Bug, New).
+
 step(Task, Stage, abbrev(Abbrev, Expr, Text), Z, Flags) :-
     !,
     step(Task, Stage, Expr, New, Flags),
