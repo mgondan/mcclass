@@ -631,27 +631,11 @@ mathml :- mathml(underover(sign(&(sum)), i=1, 'N')).
 % Formatting numbers
 %
 math(Flags, tratio(A), New, X)
- => New = [format(tratio) | Flags],
-    A = X.
-
-mathml :- mathml(tratio(1.5)).
-mathml :- mathml(tratio('...'(1.1, 1.2))).
-
-math(Flags, A, New, X),
-    select_option(format(tratio), Flags, F)
- => New = [digits(2) | F],
+ => New = [digits(2) | Flags],
     A = X.
 
 math(Flags, chi2ratio(A), New, X)
- => New = [format(chi2ratio) | Flags],
-    A = X.
-
-mathml :- mathml(chi2ratio(1.5)).
-mathml :- mathml(chi2ratio('...'(1.1, 1.2))).
-
-math(Flags, A, New, X),
-    select_option(format(chi2ratio), Flags, F)
- => New = [digits(2) | F],
+ => New = [digits(2) | Flags],
     A = X.
 
 %
@@ -1148,14 +1132,29 @@ ml(Flags, cell(Cell), M)
 %
 % Lists of things
 %
+omit(Flags, omit(_, _)) :-
+    option(error(show), Flags, fix).
+
+math(Flags, [], New, M)
+ => Flags = New,
+    M = list(&('#8288'), []).
+
 math(Flags, [H | T], New, M)
  => Flags = New, 
     M = list(&('#8288'), [H | T]).
 
-ml(Flags, list(_, [A]), M)
+math(Flags, list(Sep, A), New, M)
+ => exclude(omit(Flags), A, Excluded),
+    Flags = New,
+    M = list1(Sep, Excluded).
+
+ml(_Flags, list1(_, []), M)
+ => M = mo(&(empty)).
+
+ml(Flags, list1(_, [A]), M)
  => ml(Flags, A, M).
 
-ml(Flags, list(Sep, [A, B | T]), M)
+ml(Flags, list1(Sep, [A, B | T]), M)
  => ml(Flags, A, X),
     ml(Flags, tail(Sep, [B | T]), Y),
     M = mrow([X | Y]).
@@ -1171,17 +1170,17 @@ ml(Flags, tail(Sep, [A, B | T]), M)
     ml(Flags, tail(Sep, [B | T]), Y),
     M = [S, X | Y].
 
-paren(Flags, list(_, List), Paren)
+paren(Flags, list1(_, List), Paren)
  => maplist(paren(Flags), List, Parens),
     max_list(Parens, Paren).
 
-prec(Flags, list(_, [A]), Prec)
+prec(Flags, list1(_, [A]), Prec)
  => prec(Flags, A, Prec).
 
-prec(Flags, list(Sep, [_, _ | _]), Prec)
+prec(Flags, list1(Sep, [_, _ | _]), Prec)
  => prec(Flags, Sep, Prec).
 
-denoting(Flags, list(_, L), Den)
+denoting(Flags, list1(_, L), Den)
  => maplist(denoting(Flags), L, List),
     append(List, Den).
 
