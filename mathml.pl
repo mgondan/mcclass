@@ -1965,6 +1965,10 @@ bugs_(omit_right(bug(Bug), Expr), List)
     bugs_(L, Bugs),
     List = [Bug | Bugs].
 
+bugs_(omit(bug(Bug), Expr), List)
+ => bugs_(Expr, Bugs),
+    List = [Bug | Bugs].
+
 bugs_(drop_left(bug(Bug), Expr), List)
  => Expr =.. [_Op, _L, R],
     bugs_(R, Bugs),
