@@ -42,6 +42,9 @@ hook(Flags, omit_right(_Bug, Expr), Flags, Left) :-
 hook(Flags, omit_left(_Bug, Expr), Flags, Right) :-
     Expr =.. [_Op, _Left, Right].
 
+hook(Flags, omit(_Bug, _Expr), Flags, Res) :-
+    Res = 0.0 ... 1.0.
+
 hook(Flags, drop_right(_Bug, Expr), Flags, Left) :-
     Expr =.. [_Op, Left, _Right].
 

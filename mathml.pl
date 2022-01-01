@@ -1458,12 +1458,12 @@ math(Flags, omit(_Bug, Expr), New, M),
  => Flags = New,
     M = Expr.
 
-math(Flags, omit_left(_Bug, Expr), New, M),
+math(Flags, omit(_Bug, _Expr), New, M),
     option(error(show), Flags, fix)
  => Flags = New,
     M = "omitted".
 
-math(Flags, omit_left(bug(Bug), Expr), New, M),
+math(Flags, omit(bug(Bug), Expr), New, M),
     option(error(fix), Flags, fix)
  => Flags = New,
     M = color(Bug, box(color("#000000", Expr))).
