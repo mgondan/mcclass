@@ -1453,6 +1453,26 @@ math(Flags, omit_right(bug(Bug), Expr), New, M),
     Flags = New,
     M = list(space, [L, color(Bug, cancel(color("#000000", Expr1)))]).
 
+math(Flags, omit(_Bug, Expr), New, M),
+    option(error(correct), Flags, fix)
+ => Flags = New,
+    M = Expr.
+
+math(Flags, omit_left(_Bug, Expr), New, M),
+    option(error(show), Flags, fix)
+ => Flags = New,
+    M = "omitted".
+
+math(Flags, omit_left(bug(Bug), Expr), New, M),
+    option(error(fix), Flags, fix)
+ => Flags = New,
+    M = color(Bug, box(color("#000000", Expr))).
+
+math(Flags, omit(bug(Bug), Expr), New, M),
+    option(error(highlight), Flags, fix)
+ => Flags = New,
+    M = color(Bug, cancel(color("#000000", Expr))).
+
 math(Flags, drop_left(_Bug, Expr), New, M),
     option(error(correct), Flags, fix)
  => Flags = New,
