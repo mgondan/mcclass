@@ -138,7 +138,7 @@ hint(chisq, zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box], Col, FB) =>
 % lower end is number of exact matches).
 buggy(chisq, stage(2), From, To, [step(buggy, square, [])]) :-
     From = ('<-'(chi2, chi2ratio(Z^2)) ; chi2),
-    To = omit_left(bug(square), ('<-'(chi2, Z^2) ; tratio(Z))).
+    To = (omit(bug(square), '<-'(chi2, Z^2)) ; tratio(Z)).
 
 feedback(chisq, square, [], Col, FB) =>
     FB = [ "The result matches ",
