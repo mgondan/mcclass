@@ -33,40 +33,40 @@ mml(Flags, A) -->
 mmlm(A) -->
     mmlm([], A).
 
-mmlm(Flags, {}(Args)) -->
-    { colors({}(Args), Colors),
-      append(Flags, Colors, List),
-      semi(Args, [Arg1, _Arg2]),
-      mathml(List, Arg1, M, W)
-    },
-    !,
-    html([M, W]).
-
-mmlm(Flags, {}(Args)) -->
-    { colors({}(Args), Colors),
-      append(Flags, Colors, List),
-      semi(Args, ArgList0),
-      reverse(ArgList0, [_ | Reversed]),
-      reverse(Reversed, ArgList),
-      maplist(mathml(List), ArgList, MList, WList),
-      pairs_keys_values(Pairs, MList, WList),
-      findall(li([M, W]), member(M-W, Pairs), Items)
-    },
-    !,
-    html(ol(type(a), Items)).
-
-mmlm(Flags, {}(Args) = Res) -->
-    { colors({}(Args), Colors),
-      append(Flags, Colors, List),
-      semi(Args, ArgList0),
-      reverse(ArgList0, [H | Reversed]),
-      reverse([H = Res | Reversed], ArgList),
-      maplist(mathml(List), ArgList, MList, WList),
-      pairs_keys_values(Pairs, MList, WList),
-      findall(li([M, W]), member(M-W, Pairs), Items)
-    },
-    !,
-    html(ol(type(a), Items)).
+%mmlm(Flags, {}(Args)) -->
+%    { colors({}(Args), Colors),
+%      append(Flags, Colors, List),
+%      semi(Args, [Arg1, _Arg2]),
+%      mathml(List, Arg1, M, W)
+%    },
+%    !,
+%    html([M, W]).
+%
+%mmlm(Flags, {}(Args)) -->
+%    { colors({}(Args), Colors),
+%      append(Flags, Colors, List),
+%      semi(Args, ArgList0),
+%      reverse(ArgList0, [_ | Reversed]),
+%      reverse(Reversed, ArgList),
+%      maplist(mathml(List), ArgList, MList, WList),
+%      pairs_keys_values(Pairs, MList, WList),
+%      findall(li([M, W]), member(M-W, Pairs), Items)
+%    },
+%    !,
+%    html(ol(type(a), Items)).
+%
+%mmlm(Flags, {}(Args) = Res) -->
+%    { colors({}(Args), Colors),
+%      append(Flags, Colors, List),
+%      semi(Args, ArgList0),
+%      reverse(ArgList0, [H | Reversed]),
+%      reverse([H = Res | Reversed], ArgList),
+%      maplist(mathml(List), ArgList, MList, WList),
+%      pairs_keys_values(Pairs, MList, WList),
+%      findall(li([M, W]), member(M-W, Pairs), Items)
+%    },
+%    !,
+%    html(ol(type(a), Items)).
 
 mmlm(Flags, A) -->
     { colors(A, Colors),
