@@ -238,6 +238,11 @@ mathml :- mathml(integrate(sin(x))).
 mathml :- mathml(integrate(sin(x)) * integrate(cos(x))).
 mathml :- mathml(integrate(sin(x) * cos(x), x)).
 
+% Hide
+math(Flags, invisible(A), New, X)
+ => Flags = New,
+    X = ''.
+
 %
 % Integrate over range
 %
