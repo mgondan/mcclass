@@ -239,7 +239,7 @@ mathml :- mathml(integrate(sin(x)) * integrate(cos(x))).
 mathml :- mathml(integrate(sin(x) * cos(x), x)).
 
 % Hide
-math(Flags, invisible(A), New, X)
+math(Flags, invisible(_), New, X)
  => Flags = New,
     X = ''.
 
