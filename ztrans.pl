@@ -20,11 +20,11 @@ render(ztrans, item(X, Mu, Sigma), Form) -->
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
           p(class('card-text'), 
-            [ "Let ", \mmlm([task(ztrans), digits(0)], X), " follow a Normal distribution with ",
+            [ "Let ", \mmlm([task(ztrans), digits(0)], X), " follow a normal distribution with ",
               "expectation ", \mmlm([task(ztrans), digits(0)], Mu = r(mu)), " and ",
               "standard deviation ", \mmlm([task(ztrans), digits(0)], [Sigma = r(sigma), "."]),
               "A table of the standard ",
-              "Normal distribution is found below."
+              "normal distribution is found below."
             ])
         ])),
         div(class(card), div(class('card-body'),
@@ -45,23 +45,36 @@ render(ztrans, item(X, Mu, Sigma), Form) -->
           ]))
       ]).
 
-% z-transformation and Normal distribution
+% z-transformation and normal distribution
 intermediate(_, item).
 start(ztrans, item(x, mu, sigma)).
 
 intermediate(ztrans, pnorm_).
-expert(ztrans, stage(2), From, To, [step(expert, allinone, [])]) :-
+intermediate(ztrans, zcalc).
+expert(ztrans, stage(1), From, To, [step(expert, allinone, [])]) :-
     From = item(X, Mu, Sigma),
-    To = { '<-'(z, dfrac(X - Mu, Sigma)) ;
+    To = { '<-'(z, zcalc(X, Mu, Sigma)) ;
            '<-'(p, pnorm_(z)) ; 
            p
          }.
 
 feedback(ztrans, allinone, [], _Col, FB) =>
-    FB = [ "Everything done correctly."].
+    FB = [ "You correctly identified the main steps of the calculation."].
 
-hint(ztrans, allinone, [], _Col, FB) =>
-    FB = [ "Try to do everything correctly."].
+hint(ztrans, allinone, [], Col, FB) =>
+    FB = [ "Calculate the z-value and look up the corresponding ", \mmlm(Col, hyph(phi,"value.")) ].
+
+
+% Expert rule (zcalc)
+expert(ztrans, stage(1), From, To, [step(expert, zcalc, [X, Mu, Sigma])]) :-
+    From = zcalc(X, Mu, Sigma),
+    To = dfrac(X - Mu, Sigma).
+
+feedback(ztrans, zcalc, [_X, _Mu, _Sigma], _Col, FB) =>
+    FB = [ "Good Job! You correctly calculated Z." ].
+
+hint(ztrans, zcalc, [X, Mu, Sigma], Col, FB) =>
+    FB = [ "To calculate the z-value, use " , \mmlm(Col, dfrac(X - Mu, Sigma)) ].
 
 % Expert rule (correct tail)
 expert(ztrans, stage(2), From, To, [step(expert, correct_tail, [Z])]) :-
@@ -69,21 +82,22 @@ expert(ztrans, stage(2), From, To, [step(expert, correct_tail, [Z])]) :-
     To = pnorm(Z).
 
 feedback(ztrans, correct_tail, [_Z], _Col, FB) =>
-    FB = [ "The response matches the correct tail of the Normal distribution." ].
+    FB = [ "You calculated the correct tail of the distribution." ].
 
 hint(ztrans, correct_tail, [_Z], _Col, FB) =>
-    FB = [ "The lower tail of the Normal distribution is used." ].
+    FB = [ "Use the lower tail of the normal distribution and select the value corresponding to the z-value." ].
+
 
 % Buggy rule (wrong tail) The wrong tail of the normal distribution was selected.
 buggy(ztrans, stage(2), From, To, [step(buggy, wrong_tail, [Z])]) :-
     From = pnorm_(Z),
-    To = 1 - pnorm(Z).
+    To = instead(bug(wrong_tail), 1 - pnorm(Z), pnorm(Z)).
 
-feedback(ztrans, wrong_tail, [_Z], _Col, FB) =>
-    FB = [ "The response matches the wrong tail of the Normal distribution." ].
+feedback(ztrans, wrong_tail, [_Z], Col, FB) =>
+    FB = [ "Your answer matches the ", \mmlm(Col, color(wrong_tail, "wrong tail " )), "of the normal distribution." ].
 
 hint(ztrans, wrong_tail, [_Z], _Col, FB) =>
-    FB = [ "Do not use the upper tail of the Normal distribution." ].
+    FB = [ "Do not use the upper tail of the normal distribution." ].
 
 % Buggy Rule (plus) Mu was added to X, not subtracted.
 buggy(ztrans, stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
@@ -92,7 +106,7 @@ buggy(ztrans, stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
 
 feedback(ztrans, plus, [X, Mu], Col, FB) =>
     FB = [ "Subtract ", \mmlm(Col, color(plus, Mu)), " from ", \mmlm(Col, color(plus, X)),
-           " rather than adding them up." ].
+           " instead of adding them up." ].
 
 hint(ztrans, plus, [X, Mu], Col, FB) =>
     FB = [ "Try using subtraction rather than addition in ", 
@@ -116,24 +130,24 @@ hint(ztrans, swap, [Mu, Sigma], Col, FB) =>
 % Buggy Rule (vardev swap) standard deviation was mistaken with variance.
 buggy(ztrans, stage(1), From, To, [step(buggy, vardev_swap, [sigma])]) :-
     From = item(x, mu, sigma),
-    To = item(x, mu, sigma^2).
+    To = item(x, mu, instead(bug(vardev_swap), sigma^2, sigma)).
 
 feedback(ztrans, vardev_swap, [sigma], Col, FB) =>
-    FB = [ \mmlm(Col, color(vardev_swap, sigma)), "was squared by mistake." ].
+    FB = [ "You squared ", \mmlm(Col, color(vardev_swap, sigma)), " by mistake." ].
 
-hint(ztrans, vardev_swap, [sigma], _Col, FB) =>
-    FB = [ "Use the standard deviation instead of the variance." ].
+hint(ztrans, vardev_swap, [sigma], Col, FB) =>
+    FB = [ "Use ", \mmlm(Col, color(vardev_swap, sigma)), " instead of ", \mmlm(Col, color(vardev_swap, sigma^2)) ].
 
 % Buggy Rule (xp) (x - mu)/sigma was skipped.
 buggy(ztrans, stage(2), From, To, [step(buggy, xp, []), depends(xp2)]) :-
    From = dfrac(x - mu, sigma),
    To = omit_right(bug(xp), dfrac(omit_right(bug(xp), x - mu), sigma)).
 
-feedback(ztrans, xp, [], _Col, FB) =>
-    FB = [ "Remember to calculate the z-value." ].
-
-hint(ztrans, xp, [], Col, FB) =>
+feedback(ztrans, xp, [], Col, FB) =>
     FB = [ "The z-value is calculated by calculating ", \mmlm(Col, dfrac(x - mu, sigma)) ].
+
+hint(ztrans, xp, [], _Col, FB) =>
+    FB = [ "Remember to calculate the z-value." ].
 
 % Buggy Rule (xp2) x/100 was taken to be phi(z).
 buggy(ztrans, stage(2), From, To, [step(buggy, xp2, []), depends(xp)]) :-
