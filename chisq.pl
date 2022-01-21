@@ -83,8 +83,8 @@ feedback(chisq, steps, [], _Col, FB) =>
 
 hint(chisq, steps, [], Col, FB) =>
     FB = [ "First determine the pooled success proportion, then ",
-           "the ", \mmlm(Col, hyph(z, "statistic,")), " then raise it to the ",
-           "square to obtain the ", \mmlm(Col, chi^2)
+           "the ", \mmlm(Col, hyph(z, "statistic,")), " lastly, square ",
+           "it to obtain the ", \mmlm(Col, chi^2)
          ].
 
 % Pooled proportion of successes
