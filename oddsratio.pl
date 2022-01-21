@@ -67,7 +67,7 @@ expert(oddsratio, stage(2), X, Y, [step(expert, odd, [])]) :-
         }.
 
 feedback(oddsratio, odd, [], Col, FB) =>
-	FB = [ "Correctly recognised the problem as an ", \mmlm(Col, hyph(odds, "ratio")), "."].
+	FB = [ "You correctly recognised the problem as an ", \mmlm(Col, hyph(odds, "ratio")), "."].
 
 hint(oddsratio, odd, [], Col, FB) =>
         FB = [ "This is an ", \mmlm(Col, hyph(odds, "ratio")), "."].
@@ -82,7 +82,7 @@ feedback(oddsratio, cona, [Pi_A], Col, FB) =>
 	\mmlm(Col, color(cona, odds_A)), ", with ", \mmlm(Col, color(cona, odds_A = frac(Pi_A, 1 - Pi_A)))  ].
 
 hint(oddsratio, cona, [Pi_A], Col, FB) =>
-	FB = [ "You should consider converting ", \mmlm(Col, color(cona, Pi_A)), 
+	FB = [ "You should try converting ", \mmlm(Col, color(cona, Pi_A)), 
 	       " to odds before continuing." ].
 
 % Forgot to multiply odds_a and or.
@@ -91,11 +91,11 @@ buggy(oddsratio, stage(2), X, Y, [step(buggy, mult, [OR])]) :-
 	Y = omit_right(bug(mult), odds_A * OR).
 
 feedback(oddsratio, mult, [OR], Col, FB) =>
-	FB = [ "It appears you forgot to multiply ", \mmlm(Col, color(mult, odds_A)), " with ",
+	FB = [ "You forgot to multiply ", \mmlm(Col, color(mult, odds_A)), " with ",
 	       \mmlm(Col, color(mult, OR)) ].
 
 hint(oddsratio, mult, [OR], Col, FB) =>
-       	FB = [ "Do not forget to multiply ",\mmlm(Col, color(mult, odds_A)), " with ",
+       	FB = [ "Please remember to multiply ",\mmlm(Col, color(mult, odds_A)), " with ",
 	       \mmlm(Col, color(mult, OR)) ].
 
 % Divided odds_A and or rather then multiplying them.
@@ -104,11 +104,11 @@ buggy(oddsratio, stage(2), From, To, [step(buggy, divi, [OR])]) :-
     To = instead(bug(divi), odds_A / OR, odds_A * OR).
 
 feedback(oddsratio, divi, [OR], Col, FB) =>
-    FB = [ "It seems you divided ", \mmlm(Col, color(divi, odds_A)), " by ", 
+    FB = [ "You divided ", \mmlm(Col, color(divi, odds_A)), " by ", 
 	   \mmlm(Col, color(divi, OR)), " rather than multiplying them." ].
 
 hint(oddsratio, divi, [OR], Col, FB) =>
-    FB = [ "If I were you I would multiply ", \mmlm(Col, color(divi, odds_A)), " with ",
+    FB = [ "Please remember to multiply ", \mmlm(Col, color(divi, odds_A)), " with ",
 	   \mmlm(Col, color(divi, OR)), " rather then dividing them." ].
 
 % Forgot to convert odds_B to pi_B.
@@ -117,11 +117,11 @@ buggy(oddsratio, stage(2), From, To, [step(buggy, nopi, [])]) :-
     To = omit_right(bug(nopi), dfrac(odds_B, 1 + odds_B)).
 
 feedback(oddsratio, nopi, [], Col, FB) =>
-    FB = [ "It looks like you forgot to convert ", 
+    FB = [ "You forgot to convert ", 
 	   \mmlm(Col, color(nopi, odds_B)),
            " back into a probability ", \mmlm(Col, color(nopi, pi_B)), 
 	   ", with ", \mmlm(Col, color(nopi, pi_B = frac(odds_B, 1 + odds_B))) ].
 
 hint(oddsratio, nopi, [], Col, FB) =>
     FB = [ "Remember that your end result should be a probability ",
-	   "rather than ", \mmlm(Col, color(nopi, odds_B)) ].
+	   "rather than ", \mmlm(Col, color(nopi, odds_B)), "." ].
