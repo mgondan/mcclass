@@ -61,7 +61,7 @@ expert(ztrans2, stage(2), From, To, [step(expert, steps, [])]) :-
          }.
 
 feedback(ztrans2, steps, [], Col, FB) =>
-    FB = [ "Determined the ", \mmlm(Col, z), "-statistic and translated it ",
+    FB = [ "You determined the ", \mmlm(Col, z), "-statistic and translated it ",
            "to the original scale." ].
 
 hint(ztrans2, steps, [], Col, FB) =>
@@ -75,10 +75,10 @@ expert(ztrans2, stage(2), From, To, [step(expert, correct_tail, [])]) :-
     To = qnorm(P).
 
 feedback(ztrans2, correct_tail, [], _Col, FB) =>
-    FB = [ "The response matches the lower tail of the Normal distribution." ].
+    FB = [ "Your response matches the lower tail of the Normal distribution." ].
 
 hint(ztrans2, correct_tail, [], _Col, FB) =>
-    FB = [ "The upper tail of the Normal distribution is used." ].
+    FB = [ "Try using the upper tail of the Normal distribution." ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 
@@ -91,8 +91,8 @@ buggy(ztrans2, stage(2), From, To, [step(buggy, wrong_tail, [])]) :-
     To = qnorm(instead(bug(wrong_tail), P, 1 - P)).
 
 feedback(ztrans2, wrong_tail, [], _Col, FB) =>
-    FB = [ "The response matches the lower tail of the Normal ",
-           "distribution. (wrong_tail)" ].
+    FB = [ "Your response matches the lower, not the upper tail of the Normal ",
+           "distribution." ].
 
 hint(ztrans2, wrong_tail, [], _Col, FB) =>
     FB = [ "Make sure to use the correct tail of the Normal distribution." ].
@@ -106,7 +106,7 @@ buggy(ztrans2, stage(2), From, To, [step(buggy, swap, [mu, Sigma])]) :-
 
 feedback(ztrans2, swap, [Mu, Sigma], Col, FB) =>
     FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ",
-	   \mmlm(Col, color(swap, Sigma)), "(swap)" ].
+	   \mmlm(Col, color(swap, Sigma)) ].
 
 hint(ztrans2, swap, [Mu, Sigma], Col, FB) =>
     FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
@@ -120,7 +120,7 @@ buggy(ztrans2, stage(2), From, To, [step(buggy, vardev_swap, [sigma])]) :-
     To = Z * invent_right(bug(vardev_swap), sigma^2) + Mu.
 
 feedback(ztrans2, vardev_swap, [Sigma], Col, FB) =>
-    FB = [ \mmlm(Col, color(vardev_swap, Sigma)), "was squared by mistake. (vardev_swap)" ].
+    FB = [ "You squared ", \mmlm(Col, color(vardev_swap, Sigma)), " by mistake." ].
 
 hint(ztrans2, vardev_swap, [_Sigma], _Col, FB) =>
     FB = [ "Use the standard deviation instead of the variance." ].
@@ -138,9 +138,9 @@ buggy(ztrans2, stage(2), From, To, [step(buggy, perc1000, [1000])]) :-
     To = dfrac(P, instead(bug(perc1000), 1000, 100)).
 
 feedback(ztrans2, perc1000, [P], Col , FB) =>
-    FB = [ "The percentage was divided ",
-           "by ", \mmlm(Col, color(perc1000, P)), " instead of 100 to obtain ",
-           "a proportion (perc1000)." ].
+    FB = [ "You divided the percentage by " ,
+            \mmlm(Col, color(perc1000, P)), " instead of 100 to obtain ",
+           "a proportion." ].
 
 hint(ztrans2, perc1000, [_P], _Col, FB) =>
     FB = [ "Make sure to divide by 100 when translating a percentage to a ",
@@ -154,7 +154,7 @@ buggy(ztrans2, stage(2), From, To, [step(buggy, pdecimal2, [P])]) :-
     To = instead(bug(pdecimal2), dfrac( P , 10 ), From).
 
 feedback(ztrans2, pdecimal2, [_], _ , FB) =>
-    FB = [ "P-% was incorrectly converted to a decimal representation. (pdecimal2)" ].
+    FB = [ "You converted P-% incorrectly to a decimal representation." ].
 
 hint(ztrans2, pdecimal2, [P], Col, FB) =>
     FB = [ \mmlm(Col, color(pdecimal2, r(P))), "% in decimal representation is ", \mmlm(Col, color(pdecimal2, r(P/100))) ].
@@ -167,7 +167,7 @@ buggy(ztrans2, stage(2), From, To, [step(buggy, zx, [z, sigma, mu])]) :-
     To = instead(bug(zx), z , From).
 
 feedback(ztrans2, zx, [z, sigma, mu], _Col, FB) =>
-    FB = [ "To complete the exercise successfully you have to do the second calculation aswell. (zx)" ].
+    FB = [ "To complete the exercise successfully you have to do the second calculation aswell." ].
 
 hint(ztrans2, zx, [z, sigma, mu], Col, FB) =>
     FB = [ \mmlm(Col, color(zx, z)), "is the correct answer of the first equation. To continue calculate ", \mmlm(Col, color(zx, z * sigma + mu)), "." ].
