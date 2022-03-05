@@ -145,18 +145,12 @@ hint(tgroups, tcalc, [To], Col, FB) =>
 	   \mmlm(Col, hyph(t, "statistic:")), " ", \mmlm(Col, To) ].
 
 % 1) Swap vr and box groups.
-% Vincent To Do: Feedback has no corresponding colors in main rule, needs unique color coding.
 buggy(tgroups, stage(1), From, To, [step(buggy, swap, [])]) :-
     From = item(vr, s_vr, n_vr, box, s_box, n_box),
-    To = item(box, s_box, n_box, vr, s_vr, s_box).
-%    To = item(
-%	 instead(bug(swap), box, vr), instead(bug(swap), s_box, s_vr), 
-%	 instead(bug(swap), n_box, n_vr), instead(bug(swap), vr, box), 
-%	 instead(bug(swap), s_vr, s_box), instead(bug(swap), n_vr, n_box)
-%	 ).
+    To = item(instead(bug(swap), box, vr), s_vr, n_vr, instead(bug(swap), vr, box), s_box, n_box).
 
 feedback(tgroups, swap, [], Col, FB) =>
-    FB = [ "You swapped all ", \mmlm(Col, color(swap, "VR")), " and ",
+    FB = [ "You swapped the", \mmlm(Col, color(swap, "VR")), " and ",
 	   \mmlm(Col, color(swap, "BOX")), " variables." ].
 
 hint(tgroups, swap, [], _Col, FB) =>
