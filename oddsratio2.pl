@@ -58,12 +58,14 @@ render(oddsratio2, item(Pi_A, Pi_B), Form) -->
 
 % Odds ratio with two probabilities. 
 intermediate(_, item).
+intermediate(_, odds_A_).
+intermediate(_, odds_B_).
 start(oddsratio2, item(pi_A, pi_B)).
 
-expert(oddsratio2, stage(2), From, To, [step(expert, odd, [])]) :-
+expert(oddsratio2, stage(1), From, To, [step(expert, odd, [])]) :-
     From = item(Pi_A, Pi_B),
-    To = { '<-'(odds_A, dfrac(Pi_A, 1 - Pi_A)) ;
-	   '<-'(odds_B, dfrac(Pi_B, 1 - Pi_B)) ; 
+    To = { '<-'(odds_A, odds_A_(Pi_A)) ;
+	   '<-'(odds_B, odds_B_(Pi_B)) ; 
 	   '<-'(or, odds_A / odds_B) ; 
 	   or
 	 }.
@@ -73,6 +75,30 @@ feedback(oddsratio2, odd, [], Col, FB) =>
 
 hint(oddsratio2, odd, [], Col, FB) =>
     FB = [ "This is an ", \mmlm(Col, hyph(odds, "ratio")), "."].
+
+
+% correctly identified odds_A.
+expert(oddsratio2, stage(1), From, To, [step(expert, oddsa, [Pi_A])]) :-
+    From = odds_A_(Pi_A),
+    To = dfrac(Pi_A, 1 - Pi_A).
+
+feedback(oddsratio2, oddsa, [_], Col, FB) =>
+    FB = ["Correctly determined ", \mmlm(Col, odds_A)].
+
+hint(oddsratio2, oddsa, [Pi_A], _Col, FB) =>
+    FB = ["The first step should be converting ", \mmlm(Col, Pi_A), " to ", \mmlm(Col, odds_A), 
+	  " with ", \mmlm(Col, odds_A = dfrac(Pi_A, 1 - Pi_A))].
+
+% correctly calculated odds_B.
+expert(oddsratio2, stage(2), From, To, [step(expert, oddsb, [To])]) :-
+    From = odds_B_(Pi_B),
+    To = dfrac(Pi_B, 1 - Pi_B).
+
+feedback(oddsratio2, oddsb, [_], Col, FB) =>
+    FB = ["Sucessfully calculated ", \mmlm(Col, odds_B)].
+
+hint(oddsratio2, oddsb, [To], Col, FB) =>
+    FB = ["Calculate ", \mmlm(Col, oddds_B), " using ", \mmlm(Col, odds_B = To)].
 
 % 1) Forgot conversion  of pi_a to odds.
 buggy(oddsratio2, stage(2), From, To, [step(buggy, cona, [pi_A]), depends(conb)]) :-
