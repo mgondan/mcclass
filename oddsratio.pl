@@ -56,47 +56,74 @@ render(oddsratio, item(Pi_A, OR), Form) -->
 % Odds ratio with two probabilities.
 % sr_a = sucess rate of a; or = odds ratio; 
 intermediate(_, item).
+intermediate(_, odds_A_).
+intermediate(_, odds_B_).
 start(oddsratio, item(pi_A, or)).
 
-expert(oddsratio, stage(2), X, Y, [step(expert, odd, [])]) :-
-	X = item(Pi_A, OR),
-	Y = { '<-'(odds_A, dfrac(Pi_A, 1 - Pi_A)) ;
-          '<-'(odds_B, odds_A * OR) ; 
-          '<-'(pi_B, dfrac(odds_B, 1 + odds_B)) ; 
+expert(oddsratio, stage(1), From, To, [step(expert, odd, [])]) :-
+    From = item(Pi_A, OR),
+    To = { '<-'(odds_A, odds_A_(Pi_A)) ;
+           '<-'(odds_B, odds_B_(odds_A, OR)) ; 
+           '<-'(pi_B, dfrac(odds_B, 1 + odds_B)) ; 
           pi_B 
         }.
 
 feedback(oddsratio, odd, [], Col, FB) =>
-	FB = [ "You correctly recognised the problem as an ", \mmlm(Col, hyph(odds, "ratio")), "."].
+    FB = [ "Correctly recognised the problem as an ", \mmlm(Col, hyph(odds, "ratio")), 
+	   " and identified the main steps of the calculation."].
 
 hint(oddsratio, odd, [], Col, FB) =>
-        FB = [ "This is an ", \mmlm(Col, hyph(odds, "ratio")), "."].
+    FB = [ "This is an ", \mmlm(Col, hyph(odds, "ratio")), "."].
+
+% Correctly calculated the odds for A.
+expert(oddsratio, stage(1), From, To, [step(expert, oddsa, [Pi_A])]) :-
+    From = odds_A_(Pi_A),
+    To = dfrac(Pi_A, 1 - Pi_A).
+
+feedback(oddsratio, oddsa, [_], Col, FB) =>
+    FB = ["Correctly determined  the ", \mmlm(Col, odds_A)].
+
+hint(oddsratio, oddsa, [Pi_A], _Col, FB) =>
+    FB = ["The first step should be converting ", \mmlm(Col, Pi_A), " to ", \mmlm(Col, odds_A), 
+	  " with ", \mmlm(Col, odds_A = dfrac(Pi_A, 1 - Pi_A))].
+
+% Calculated odds_B.
+expert(oddsratio, stage(2), From, To, [step(expert, oddsb, [To])]) :-
+    From = odds_B_(Odds_A, OR),
+    To = Odds_A * OR.
+
+feedback(oddsratio, oddsb, [_], Col, FB) =>
+    FB = ["Sucessfully calculated ", \mmlm(Col, odds_B)].
+
+hint(oddsratio, oddsb, [To], Col, FB) =>
+    FB = ["The formula for ", \mmlm(Col, odds_B), " is ", \mmlm(Col, odds_B = To)].
+
 
 % Forgot conversion  of pi_a to odds.
-buggy(oddsratio, stage(2), X, Y, [step(buggy, cona, [Pi_A])]) :-
-	X = dfrac(Pi_A, (1 - Pi_A)),
-	Y = omit_right(bug(cona), dfrac(Pi_A, 1 - Pi_A)).
+buggy(oddsratio, stage(2), From, To, [step(buggy, cona, [Pi_A])]) :-
+    From = dfrac(Pi_A, (1 - Pi_A)),
+    To = omit_right(bug(cona), dfrac(Pi_A, 1 - Pi_A)).
 
 feedback(oddsratio, cona, [Pi_A], Col, FB) =>
-	FB = [ "Please remember to convert ", \mmlm(Col, color(cona, Pi_A)), " to ",
-	\mmlm(Col, color(cona, odds_A)), ", with ", \mmlm(Col, color(cona, odds_A = frac(Pi_A, 1 - Pi_A)))  ].
+    FB = [ "Please remember to convert ", \mmlm(Col, color(cona, Pi_A)), " to ",
+	   \mmlm(Col, color(cona, odds_A)), ", with ", \mmlm(Col, color(cona, odds_A = frac(Pi_A, 1 - Pi_A)))  ].
 
 hint(oddsratio, cona, [Pi_A], Col, FB) =>
-	FB = [ "You should try converting ", \mmlm(Col, color(cona, Pi_A)), 
-	       " to odds before continuing." ].
+    FB = [ "You should try converting ", \mmlm(Col, color(cona, Pi_A)), 
+	   " to odds before continuing." ].
 
 % Forgot to multiply odds_a and or.
-buggy(oddsratio, stage(2), X, Y, [step(buggy, mult, [OR])]) :-
-	X = odds_A * OR,
-	Y = omit_right(bug(mult), odds_A * OR).
+buggy(oddsratio, stage(2), From, To, [step(buggy, mult, [OR])]) :-
+    From = odds_A * OR,
+    To = omit_right(bug(mult), odds_A * OR).
 
 feedback(oddsratio, mult, [OR], Col, FB) =>
-	FB = [ "You forgot to multiply ", \mmlm(Col, color(mult, odds_A)), " with ",
-	       \mmlm(Col, color(mult, OR)) ].
+    FB = [ "You forgot to multiply ", \mmlm(Col, color(mult, odds_A)), " with ",
+	   \mmlm(Col, color(mult, OR)) ].
 
 hint(oddsratio, mult, [OR], Col, FB) =>
-       	FB = [ "Please remember to multiply ",\mmlm(Col, color(mult, odds_A)), " with ",
-	       \mmlm(Col, color(mult, OR)) ].
+    FB = [ "Please remember to multiply ",\mmlm(Col, color(mult, odds_A)), " with ",
+	   \mmlm(Col, color(mult, OR)) ].
 
 % Divided odds_A and or rather then multiplying them.
 buggy(oddsratio, stage(2), From, To, [step(buggy, divi, [OR])]) :-
