@@ -147,10 +147,10 @@ hint(tgroups, tcalc, [To], Col, FB) =>
 % 1) Swap vr and box groups.
 buggy(tgroups, stage(1), From, To, [step(buggy, swap, [])]) :-
     From = item(vr, s_vr, n_vr, box, s_box, n_box),
-    To = item(instead(bug(swap), box, vr), s_vr, n_vr, instead(bug(swap), vr, box), s_box, n_box).
+    To = item(color(swap, box), s_vr, n_vr, color(swap, vr), s_box, n_box).
 
 feedback(tgroups, swap, [], Col, FB) =>
-    FB = [ "You swapped the", \mmlm(Col, color(swap, "VR")), " and ",
+    FB = [ "You swapped the ", \mmlm(Col, color(swap, "VR")), " and ",
 	   \mmlm(Col, color(swap, "BOX")), " variables." ].
 
 hint(tgroups, swap, [], _Col, FB) =>
@@ -190,9 +190,9 @@ buggy(tgroups, stage(2), From, To, [step(buggy, bug1, [VR, BOX, S2P, N_VR, N_BOX
     To = invent_left(bug(bug1), VR - dfrac(BOX, sqrt(S2P * (1/N_VR + 1/N_BOX)))).
 %VR - dfrac(BOX, sqrt(s2p * (1/N_VR + 1/N_BOX))).
 
-feedback(tgroups, bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) =>
+feedback(tgroups, bug1, [_VR, _BOX, S2P, N_VR, N_BOX], Col, FB) =>
     FB = [ "You forgot the parentheses around the numerator of ",
-	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", VR - BOX))), 
+	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", overline("VR") - overline("BOX")))), 
 	   sqrt(S2P * (1/N_VR + 1/N_BOX) ) ) )
 	 ].
 
@@ -218,15 +218,15 @@ hint(tgroups, nosr1, [A], Col, FB) =>
 
 
 % 6) Only took the square root of the first element of the denominator.
-buggy(tgroups, stage(2), From, To, [step(buggy, nosr2, [A])]) :-
+buggy(tgroups, stage(2), From, To, [step(buggy, nosr2, [S2P, N_VR, N_BOX])]) :-
     From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
     A = sqrt(S2P * (1/N_VR + 1/N_BOX)),
     To = dfrac(VR - BOX, instead(bug(nosr2), sqrt(S2P) * (1/N_VR + 1/N_BOX), A)).
 
-feedback(tgroups, nosr2, [_A], Col, FB) =>
-   FB = [ "You took the square root of ", \mmlm(Col, color(nosr2, s2p)),
-	  " only, instead of the square root of the entire denominator." ].
+feedback(tgroups, nosr2, [_, _, _], Col, FB) =>
+   FB = [ "You took the square root of only ", \mmlm(Col, color(nosr2, s2p)),
+	  " instead of the square root of the entire denominator." ].
 
-hint(tgroups, nosr2, [A], Col, FB) =>
+hint(tgroups, nosr2, [S2P, N_VR, N_BOX], Col, FB) =>
    FB = [ "Keep in mind that you need to take the square root of ", 
-	   \mmlm(Col, color(nosr2, A)) ].
+	   \mmlm(Col, color(nosr2, S2P * (1/N_VR + 1/N_BOX))), " in its entirety." ].
