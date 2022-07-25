@@ -7,8 +7,8 @@
 
 :- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
 
-mathml:math_hook(Flags, p0, [task(qbinom) | Flags], sub(pi, 0)).
-mathml:math_hook(Flags, n, [task(qbinom) | Flags], 'N').
+mathml:hook(Flags, p0, [task(qbinom) | Flags], sub(pi, 0)).
+mathml:hook(Flags, n, [task(qbinom) | Flags], 'N').
 
 interval:r_hook(alpha).
 interval:r_hook(n).
@@ -16,7 +16,9 @@ interval:r_hook(p0).
 interval:r_hook(uqbinom(_Alpha, _Size, _Prob)).
 
 render(qbinom, item(Alpha, N, P0), Form) -->
-    { option(resp(R), Form, '#') }, 
+    { option(resp(R), Form, '#'),
+      binomtable(N, P0, Caption, Rows, Cols, Cells)
+    }, 
     html(
       [ div(class(card), div(class('card-body'),
           [ h1(class('card-title'), "Binary outcomes"),
@@ -32,14 +34,7 @@ render(qbinom, item(Alpha, N, P0), Form) -->
 	        div(class(container),
 	          div(class("row justify-content-md-center"),
 	            div(class("col-6"),
-	              \htmltable(
-	                [ em("Table 1. "), "Binomial probabilities" ],
-                    [ \mmlm([task(qbinom)], 10), \mmlm([task(qbinom)], 11), \mmlm([task(qbinom)], 12) ],
-                    [ \mmlm([task(qbinom)], dbinom(k, n, p0 = P0)) ],
-                    [ [ \mmlm([task(qbinom)], r(dbinom(10, n, p0))) ],
-                      [ \mmlm([task(qbinom)], r(dbinom(10, n, p0))) ],
-                      [ \mmlm([task(qbinom)], r(dbinom(10, n, p0))) ]
-                    ]))))
+	              \htmltable(Caption, Rows, Cols, Cells))))
 	      ])),
         div(class(card), div(class('card-body'),
           [ h4(class('card-title'), [a(id(question), []), 
@@ -74,4 +69,14 @@ feedback(qbinom, quantile, [], _Col, Feed) =>
 
 hint(qbinom, quantile, [], _Col, Hint) =>
     Hint = [ "This is a binomial test." ].
+
+
+
+binomtable(N, P0, Caption, Rows, Cols, Cells) :-
+    r_task(qbinom, 'as.integer'(qbinom(0.05, N, P0) - 1), L),
+    r_task(qbinom, 'as.integer'(qbinom(0.95, N, P0) + 1), H),
+    Caption = [em("Table 1. "), "Binomial probabilities"],
+    findall(\mmlm([task(qbinom)], R), between(L, H, R), Rows),
+    Cols = [\mmlm([task(qbinom)], k), \mmlm([task(qbinom)], dbinom(k, n = r(N), p0 = r(P0)))],
+    findall([\mmlm([task(qbinom)], r(dbinom(D, n, p0)))], between(L, H, D), Cells).
 
