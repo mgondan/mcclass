@@ -20,7 +20,6 @@
 
 :- set_prolog_flag(backtrace_goal_depth, 10).
 :- debug.
-:- initialization http_daemon.
 
 :- dynamic http:location/3.
 http:location(mcclass, root(mcclass), []).
