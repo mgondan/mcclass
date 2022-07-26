@@ -59,19 +59,30 @@ render(qbinom, item(Alpha, N, P0), Form) -->
 intermediate(qbinom, item).
 start(qbinom, item(alpha, n, p0)).
 
-% Recognise as a binomial density
-expert(qbinom, stage(2), From, To, [step(expert, quantile, [])]) :-
+% This is a problem that involves the binomial test 
+intermediate(qbinom, binom).
+expert(qbinom, stage(2), From, To, [step(expert, binomial, [])]) :-
     From = item(Alpha, N, P0),
+    To   = binom(Alpha, N, P0).
+
+feedback(qbinom, binomial, [], _Col, Feed) =>
+    Feed = [ "Correctly identified the problem as a binomial test." ].
+
+hint(qbinom, binomial, [], _Col, Hint) =>
+    Hint = [ "This problem involves the binomial test." ].
+
+% Upper tail of the binomial distribution
+expert(qbinom, stage(2), From, To, [step(expert, upper, [])]) :-
+    From = binom(Alpha, N, P0),
     To   = uqbinom(Alpha, N, P0).
 
-feedback(qbinom, quantile, [], _Col, Feed) =>
-    Feed = [ "Correctly recognised the problem as a binomial test." ].
+feedback(qbinom, upper, [], _Col, Feed) =>
+    Feed = [ "Correctly selected the upper tail of the binomial distribution." ].
 
-hint(qbinom, quantile, [], _Col, Hint) =>
-    Hint = [ "This is a binomial test." ].
+hint(qbinom, upper, [], _Col, Hint) =>
+    Hint = [ "The upper tail of the binomial distribution is needed." ].
 
-
-
+% Helper function(s)
 binomtable(N, P0, Caption, Rows, Cols, Cells) :-
     r_task(qbinom, 'as.integer'(qbinom(0.05, N, P0) - 1), L),
     r_task(qbinom, 'as.integer'(qbinom(0.95, N, P0) + 1), H),
