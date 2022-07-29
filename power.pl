@@ -1,14 +1,14 @@
+:- module(power, []).
+
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
 :- use_module(r).
 :- use_module(mathml).
 
-:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
+:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
-%
 % Prettier symbols for mathematical rendering
-%
 mathml:hook(Flags, n_vr, [task(power) | Flags], sub(n, "VR")).
 mathml:hook(Flags, n_box, [task(power) | Flags], sub(n, "BOX")).
 mathml:hook(Flags, vr, [task(power) | Flags], overline("VR")).
@@ -27,7 +27,7 @@ interval:r_hook(s_box).
 interval:r_hook(s2p).
 interval:r_hook(t).
 
-render(power, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
+render(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
     { option(resp(R), Form, '#.##') },
 	html(
 	  [ div(class(card), div(class('card-body'),
@@ -96,29 +96,23 @@ render(power, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 	      ]))
 	]).
 
-% Prolog warns if the rules of a predicate are not adjacent. This
-% does not make sense here, so the definitions for intermediate, expert
-% and buggy are declared to be discontiguous.
-:- multifile intermediate/2, expert/5, buggy/5.
-
 % t-test for independent groups
-intermediate(_, item).
-start(power, item(vr, s_vr, n_vr, box, s_box, n_box)).
+intermediate(item).
+start(item(vr, s_vr, n_vr, box, s_box, n_box)).
 
 % Correctly identified the problem as a t-test for independent groups.
-intermediate(power, indep).
-expert(power, stage(2), From, To, [step(expert, indep, [])]) :-
+intermediate(indep).
+expert(stage(2), From, To, [step(expert, indep, [])]) :-
     From = item(VR, S_VR, N_VR, BOX, S_BOX, N_BOX),
     To = { '<-'(s2p, var_pool(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX)) ;
 	   '<-'(t, dfrac(VR - BOX, sqrt(s2p * (1/N_VR + 1/N_BOX)))) ;
 	   t
 	 }.
 
-feedback(power, indep, [], Col, FB) =>
+feedback(indep, [], Col, FB) =>
     FB = [ "You identified the problem as a ", \mmlm(Col, hyph(t, "test")),
 	   " for independent samples and solved it correctly." ].
 
-hint(power, indep, [], _Col, FB) =>
+hint(indep, [], _Col, FB) =>
     FB = [ "Try to do everthing correctly." ].
 
-% 1

@@ -61,6 +61,6 @@ complete(Task, invent_right(_Bug, Expr)) :-
 complete(Task, X) :-
     compound(X),
     compound_name_arguments(X, Name, Arguments),
-    not(intermediate(Task, Name)),
+    not(Task:intermediate(Name)),
     maplist(complete(Task), Arguments).
 

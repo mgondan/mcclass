@@ -1,3 +1,5 @@
+:- module(qbinom, []).
+
 % Binomial test (critical value)
 :- use_module(library(http/html_write)).
 :- use_module(session).
@@ -5,7 +7,7 @@
 :- use_module(r).
 :- use_module(mathml).
 
-:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
+:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
 mathml:hook(Flags, p0, [task(qbinom) | Flags], sub(pi, 0)).
 mathml:hook(Flags, n, [task(qbinom) | Flags], 'N').
@@ -15,7 +17,7 @@ interval:r_hook(n).
 interval:r_hook(p0).
 interval:r_hook(uqbinom(_Alpha, _Size, _Prob)).
 
-render(qbinom, item(Alpha, N, P0), Form) -->
+render(item(Alpha, N, P0), Form) -->
     { option(resp(R), Form, '#'),
       binomtable(N, P0, Caption, Rows, Cols, Cells)
     }, 
@@ -56,30 +58,30 @@ render(qbinom, item(Alpha, N, P0), Form) -->
           ]))
       ]).
 
-intermediate(qbinom, item).
-start(qbinom, item(alpha, n, p0)).
+intermediate(item).
+start(item(alpha, n, p0)).
 
 % This is a problem that involves the binomial test 
-intermediate(qbinom, binom).
-expert(qbinom, stage(2), From, To, [step(expert, binomial, [])]) :-
+intermediate(binom).
+expert(stage(2), From, To, [step(expert, binomial, [])]) :-
     From = item(Alpha, N, P0),
     To   = binom(Alpha, N, P0).
 
-feedback(qbinom, binomial, [], _Col, Feed) =>
+feedback(binomial, [], _Col, Feed) =>
     Feed = [ "Correctly identified the problem as a binomial test." ].
 
-hint(qbinom, binomial, [], _Col, Hint) =>
+hint(binomial, [], _Col, Hint) =>
     Hint = [ "This problem involves the binomial test." ].
 
 % Upper tail of the binomial distribution
-expert(qbinom, stage(2), From, To, [step(expert, upper, [])]) :-
+expert(stage(2), From, To, [step(expert, upper, [])]) :-
     From = binom(Alpha, N, P0),
     To   = uqbinom(Alpha, N, P0).
 
-feedback(qbinom, upper, [], _Col, Feed) =>
+feedback(upper, [], _Col, Feed) =>
     Feed = [ "Correctly selected the upper tail of the binomial distribution." ].
 
-hint(qbinom, upper, [], _Col, Hint) =>
+hint(upper, [], _Col, Hint) =>
     Hint = [ "The upper tail of the binomial distribution is needed." ].
 
 % Helper function(s)

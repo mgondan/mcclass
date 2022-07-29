@@ -4,11 +4,11 @@
 
 % Apply expert rule
 step(Task, Stage, X, Y, Flags) :-
-    expert(Task, Stage, X, Y, Flags).
+    Task:expert(Stage, X, Y, Flags).
 
 % Apply buggy rule
 step(Task, Stage, X, Y, Flags) :-
-    buggy(Task, Stage, X, Y, Flags).
+    Task:buggy(Stage, X, Y, Flags).
 
 % Handle special compounds
 step(Task, Stage, instead(Bug, X, Of), Z, Flags) :-

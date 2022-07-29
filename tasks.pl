@@ -1,7 +1,6 @@
 :- module(tasks, 
-  [ task/2, feedback//2, solutions//1, hints//1, wrongs//1,
-    traps//1, start/2, download/2, intermediate/2, expert/5, buggy/5, 
-    feedback/5, hints/2, render//3
+  [ task/2, feedback//3, solutions//1, hints//1, wrongs//1,
+    traps//1, download/2, hints/2
   ]).
 
 :- use_module(library(http/html_write)).
@@ -14,21 +13,19 @@
 :- use_module(interval).
 :- use_module(library(quantity)).
 
-:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
-
-:- consult(tpaired).
-:- consult(oddsratio).
-:- consult(oddsratio2).
-:- consult(easyodds).
-:- consult(tgroups).
-:- consult(tgroups2).
-:- consult(tgroupsdf).
-:- consult(ztrans).
-:- consult(ztrans2).
-:- consult(dbinom).
-:- consult(qbinom).
-:- consult(chisq).
-:- consult(power).
+:- use_module(tpaired).
+:- use_module(oddsratio).
+%:- consult(oddsratio2).
+%:- consult(easyodds).
+%:- consult(tgroups).
+%:- consult(tgroups2).
+%:- consult(tgroupsdf).
+%:- consult(ztrans).
+:- use_module(ztrans2).
+:- use_module(dbinom).
+:- use_module(qbinom).
+:- use_module(chisq).
+:- use_module(power).
 
 % Render R result
 mathml:hook(Flags, r(Expr), Flags, Res) :-
@@ -62,7 +59,7 @@ task(Task, Data) :-
       ]).
 
 % Correct response
-feedback(task(Task, Data), Form) -->
+feedback(Task, Data, Form) -->
     { option(resp(R), Form),
       quantity(N0, Opt, R),
       interval([task(Task)], @(N0, Opt), Num),
@@ -72,7 +69,7 @@ feedback(task(Task, Data), Form) -->
       interval([task(Task) | Col], Num =@= Res, _),
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
-          feedback(Task, Name, Args, [task(Task) | Col], FB)
+          Task:feedback(Name, Args, [task(Task) | Col], FB)
         ), Items)
     },
     html(div(class("card"),
@@ -84,7 +81,7 @@ feedback(task(Task, Data), Form) -->
       ])).
 
 % Buggy response
-feedback(task(Task, Data), Form) -->
+feedback(Task, Data, Form) -->
     { option(resp(R), Form),
       quantity(N0, Opt, R),
       interval([task(Task)], @(N0, Opt), Num),
@@ -100,7 +97,7 @@ feedback(task(Task, Data), Form) -->
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
           memberchk(Name, Hints),
-          feedback(Task, Name, Args, [task(Task) | Col], FB)
+          Task:feedback(Name, Args, [task(Task) | Col], FB)
         ), Correct0),
       ( Correct0 = []
         -> Correct = p(class("card-text"), "")
@@ -112,7 +109,7 @@ feedback(task(Task, Data), Form) -->
       findall(li(FB),
         ( member(step(buggy, Name, Args), Flags),
           memberchk(Name, Traps),
-          feedback(Task, Name, Args, [task(Task) | Col], FB)
+          Task:feedback(Name, Args, [task(Task) | Col], FB)
         ), Wrong0),
       ( Wrong0 = []
         -> Wrong = p(class("card-text"), "")
@@ -125,7 +122,7 @@ feedback(task(Task, Data), Form) -->
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
           \+ memberchk(Name, Hints),
-          feedback(Task, Name, Args, [task(Task) | Col], FB)
+          Task:feedback(Name, Args, [task(Task) | Col], FB)
         ), Praise0),
       ( Praise0 = []
         -> Praise = p(class("card-text"), "")
@@ -137,7 +134,7 @@ feedback(task(Task, Data), Form) -->
       findall(li(FB),
         ( member(step(buggy, Name, Args), Flags),
           \+ memberchk(Name, Traps),
-          feedback(Task, Name, Args, [task(Task) | Col], FB)
+          Task:feedback(Name, Args, [task(Task) | Col], FB)
         ), Blame0),
       ( Blame0 = []
         -> Blame = p(class("card-text"), "")
@@ -158,7 +155,7 @@ feedback(task(Task, Data), Form) -->
           ])
       ])).
 
-feedback(_Task, Form) -->
+feedback(_Task, _Data, Form) -->
     { option(resp(R), Form),
       quantity(N, Opt, R)
     },
@@ -168,7 +165,7 @@ feedback(_Task, Form) -->
           p(class("card-text"), "Response: ~p ~p"-[N, Opt]))
       ])).
 
-feedback(_Task, Form) -->
+feedback(_Task, _Data, Form) -->
     { option(resp(R), Form) },
     html(div(class("card"),
       [ div(class("card-header text-white bg-secondary"), "Feedback"),
@@ -176,7 +173,7 @@ feedback(_Task, Form) -->
           p(class("card-text"), "Response not recognized: ~p"-[R]))
       ])).
 
-feedback(_Task, _Form) -->
+feedback(_Task, _Data, _Form) -->
     html(div(class("card"),
       [ div(class("card-header text-white bg-secondary"), "Feedback"),
         div(class("card-body"),
@@ -197,7 +194,7 @@ solution(Task, Expr-Result/Flags) -->
     { colors(Expr, Col),
       findall(li(FB),
       ( member(step(expert, Name, Args), Flags),
-        feedback(Task, Name, Args, [task(Task) | Col], FB)
+        Task:feedback(Name, Args, [task(Task) | Col], FB)
       ), Items)
     },
     html(div(class("accordion-item"),
@@ -232,13 +229,13 @@ hints(Task, Hints) :-
     maplist(hint, Sol, Hints).
 
 % Pretty print
-hint(Task, Expr-Result/Flags) -->
+hint(Task, _Data, Expr-Result/Flags) -->
     { colors(Expr, Col),
       hint(Expr-Result/Flags, Hints),
       findall(li(H),
         ( member(step(expert, Name, Arg), Flags), 
           member(Name, Hints), 
-          hint(Task, Name, Arg, [task(Task) | Col], H)
+          Task:hint(Name, Arg, [task(Task) | Col], H)
         ), Items)
     },
     html(div(class("accordion-item"),
@@ -257,7 +254,7 @@ hints(task(Task, Data)) -->
         div(class("card-body"),
           [ p(class("card-text"), "Steps to the solution(s)"),
             div(class("accordion accordion-flush"), 
-              html(\foreach(member(ERF, Expr_Res_Flags), html(\hint(Task, ERF)))))
+              html(\foreach(member(ERF, Expr_Res_Flags), html(\hint(Task, Data, ERF)))))
           ])
       ])).
 
@@ -276,7 +273,7 @@ wrong(task(Task, Data), Expr-_Res/Flags, Items) :-
     findall(li(FB), 
       ( member(step(_, Name, Args), Flags),
         memberchk(Name, Traps), % show only relevant feedback
-        feedback(Task, Name, Args, [task(Task) | Col], FB)
+        Task:feedback(Name, Args, [task(Task) | Col], FB)
       ), Items).
 
 wrongs(task(Task, Data)) -->
@@ -327,7 +324,7 @@ trap(task(Task, Data), Expr-_Res/Flags, li(Trap)) :-
     colors(Expr, Col),
     member(traps(Traps), Data),
     memberchk(Name, Traps),
-    hint(Task, Name, Args, [task(Task) | Col], Trap).
+    Task:hint(Name, Args, [task(Task) | Col], Trap).
 
 traps(task(Task, Data)) -->
     { member(wrongall(E_R_F), Data),
@@ -358,7 +355,7 @@ download(Task, File) :-
 % ?- tasks:test.
 %
 test :-
-    test(chisq).
+    test(qbinom).
 
 test(Task) :-
     r_initialize,
@@ -375,8 +372,8 @@ test(Task) :-
     writeln("Task data"),
     writeln(Data),
     writeln("Task"),
-    start(Task, I),
-    html(\render(Task, I, []), Item, []),
+    Task:start(I),
+    html(\(Task:render(I, [])), Item, []),
     writeln("Task as HTML"),
     writeln(Item),
     memberchk(solutions(S), Data), 

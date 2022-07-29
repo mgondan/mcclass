@@ -68,7 +68,8 @@ handle(Task, Form)
  => r_initialize,
     b_setval(task, Task),
     task(Task, TaskData),
-    start(Task, Item),
+    TaskData = task(Task, Data),
+    Task:start(Item),
     reply_html_page(
       [ title('McClass'),
         link(
@@ -86,8 +87,8 @@ handle(Task, Form)
 	      [ name(viewport), 
             content('width=device-width, initial-scale=1')])
           ],
-      [ \render(Task, Item, Form),
-        \feedback(TaskData, Form),
+      [ \(Task:render(Item, Form)),
+        \feedback(Task, Data, Form),
         \solutions(TaskData),
         \hints(TaskData),
         \wrongs(TaskData),

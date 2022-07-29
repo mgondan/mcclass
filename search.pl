@@ -29,7 +29,7 @@ search(Task, Expr, Flags) :-
     search(Task, Expr, Flags, _).
 
 search(Task, Expr, Flags, Sorted) :-
-    start(Task, X),
+    Task:start(X),
     search_(Task, stage(1), X, Y, Flags1),
     search_(Task, stage(2), Y, Expr, Flags2),
     complete(Task, Expr),           % no intermediate solutions

@@ -1,10 +1,12 @@
+:- module(oddsratio, []).
+
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
 :- use_module(r).
 :- use_module(mathml).
 
-:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
+:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
 mathml:hook(Flags, pi_A, [task(oddsratio) | Flags], sub(pi, "A")).
@@ -20,7 +22,7 @@ interval:r_hook(pi_B).
 interval:r_hook(or).
 interval:r_hook(odds_B).
 
-render(oddsratio, item(Pi_A, OR), Form) -->
+render(item(Pi_A, OR), Form) -->
 	{ option(resp(R), Form, '#.##') },
 	html(
 		[ div(class(card), div(class('card-body'),
@@ -48,19 +50,14 @@ render(oddsratio, item(Pi_A, OR), Form) -->
 		     ]))
 		]).
 
-% Prolog warns if the rules of a predicate are not adjacent. This
-% does not make sense here, so the definitions for intermediate, expert
-% and buggy are declared to be discontiguous.
-:- multifile intermediate/2, expert/5, buggy/5.
-
 % Odds ratio with two probabilities.
 % sr_a = sucess rate of a; or = odds ratio; 
-intermediate(_, item).
-intermediate(_, odds_A_).
-intermediate(_, odds_B_).
-start(oddsratio, item(pi_A, or)).
+intermediate(item).
+intermediate(odds_A_).
+intermediate(odds_B_).
+start(item(pi_A, or)).
 
-expert(oddsratio, stage(1), From, To, [step(expert, odd, [])]) :-
+expert(stage(1), From, To, [step(expert, odd, [])]) :-
     From = item(Pi_A, OR),
     To = { '<-'(odds_A, odds_A_(Pi_A)) ;
            '<-'(odds_B, odds_B_(odds_A, OR)) ; 
@@ -68,87 +65,87 @@ expert(oddsratio, stage(1), From, To, [step(expert, odd, [])]) :-
           pi_B 
         }.
 
-feedback(oddsratio, odd, [], Col, FB) =>
+feedback(odd, [], Col, FB) =>
     FB = [ "Correctly recognised the problem as an ", \mmlm(Col, hyph(odds, "ratio")), 
 	   " and identified the main steps of the calculation."].
 
-hint(oddsratio, odd, [], Col, FB) =>
+hint(odd, [], Col, FB) =>
     FB = [ "This is an ", \mmlm(Col, hyph(odds, "ratio")), "."].
 
 % Correctly calculated the odds for A.
-expert(oddsratio, stage(1), From, To, [step(expert, oddsa, [Pi_A])]) :-
+expert(stage(1), From, To, [step(expert, oddsa, [Pi_A])]) :-
     From = odds_A_(Pi_A),
     To = dfrac(Pi_A, 1 - Pi_A).
 
-feedback(oddsratio, oddsa, [_], Col, FB) =>
+feedback(oddsa, [_], Col, FB) =>
     FB = ["Correctly determined  the ", \mmlm(Col, odds_A)].
 
-hint(oddsratio, oddsa, [Pi_A], _Col, FB) =>
+hint(oddsa, [Pi_A], Col, FB) =>
     FB = ["The first step should be converting ", \mmlm(Col, Pi_A), " to ", \mmlm(Col, odds_A), 
 	  " with ", \mmlm(Col, odds_A = dfrac(Pi_A, 1 - Pi_A))].
 
 % Calculated odds_B.
-expert(oddsratio, stage(2), From, To, [step(expert, oddsb, [To])]) :-
+expert(stage(2), From, To, [step(expert, oddsb, [To])]) :-
     From = odds_B_(Odds_A, OR),
     To = Odds_A * OR.
 
-feedback(oddsratio, oddsb, [_], Col, FB) =>
+feedback(oddsb, [_], Col, FB) =>
     FB = ["Sucessfully calculated ", \mmlm(Col, odds_B)].
 
-hint(oddsratio, oddsb, [To], Col, FB) =>
+hint(oddsb, [To], Col, FB) =>
     FB = ["The formula for ", \mmlm(Col, odds_B), " is ", \mmlm(Col, odds_B = To)].
 
 
 % Forgot conversion  of pi_a to odds.
-buggy(oddsratio, stage(2), From, To, [step(buggy, cona, [Pi_A])]) :-
+buggy(stage(2), From, To, [step(buggy, cona, [Pi_A])]) :-
     From = dfrac(Pi_A, (1 - Pi_A)),
     To = omit_right(bug(cona), dfrac(Pi_A, 1 - Pi_A)).
 
-feedback(oddsratio, cona, [Pi_A], Col, FB) =>
+feedback(cona, [Pi_A], Col, FB) =>
     FB = [ "Please remember to convert ", \mmlm(Col, color(cona, Pi_A)), " to ",
 	   \mmlm(Col, color(cona, odds_A)), ", with ", \mmlm(Col, color(cona, odds_A = frac(Pi_A, 1 - Pi_A)))  ].
 
-hint(oddsratio, cona, [Pi_A], Col, FB) =>
+hint(cona, [Pi_A], Col, FB) =>
     FB = [ "You should try converting ", \mmlm(Col, color(cona, Pi_A)), 
 	   " to odds before continuing." ].
 
 % Forgot to multiply odds_a and or.
-buggy(oddsratio, stage(2), From, To, [step(buggy, mult, [OR])]) :-
+buggy(stage(2), From, To, [step(buggy, mult, [OR])]) :-
     From = odds_A * OR,
     To = omit_right(bug(mult), odds_A * OR).
 
-feedback(oddsratio, mult, [OR], Col, FB) =>
+feedback(mult, [OR], Col, FB) =>
     FB = [ "You forgot to multiply ", \mmlm(Col, color(mult, odds_A)), " with ",
 	   \mmlm(Col, color(mult, OR)) ].
 
-hint(oddsratio, mult, [OR], Col, FB) =>
+hint(mult, [OR], Col, FB) =>
     FB = [ "Please remember to multiply ",\mmlm(Col, color(mult, odds_A)), " with ",
 	   \mmlm(Col, color(mult, OR)) ].
 
 % Divided odds_A and or rather then multiplying them.
-buggy(oddsratio, stage(2), From, To, [step(buggy, divi, [OR])]) :-
+buggy(stage(2), From, To, [step(buggy, divi, [OR])]) :-
     From = odds_A * OR,
     To = instead(bug(divi), odds_A / OR, odds_A * OR).
 
-feedback(oddsratio, divi, [OR], Col, FB) =>
+feedback(divi, [OR], Col, FB) =>
     FB = [ "You divided ", \mmlm(Col, color(divi, odds_A)), " by ", 
 	   \mmlm(Col, color(divi, OR)), " rather than multiplying them." ].
 
-hint(oddsratio, divi, [OR], Col, FB) =>
+hint(divi, [OR], Col, FB) =>
     FB = [ "Please remember to multiply ", \mmlm(Col, color(divi, odds_A)), " with ",
 	   \mmlm(Col, color(divi, OR)), " rather then dividing them." ].
 
 % Forgot to convert odds_B to pi_B.
-buggy(oddsratio, stage(2), From, To, [step(buggy, nopi, [])]) :-
+buggy(stage(2), From, To, [step(buggy, nopi, [])]) :-
     From = dfrac(odds_B, 1 + odds_B),
     To = omit_right(bug(nopi), dfrac(odds_B, 1 + odds_B)).
 
-feedback(oddsratio, nopi, [], Col, FB) =>
+feedback(nopi, [], Col, FB) =>
     FB = [ "You forgot to convert ", 
 	   \mmlm(Col, color(nopi, odds_B)),
            " back into a probability ", \mmlm(Col, color(nopi, pi_B)), 
 	   ", with ", \mmlm(Col, color(nopi, pi_B = frac(odds_B, 1 + odds_B))) ].
 
-hint(oddsratio, nopi, [], Col, FB) =>
+hint(nopi, [], Col, FB) =>
     FB = [ "Remember that your end result should be a probability ",
 	   "rather than ", \mmlm(Col, color(nopi, odds_B)), "." ].
