@@ -20,7 +20,7 @@
 %:- consult(tgroups).
 %:- consult(tgroups2).
 %:- consult(tgroupsdf).
-%:- consult(ztrans).
+:- use_module(ztrans).
 :- use_module(ztrans2).
 :- use_module(dbinom).
 :- use_module(qbinom).
