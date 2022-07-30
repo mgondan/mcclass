@@ -16,7 +16,7 @@
 :- use_module(tpaired).
 :- use_module(oddsratio).
 :- use_module(oddsratio2).
-%:- consult(easyodds).
+:- consult(easyodds).
 %:- consult(tgroups).
 %:- consult(tgroups2).
 %:- consult(tgroupsdf).

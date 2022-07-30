@@ -1,36 +1,34 @@
+:- module(easyodds, []).
+
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(r).
 :- use_module(mathml).
 
-:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
+:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
-%
 % Prettier symbols for mathematical rendering
-%
 mathml:hook(Flags, pi_A, [task(easyodds) | Flags], sub(pi, "A")).
 mathml:hook(Flags, odds_A, [task(easyodds) | Flags], sub(odds, "A")).
 mathml:hook(Flags, pi_B, [task(easyodds) | Flags], sub(pi, "B")).
 mathml:hook(Flags, or, [task(easyodds) | Flags], 'OR').
 
-%
 % R constants
-%
 interval:r_hook(odds_A).
 interval:r_hook(pi_A).
 interval:r_hook(pi_B).
 interval:r_hook(or).
 
-render(easyodds, item(_Odds_A, _Pi_B, _OR), Form) -->
+render(item(Odds_A, Pi_B, OR), Form) -->
 	{ option(resp(R), Form, '#.##') },
 	html(
 		[ div(class(card), div(class('card-body'),
 		    [ h1(class('card-title'), "Clinical Study"),
 		      p(class('card-text'),
 		       [ "The Odds for sucess with treatment A are ", 
-			 \mmlm([task(easyodds)], [r(odds_A), ","]), " treatment B has a probability of success of ",
-			 \mmlm([task(easyodds)], r(pi_B)), " and the Odds Ratio between both treatments is ",
-		         \mmlm([task(easyodds)], [r(or), "."])
+			 \mmlm([task(easyodds)], [r(Odds_A), ","]), " treatment B has a probability of success of ",
+			 \mmlm([task(easyodds)], r(Pi_B)), " and the Odds Ratio between both treatments is ",
+		         \mmlm([task(easyodds)], [r(OR), "."])
 		       ])
 		    ])),
 	          div(class(card), div(class('card-body'),
@@ -49,59 +47,55 @@ render(easyodds, item(_Odds_A, _Pi_B, _OR), Form) -->
 		     ]))
 		]).
 
-% Prolog warns if the rules of a predicate are not adjacent. This
-% does not make sense here, so the definitions for intermediate, expert
-% and buggy are declared to be discontiguous.
-:- multifile intermediate/2, expert/5, buggy/5.
-
 % Odds ratio with two probabilities. 
-intermediate(_, item).
-start(easyodds, item(odds_A, pi_B, or)).
+intermediate(item).
+start(item(odds_A, pi_B, or)).
 
-expert(easyodds, stage(2), From, To, [step(expert, odd, [])]) :-
+expert(stage(2), From, To, [step(expert, odd, [])]) :-
     From = item(Odds_A, _Pi_B, _OR),
     To = { '<-'(pi_A, dfrac(Odds_A, 1 + Odds_A)) ;
 	   pi_A
 	 }.
 
-feedback(easyodds, odd, [], Col, FB) =>
+feedback(odd, [], Col, FB) =>
     FB = [ "Correctly recognised the problem as an ", 
            \mmlm(Col, hyph(odds, "ratio")), "."].
 
-hint(easyodds, odd, [], Col, FB) =>
+hint(odd, [], Col, FB) =>
     FB = [ "This is an ", \mmlm(Col, hyph(odds, "ratio")), "."].
 
 % 1) Tried conversion from odds to odds, as if starting with 
 %    a probability.
-buggy(easyodds, stage(2), From, To, [step(buggy, sub, [Odds_A])]) :-
+buggy(stage(2), From, To, [step(buggy, sub, [Odds_A])]) :-
     From = 1 + Odds_A,
     To = instead(bug(sub), 1 - Odds_A, 1 + Odds_A).
 
-feedback(easyodds, sub, [Odds_A], Col, FB) =>
+feedback(sub, [Odds_A], Col, FB) =>
     FB = [ "Please use the formula converting, ", \mmlm(Col, color(sub, Odds_A)), " to ", 
 	   \mmlm(Col, color(sub, pi_A)) ].
 
-hint(easyodds, sub, [Odds_A], Col, FB) =>
+hint(sub, [Odds_A], Col, FB) =>
     FB = [ "Do not try to further convert ", \mmlm(Col, color(sub, Odds_A)), " to odds." ].
 
 % 2) Used pi_B rather than odds_A.
-buggy(easyodds, stage(1), From, To, [step(buggy, pi, [])]) :-
+buggy(stage(1), From, To, [step(buggy, pi, [])]) :-
     From = odds_A,
     To = instead(bug(pi), pi_B, odds_A).
 
-feedback(easyodds, pi, [], Col, FB) =>
+feedback(pi, [], Col, FB) =>
     FB = [ "Please extract and use the value for ", \mmlm(Col, color(pi, odds_A)), " instead." ].
 
-hint(easyodds, pi, [], Col, FB) =>
+hint(pi, [], Col, FB) =>
     FB = [ "Do not execute your calculations using ", \mmlm(Col, color(pi,  pi_B)) ].
 
 % 3) Used or rather than odds_A.
-buggy(easyodds, stage(1), From, To, [step(buggy, ratio, [])]) :-
+buggy(stage(1), From, To, [step(buggy, ratio, [])]) :-
     From = odds_A,
     To = instead(bug(ratio), or, odds_A).
 
-feedback(easyodds, ratio, [], Col, FB) =>
+feedback(ratio, [], Col, FB) =>
     FB = [ "Please extract and use the value for ", \mmlm(Col, color(ratio, odds_A)), " instead." ].
 
-hint(easyodds, ratio, [], Col, FB) =>
+hint(ratio, [], Col, FB) =>
     FB = [ "Do not execute your calculations using the ", \mmlm(Col, color(ratio,  "OR")) ].
+
