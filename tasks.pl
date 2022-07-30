@@ -19,7 +19,7 @@
 :- consult(easyodds).
 :- consult(tgroups).
 :- consult(tgroups2).
-%:- consult(tgroupsdf).
+:- consult(tgroupsdf).
 :- use_module(ztrans).
 :- use_module(ztrans2).
 :- use_module(dbinom).
