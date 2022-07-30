@@ -1,10 +1,12 @@
+:- module(tgroups, []).
+
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
 :- use_module(r).
 :- use_module(mathml).
 
-:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
+:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
 %
 % Prettier symbols for mathematical rendering
@@ -27,7 +29,7 @@ interval:r_hook(s_box).
 interval:r_hook(s2p).
 interval:r_hook(t).
 
-render(tgroups, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
+render(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
     { option(resp(R), Form, '#.##') },
 	html(
 	  [ div(class(card), div(class('card-body'),
@@ -96,107 +98,102 @@ render(tgroups, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 	      ]))
 	]).
 
-% Prolog warns if the rules of a predicate are not adjacent. This
-% does not make sense here, so the definitions for intermediate, expert
-% and buggy are declared to be discontiguous.
-:- multifile intermediate/2, expert/5, buggy/5.
-
 % t-test for independent groups
-intermediate(_, item).
-start(tgroups, item(vr, s_vr, n_vr, box, s_box, n_box)).
+intermediate(item).
+start(item(vr, s_vr, n_vr, box, s_box, n_box)).
 
 % Correctly identified the problem as a t-test for independent groups.
-intermediate(tgroups, var_pool_).
-intermediate(tgroups, tcalc).
-expert(tgroups, stage(1), From, To, [step(expert, indep, [])]) :-
+intermediate(var_pool_).
+intermediate(tcalc).
+expert(stage(1), From, To, [step(expert, indep, [])]) :-
     From = item(VR, S_VR, N_VR, BOX, S_BOX, N_BOX),
     To = { '<-'(s2p, var_pool_(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX)) ;
 	   '<-'(t, tcalc(VR, BOX, s2p, N_VR, N_BOX))
 	 }.
 
-feedback(tgroups, indep, [], Col, FB) =>
+feedback(indep, [], Col, FB) =>
     FB = [ "You identified the problem as a ", \mmlm(Col, hyph(t, "test")),
 	   " for independent samples with all its main steps." ].
 
-hint(tgroups, indep, [], Col, FB) =>
+hint(indep, [], Col, FB) =>
     FB = [ "First determine the pooled variance, then the ", \mmlm(Col, hyph(t, "statistic.")) ].
 
 % Correctly calculated the pooled variance.
-expert(tgroups, stage(1), From, To, [step(expert, varpool, [To])]) :-
+expert(stage(1), From, To, [step(expert, varpool, [To])]) :-
     From = var_pool_(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX),
     To = var_pool(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX).
 
-feedback(tgroups, varpool, [_To], Col, FB) =>
+feedback(varpool, [_To], Col, FB) =>
     FB = [ "You correctly determined the pooled variance ", \mmlm(Col, s2p) ].
 
-hint(tgroups, varpool, [To], Col, FB) =>
+hint(varpool, [To], Col, FB) =>
     FB = [ "The pooled variance is ", \mmlm(Col, To) ].
 
 % Correctly calculated t.
-expert(tgroups, stage(2), From, To, [step(expert, tcalc, [To])]) :-
+expert(stage(2), From, To, [step(expert, tcalc, [To])]) :-
     From = tcalc(VR, BOX, s2p, N_VR, N_BOX),
     To = dfrac(VR - BOX, sqrt(s2p * (1/N_VR + 1/N_BOX))).
 
-feedback(tgroups, tcalc, [_To], Col, FB) =>
+feedback(tcalc, [_To], Col, FB) =>
     FB = [ "You correctly determined the ",  \mmlm(Col, hyph(t, "statistic.")) ].
 
-hint(tgroups, tcalc, [To], Col, FB) =>
+hint(tcalc, [To], Col, FB) =>
     FB = [ "Use the following formula to calculate the ", 
 	   \mmlm(Col, hyph(t, "statistic:")), " ", \mmlm(Col, To) ].
 
 % 1) Swap vr and box groups.
-buggy(tgroups, stage(1), From, To, [step(buggy, swap, [])]) :-
+buggy(stage(1), From, To, [step(buggy, swap, [])]) :-
     From = item(vr, s_vr, n_vr, box, s_box, n_box),
     To = item(color(swap, box), s_vr, n_vr, color(swap, vr), s_box, n_box).
 
-feedback(tgroups, swap, [], Col, FB) =>
+feedback(swap, [], Col, FB) =>
     FB = [ "You swapped the ", \mmlm(Col, color(swap, "VR")), " and ",
 	   \mmlm(Col, color(swap, "BOX")), " variables." ].
 
-hint(tgroups, swap, [], _Col, FB) =>
+hint(swap, [], _Col, FB) =>
     FB = [ "Do not switch the VR groups variables with ",
 	   "those of the Box group." ].
 
 % 2) Forgot to use square of standard deviation in pooled variance.
-buggy(tgroups, stage(1), From, To, [step(buggy, sqsd, [S_VR, S_BOX])]) :-
+buggy(stage(1), From, To, [step(buggy, sqsd, [S_VR, S_BOX])]) :-
     From = var_pool_(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX),
     To = var_pool(instead(bug(sqsd), S_VR, S_VR ^ 2), N_VR, 
 	instead(bug(sqsd), S_BOX, S_BOX ^ 2), N_BOX).
 
-feedback(tgroups, sqsd, [S_VR, S_BOX], Col, FB) =>
+feedback(sqsd, [S_VR, S_BOX], Col, FB) =>
     FB = [ "You need to square ", \mmlm(Col, color(sqsd, S_VR)), " and ", 
 	   \mmlm(Col, color(sqsd, S_BOX)) ].
 
-hint(tgroups, sqsd, [_S_VR, _S_BOX], _Col, FB) =>
+hint(sqsd, [_S_VR, _S_BOX], _Col, FB) =>
     FB = [ "Use the variance rather than the standard deviation ",
 	   "when calculating the pooled variance." ].
 
 % 3) Forgot school math.
-buggy(tgroups, stage(2), From, To, [step(buggy, school, [From, To])]) :-
+buggy(stage(2), From, To, [step(buggy, school, [From, To])]) :-
     From = 1 / N_VR + 1 / N_BOX,
     To = color(school, frac(1, N_VR + N_BOX)).
 
-feedback(tgroups, school, [From, To], Col, FB) =>
+feedback(school, [From, To], Col, FB) =>
     FB = [ "Keep in mind that ", 
 	   \mmlm(Col, color(school, From) =\= To) ].
 
-hint(tgroups, school, [From, To], Col, FB) =>
+hint(school, [From, To], Col, FB) =>
     FB = [ "Do not forget that ", 
 	   \mmlm(Col, color(school, From) =\= To) ].
 
 % 4) Forgot paranthesis around numerator in t-statistic.
-buggy(tgroups, stage(2), From, To, [step(buggy, bug1, [VR, BOX, S2P, N_VR, N_BOX])]) :-
+buggy(stage(2), From, To, [step(buggy, bug1, [VR, BOX, S2P, N_VR, N_BOX])]) :-
     From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
     To = invent_left(bug(bug1), VR - dfrac(BOX, sqrt(S2P * (1/N_VR + 1/N_BOX)))).
 %VR - dfrac(BOX, sqrt(s2p * (1/N_VR + 1/N_BOX))).
 
-feedback(tgroups, bug1, [_VR, _BOX, S2P, N_VR, N_BOX], Col, FB) =>
+feedback(bug1, [_VR, _BOX, S2P, N_VR, N_BOX], Col, FB) =>
     FB = [ "You forgot the parentheses around the numerator of ",
 	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", overline("VR") - overline("BOX")))), 
 	   sqrt(S2P * (1/N_VR + 1/N_BOX) ) ) )
 	 ].
 
-hint(tgroups, bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) =>
+hint(bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) =>
     FB = [ "Remember to use parenthesis around numerator. ",
 	   "The correct formula for the ", \mmlm(Col, hyph(t, "ratio")), "is ", 
 	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", VR - BOX))), 
@@ -204,29 +201,30 @@ hint(tgroups, bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) =>
 	 ].
 
 % 5) Forgot square root.
-buggy(tgroups, stage(2), From, To, [step(buggy, nosr1, [A])]) :-
+buggy(stage(2), From, To, [step(buggy, nosr1, [A])]) :-
     From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
     A = S2P * (1/N_VR + 1/N_BOX),
     To = dfrac(VR - BOX, instead(bug(nosr1), A, sqrt(A))).
 
-feedback(tgroups, nosr1, [A], Col, FB) =>
+feedback(nosr1, [A], Col, FB) =>
    FB = [ "You forgot to take the square root of ", \mmlm(Col, color(nosr1, A)) ].
 
-hint(tgroups, nosr1, [A], Col, FB) =>
+hint(nosr1, [A], Col, FB) =>
     FB = [ "Keep in mind that you need to take the square root of ", 
 	   \mmlm(Col, color(nosr1, A)) ].
 
 
 % 6) Only took the square root of the first element of the denominator.
-buggy(tgroups, stage(2), From, To, [step(buggy, nosr2, [S2P, N_VR, N_BOX])]) :-
+buggy(stage(2), From, To, [step(buggy, nosr2, [S2P, N_VR, N_BOX])]) :-
     From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
     A = sqrt(S2P * (1/N_VR + 1/N_BOX)),
     To = dfrac(VR - BOX, instead(bug(nosr2), sqrt(S2P) * (1/N_VR + 1/N_BOX), A)).
 
-feedback(tgroups, nosr2, [_, _, _], Col, FB) =>
+feedback(nosr2, [_, _, _], Col, FB) =>
    FB = [ "You took the square root of only ", \mmlm(Col, color(nosr2, s2p)),
 	  " instead of the square root of the entire denominator." ].
 
-hint(tgroups, nosr2, [S2P, N_VR, N_BOX], Col, FB) =>
+hint(nosr2, [S2P, N_VR, N_BOX], Col, FB) =>
    FB = [ "Keep in mind that you need to take the square root of ", 
 	   \mmlm(Col, color(nosr2, S2P * (1/N_VR + 1/N_BOX))), " in its entirety." ].
+

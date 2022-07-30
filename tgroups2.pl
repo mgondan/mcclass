@@ -1,20 +1,20 @@
+:- module(tgroups2, []).
+
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
 :- use_module(r).
 :- use_module(mathml).
 
-:- multifile start/2, intermediate/2, expert/5, buggy/5, feedback/5, hint/5, render//3.
+:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
-%
 % Prettier symbols for mathematical rendering
-%
 mathml:hook(Flags, n_vr, [task(tgroups2) | Flags], sub(n, "VR")).
-mathml:hook(Flags, n_box, [task(tgroups2) | Flags], sub(n, "BOX")).
+mathml:hook(Flags, n_box, [task(tgroups2) | Flags], sub(n, "Box")).
 mathml:hook(Flags, vr, [task(tgroups2) | Flags], overline("VR")).
 mathml:hook(Flags, s_vr, [task(tgroups2) | Flags], sub(s, "VR")).
-mathml:hook(Flags, box, [task(tgroups2) | Flags], overline("BOX")).
-mathml:hook(Flags, s_box, [task(tgroups2) | Flags], sub(s, "BOX")).
+mathml:hook(Flags, box, [task(tgroups2) | Flags], overline("Box")).
+mathml:hook(Flags, s_box, [task(tgroups2) | Flags], sub(s, "Box")).
 mathml:hook(Flags, s2p, [task(tgroups2) | Flags], sub(s, "pool")^2).
 
 % Obtain information from R
@@ -27,7 +27,7 @@ interval:r_hook(s_box).
 interval:r_hook(s2p).
 interval:r_hook(t).
 
-render(tgroups2, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
+render(item(VR, S_VR, N_VR, Box, S_Box, N_Box), Form) -->
     { option(resp(R), Form, '#.##') },
 	html(
 	  [ div(class(card), div(class('card-body'),
@@ -54,10 +54,10 @@ render(tgroups2, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 		p(class('card-text'),
 		  [ "“Laparoscopy-naïve medical students were randomized into ",
 		    "two groups. The Box group (", 
-		    \mmlm([task(tgroups2), digits(0)], N_BOX = r(n_box)), ") used E-learning for ", 
+		    \mmlm([task(tgroups2), digits(0)], N_Box = r(N_Box)), ") used E-learning for ", 
 		    "laparoscopic cholecystectomy and practiced ",
 		    "basic skills with Box trainers. The VR group (", 
-		    \mmlm([task(tgroups2), digits(0)], N_VR = r(n_vr)), ") trained ",
+		    \mmlm([task(tgroups2), digits(0)], N_VR = r(N_VR)), ") trained ",
 		    "basic skills and laparoscopic cholecystectomy on ",
 		    "LAP Mentor II (Simbionix, Cleveland, USA). Each group ",
 		    "trained 3 × 4 hours followed by a knowledge test. Blinded ",
@@ -69,8 +69,8 @@ render(tgroups2, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 		    "scored higher than the VR group in the knowledge ",
 		    "test (Box: 13.4 ± 1.2 vs. VR: 10.8 ± 1.8, p < 0.001). Both ",
 		    "groups showed equal operative performance in the OSATS score ",
-		    "(VR: ", \mmlm([task(tgroups2), digits(1)], r(vr)), " ± ", \mmlm([task(tgroups2), digits(1)], r(s_vr)), 
-		    " vs. BOX: ", \mmlm([task(tgroups2), digits(1)], r(box)), " ± ", \mmlm([task(tgroups2), digits(1)], r(s_box)), 
+		    "(VR: ", \mmlm([task(tgroups2), digits(1)], r(VR)), " ± ", \mmlm([task(tgroups2), digits(1)], r(S_VR)), 
+		    " vs. BOX: ", \mmlm([task(tgroups2), digits(1)], r(Box)), " ± ", \mmlm([task(tgroups2), digits(1)], r(S_Box)), 
 		    ", p = 0.437). The significance level is set to ",
 		    \mmlm([task(tgroups2)], alpha = [5, "%"]), " two-tailed. ",
 		    "Students generally liked training and felt well prepared for ", 
@@ -99,56 +99,50 @@ render(tgroups2, item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 	      ]))
 	]).
 
-% Prolog warns if the rules of a predicate are not adjacent. This
-% does not make sense here, so the definitions for intermediate, expert
-% and buggy are declared to be discontiguous.
-:- multifile intermediate/2, expert/5, buggy/5.
-
 % t-test for independent groups
-intermediate(_, item).
-start(tgroups2, item(vr, s_vr, n_vr, box, s_box, n_box)).
-
+intermediate(item).
+start(item(vr, s_vr, n_vr, box, s_box, n_box)).
 
 %
 % This Task should be completed before tgroups.pl as it only covers the first 
 % half of the necessarry calculations to solve a full t-test.
 %
 % Correctly calculated the pooled variance.
-expert(tgroups2, stage(2), From, To, [step(expert, indep, [])]) :-
+expert(stage(2), From, To, [step(expert, indep, [])]) :-
     From = item(_VR, S_VR, N_VR, _BOX, S_BOX, N_BOX),
     To = { '<-'(s2p, dfrac((N_VR - 1) * S_VR ^ 2 + (N_BOX - 1) * S_BOX ^ 2, 
 			   N_VR + N_BOX - 2)) ;
 	   s2p
 	 }.
 
-feedback(tgroups2, indep, [], _Col, FB) =>
+feedback(indep, [], _Col, FB) =>
     FB = [ "You correctly reportet the pooled variance." ].
 
-hint(tgroups2, indep, [], _Col, FB) =>
+hint(indep, [], _Col, FB) =>
     FB = [ "Try to do everthing correctly." ].
 
 % 1) Used standard deviation instead of variance.
-buggy(tgroups2, stage(2), From, To, [step(buggy, sd, [S_VR, S_BOX])]) :-
+buggy(stage(2), From, To, [step(buggy, sd, [S_VR, S_BOX])]) :-
     From = dfrac(A * S_VR ^ 2 + B * S_BOX ^ 2, C),
     To = dfrac(A * instead(bug(sd), S_VR, S_VR ^ 2) + B * instead(bug(sd), S_BOX, S_BOX ^ 2), C).
 
-feedback(tgroups2, sd, [S_VR, S_BOX], Col, FB) =>
+feedback(sd, [S_VR, S_BOX], Col, FB) =>
     FB = [ "Please remember to use the squares of ", 
 	   \mmlm(Col, color(sd, S_VR)), " and ", 
 	   \mmlm(Col, color(sd, S_BOX)), " in the pooled variance." ].
 
-hint(tgroups2, sd, [_S_VR, _S_BOX], _Col, FB) =>
+hint(sd, [_S_VR, _S_BOX], _Col, FB) =>
     FB = [ "Try using the variance rather than the standard deviation ",
 	   "when calculating the pooled variance." ].
 
 % 2) Forgot parentheses around numerator and denominator.
-buggy(tgroups2, stage(2), From, To, [step(buggy, bug1, [N_VR, N_BOX, S_VR, S_BOX])]) :-
+buggy(stage(2), From, To, [step(buggy, bug1, [N_VR, N_BOX, S_VR, S_BOX])]) :-
     From = dfrac((N_VR - 1) * S_VR ^ 2 + (N_BOX - 1) * S_BOX ^ 2, 
 		 N_VR + N_BOX - 2),
     To = invent_right(bug(bug1), invent_left(bug(bug1), color(bug1, N_VR - 1 * S_VR ^ 2 + N_BOX) - 
 	 invent_left(bug(bug1), 1 * dfrac(S_BOX ^ 2, N_VR))) + (N_BOX - 2)).
 
-feedback(tgroups2, bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) =>
+feedback(bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) =>
     FB = [ "Please do not forget the parentheses around the numerator and ",
 	   "the denominator of a fraction, ", 
 	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", 
@@ -157,7 +151,7 @@ feedback(tgroups2, bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) =>
 	   color(bug1, paren(color("#000000", N_VR + N_BOX - 2)))))
 	 ].
 
-hint(tgroups2, bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) =>
+hint(bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) =>
     FB = [ "Do not forget the parentheses! The correct formula is ",
 	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", 
 	   color(bug1, paren(color("#000000", N_VR - 1))) * S_VR ^ 2 + 
@@ -166,14 +160,14 @@ hint(tgroups2, bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) =>
 	 ].
 
 % 3) Swapped N_VR and N_Box.
-buggy(tgroups2, stage(1), From, To, [step(buggy, nswap, [])]) :-
+buggy(stage(1), From, To, [step(buggy, nswap, [])]) :-
     From = item(vr, s_vr, n_vr, box, s_box, n_box),
     To = item(vr, s_vr, color(nswap, n_box), box, s_box, color(nswap, n_vr)).
 
-feedback(tgroups2, nswap, [], Col, FB) =>
+feedback(nswap, [], Col, FB) =>
     FB = [ "Please double check the sample sizes ", \mmlm(Col, color(nswap, n_vr)), 
 	   " and ", \mmlm(Col, color(nswap, n_box)), " of both groups." ].
 
-hint(tgroups2, nswap, [], Col, FB) =>
+hint(nswap, [], Col, FB) =>
     FB = [ "Do not swap the sample sizes in ", \mmlm(Col, color(nswap, s2p)) ].
 

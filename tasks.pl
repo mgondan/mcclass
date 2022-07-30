@@ -17,8 +17,8 @@
 :- use_module(oddsratio).
 :- use_module(oddsratio2).
 :- consult(easyodds).
-%:- consult(tgroups).
-%:- consult(tgroups2).
+:- consult(tgroups).
+:- consult(tgroups2).
 %:- consult(tgroupsdf).
 :- use_module(ztrans).
 :- use_module(ztrans2).
