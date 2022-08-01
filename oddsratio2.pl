@@ -8,18 +8,14 @@
 
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
-%
 % Prettier symbols for mathematical rendering
-%
-mathml:hook(Flags, pi_A, [task(oddsratio2) | Flags], sub(pi, "A")).
-mathml:hook(Flags, odds_A, [task(oddsratio2) | Flags], sub(odds, "A")).
-mathml:hook(Flags, pi_B, [task(oddsratio2) | Flags], sub(pi, "B")).
-mathml:hook(Flags, odds_B, [task(oddsratio2) | Flags], sub(odds, "B")).
-mathml:hook(Flags, or, [task(oddsratio2) | Flags], 'OR').
+mathml_hook(pi_A, sub(pi, "A")).
+mathml_hook(odds_A, sub(odds, "A")).
+mathml_hook(pi_B, sub(pi, "B")).
+mathml_hook(odds_B, sub(odds, "B")).
+mathml_hook(or, 'OR').
 
-%
 % R constants
-%
 interval:r_hook(odds_A).
 interval:r_hook(pi_A).
 interval:r_hook(pi_B).
@@ -34,8 +30,8 @@ render(item(Pi_A, Pi_B), Form) -->
           p(class('card-text'),
             [ "Compare the effectiveness of ",
               "two therapies. Therapy A has a probability of success of ",
-              \mmlm([task(oddsratio2)], Pi_A = r(pi_A)), ". Therapy B ",
-              "one of ", \mmlm([task(oddsratio2)], Pi_B = r(pi_B))
+              \mmlm(Pi_A = r(pi_A)), ". Therapy B ",
+              "one of ", \mmlm(Pi_B = r(pi_B))
             ])
         ])),
 	div(class(card), div(class('card-body'),

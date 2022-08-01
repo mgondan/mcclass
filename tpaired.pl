@@ -8,18 +8,16 @@
 
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
-%
 % Prettier symbols for mathematical rendering
-%
-mathml:hook(Flags, d, [task(tpaired) | Flags], overline('D')).
-mathml:hook(Flags, s_d, [task(tpaired) | Flags], sub(s, 'D')).
-mathml:hook(Flags, n, [task(tpaired) | Flags], 'N').
-mathml:hook(Flags, t0, [task(tpaired) | Flags], overline("T0")).
-mathml:hook(Flags, s_t0, [task(tpaired) | Flags], sub(s, "T0")).
-mathml:hook(Flags, eot, [task(tpaired) | Flags], overline("EOT")).
-mathml:hook(Flags, s_eot, [task(tpaired) | Flags], sub(s, "EOT")).
-mathml:hook(Flags, s2p, [task(tpaired) | Flags], sub(s, "pool")^2).
-mathml:hook(Flags, paired(D, Mu, S_D, N), [task(tpaired) | Flags], fn("paired", [D, Mu, S_D, N])).
+mathml_hook(d, overline('D')).
+mathml_hook(s_d, sub(s, 'D')).
+mathml_hook(n, 'N').
+mathml_hook(t0, overline("T0")).
+mathml_hook(s_t0, sub(s, "T0")).
+mathml_hook(eot, overline("EOT")).
+mathml_hook(s_eot, sub(s, "EOT")).
+mathml_hook(s2p, sub(s, "pool")^2).
+mathml_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 
 % R definitions
 interval:r_hook(var_pool(_N1, _V1, _N2, _V2)).
@@ -41,33 +39,33 @@ render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
             p(class('card-text'),
             [ "Consider a clinical study on rumination-focused Cognitive ",
               "Behavioral Therapy (rfCBT) with ",
-              \mmlm([task(tpaired)], N = r(n)), " patients. The primary ",
+              \mmlm(N = r(n)), " patients. The primary ",
               "outcome is the score on the Hamilton Rating Scale for ", 
               "Depression (HDRS, range from best = 0 to worst = 42). ",
               "The significance level is set to ",
-              \mmlm([task(tpaired)], alpha = [5, "%"]), " two-tailed."]),
+              \mmlm(alpha = [5, "%"]), " two-tailed."]),
             div(class('container'),
               div(class("row justify-content-md-center"),
                 div(class("col-6"),
                   \htmltable(
                     [ em("Table 1. "), "Observed HDRS scores at T0, EOT, ",
-                      "and ", \mmlm([task(tpaired)], 'D' = "T0" - "EOT") ],
+                      "and ", \mmlm('D' = "T0" - "EOT") ],
                     [ "Average", "SD" ],
-                    [ "HDRS", "T0", "EOT", \mmlm([task(tpaired)], 'D') ],
-                    [ [ \mmlm([task(tpaired), digits(1)], r(t0)),
-                        \mmlm([task(tpaired), digits(1)], r(eot)),
-                        \mmlm([task(tpaired), digits(1)], r(d1)) ],
-                      [ \mmlm([task(tpaired), digits(1)], r(s_t0)),
-                        \mmlm([task(tpaired), digits(1)], r(s_eot)),
-                        \mmlm([task(tpaired), digits(1)], r(s1_d)) ]
+                    [ "HDRS", "T0", "EOT", \mmlm(d) ],
+                    [ [ \mmlm([digits(1)], r(t0)),
+                        \mmlm([digits(1)], r(eot)),
+                        \mmlm([digits(1)], r(d1)) ],
+                      [ \mmlm([digits(1)], r(s_t0)),
+                        \mmlm([digits(1)], r(s_eot)),
+                        \mmlm([digits(1)], r(s1_d)) ]
                     ])))),
               form(method('POST'),
                   button([ class('btn btn-secondary'), name(download), value(tpaired) ], "Download data"))
           ])),
         \htmlform([ "Does rfCBT lead to a relevant reduction (i.e., more ",
-            "than ", \mmlm([task(tpaired), digits(1)], mu = r(mu)), " units) in mean HDRS ",
+            "than ", \mmlm([digits(1)], mu = r(mu)), " units) in mean HDRS ",
             "scores between baseline (T0) and End of Treatment (EOT)? ",
-            "Please report the ", \mmlm([task(tpaired)], hyph(t, "ratio.")) ], "#tratio", R)
+            "Please report the ", \mmlm(hyph(t, "ratio.")) ], "#tratio", R)
       ]).
 
 % t-test for paired samples

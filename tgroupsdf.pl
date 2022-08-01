@@ -8,13 +8,13 @@
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-mathml:hook(Flags, n_vr, [task(tgroupsdf) | Flags], sub(n, "VR")).
-mathml:hook(Flags, n_box, [task(tgroupsdf) | Flags], sub(n, "Box")).
-mathml:hook(Flags, vr, [task(tgroupsdf) | Flags], overline("VR")).
-mathml:hook(Flags, s_vr, [task(tgroupsdf) | Flags], sub(s, "VR")).
-mathml:hook(Flags, box, [task(tgroupsdf) | Flags], overline("Box")).
-mathml:hook(Flags, s_box, [task(tgroupsdf) | Flags], sub(s, "Box")).
-mathml:hook(Flags, nt, [task(tgroupsdf) | Flags], sub(n, "total")).
+mathml_hook(n_vr, sub(n, "VR")).
+mathml_hook(n_box, sub(n, "Box")).
+mathml_hook(vr, overline("VR")).
+mathml_hook(s_vr, sub(s, "VR")).
+mathml_hook(box, overline("Box")).
+mathml_hook(s_box, sub(s, "Box")).
+mathml_hook(n, sub('N', "total")).
 
 % Obtain information from R
 interval:r_hook(n_vr).
@@ -23,7 +23,7 @@ interval:r_hook(vr).
 interval:r_hook(s_vr).
 interval:r_hook(box).
 interval:r_hook(s_box).
-interval:r_hook(nt).
+interval:r_hook(n).
 interval:r_hook(df).
 
 render(item(VR, S_VR, N_VR, Box, S_Box, N_Box), Form) -->
@@ -53,10 +53,10 @@ render(item(VR, S_VR, N_VR, Box, S_Box, N_Box), Form) -->
 		p(class('card-text'),
 		  [ "“Laparoscopy-naïve medical students were randomized into ",
 		    "two groups. The Box group (", 
-		    \mmlm([task(tgroupsdf), digits(0)], N_Box = r(N_Box)), ") used E-learning for ", 
+		    \mmlm(N_Box = r(N_Box)), ") used E-learning for ", 
 		    "laparoscopic cholecystectomy and practiced ",
 		    "basic skills with Box trainers. The VR group (", 
-		    \mmlm([task(tgroupsdf), digits(0)], N_VR = r(N_VR)), ") trained ",
+		    \mmlm(N_VR = r(N_VR)), ") trained ",
 		    "basic skills and laparoscopic cholecystectomy on ",
 		    "LAP Mentor II (Simbionix, Cleveland, USA). Each group ",
 		    "trained 3 × 4 hours followed by a knowledge test. Blinded ",
@@ -68,10 +68,10 @@ render(item(VR, S_VR, N_VR, Box, S_Box, N_Box), Form) -->
 		    "scored higher than the VR group in the knowledge ",
 		    "test (Box: 13.4 ± 1.2 vs. VR: 10.8 ± 1.8, p < 0.001). Both ",
 		    "groups showed equal operative performance in the OSATS score ",
-		    "(VR: ", \mmlm([task(tgroupsdf), digits(1)], r(VR)), " ± ", \mmlm([task(tgroupsdf), digits(1)], r(S_VR)), 
-		    " vs. BOX: ", \mmlm([task(tgroupsdf), digits(1)], r(Box)), " ± ", \mmlm([task(tgroupsdf), digits(1)], r(S_Box)), 
+		    "(VR: ", \mmlm([digits(1)], r(VR)), " ± ", \mmlm([digits(1)], r(S_VR)), 
+		    " vs. BOX: ", \mmlm([digits(1)], r(Box)), " ± ", \mmlm([digits(1)], r(S_Box)), 
 		    ", p = 0.437). The significance level is set to ",
-		    \mmlm([task(tgroupsdf)], alpha = [5, "%"]), " two-tailed. ",
+		    \mmlm(alpha = [5, "%"]), " two-tailed. ",
 		    "Students generally liked training and felt well prepared for ", 
 		    "assisting in laparoscopic surgery. The efficiency of the training ",
 		    "was judged higher by the VR group than by the Box group."

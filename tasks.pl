@@ -28,9 +28,8 @@
 :- use_module(power).
 
 % Render R result
-mathml:hook(Flags, r(Expr), Flags, Res) :-
-    option(task(Task), Flags),
-    r_task(Task, Expr, Res),
+mathml:mathml_hook(Flags, r(Expr), Flags, Res) :-
+    r_task(Expr, Res),
     number(Res).
 
 % Gather useful information

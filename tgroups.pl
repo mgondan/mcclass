@@ -8,16 +8,14 @@
 
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
-%
 % Prettier symbols for mathematical rendering
-%
-mathml:hook(Flags, n_vr, [task(tgroups) | Flags], sub(n, "VR")).
-mathml:hook(Flags, n_box, [task(tgroups) | Flags], sub(n, "BOX")).
-mathml:hook(Flags, vr, [task(tgroups) | Flags], overline("VR")).
-mathml:hook(Flags, s_vr, [task(tgroups) | Flags], sub(s, "VR")).
-mathml:hook(Flags, box, [task(tgroups) | Flags], overline("BOX")).
-mathml:hook(Flags, s_box, [task(tgroups) | Flags], sub(s, "BOX")).
-mathml:hook(Flags, s2p, [task(tgroups) | Flags], sub(s, "pool")^2).
+mathml_hook(n_vr, sub(n, "VR")).
+mathml_hook(n_box, sub(n, "BOX")).
+mathml_hook(vr, overline("VR")).
+mathml_hook(s_vr, sub(s, "VR")).
+mathml_hook(box, overline("BOX")).
+mathml_hook(s_box, sub(s, "BOX")).
+mathml_hook(s2p, sub(s, "pool")^2).
 
 % Obtain information from R
 interval:r_hook(n_vr).
@@ -56,10 +54,10 @@ render(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 		p(class('card-text'),
 		  [ "“Laparoscopy-naïve medical students were randomized into ",
 		    "two groups. The Box group (", 
-		    \mmlm([task(tgroups), digits(0)], N_BOX = r(n_box)), ") used E-learning for ", 
+		    \mmlm(N_BOX = r(n_box)), ") used E-learning for ", 
 		    "laparoscopic cholecystectomy and practiced ",
 		    "basic skills with Box trainers. The VR group (", 
-		    \mmlm([task(tgroups), digits(0)], N_VR = r(n_vr)), ") trained ",
+		    \mmlm(N_VR = r(n_vr)), ") trained ",
 		    "basic skills and laparoscopic cholecystectomy on ",
 		    "LAP Mentor II (Simbionix, Cleveland, USA). Each group ",
 		    "trained 3 × 4 hours followed by a knowledge test. Blinded ",
@@ -71,10 +69,10 @@ render(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 		    "scored higher than the VR group in the knowledge ",
 		    "test (Box: 13.4 ± 1.2 vs. VR: 10.8 ± 1.8, p < 0.001). Both ",
 		    "groups showed equal operative performance in the OSATS score ",
-		    "(VR: ", \mmlm([task(tgroups), digits(1)], r(vr)), " ± ", \mmlm([task(tgroups), digits(1)], r(s_vr)), 
-		    " vs. BOX: ", \mmlm([task(tgroups), digits(1)], r(box)), " ± ", \mmlm([task(tgroups), digits(1)], r(s_box)), 
+		    "(VR: ", \mmlm([digits(1)], r(vr)), " ± ", \mmlm([digits(1)], r(s_vr)), 
+		    " vs. BOX: ", \mmlm([digits(1)], r(box)), " ± ", \mmlm([digits(1)], r(s_box)), 
 		    ", p = 0.437). The significance level is set to ",
-		    \mmlm([task(tgroups)], alpha = [5, "%"]), " two-tailed. ",
+		    \mmlm(alpha = [5, "%"]), " two-tailed. ",
 		    "Students generally liked training and felt well prepared for ", 
 		    "assisting in laparoscopic surgery. The efficiency of the training ",
 		    "was judged higher by the VR group than by the Box group."

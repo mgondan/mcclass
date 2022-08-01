@@ -8,10 +8,10 @@
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-mathml:hook(Flags, pi_A, [task(easyodds) | Flags], sub(pi, "A")).
-mathml:hook(Flags, odds_A, [task(easyodds) | Flags], sub(odds, "A")).
-mathml:hook(Flags, pi_B, [task(easyodds) | Flags], sub(pi, "B")).
-mathml:hook(Flags, or, [task(easyodds) | Flags], 'OR').
+mathml_hook(pi_A, sub(pi, "A")).
+mathml_hook(odds_A, sub(odds, "A")).
+mathml_hook(pi_B, sub(pi, "B")).
+mathml_hook(or, 'OR').
 
 % R constants
 interval:r_hook(odds_A).
@@ -26,9 +26,9 @@ render(item(Odds_A, Pi_B, OR), Form) -->
 		    [ h1(class('card-title'), "Clinical Study"),
 		      p(class('card-text'),
 		       [ "The Odds for sucess with treatment A are ", 
-			 \mmlm([task(easyodds)], [r(Odds_A), ","]), " treatment B has a probability of success of ",
-			 \mmlm([task(easyodds)], r(Pi_B)), " and the Odds Ratio between both treatments is ",
-		         \mmlm([task(easyodds)], [r(OR), "."])
+			 \mmlm([r(Odds_A), ","]), " treatment B has a probability of success of ",
+			 \mmlm([r(Pi_B), ","]), " and the Odds Ratio between both treatments is ",
+		         \mmlm([r(OR), "."])
 		       ])
 		    ])),
 	          div(class(card), div(class('card-body'),

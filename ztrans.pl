@@ -8,7 +8,7 @@
 
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
-mathml:hook(Flags, x, [task(ztrans) | Flags], 'X').
+mathml_hook(x, 'X').
 
 interval:r_hook(x).
 interval:r_hook(sigma).
@@ -22,9 +22,9 @@ render(item(X, Mu, Sigma), Form) -->
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
           p(class('card-text'), 
-            [ "Let ", \mmlm([task(ztrans), digits(0)], X), " follow a normal distribution with ",
-              "expectation ", \mmlm([task(ztrans), digits(0)], Mu = r(mu)), " and ",
-              "standard deviation ", \mmlm([task(ztrans), digits(0)], [Sigma = r(sigma), "."]),
+            [ "Let ", \mmlm([digits(0)], X), " follow a normal distribution with ",
+              "expectation ", \mmlm([digits(0)], Mu = r(mu)), " and ",
+              "standard deviation ", \mmlm([digits(0)], [Sigma = r(sigma), "."]),
               "A table of the standard ",
               "normal distribution is found below."
             ])
@@ -33,7 +33,7 @@ render(item(X, Mu, Sigma), Form) -->
           [ h4(class('card-title'), [a(id(question), []), "Question"]),
             p(class('card-text'),
               [ "How many realizations are ",
-                  "below ", \mmlm([task(ztrans), digits(0)], [r(x), "?"])
+                  "below ", \mmlm([digits(0)], [r(x), "?"])
               ]),
             form([class(form), method('POST'), action('#ztrans-response')],
               [ div(class("input-group mb-3"),

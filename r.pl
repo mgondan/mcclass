@@ -2,7 +2,7 @@
   [ r_initialize/0,
     r/1, r/2, r//1, r_source/1, 
     r_session/1, r_session/2, r_session//1, r_session_source/1,
-    r_task/2, r_task/3, r_task//2
+    r_task/1, r_task/2, r_task//1
   ]).
 
 :- use_module(library(rologp)).
@@ -73,14 +73,16 @@ r_session(Expr) -->
     term_string(Res, String),
     html(String).
 
-r_task(Task, Expr)
+r_task(Expr),
+    nb_getval(task, Task)
  => r_session(with(Task, Expr)).
 
-r_task(Task, Expr, Res)
+r_task(Expr, Res),
+    nb_getval(task, Task)
  => r_session(with(Task, Expr), Res).
 
-r_task(Task, Expr) -->
-    { r_task(Task, Expr, Res) },
+r_task(Expr) -->
+    { r_task(Expr, Res) },
     term_string(Res, String),
     html(String).
 
@@ -109,7 +111,8 @@ test :-
    r_session($(tpaired, mu), Mu1),
    writeln(session($(tpaired, mu))=Mu1),
    r_session_source(tpaired),
-   r_task(tpaired, mu, Mu2),
+   b_setval(task, tpaired),
+   r_task(mu, Mu2),
    writeln(task(tpaired, mu)=Mu2).
 
 

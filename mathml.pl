@@ -1,7 +1,7 @@
 % Translate mathematical expressions to MathML
 :- module(mathml, [mml//1, mml//2, mmlm//1, mmlm//2, colors/2]).
 
-:- multifile hook/4.
+:- multifile mathml_hook/2, mathml_hook/4.
 
 :- discontiguous mathml/0, current/3, paren/3, prec/3, type/3, denoting/3, ml/3, math/4.
 :- use_module(library(http/html_write)).
@@ -120,9 +120,13 @@ math(Flags, A, New, X),
 % Check if a macro has been defined in an external module
 %
 math(Flags, A, New, X),
-    option(task(Task), Flags, default),
-    hook(Flags, A, New0, X0),
-    option(task(Task), New0, Task)
+    b_getval(task, Task),
+    Task:mathml_hook(A, X0)
+ => New = Flags,
+    X = X0.
+
+math(Flags, A, New, X),
+    mathml_hook(Flags, A, New0, X0)
  => New = New0,
     X = X0.
 

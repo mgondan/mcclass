@@ -768,11 +768,10 @@ bound(X, X).
 % Evaluate function for all possible combinations of bounds
 % e.g., rint(^(2 ... 3, 4 ... 5), Res) yields 2^3, 2^5, 3^4, and 3^5
 %
-rint(Flags, Function, Arguments, Res) :-
+rint(_Flags, Function, Arguments, Res) :-
     maplist(bound, Arguments, Bounds),
     compound_name_arguments(Expr, Function, Bounds),
-    option(task(Task), Flags),
-    r_task(Task, Expr, Res).
+    r_task(Expr, Res).
 
 int(Flags, r(Expr), Res)
  => int([engine(r) | Flags], Expr, Res).
@@ -783,8 +782,7 @@ int(Flags, pl(Expr), Res)
 int(Flags, Expr, Res),
     atomic(Expr),
     option(engine(r), Flags)
- => option(task(Task), Flags),
-    r_task(Task, Expr, R),
+ => r_task(Expr, R),
     (   R = _ ... _
      -> Res = R
       ; Res = R ... R
@@ -792,21 +790,18 @@ int(Flags, Expr, Res),
 
 int(Flags, X ... Y, Res),
     option(engine(r), Flags)
- => option(task(Task), Flags),
-    r_task(Task, X, ResX),
-    r_task(Task, Y, ResY),
+ => r_task(X, ResX),
+    r_task(Y, ResY),
     Res = ResX ... ResY.
 
 int(Flags, '<-'(Var, Expr), Res),
     option(engine(r), Flags)
  => int(Flags, Expr, Res),
-    option(task(Task), Flags),
-    r_task(Task, '<-'(Var, Res)).
+    r_task('<-'(Var, Res)).
 
 int(Flags, $(Env, Var), Res),
     option(engine(r), Flags)
- => option(task(Task), Flags),
-    r_task(Task, $(Env, Var), R),
+ => r_task($(Env, Var), R),
     int([engine(pl) | Flags], R, Res).
 
 int(Flags, Expr, Res),
@@ -822,8 +817,7 @@ int(Flags, Expr, Res),
 int(Flags, Expr, Res),
     option(engine(r), Flags),
     atomic(Expr)
- => option(task(Task), Flags),
-    r_task(Task, Expr, R),
+ => r_task(Expr, R),
     Res = R...R.
 
 example :-

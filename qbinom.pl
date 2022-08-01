@@ -1,6 +1,6 @@
+% Binomial test (critical value)
 :- module(qbinom, []).
 
-% Binomial test (critical value)
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
@@ -9,8 +9,8 @@
 
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
-mathml:hook(Flags, p0, [task(qbinom) | Flags], sub(pi, 0)).
-mathml:hook(Flags, n, [task(qbinom) | Flags], 'N').
+mathml_hook(p0, sub(pi, 0)).
+mathml_hook(n, 'N').
 
 interval:r_hook(alpha).
 interval:r_hook(n).
@@ -25,11 +25,11 @@ render(item(Alpha, N, P0), Form) -->
       [ div(class(card), div(class('card-body'),
           [ h1(class('card-title'), "Binary outcomes"),
             p(class('card-text'), 
-              [ "Consider a clinical study with ", \mmlm([task(qbinom)], n = r(N)), " ",
-                "patients. The variable ", \mmlm([task(qbinom)], 'X'), " represents the ",
+              [ "Consider a clinical study with ", \mmlm(n = r(N)), " ",
+                "patients. The variable ", \mmlm('X'), " represents the ",
                 "number of therapeutic successes in the sample. We assume ",
                 "that the successes occur independently, and under the null ",
-                "hypothesis, the success probability is ", \mmlm([task(qbinom)], r(P0)), " ",
+                "hypothesis, the success probability is ", \mmlm(r(P0)), " ",
                 "in all patients. The binomial probabilities are given in ",
                 "the table below."
 	          ]),
@@ -44,7 +44,7 @@ render(item(Alpha, N, P0), Form) -->
             p(class('card-text'),
               [ "How many successes are needed to rule out the null ",
                 "hypothesis at the one-tailed significance level ",
-                "of ", \mmlm([task(qbinom)], alpha = r(Alpha)), "?"
+                "of ", \mmlm(alpha = r(Alpha)), "?"
               ]), 
             form([class(form), method('POST'), action('#dbinom-dbinom')],
               [ div(class("input-group mb-3"),
@@ -86,10 +86,10 @@ hint(upper, [], _Col, Hint) =>
 
 % Helper function(s)
 binomtable(N, P0, Caption, Rows, Cols, Cells) :-
-    r_task(qbinom, 'as.integer'(qbinom(0.05, N, P0) - 1), L),
-    r_task(qbinom, 'as.integer'(qbinom(0.95, N, P0) + 1), H),
+    r_task('as.integer'(qbinom(0.05, N, P0) - 1), L),
+    r_task('as.integer'(qbinom(0.95, N, P0) + 1), H),
     Caption = [em("Table 1. "), "Binomial probabilities"],
-    findall(\mmlm([task(qbinom)], R), between(L, H, R), Rows),
-    Cols = [\mmlm([task(qbinom)], k), \mmlm([task(qbinom)], dbinom(k, n = r(N), p0 = r(P0)))],
-    findall([\mmlm([task(qbinom)], r(dbinom(D, n, p0)))], between(L, H, D), Cells).
+    findall(\mmlm(R), between(L, H, R), Rows),
+    Cols = [\mmlm(k), \mmlm(dbinom(k, n = r(N), p0 = r(P0)))],
+    findall([\mmlm(r(dbinom(D, n, p0)))], between(L, H, D), Cells).
 

@@ -11,8 +11,8 @@
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
 % Render symbols
-mathml:hook(Flags, n, [task(dbinom) | Flags], 'N').
-mathml:hook(Flags, p0, [task(dbinom) | Flags], pi).
+mathml_hook(n, 'N').
+mathml_hook(p0, pi).
 
 % R definitions
 interval:r_hook(n).
@@ -26,13 +26,13 @@ render(item(K, N, P0), Form) -->
       [ div(class(card), div(class("card-body"),
           [ h1(class("card-title"), "Binary outcomes"),
             p(class("card-text"),
-              [ "Consider a clinical study with ", \mmlm([task(dbinom)], r(N)), " patients. ",
+              [ "Consider a clinical study with ", \mmlm(r(N)), " patients. ",
                 "We assume that the success probability ",
-                "is ", \mmlm([task(dbinom)], r(P0)), " in all patients, and that the ",
+                "is ", \mmlm(r(P0)), " in all patients, and that the ",
                 "successes occur independently."
               ])
           ])),
-        \htmlform([ "What is the probability for exactly ", \mmlm([task(dbinom)], r(K)), " ",
+        \htmlform([ "What is the probability for exactly ", \mmlm(r(K)), " ",
                     "successes?" ], "#dbinom", R)
       ]).
 
