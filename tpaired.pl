@@ -139,7 +139,7 @@ hint(mu, [Mu], Col, FB) =>
 intermediate(indep).
 buggy(stage(2), X, Y, [step(buggy, indep, [])]) :-
     X = item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu),
-    Y = { '<-'(t, instead(indep, indep(T0, S_T0, N, EOT, S_EOT, N), paired(D, Mu, S_D, N))) ; t }.
+    Y = { '<-'(t, instead(indep, indep(T0, S_T0, N, EOT, S_EOT, N), paired(D, Mu, S_D, N))) }.
 
 feedback(indep, [], Col, FB) =>
     FB = [ "The problem was mistakenly identified as ",
