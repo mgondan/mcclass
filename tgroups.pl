@@ -157,8 +157,8 @@ hint(swap, [], _Col, FB) =>
 % 2) Forgot to use square of standard deviation in pooled variance.
 buggy(stage(1), From, To, [step(buggy, sqsd, [S_VR, S_BOX])]) :-
     From = var_pool_(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX),
-    To = var_pool(instead(bug(sqsd), S_VR, S_VR ^ 2), N_VR, 
-	instead(bug(sqsd), S_BOX, S_BOX ^ 2), N_BOX).
+    To = var_pool(instead(sqsd, S_VR, S_VR ^ 2), N_VR, 
+	instead(sqsd, S_BOX, S_BOX ^ 2), N_BOX).
 
 feedback(sqsd, [S_VR, S_BOX], Col, FB) =>
     FB = [ "You need to square ", \mmlm(Col, color(sqsd, S_VR)), " and ", 
@@ -184,7 +184,7 @@ hint(school, [From, To], Col, FB) =>
 % 4) Forgot paranthesis around numerator in t-statistic.
 buggy(stage(2), From, To, [step(buggy, bug1, [VR, BOX, S2P, N_VR, N_BOX])]) :-
     From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
-    To = invent_left(bug(bug1), VR - dfrac(BOX, sqrt(S2P * (1/N_VR + 1/N_BOX)))).
+    To = invent_left(bug1, VR - dfrac(BOX, sqrt(S2P * (1/N_VR + 1/N_BOX)))).
 %VR - dfrac(BOX, sqrt(s2p * (1/N_VR + 1/N_BOX))).
 
 feedback(bug1, [_VR, _BOX, S2P, N_VR, N_BOX], Col, FB) =>
@@ -204,7 +204,7 @@ hint(bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) =>
 buggy(stage(2), From, To, [step(buggy, nosr1, [A])]) :-
     From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
     A = S2P * (1/N_VR + 1/N_BOX),
-    To = dfrac(VR - BOX, instead(bug(nosr1), A, sqrt(A))).
+    To = dfrac(VR - BOX, instead(nosr1, A, sqrt(A))).
 
 feedback(nosr1, [A], Col, FB) =>
    FB = [ "You forgot to take the square root of ", \mmlm(Col, color(nosr1, A)) ].
@@ -218,7 +218,7 @@ hint(nosr1, [A], Col, FB) =>
 buggy(stage(2), From, To, [step(buggy, nosr2, [S2P, N_VR, N_BOX])]) :-
     From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
     A = sqrt(S2P * (1/N_VR + 1/N_BOX)),
-    To = dfrac(VR - BOX, instead(bug(nosr2), sqrt(S2P) * (1/N_VR + 1/N_BOX), A)).
+    To = dfrac(VR - BOX, instead(nosr2, sqrt(S2P) * (1/N_VR + 1/N_BOX), A)).
 
 feedback(nosr2, [_, _, _], Col, FB) =>
    FB = [ "You took the square root of only ", \mmlm(Col, color(nosr2, s2p)),

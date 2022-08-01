@@ -68,7 +68,7 @@ hint(odd, [], Col, FB) =>
 %    a probability.
 buggy(stage(2), From, To, [step(buggy, sub, [Odds_A])]) :-
     From = 1 + Odds_A,
-    To = instead(bug(sub), 1 - Odds_A, 1 + Odds_A).
+    To = instead(sub, 1 - Odds_A, 1 + Odds_A).
 
 feedback(sub, [Odds_A], Col, FB) =>
     FB = [ "Please use the formula converting, ", \mmlm(Col, color(sub, Odds_A)), " to ", 
@@ -80,7 +80,7 @@ hint(sub, [Odds_A], Col, FB) =>
 % 2) Used pi_B rather than odds_A.
 buggy(stage(1), From, To, [step(buggy, pi, [])]) :-
     From = odds_A,
-    To = instead(bug(pi), pi_B, odds_A).
+    To = instead(pi, pi_B, odds_A).
 
 feedback(pi, [], Col, FB) =>
     FB = [ "Please extract and use the value for ", \mmlm(Col, color(pi, odds_A)), " instead." ].
@@ -91,7 +91,7 @@ hint(pi, [], Col, FB) =>
 % 3) Used or rather than odds_A.
 buggy(stage(1), From, To, [step(buggy, ratio, [])]) :-
     From = odds_A,
-    To = instead(bug(ratio), or, odds_A).
+    To = instead(ratio, or, odds_A).
 
 feedback(ratio, [], Col, FB) =>
     FB = [ "Please extract and use the value for ", \mmlm(Col, color(ratio, odds_A)), " instead." ].

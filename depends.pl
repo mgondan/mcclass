@@ -1,7 +1,7 @@
 % Check dependencies in flags
 :- module(depends, [dependencies/1, compatible/1]).
 
-% Check if there is a name(X) or bug(X) for each depends(X)
+% Check if there is a step for each dependency
 dependencies(Flags) :-
     findall(D, member(depends(D), Flags), Dependencies),
     findall(S, member(step(_, S, _), Flags), Steps),

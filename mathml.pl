@@ -1238,14 +1238,14 @@ math(Flags, omit_right(_Bug, Expr), New, M),
  => Flags = New,
     M = Num.
 
-math(Flags, omit_right(bug(Bug), Expr), New, M),
+math(Flags, omit_right(Bug, Expr), New, M),
     option(error(fix), Flags, fix),
     Expr =.. [Op, Num, Den],
     member(Op, [frac, dfrac])
  => Flags = New,
     M =.. [Op, Num, color(Bug, box(color("#000000", Den)))].
 
-math(Flags, omit_right(bug(Bug), Expr), New, M),
+math(Flags, omit_right(Bug, Expr), New, M),
     option(error(highlight), Flags, fix),
     Expr =.. [Op, Num, Den],
     member(Op, [frac, dfrac])
@@ -1420,14 +1420,14 @@ math(Flags, omit_left(_Bug, Expr), New, M),
  => Flags = New,
     Expr =.. [_Op, _L, M].
 
-math(Flags, omit_left(bug(Bug), Expr), New, M),
+math(Flags, omit_left(Bug, Expr), New, M),
     option(error(fix), Flags, fix)
  => Expr =.. [Op, L, R],
     Expr1 =.. [Op, L, " "],
     Flags = New,
     M = list(space, [color(Bug, box(color("#000000", Expr1))), R]).
 
-math(Flags, omit_left(bug(Bug), Expr), New, M),
+math(Flags, omit_left(Bug, Expr), New, M),
     option(error(highlight), Flags, fix)
  => Expr =.. [Op, L, R],
     Expr1 =.. [Op, L, " "],
@@ -1444,14 +1444,14 @@ math(Flags, omit_right(_Bug, Expr), New, M),
  => Flags = New,
     Expr =.. [_Op, M, _R].
 
-math(Flags, omit_right(bug(Bug), Expr), New, M),
+math(Flags, omit_right(Bug, Expr), New, M),
     option(error(fix), Flags, fix)
  => Expr =.. [Op, L, R],
     Expr1 =.. [Op, " ", R],
     Flags = New,
     M = list(space, [L, color(Bug, box(color("#000000", Expr1)))]).
 
-math(Flags, omit_right(bug(Bug), Expr), New, M),
+math(Flags, omit_right(Bug, Expr), New, M),
     option(error(highlight), Flags, fix)
  => Expr =.. [Op, L, R],
     Expr1 =.. [Op, " ", R],
@@ -1468,12 +1468,12 @@ math(Flags, omit(_Bug, _Expr), New, M),
  => Flags = New,
     M = "omitted".
 
-math(Flags, omit(bug(Bug), Expr), New, M),
+math(Flags, omit(Bug, Expr), New, M),
     option(error(fix), Flags, fix)
  => Flags = New,
     M = color(Bug, box(color("#000000", Expr))).
 
-math(Flags, omit(bug(Bug), Expr), New, M),
+math(Flags, omit(Bug, Expr), New, M),
     option(error(highlight), Flags, fix)
  => Flags = New,
     M = color(Bug, cancel(color("#000000", Expr))).
@@ -1488,14 +1488,14 @@ math(Flags, drop_left(_Bug, Expr), New, M),
  => Flags = New,
     Expr =.. [_Op, _L, M].
 
-math(Flags, drop_left(bug(Bug), Expr), New, M),
+math(Flags, drop_left(Bug, Expr), New, M),
     option(error(fix), Flags, fix)
  => Expr =.. [Op, L, R],
     Expr1 =.. [Op, L, " "],
     Flags = New,
     M = list(space, [color(Bug, Expr1), R]).
 
-math(Flags, drop_left(bug(_Bug), Expr), New, M),
+math(Flags, drop_left(_Bug, Expr), New, M),
     option(error(highlight), Flags, fix)
  => Expr =.. [_Op, _L, R],
     Flags = New,
@@ -1511,14 +1511,14 @@ math(Flags, drop_right(_Bug, Expr), New, M),
  => Flags = New,
     Expr =.. [_Op, M, _R].
 
-math(Flags, drop_right(bug(Bug), Expr), New, M),
+math(Flags, drop_right(Bug, Expr), New, M),
     option(error(fix), Flags, fix)
  => Expr =.. [Op, L, R],
     Expr1 =.. [Op, " ", R],
     Flags = New,
     M = list(space, [L, color(Bug, Expr1)]).
 
-math(Flags, drop_right(bug(_Bug), Expr), New, M),
+math(Flags, drop_right(_Bug, Expr), New, M),
     option(error(highlight), Flags, fix)
  => Expr =.. [_Op, L, _R],
     Flags = New,
@@ -1529,17 +1529,17 @@ math(Flags, instead(_Bug, _Wrong, Correct), New, M),
  => Flags = New,
     M = Correct.
 
-math(Flags, instead(bug(Bug), Wrong, _Correct), New, M),
+math(Flags, instead(Bug, Wrong, _Correct), New, M),
     option(error(show), Flags, fix)
  => Flags = New,
     M = color(Bug, Wrong).
 
-math(Flags, instead(bug(Bug), _Wrong, Correct), New, M),
+math(Flags, instead(Bug, _Wrong, Correct), New, M),
     option(error(fix), Flags, fix)
  => Flags = New,
     M = color(Bug, box(color("#000000", Correct))).
 
-math(Flags, instead(bug(Bug), Wrong, Correct), New, M),
+math(Flags, instead(Bug, Wrong, Correct), New, M),
     option(error(highlight), Flags, fix)
  => New = Flags,
     M = underbrace(list(space, ["instead of", correct(Correct)]), color(Bug, show(Wrong))).
@@ -1549,17 +1549,17 @@ math(Flags, instead(_Bug, _Wrong, _Correct0, Correct), New, M),
  => Flags = New,
     M = Correct.
 
-math(Flags, instead(bug(Bug), Wrong, _Correct0, _Correct), New, M),
+math(Flags, instead(Bug, Wrong, _Correct0, _Correct), New, M),
     option(error(show), Flags, fix)
  => Flags = New,
     M = color(Bug, Wrong).
 
-math(Flags, instead(bug(Bug), _Wrong, _Correct0, Correct), New, M),
+math(Flags, instead(Bug, _Wrong, _Correct0, Correct), New, M),
     option(error(fix), Flags, fix)
  => Flags = New,
     M = color(Bug, box(color("#000000", Correct))).
 
-math(Flags, instead(bug(Bug), Wrong, Correct0, _Correct), New, M),
+math(Flags, instead(Bug, Wrong, Correct0, _Correct), New, M),
     option(error(highlight), Flags, fix)
  => New = Flags,
     M = underbrace(list(space, ["instead of", correct(Correct0)]), color(Bug, show(Wrong))).
@@ -1579,13 +1579,13 @@ prec(Flags, invent_left(_, Expr), Prec),
     option(error(show), Flags, fix)
  => prec(Flags, Expr, Prec).
 
-math(Flags, invent_left(bug(_Bug), Expr), New, M),
+math(Flags, invent_left(_Bug, Expr), New, M),
     option(error(fix), Flags, fix)
  => Expr =.. [_Op, _L, R],
     Flags = New,
     M = R.
 
-math(Flags, invent_left(bug(Bug), Expr), New, M),
+math(Flags, invent_left(Bug, Expr), New, M),
     option(error(highlight), Flags, fix)
  => Expr =.. [Op, L, R],
     Expr1 =.. [Op, L, " "],
@@ -1611,18 +1611,18 @@ prec(Flags, invent_right(_, Expr), Prec),
     option(error(show), Flags, fix)
  => prec(Flags, Expr, Prec).
 
-math(Flags, invent_right(bug(_Bug), Expr), New, M),
+math(Flags, invent_right(_Bug, Expr), New, M),
     option(error(fix), Flags, fix)
  => Expr =.. [_Op, L, _R],
     Flags = New,
     M = L.
 
-math(Flags, invent_right(bug(Bug), L^R), New, M),
+math(Flags, invent_right(Bug, L^R), New, M),
     option(error(highlight), Flags, fix)
  => Flags = New,
     M = L^color(Bug, R).
 
-math(Flags, invent_right(bug(Bug), Expr), New, M),
+math(Flags, invent_right(Bug, Expr), New, M),
     option(error(highlight), Flags, fix)
  => Expr =.. [Op, L, R],
     Expr1 =.. [Op, " ", R],
@@ -1633,39 +1633,39 @@ prec(Flags, invent_right(_, Expr), Prec),
     option(error(highlight), Flags, fix)
  => prec(Flags, Expr, Prec).
 
-mathml :- mathml(dfrac(omit_right(bug(bug), overline('D') - mu),
+mathml :- mathml(dfrac(omit_right(bug, overline('D') - mu),
                    sub(s, 'D') / sqrt('N'))).
 
 mathml :- writeln("Same with Flags = error(fix)"),
     mathml([error(fix)], 
-           dfrac(omit_right(bug(bug), overline('D') - mu), sub(s, 'D') / sqrt('N'))).
+           dfrac(omit_right(bug, overline('D') - mu), sub(s, 'D') / sqrt('N'))).
 
 mathml :- writeln("Same with Flags = error(highlight)"),
     mathml([error(highlight)], 
-           dfrac(omit_right(bug(bug), overline('D') - mu), sub(s, 'D') / sqrt('N'))).
+           dfrac(omit_right(bug, overline('D') - mu), sub(s, 'D') / sqrt('N'))).
     
 mathml :- writeln("Same with Flags = error(show)"),
     mathml([error(show)], 
-           dfrac(omit_right(bug(bug), overline('D') - mu), sub(s, 'D') / sqrt('N'))).
+           dfrac(omit_right(bug, overline('D') - mu), sub(s, 'D') / sqrt('N'))).
 
 mathml :- writeln("Same with Flags = error(correct)"),
     mathml([error(correct)],
-           dfrac(omit_right(bug(bug), overline('D') - mu), sub(s, 'D') / sqrt('N'))).
+           dfrac(omit_right(bug, overline('D') - mu), sub(s, 'D') / sqrt('N'))).
     
 mathml :- mathml(dfrac(overline('D') - mu,
-                   sub(s, 'D') / instead(bug(bug), 'N', sqrt('N')))).
+                   sub(s, 'D') / instead(bug, 'N', sqrt('N')))).
 
 mathml :- writeln("Same with Flags = error(fix)"),
     mathml([error(fix)], 
-           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug(bug), 'N', sqrt('N')))).
+           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug, 'N', sqrt('N')))).
 
 mathml :- writeln("Same with Flags = error(highlight)"),
     mathml([error(highlight)], 
-           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug(bug), 'N', sqrt('N')))).
+           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug, 'N', sqrt('N')))).
 
 mathml :- writeln("Same with Flags = error(show)"),
     mathml([error(show)], 
-           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug(bug), 'N', sqrt('N')))).
+           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug, 'N', sqrt('N')))).
 
 %
 % Expert and buggy rules
@@ -1971,43 +1971,43 @@ bugs(Expr, Bugs) :-
     bugs_(Expr, List),
     sort(List, Bugs).
 
-bugs_(instead(bug(Bug), Wrong, _Correct), List)
+bugs_(instead(Bug, Wrong, _Correct), List)
  => bugs_(Wrong, Bugs),
     List = [Bug | Bugs].
 
-bugs_(instead(bug(Bug), Wrong, _Correct0, _Correct), List)
+bugs_(instead(Bug, Wrong, _Correct0, _Correct), List)
  => bugs_(Wrong, Bugs),
     List = [Bug | Bugs].
 
-bugs_(omit_left(bug(Bug), Expr), List)
+bugs_(omit_left(Bug, Expr), List)
  => Expr =.. [_Op, _L, R],
     bugs_(R, Bugs),
     List = [Bug | Bugs].
 
-bugs_(omit_right(bug(Bug), Expr), List)
+bugs_(omit_right(Bug, Expr), List)
  => Expr =.. [_Op, L, _R],
     bugs_(L, Bugs),
     List = [Bug | Bugs].
 
-bugs_(omit(bug(Bug), Expr), List)
+bugs_(omit(Bug, Expr), List)
  => bugs_(Expr, Bugs),
     List = [Bug | Bugs].
 
-bugs_(drop_left(bug(Bug), Expr), List)
+bugs_(drop_left(Bug, Expr), List)
  => Expr =.. [_Op, _L, R],
     bugs_(R, Bugs),
     List = [Bug | Bugs].
 
-bugs_(drop_right(bug(Bug), Expr), List)
+bugs_(drop_right(Bug, Expr), List)
  => Expr =.. [_Op, L, _R],
     bugs_(L, Bugs),
     List = [Bug | Bugs].
 
-bugs_(invent_left(bug(Bug), Expr), List)
+bugs_(invent_left(Bug, Expr), List)
  => bugs_(Expr, Bugs),
     List = [Bug | Bugs].
 
-bugs_(invent_right(bug(Bug), Expr), List)
+bugs_(invent_right(Bug, Expr), List)
  => bugs_(Expr, Bugs),
     List = [Bug | Bugs].
 

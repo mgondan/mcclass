@@ -99,7 +99,7 @@ hint(oddsb, [To], Col, FB) =>
 % Forgot conversion  of pi_a to odds.
 buggy(stage(2), From, To, [step(buggy, cona, [Pi_A])]) :-
     From = dfrac(Pi_A, (1 - Pi_A)),
-    To = omit_right(bug(cona), dfrac(Pi_A, 1 - Pi_A)).
+    To = omit_right(cona, dfrac(Pi_A, 1 - Pi_A)).
 
 feedback(cona, [Pi_A], Col, FB) =>
     FB = [ "Please remember to convert ", \mmlm(Col, color(cona, Pi_A)), " to ",
@@ -112,7 +112,7 @@ hint(cona, [Pi_A], Col, FB) =>
 % Forgot to multiply odds_a and or.
 buggy(stage(2), From, To, [step(buggy, mult, [OR])]) :-
     From = odds_A * OR,
-    To = omit_right(bug(mult), odds_A * OR).
+    To = omit_right(mult, odds_A * OR).
 
 feedback(mult, [OR], Col, FB) =>
     FB = [ "You forgot to multiply ", \mmlm(Col, color(mult, odds_A)), " with ",
@@ -125,7 +125,7 @@ hint(mult, [OR], Col, FB) =>
 % Divided odds_A and or rather then multiplying them.
 buggy(stage(2), From, To, [step(buggy, divi, [OR])]) :-
     From = odds_A * OR,
-    To = instead(bug(divi), odds_A / OR, odds_A * OR).
+    To = instead(divi, odds_A / OR, odds_A * OR).
 
 feedback(divi, [OR], Col, FB) =>
     FB = [ "You divided ", \mmlm(Col, color(divi, odds_A)), " by ", 
@@ -138,7 +138,7 @@ hint(divi, [OR], Col, FB) =>
 % Forgot to convert odds_B to pi_B.
 buggy(stage(2), From, To, [step(buggy, nopi, [])]) :-
     From = dfrac(odds_B, 1 + odds_B),
-    To = omit_right(bug(nopi), dfrac(odds_B, 1 + odds_B)).
+    To = omit_right(nopi, dfrac(odds_B, 1 + odds_B)).
 
 feedback(nopi, [], Col, FB) =>
     FB = [ "You forgot to convert ", 

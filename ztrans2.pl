@@ -83,7 +83,7 @@ hint(correct_tail, [], _Col, FB) =>
 %
 buggy(stage(2), From, To, [step(buggy, wrong_tail, [])]) :-
     From = qnorm_(1 - P),
-    To = qnorm(instead(bug(wrong_tail), P, 1 - P)).
+    To = qnorm(instead(wrong_tail, P, 1 - P)).
 
 feedback(wrong_tail, [], _Col, FB) =>
     FB = [ "Your response matches the lower, not the upper tail of the Normal ",
@@ -96,7 +96,7 @@ hint(wrong_tail, [], _Col, FB) =>
 % Buggy Rule (swap) Mu and Sigma were swapped.
 buggy(stage(2), From, To, [step(buggy, swap, [mu, Sigma])]) :-
     From = z * Sigma + mu,
-    To = instead(bug(swap), z * mu + Sigma, From).
+    To = instead(swap, z * mu + Sigma, From).
 
 feedback(swap, [Mu, Sigma], Col, FB) =>
     FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ",
@@ -110,7 +110,7 @@ hint(swap, [Mu, Sigma], Col, FB) =>
 % Buggy Rule (vardev swap) standard deviation was mistaken with variance.
 buggy(stage(2), From, To, [step(buggy, vardev_swap, [sigma])]) :-
     From = Z * sigma + Mu,
-    To = Z * invent_right(bug(vardev_swap), sigma^2) + Mu.
+    To = Z * invent_right(vardev_swap, sigma^2) + Mu.
 
 feedback(vardev_swap, [Sigma], Col, FB) =>
     FB = [ "You squared ", \mmlm(Col, color(vardev_swap, Sigma)), " by mistake." ].
@@ -127,7 +127,7 @@ hint(vardev_swap, [_Sigma], _Col, FB) =>
 %
 buggy(stage(2), From, To, [step(buggy, perc1000, [1000])]) :-
     From = dfrac(P, 100),
-    To = dfrac(P, instead(bug(perc1000), 1000, 100)).
+    To = dfrac(P, instead(perc1000, 1000, 100)).
 
 feedback(perc1000, [P], Col , FB) =>
     FB = [ "You divided the percentage by " ,
@@ -142,7 +142,7 @@ hint(perc1000, [_P], _Col, FB) =>
 % Buggy Rule (pdecimal2) p was taken to be ten times its true value (5% -/-> 0,05. 5% --> 0,5).
 buggy(stage(2), From, To, [step(buggy, pdecimal2, [P])]) :-
     From = dfrac( P , 100 ),
-    To = instead(bug(pdecimal2), dfrac( P , 10 ), From).
+    To = instead(pdecimal2, dfrac( P , 10 ), From).
 
 feedback(pdecimal2, [_], _ , FB) =>
     FB = [ "You converted P-% incorrectly to a decimal representation." ].
@@ -154,7 +154,7 @@ hint(pdecimal2, [P], Col, FB) =>
 % Buggy Rule (zx) The z value was calculated but taken to be the endresult.
 buggy(stage(2), From, To, [step(buggy, zx, [z, sigma, mu])]) :-
     From = z * sigma + mu,
-    To = instead(bug(zx), z , From).
+    To = instead(zx, z , From).
 
 feedback(zx, [z, sigma, mu], _Col, FB) =>
     FB = [ "To complete the exercise successfully you have to do the second calculation aswell." ].

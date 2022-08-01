@@ -101,7 +101,7 @@ hint(oddsb, [To], Col, FB) =>
 % 1) Forgot conversion  of pi_a to odds.
 buggy(stage(2), From, To, [step(buggy, cona, [pi_A]), depends(conb)]) :-
     From = dfrac(pi_A, (1 - pi_A)),
-    To = omit_right(bug(cona), dfrac(pi_A, 1 - pi_A)).
+    To = omit_right(cona, dfrac(pi_A, 1 - pi_A)).
 
 feedback(cona, [pi_A], Col, FB) =>
     FB = [ "Please remember to convert ", \mmlm(Col, color(cona, pi_A)), " to ",
@@ -114,7 +114,7 @@ hint(cona, [pi_A], Col, FB) =>
 % 2) Forgot conversion  of pi_b to odds.
 buggy(stage(2), From, To, [step(buggy, conb, [pi_B]), depends(cona)]) :-
     From = dfrac(pi_B, (1 - pi_B)),
-    To = omit_right(bug(conb), dfrac(pi_B, 1 - pi_B)).
+    To = omit_right(conb, dfrac(pi_B, 1 - pi_B)).
 
 feedback(conb, [pi_B], Col, FB) =>
     FB = [ "Please remember to convert ", \mmlm(Col, color(conb, pi_B)), " to ",
@@ -127,7 +127,7 @@ hint(conb, [pi_B], Col, FB) =>
 % 3) Flipped odds_A and odds_B.
 buggy(stage(2), From, To, [step(buggy, flip, [])]) :-
     From = odds_A / odds_B,
-    To = instead(bug(flip), odds_B / odds_A, odds_A / odds_B).
+    To = instead(flip, odds_B / odds_A, odds_A / odds_B).
 
 feedback(flip, [], Col, FB) =>
     FB = [ "Divide ", \mmlm(Col, color(flip, odds_A)), " by ",
@@ -141,7 +141,7 @@ hint(flip, [], Col, FB) =>
 % 4) Multiplied odds_A and odds_B.
 buggy(stage(2), From, To, [step(buggy, mult, [])]) :-
     From = odds_A / odds_B,
-    To = instead(bug(mult), odds_A * odds_B, odds_A / odds_B).
+    To = instead(mult, odds_A * odds_B, odds_A / odds_B).
 
 feedback(mult, [], Col, FB) =>
     FB = [ "Divide ", \mmlm(Col, color(mult, odds_A)), " by ",

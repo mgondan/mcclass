@@ -126,10 +126,10 @@ hint(one, [], Col, FB) =>
 % 2) used only the sample size of N_VR.
 buggy(stage(2), From, To, [step(buggy, singlen, [N_VR, N_BOX])]) :-
     From = N_VR + N_BOX - 2,
-    To = omit_right(bug(singlen), N_VR + N_BOX) - 2.
+    To = omit_right(singlen, N_VR + N_BOX) - 2.
 buggy(stage(2), From, To, [step(buggy, singlen2, [N_VR, N_BOX])]) :-
     From = N_VR + N_BOX - 2,
-    To = omit_left(bug(singlen2), N_VR + N_BOX) - 2.
+    To = omit_left(singlen2, N_VR + N_BOX) - 2.
 
 feedback(singlen, [N_VR, N_BOX], Col, FB) =>
     FB = [ "Please remember to add up ", \mmlm(Col, color(singlen, N_VR + N_BOX)) ].
@@ -145,10 +145,10 @@ hint(singlen2, [N_VR, N_BOX], Col, FB) =>
 % 3) and again, but with -1.
 buggy(stage(2), From, To, [step(buggy, singlen3, [N_VR, N_BOX])]) :-
     From = N_VR + N_BOX - 2,
-    To = omit_left(bug(singlen3), N_VR + N_BOX) - color(singlen3, 1).
+    To = omit_left(singlen3, N_VR + N_BOX) - color(singlen3, 1).
 buggy(stage(2), From, To, [step(buggy, singlen4, [N_VR, N_BOX])]) :-
     From = N_VR + N_BOX - 2,
-    To = omit_right(bug(singlen4), N_VR + N_BOX) - color(singlen4, 1).
+    To = omit_right(singlen4, N_VR + N_BOX) - color(singlen4, 1).
 
 feedback(singlen3, [N_VR, N_BOX], Col, FB) =>
     FB = [ "Please remember to add up ", 
@@ -171,7 +171,7 @@ hint(singlen4, [N_VR, N_BOX], Col, FB) =>
 % 4) Gguessed that there is one degree of freedom per group.
 buggy(stage(2), From, To, [step(buggy, guess, [From])]) :-
     From = N_VR + N_BOX - 2,
-    To = instead(bug(guess), 2.00, N_VR + N_BOX - 2).
+    To = instead(guess, 2.00, N_VR + N_BOX - 2).
 
 feedback(guess, [_From], Col, FB) =>
     FB = [ "While the ", \mmlm(Col, "df"), " depend on the number of groups ",
@@ -184,7 +184,7 @@ hint(guess, [From], Col, FB) =>
 % 5) Forgot to subtract 2.
 buggy(stage(2), From, To, [step(buggy, nosub, [N_VR, N_BOX])]) :-
     From = N_VR + N_BOX - 2,
-    To = omit_right(bug(nosub), (N_VR + N_BOX) - 2).
+    To = omit_right(nosub, (N_VR + N_BOX) - 2).
 
 feedback(nosub, [_N_VR, _N_BOX], Col, FB) =>
     FB = [ "Please remember to subtract ", \mmlm(Col, color(nosub, 2)), 

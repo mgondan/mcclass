@@ -111,8 +111,8 @@ hint(ppool, [S_VR, S_Box, N_VR, N_Box], Col, FB) =>
 % Vincent: Feedback doesn't show, no version with only this bug.
 %buggy(stage(1), From, To, [step(buggy, pdiff, [])]) :-
 %    From = ppool(S_VR, S_Box, N_VR, N_Box),
-%    To = dfrac(instead(bug(pdiff), S_VR - S_Box, S_VR + S_Box),
-%               instead(bug(pdiff), N_VR - N_Box, N_VR + N_Box)).
+%    To = dfrac(instead(pdiff, S_VR - S_Box, S_VR + S_Box),
+%               instead(pdiff, N_VR - N_Box, N_VR + N_Box)).
 
 feedback(pdiff, [], Col, FB) =>
     FB = [ "Please add up the numbers in both the numerator and the ",
@@ -144,7 +144,7 @@ hint(zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box], Col, FB) =>
 % lower end is number of exact matches).
 buggy(stage(2), From, To, [step(buggy, square, [])]) :-
     From = ('<-'(chi2, chi2ratio(Z^2)) ; chi2),
-    To = (omit(bug(square), '<-'(chi2, Z^2)) ; tratio(Z)).
+    To = (omit(square, '<-'(chi2, Z^2)) ; tratio(Z)).
 
 feedback(square, [], Col, FB) =>
     FB = [ "The result matches ",
@@ -163,7 +163,7 @@ hint(square, [], Col, FB) =>
 % Appeared 3-8 times in the 2018 exams.
 buggy(stage(2), From, To, [step(buggy, zadd, [P_VR, P_Box])]) :-
     From = zstat(P_VR, P_Box, P_Pool, N_VR, N_Box),
-    To = dfrac(instead(bug(zadd), P_VR + P_Box, P_VR - P_Box), sqrt(P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box))).
+    To = dfrac(instead(zadd, P_VR + P_Box, P_VR - P_Box), sqrt(P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box))).
 
 feedback(zadd, [P_VR, P_Box], Col, FB) =>
     FB = [ \mmlm(Col, color(zadd, P_Box)), " was added to ", 
@@ -200,7 +200,7 @@ hint(paren2, [N_VR, N_Box], Col, FB) =>
 % Appeared 1-4 times in the 2018 exams.
 buggy(stage(2), From, To, [step(buggy, paren3, [From])]) :-
     From = P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box),
-    To = instead(bug(paren3), P_Pool * 1 - P_Pool * 1 / N_VR + 1 / N_Box, From).
+    To = instead(paren3, P_Pool * 1 - P_Pool * 1 / N_VR + 1 / N_Box, From).
 
 feedback(paren3, [From], Col, FB) =>
     FB = [ "Please remember the parentheses around the different ",
@@ -214,7 +214,7 @@ hint(paren3, [From], Col, FB) =>
 % Appeared 3-5 times in the 2018 exams.
 buggy(stage(2), From, To, [step(buggy, flip, [])]) :-
     From = '<-'(z, zstat(P_VR, P_Box, P_pool, N_VR, N_Box)),
-    To = '<-'(z, invent_left(bug(flip), 1/zstat(P_VR, P_Box, P_pool, N_VR, N_Box))).
+    To = '<-'(z, invent_left(flip, 1/zstat(P_VR, P_Box, P_pool, N_VR, N_Box))).
 
 feedback(flip, [], Col, FB) =>
     FB = ["The result matches the reciprocal of the test statistic ", 

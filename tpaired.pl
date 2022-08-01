@@ -126,7 +126,7 @@ hint(abs_tratio, [D, Mu, S_D, N], Col, Hint) =>
 % in SPSS only allows for mu = 0. 
 buggy(stage(2), X, Y, [step(buggy, mu, [Mu])]) :-
     X = paired(D, Mu, S_D, N),
-    Y = tratio(dfrac(omit_right(bug(mu), D - Mu), S_D / sqrt(N))).
+    Y = tratio(dfrac(omit_right(mu, D - Mu), S_D / sqrt(N))).
 
 feedback(mu, [Mu], Col, FB) =>
     FB = [ "In the ", \mmlm(hyph(t, "ratio,")), " the null ",
@@ -141,7 +141,7 @@ hint(mu, [Mu], Col, FB) =>
 intermediate(indep).
 buggy(stage(2), X, Y, [step(buggy, indep, [])]) :-
     X = item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu),
-    Y = { '<-'(t, instead(bug(indep), indep(T0, S_T0, N, EOT, S_EOT, N), paired(D, Mu, S_D, N))) ; t }.
+    Y = { '<-'(t, instead(indep, indep(T0, S_T0, N, EOT, S_EOT, N), paired(D, Mu, S_D, N))) ; t }.
 
 feedback(indep, [], Col, FB) =>
     FB = [ "The problem was mistakenly identified as ",
@@ -154,7 +154,7 @@ hint(indep, [], Col, FB) =>
 
 % This step is used to determine the test statistic for the t-test for
 % independent samples. The step itself is correct, although it is only needed
-% if a wrong decision has been made before [bug(indep)].
+% if a wrong decision has been made before bug indep.
 expert(stage(2), X, Y, 
         [step(expert, tratio_indep, [T0, S_T0, N, EOT, S_EOT])]) :-
     X = indep(T0, S_T0, N, EOT, S_EOT, N),
@@ -177,7 +177,7 @@ hint(tratio_indep, [T0, S_T0, N, EOT, S_EOT], Col, FB) =>
 % 
 % Forgot school math: 1/N1 + 1/N2 is not 1/(N1 + N2). For mysterious reasons,
 % everyone falls into this trap at least once, including me and the student
-% assistants. I have coined it "bug(school)", since it is an example in which
+% assistants. I have coined it "school", since it is an example in which
 % the person has forgotten school math.
 buggy(stage(2), X, Y, [step(buggy, school1, [N1, N2])]) :-
     dif(N1, N2),
@@ -216,10 +216,10 @@ hint(school2, [N], Col, FB) =>
 % name, bug1.
 buggy(stage(2), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
     X = dfrac(D - Mu, S / SQRT_N),
-    M0 = drop_left(bug(bug1), D - Mu),
-    S0 = drop_right(bug(bug1), S / SQRT_N),
-    Y = invent_left(bug(bug1), 
-        D - invent_right(bug(bug1), dfrac(M0, S0) / SQRT_N)).
+    M0 = drop_left(bug1, D - Mu),
+    S0 = drop_right(bug1, S / SQRT_N),
+    Y = invent_left(bug1, 
+        D - invent_right(bug1, dfrac(M0, S0) / SQRT_N)).
 
 feedback(bug1, [D, Mu, S, SQRT_N], Col, FB) =>
     FB = [ "Please do not forget the parentheses around the numerator and ",
@@ -246,7 +246,7 @@ hint(bug1, [D, Mu, S, SQRT_N], Col, FB) =>
 buggy(stage(1), X, Y, 
         [step(buggy, t0, [d, t0]), depends(s_t0), depends(paired)]) :-
     X = d,
-    Y = instead(bug(t0), t0, d).
+    Y = instead(t0, t0, d).
 
 feedback(t0, [D, _T0], Col, FB) =>
     FB = [ "Please insert the average change ",
@@ -262,7 +262,7 @@ hint(t0, [_D, T0], Col, FB) =>
 buggy(stage(1), X, Y, Flags) :-
     Flags = [step(buggy, s_t0, [s_d, s_t0]), depends(paired)],
     X = s_d,
-    Y = instead(bug(s_t0), s_t0, s_d).
+    Y = instead(s_t0, s_t0, s_d).
 
 feedback(s_t0, [S, _S_T0], Col, FB) =>
     FB = [ "Please insert the standard deviation of the change ",
@@ -279,7 +279,7 @@ hint(s_t0, [_S, S_T0], Col, FB) =>
 buggy(stage(1), X, Y, [step(buggy, eot, [d, eot]), 
         depends(s_eot), depends(paired)]) :-
     X = d,
-    Y = instead(bug(eot), eot, d).
+    Y = instead(eot, eot, d).
 
 feedback(eot, [D, _EOT], Col, FB) =>
     FB = [ "Please insert the average change ",
@@ -295,7 +295,7 @@ hint(eot, [_D, EOT], Col, FB) =>
 buggy(stage(1), X, Y, Flags) :-
     Flags = [step(buggy, s_eot, [s_d, s_eot]), depends(paired)],
     X = s_d,
-    Y = instead(bug(s_eot), s_eot, s_d).
+    Y = instead(s_eot, s_eot, s_d).
 
 feedback(s_eot, [S, _S_EOT], Col, FB) =>
     FB = [ "Please insert the standard deviation of the change ",

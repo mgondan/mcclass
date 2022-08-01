@@ -124,7 +124,7 @@ hint(indep, [], _Col, FB) =>
 % 1) Used standard deviation instead of variance.
 buggy(stage(2), From, To, [step(buggy, sd, [S_VR, S_BOX])]) :-
     From = dfrac(A * S_VR ^ 2 + B * S_BOX ^ 2, C),
-    To = dfrac(A * instead(bug(sd), S_VR, S_VR ^ 2) + B * instead(bug(sd), S_BOX, S_BOX ^ 2), C).
+    To = dfrac(A * instead(sd, S_VR, S_VR ^ 2) + B * instead(sd, S_BOX, S_BOX ^ 2), C).
 
 feedback(sd, [S_VR, S_BOX], Col, FB) =>
     FB = [ "Please remember to use the squares of ", 
@@ -139,8 +139,8 @@ hint(sd, [_S_VR, _S_BOX], _Col, FB) =>
 buggy(stage(2), From, To, [step(buggy, bug1, [N_VR, N_BOX, S_VR, S_BOX])]) :-
     From = dfrac((N_VR - 1) * S_VR ^ 2 + (N_BOX - 1) * S_BOX ^ 2, 
 		 N_VR + N_BOX - 2),
-    To = invent_right(bug(bug1), invent_left(bug(bug1), color(bug1, N_VR - 1 * S_VR ^ 2 + N_BOX) - 
-	 invent_left(bug(bug1), 1 * dfrac(S_BOX ^ 2, N_VR))) + (N_BOX - 2)).
+    To = invent_right(bug1, invent_left(bug1, color(bug1, N_VR - 1 * S_VR ^ 2 + N_BOX) - 
+	 invent_left(bug1, 1 * dfrac(S_BOX ^ 2, N_VR))) + (N_BOX - 2)).
 
 feedback(bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) =>
     FB = [ "Please do not forget the parentheses around the numerator and ",

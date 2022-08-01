@@ -93,7 +93,7 @@ hint(correct_tail, [_Z], _Col, FB) =>
 % Buggy rule (wrong tail) The wrong tail of the normal distribution was selected.
 buggy(stage(2), From, To, [step(buggy, wrong_tail, [Z])]) :-
     From = pnorm_(Z),
-    To = instead(bug(wrong_tail), 1 - pnorm(Z), pnorm(Z)).
+    To = instead(wrong_tail, 1 - pnorm(Z), pnorm(Z)).
 
 feedback(wrong_tail, [_Z], Col, FB) =>
     FB = [ "Your answer matches the ", \mmlm(Col, color(wrong_tail, "wrong tail " )), "of the normal distribution." ].
@@ -104,7 +104,7 @@ hint(wrong_tail, [_Z], _Col, FB) =>
 % Buggy Rule (plus) Mu was added to X, not subtracted.
 buggy(stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
     From = dfrac(X - Mu, Sigma),
-    To = dfrac(instead(bug(plus), X + Mu, X - Mu), Sigma).
+    To = dfrac(instead(plus, X + Mu, X - Mu), Sigma).
 
 feedback(plus, [X, Mu], Col, FB) =>
     FB = [ "Subtract ", \mmlm(Col, color(plus, Mu)), " from ", \mmlm(Col, color(plus, X)),
@@ -117,9 +117,9 @@ hint(plus, [X, Mu], Col, FB) =>
 % Buggy Rule (swap) Mu and Sigma were swapped.
 buggy(stage(1), From, To, [step(buggy, swap, [mu, sigma])]) :-
     From = item(x, mu, sigma),
-    To = item(x, instead(bug(swap), sigma, mu), instead(bug(swap), mu, sigma));
+    To = item(x, instead(swap, sigma, mu), instead(swap, mu, sigma));
     From = item(x, mu, sigma^2),
-    To = item(x, instead(bug(swap), sigma^2, mu), instead(bug(swap), mu, sigma)).
+    To = item(x, instead(swap, sigma^2, mu), instead(swap, mu, sigma)).
 
 feedback(swap, [Mu, Sigma], Col, FB) =>
     FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ", 
@@ -132,7 +132,7 @@ hint(swap, [Mu, Sigma], Col, FB) =>
 % Buggy Rule (vardev swap) standard deviation was mistaken with variance.
 buggy(stage(1), From, To, [step(buggy, vardev_swap, [sigma])]) :-
     From = item(x, mu, sigma),
-    To = item(x, mu, instead(bug(vardev_swap), sigma^2, sigma)).
+    To = item(x, mu, instead(vardev_swap, sigma^2, sigma)).
 
 feedback(vardev_swap, [sigma], Col, FB) =>
     FB = [ "You squared ", \mmlm(Col, color(vardev_swap, sigma)), " by mistake." ].
@@ -143,7 +143,7 @@ hint(vardev_swap, [sigma], Col, FB) =>
 % Buggy Rule (xp) (x - mu)/sigma was skipped.
 buggy(stage(2), From, To, [step(buggy, xp, []), depends(xp2)]) :-
    From = dfrac(x - mu, sigma),
-   To = omit_right(bug(xp), dfrac(omit_right(bug(xp), x - mu), sigma)).
+   To = omit_right(xp, dfrac(omit_right(xp, x - mu), sigma)).
 
 feedback(xp, [], Col, FB) =>
     FB = [ "The z-value is calculated by calculating ", \mmlm(Col, dfrac(x - mu, sigma)) ].
@@ -154,7 +154,7 @@ hint(xp, [], _Col, FB) =>
 % Buggy Rule (xp2) x/100 was taken to be phi(z).
 buggy(stage(2), From, To, [step(buggy, xp2, []), depends(xp)]) :-
     From = pnorm_(z),
-    To = instead(bug(xp2), z/100, pnorm(z)).
+    To = instead(xp2, z/100, pnorm(z)).
 
 feedback(xp2, [], _Col, FB) =>
     FB = [ "von Matthias hinzugefuegt." ].

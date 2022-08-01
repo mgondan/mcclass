@@ -117,7 +117,7 @@ hint(failure, [K, _P0], Col, Hint) =>
 % Forget binomial coefficient
 buggy(stage(2), From, To, [step(buggy, nochoose, [K, N])]) :-
     From = dbinom(K, N, P0),
-    To   = omit_left(bug(nochoose), choose(N, K) * bernoulli(K, N, P0)).
+    To   = omit_left(nochoose, choose(N, K) * bernoulli(K, N, P0)).
 
 feedback(nochoose, [_K, _N], _Col, Feed) =>
     Feed = [ "The binomial coefficient with the number of permutations was ",
@@ -131,7 +131,7 @@ hint(nochoose, [K, N], Col, Hint) =>
 % Treat binomial coefficient like a fraction
 buggy(stage(2), From, To, [step(buggy, choosefrac, [K, N])]) :-
     From = choose(N, K),
-    To   = instead(bug(choosefrac), dfrac(N, K), choose(N, K)).
+    To   = instead(choosefrac, dfrac(N, K), choose(N, K)).
 
 feedback(choosefrac, [K, N], Col, Feed) =>
     Feed = [ "Please determine the number of permutations using the ",
@@ -147,7 +147,7 @@ hint(choosefrac, [K, N], Col, Hint) =>
 % Omit (N-k)! in the denominator of the binomial coefficient
 buggy(stage(2), From, To, [step(buggy, choosefail, [K, N])]) :-
     From = choose(N, K),
-    To   = instead(bug(choosefail), dfrac(factorial(N), factorial(K)), choose(N, K)).
+    To   = instead(choosefail, dfrac(factorial(N), factorial(K)), choose(N, K)).
 
 feedback(choosefail, [K, N], Col, Feed) =>
     Feed = [ "Please determine the number of permutations using the ",
@@ -164,8 +164,8 @@ hint(choosefail, [K, N], Col, Hint) =>
 % Confuse successes and failures
 buggy(stage(2), From, To, [step(buggy, succfail, [K, N, P0])]) :-
     From = bernoulli(K, N, P0),
-    To   = instead(bug(succfail), successes(K, 1 - P0), successes(K, P0)) * 
-           instead(bug(succfail), failures(N - K, P0), failures(N - K, 1 - P0)).
+    To   = instead(succfail, successes(K, 1 - P0), successes(K, P0)) * 
+           instead(succfail, failures(N - K, P0), failures(N - K, 1 - P0)).
 
 feedback(succfail, [_K, _N, P0], Col, Feed) =>
     Feed = [ "The probabilities ", \mmlm(Col, color(succfail, P0)), " for ",
@@ -182,7 +182,7 @@ hint(succfail, [_K, _N, P0], Col, Hint) =>
 % Forget failures
 buggy(stage(2), From, To, [step(buggy, nofail, [K, N, P0])]) :-
     From = bernoulli(K, N, P0),
-    To   = omit_right(bug(nofail), successes(K, P0) * failures(N - K, 1 - P0)).
+    To   = omit_right(nofail, successes(K, P0) * failures(N - K, 1 - P0)).
 
 feedback(nofail, [K, N, _P0], Col, Feed) =>
     Feed = [ "The probability for the ", \mmlm(Col, color(nofail, N - K)), " ",
