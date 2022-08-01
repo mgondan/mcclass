@@ -77,7 +77,7 @@ start(item(t0, s_t0, eot, s_eot, d, s_d, n, mu)).
 intermediate(paired).
 expert(stage(2), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu),
-    Y = { '<-'(t, paired(D, Mu, S_D, N)) ; t }.
+    Y = { '<-'(t, paired(D, Mu, S_D, N)) }.
 
 feedback(paired, [], Col, FB) =>
     FB = [ "Correctly recognised the problem as ",
