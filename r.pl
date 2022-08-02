@@ -74,11 +74,11 @@ r_session(Expr) -->
     html(String).
 
 r_task(Expr),
-    nb_getval(task, Task)
+    b_getval(task, Task)
  => r_session(with(Task, Expr)).
 
 r_task(Expr, Res),
-    nb_getval(task, Task)
+    b_getval(task, Task)
  => r_session(with(Task, Expr), Res).
 
 r_task(Expr) -->

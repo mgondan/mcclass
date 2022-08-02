@@ -1,6 +1,6 @@
 :- module(tasks, 
   [ task/2, feedback//3, solutions//1, hints//1, wrongs//1,
-    traps//1, download/2, hints/2
+    traps//1, download/1, hints/2
   ]).
 
 :- use_module(library(http/html_write)).
@@ -342,9 +342,9 @@ traps(task(Task, Data)) -->
       ])).
 
 % Download task data
-download(Task, File) :-
+download(File) :-
     session_tmpfile(File),
-    r_task(Task, download(File)).
+    r_task(download(File)).
 
 %
 % Run example outside of webserver

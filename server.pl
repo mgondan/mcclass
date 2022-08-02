@@ -54,8 +54,10 @@ handler(Task, _) :-
 % Download csv data
 handle(Task, Form),
     member(download=_, Form)
- => task(Task, _TaskData),
-    download(Task, Local),
+ => r_initialize,
+    b_setval(task, Task),
+    task(Task, _TaskData),
+    download(Local),
     format(atom(File), "attachment; filename=~k.csv", [Task]),
     http_current_request(Request),
     http_reply_file(Local,
