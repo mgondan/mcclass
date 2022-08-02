@@ -647,6 +647,12 @@ math(Flags, chi2ratio(A), New, X)
  => New = [digits(2) | Flags],
     A = X.
 
+math(Flags, perc(A), New, X)
+ => option(digits(D0), Flags, 2),
+    D is D0 - 2,
+    New = [digits(D), mult(100) | Flags],
+    X = [A, '%'].
+
 %
 % Numbers
 %
@@ -663,12 +669,18 @@ math(Flags, A, New, X),
     X = number(A).
 
 math(Flags, number(A), New, X),
+    option(mult(M), Flags)
+ => select_option(mult(M), Flags, New),
+    N is M*A,
+    X = number(N).
+
+math(Flags, number(A), New, X),
     integer(A)
  => New = Flags,
     X = integer(A).
 
-ml(_Flags, integer(A), M)
- => M = mn(A).
+ml(_Flags, integer(A), X)
+ => X = mn(A).
 
 denoting(_Flags, integer(_), D)
  => D = [].

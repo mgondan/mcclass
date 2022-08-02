@@ -31,7 +31,7 @@ interval:r_hook(s_t0).
 interval:r_hook(eot).
 interval:r_hook(s_eot).
 
-render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
+render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, Mu), Form) -->
     { option(resp(R), Form, '#.##') },
     html(
       [ div(class(card), div(class('card-body'),
@@ -39,11 +39,11 @@ render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
             p(class('card-text'),
             [ "Consider a clinical study on rumination-focused Cognitive ",
               "Behavioral Therapy (rfCBT) with ",
-              \mmlm(N = r(n)), " patients. The primary ",
+              \mmlm(N = r(N)), " patients. The primary ",
               "outcome is the score on the Hamilton Rating Scale for ", 
               "Depression (HDRS, range from best = 0 to worst = 42). ",
               "The significance level is set to ",
-              \mmlm(alpha = [5, "%"]), " two-tailed."]),
+              \mmlm(alpha = perc(0.05)), " two-tailed."]),
             div(class('container'),
               div(class("row justify-content-md-center"),
                 div(class("col-6"),
@@ -63,7 +63,7 @@ render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu), Form) -->
                   button([ class('btn btn-secondary'), name(download), value(tpaired) ], "Download data"))
           ])),
         \htmlform([ "Does rfCBT lead to a relevant reduction (i.e., more ",
-            "than ", \mmlm([digits(1)], mu = r(mu)), " units) in mean HDRS ",
+            "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean HDRS ",
             "scores between baseline (T0) and End of Treatment (EOT)? ",
             "Please report the ", \mmlm(hyph(t, "ratio.")) ], "#tratio", R)
       ]).
