@@ -1768,6 +1768,11 @@ math(Flags, uqbinom(Alpha, N, Pi), New, X)
  => New = Flags,
     X = fn(under("argmin", k), [fn(sub('P', "Bi"), ([('X' >= k)] ; [N, Pi])) =< Alpha]).
 
+% lower critical value - simple version
+math(Flags, qbinom(Alpha, N, Pi), New, X)
+ => New = Flags,
+    X = fn(under("argmax", k), [fn(sub('P', "Bi"), ([('X' =< k)] ; [N, Pi])) =< Alpha]).
+
 % critical value - this may not yet work fully
 math(Flags, cbinom(Alpha, N, Pi, Tail, Dist), New, X)
  => New = Flags,
