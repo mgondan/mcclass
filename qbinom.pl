@@ -16,6 +16,7 @@ interval:r_hook(alpha).
 interval:r_hook(n).
 interval:r_hook(p0).
 interval:r_hook(uqbinom(_Alpha, _Size, _Prob)).
+interval:r_hook(qbinom(_Alpha, _Size, _Prob)).
 
 render(item(Alpha, N, P0), Form) -->
     { option(resp(R), Form, '#'),
@@ -83,6 +84,17 @@ feedback(upper, [], _Col, Feed) =>
 
 hint(upper, [], _Col, Hint) =>
     Hint = [ "The upper tail of the binomial distribution is needed." ].
+
+% Lower tail of the binomial distribution
+buggy(stage(2), From, To, [step(buggy, lower, [])]) :-
+    From = binom(Alpha, N, P0),
+    To   = qbinom(Alpha, N, P0).
+
+feedback(lower, [], _Col, Feed) =>
+    Feed = [ "The result matches the lower tail of the binomial distribution." ].
+
+hint(lower, [], _Col, Hint) =>
+    Hint = [ "Do not select the lower tail of the binomial distribution." ].
 
 % Helper function(s)
 binomtable(N, P0, Caption, Rows, Cols, Cells) :-
