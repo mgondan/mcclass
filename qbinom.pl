@@ -17,6 +17,8 @@ interval:r_hook(n).
 interval:r_hook(p0).
 interval:r_hook(uqbinom(_Alpha, _Size, _Prob)).
 interval:r_hook(qbinom(_Alpha, _Size, _Prob)).
+interval:r_hook(pbinom(_Q, _Size, _Prob)).
+interval:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
 render(item(Alpha, N, P0), Form) -->
     { option(resp(R), Form, '#'),
@@ -101,7 +103,18 @@ binomtable(N, P0, Caption, Rows, Cols, Cells) :-
     r_task('as.integer'(qbinom(0.05, N, P0) - 1), L),
     r_task('as.integer'(qbinom(0.95, N, P0) + 1), H),
     Caption = [em("Table 1. "), "Binomial probabilities"],
-    findall(\mmlm(R), between(L, H, R), Rows),
     Cols = [\mmlm(k), \mmlm(dbinom(k, n = r(N), p0 = r(P0)))],
-    findall([\mmlm(r(dbinom(D, n, p0)))], between(L, H, D), Cells).
+    % lower tail
+    L0 is L - 1,
+    Row0 = \mmlm([0, "...", L0]),
+    Cell0 = \mmlm([digits=3], r(pbinom(L0, n, p0))),
+    % middle range
+    findall(\mmlm(R), between(L, H, R), RowsX),
+    findall([\mmlm([digits=3], r(dbinom(D, n, p0)))], between(L, H, D), CellsX),
+    % upper tail
+    HN is H + 1,
+    RowN = \mmlm([HN, "...", N]),
+    CellN = \mmlm([digits=3], r(pbinom(H, n, p0, 'lower.tail'='FALSE'))), % H not HN
+    append([[Row0], RowsX, [RowN]], Rows),
+    append([[[Cell0]], CellsX, [[CellN]]], Cells).
 
