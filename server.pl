@@ -7,6 +7,7 @@
 :- use_module(feedback).
 :- use_module(mathml).
 :- use_module(session).
+:- use_module(login).
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
@@ -75,21 +76,21 @@ handle(Task, Form)
     reply_html_page(
       [ title('McClass'),
         link(
-	      [ rel(stylesheet),
-	        href('https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css'),
-            integrity('sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3'),
+          [ rel(stylesheet),
+            href('https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css'),
             crossorigin(anonymous)
           ]),
-	    link(
-	      [ rel(icon), 
+        link(
+          [ rel(icon), 
             href('favicon.ico'),
-	        type('image/x-icon')
+            type('image/x-icon')
           ]),
         meta(
-	      [ name(viewport), 
+          [ name(viewport), 
             content('width=device-width, initial-scale=1')])
           ],
-      [ \(Task:render(Item, Form)),
+      [ \hello,
+        \(Task:render(Item, Form)),
         \feedback(Task, Data, Form),
         \solutions(TaskData),
         \hints(TaskData),
