@@ -90,7 +90,7 @@ hint(upper, [], _Col, Hint) =>
 % Lower tail of the binomial distribution
 buggy(stage(2), From, To, [step(buggy, lower, [])]) :-
     From = binom(Alpha, N, P0),
-    To   = qbinom(Alpha, N, P0).
+    To   = instead(lower, qbinom(Alpha, N, P0), uqbinom(Alpha, N, P0)).
 
 feedback(lower, [], _Col, Feed) =>
     Feed = [ "The result matches the lower tail of the binomial distribution." ].
