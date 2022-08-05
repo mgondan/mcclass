@@ -27,7 +27,6 @@
 http:location(mcclass, root(mcclass), []).
 
 :- http_handler(mcclass('favicon.ico'), http_reply_file('favicon.ico', []), []).
-:- http_handler(mcclass('owl.svg'), http_reply_file('images/owl.svg', []), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
@@ -93,7 +92,12 @@ handle(Task, Form)
         \solutions(TaskData),
         \hints(TaskData),
         \wrongs(TaskData),
-        \traps(TaskData)
+        \traps(TaskData),
+        script(
+          [ src('https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js'),
+            integrity("sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"),
+            crossorigin(anonymous)
+          ], '')
       ]).
 
 

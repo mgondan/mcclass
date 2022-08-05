@@ -4,12 +4,22 @@
 :- use_module(library(http/http_dispatch)).
 
 :- http_handler(mcclass('owl.svg'), http_reply_file('images/owl.svg', []), []).
+:- multifile page/2.
 
 navbar -->
-    html(nav(class('navbar sticky-top bg-light'), 
+    { findall(a([class('nav-link'), href(Page)], Title), page(Page, Title), Pages) },
+    html(nav(class('navbar navbar-expand-lg sticky-top bg-light'), 
       div(class('container-fluid'),
-        a([class('navbar-brand'), href('/mcclass')],
-          [ img([src('owl.svg'), width(45), height(36), class('d-inline-block align-text-top')], ''),
-            'McCLASS'
-          ])))).
+        [ a([class('navbar-brand'), href('/mcclass')],
+            [ img([src('owl.svg'), width(36), height(30), class('d-inline-block align-text-top')], ''),
+              'McCLASS'
+            ]),
+          button(
+            [ class('navbar-toggler'), type(button), 
+              'data-bs-toggle'(collapse), 'data-bs-target'('#navbarNav'), 
+              'aria-controls'(navbarNav), 'aria-expanded'(true), 'aria-label'("Toggle navigation")
+            ], span(class('navbar-toggler-icon'), '')),
+          div([class('collapse navbar-collapse'), id(navbarNav)],
+            div(class('navbar-nav'), Pages))
+        ]))).
 

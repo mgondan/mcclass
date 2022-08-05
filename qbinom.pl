@@ -2,10 +2,12 @@
 :- module(qbinom, []).
 
 :- use_module(library(http/html_write)).
-:- use_module(session).
 :- use_module(table).
 :- use_module(r).
 :- use_module(mathml).
+
+:- use_module(navbar).
+navbar:page(qbinom, "Binomial test").
 
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 

@@ -1,5 +1,8 @@
 :- module(chisq, []).
 
+:- use_module(navbar).
+navbar:page(chisq, "chi-square").
+
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering

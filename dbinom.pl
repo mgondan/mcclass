@@ -8,6 +8,9 @@
 :- use_module(mathml).
 :- use_module(interval).
 
+:- use_module(navbar).
+navbar:page(dbinom, "Binomial probability").
+
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
 % Render symbols

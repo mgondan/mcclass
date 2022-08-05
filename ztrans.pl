@@ -6,6 +6,9 @@
 :- use_module(r).
 :- use_module(mathml).
 
+:- use_module(navbar).
+navbar:page(ztrans, [i(z), "-transform (1)"]).
+
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
 mathml_hook(x, 'X').
