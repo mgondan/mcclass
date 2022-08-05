@@ -7,7 +7,7 @@
 :- multifile page/2.
 
 navbar -->
-    { findall(a([class('nav-link'), href(Page)], Title), page(Page, Title), Pages) },
+    { findall(li(a([class('dropdown-item'), href(Page)], Title)), page(Page, Title), Pages) },
     html(nav(class('navbar navbar-expand-lg sticky-top bg-light'), 
       div(class('container-fluid'),
         [ a([class('navbar-brand'), href('/mcclass')],
@@ -20,6 +20,11 @@ navbar -->
               'aria-controls'(navbarNav), 'aria-expanded'(true), 'aria-label'("Toggle navigation")
             ], span(class('navbar-toggler-icon'), '')),
           div([class('collapse navbar-collapse'), id(navbarNav)],
-            div(class('navbar-nav'), Pages))
+            div(class('navbar-nav'), 
+              li(class('nav-item dropdown'),
+                [ a([class('nav-link dropdown-toggle'), role(button), 'data-bs-toggle'(dropdown), 'aria-expanded'(false)], 
+                    "Exercises"),
+                  ul(class("dropdown-menu"), Pages)
+                ])))
         ]))).
 
