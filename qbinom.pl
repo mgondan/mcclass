@@ -18,7 +18,7 @@ interval:r_hook(alpha).
 interval:r_hook(n).
 interval:r_hook(p0).
 interval:r_hook(uqbinom(_Alpha, _Size, _Prob)).
-interval:r_hook(qbinom(_Alpha, _Size, _Prob)).
+interval:r_hook(lqbinom(_Alpha, _Size, _Prob)).
 interval:r_hook(pbinom(_Q, _Size, _Prob)).
 interval:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
@@ -92,7 +92,7 @@ hint(upper, [], _Col, Hint) =>
 % Lower tail of the binomial distribution
 buggy(stage(2), From, To, [step(buggy, lower, [])]) :-
     From = binom(Alpha, N, P0),
-    To   = instead(lower, qbinom(Alpha, N, P0), uqbinom(Alpha, N, P0)).
+    To   = instead(lower, lqbinom(Alpha, N, P0), uqbinom(Alpha, N, P0)).
 
 feedback(lower, [], _Col, Feed) =>
     Feed = [ "The result matches the lower tail of the binomial distribution." ].

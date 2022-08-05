@@ -1763,12 +1763,16 @@ math(Flags, upbinom(K, N, Pi), New, X)
  => New = Flags,
     X = fn(sub('P', "Bi"), (['X' >= K] ; [N, Pi])).
 
-% upper critical value - simple version
+% upper critical value
 math(Flags, uqbinom(Alpha, N, Pi), New, X)
  => New = Flags,
     X = fn(under("argmin", k), [fn(sub('P', "Bi"), ([('X' >= k)] ; [N, Pi])) =< Alpha]).
 
-% lower critical value - simple version
+% lower critical value
+math(Flags, lqbinom(Alpha, N, Pi), New, X)
+ => New = Flags,
+    X = fn(under("argmax", k), [fn(sub('P', "Bi"), ([('X' =< k)] ; [N, Pi])) =< Alpha]).
+
 math(Flags, qbinom(Alpha, N, Pi), New, X)
  => New = Flags,
     X = fn(under("argmax", k), [fn(sub('P', "Bi"), ([('X' =< k)] ; [N, Pi])) =< Alpha]).

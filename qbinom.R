@@ -7,3 +7,8 @@ uqbinom = function(...)
     qbinom(..., lower.tail=FALSE)
 }
 
+lqbinom = function(...)
+{
+    qbinom(..., lower.tail=TRUE)
+}
+

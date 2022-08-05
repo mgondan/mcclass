@@ -1,0 +1,44 @@
+sudo apt install odbc-postgresql postgresql-contrib
+
+Datei ~/.odbc.ini erstellen, etwa so:
+[mcclass]
+Description         = McClass
+Driver              = /usr/lib/x86_64-linux-gnu/odbc/psqlodbcw.so
+Trace               = Yes
+TraceFile           = sql.log
+Database            = mcclass
+Servername          = localhost
+UserName            = mcclass
+Password            = (somepassword)
+Port                = 5432
+Protocol            = 10.6
+ReadOnly            = No
+RowVersioning       = No
+ShowSystemTables    = No
+ShowOidColumn       = No
+FakeOidIndex        = No
+ConnSettings        =
+MaxVarcharSize      = 5000
+Pooling             = Yes
+
+sudo service postgresql start
+sudo passwd postgres
+(postgres ist der Datenbank-Admin, neues Passwort für diese Rolle vergeben)
+
+sudo -u postgres psql postgres
+CREATE USER mcclass PASSWORD '(somepassword)';
+CREATE DATABASE mcclass OWNER mcclass;
+\q
+
+sudo -u postgres psql -h localhost -U mcclass -W
+(Fragt ggfs. nach eigenem Passwort, dann nach dem Passwort für die mcclass-Datenbank)
+CREATE TABLE users (id SERIAL PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL);
+\dt
+(sollte dann anzeigen, dass eine solche Tabelle existiert)
+\q
+
+swipl
+[odbc].
+put(1, matthias, 'matthias-gondan@gmx.de').
+get.
+
