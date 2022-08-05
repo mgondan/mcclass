@@ -7,6 +7,7 @@
 :- use_module(feedback).
 :- use_module(mathml).
 :- use_module(session).
+:- use_module(navbar).
 :- use_module(login).
 
 :- use_module(library(http/thread_httpd)).
@@ -26,6 +27,7 @@
 http:location(mcclass, root(mcclass), []).
 
 :- http_handler(mcclass('favicon.ico'), http_reply_file('favicon.ico', []), []).
+:- http_handler(mcclass('owl.svg'), http_reply_file('images/owl.svg', []), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
@@ -78,18 +80,14 @@ handle(Task, Form)
         link(
           [ rel(stylesheet),
             href('https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css'),
+            integrity("sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"),
             crossorigin(anonymous)
           ]),
-        link(
-          [ rel(icon), 
-            href('favicon.ico'),
-            type('image/x-icon')
-          ]),
-        meta(
-          [ name(viewport), 
-            content('width=device-width, initial-scale=1')])
-          ],
-      [ \hello,
+        link([rel(icon), href('favicon.ico'), type('image/x-icon')]),
+        meta([name(viewport), content('width=device-width, initial-scale=1')])
+      ],
+      [ \navbar,
+        \hello,
         \(Task:render(Item, Form)),
         \feedback(Task, Data, Form),
         \solutions(TaskData),
@@ -97,4 +95,5 @@ handle(Task, Form)
         \wrongs(TaskData),
         \traps(TaskData)
       ]).
+
 

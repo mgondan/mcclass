@@ -27,20 +27,20 @@ handler(logout, Request) :-
 handler(signin, Request) :-
     !,
     member(method(post), Request),
-    member(cookie(Cookies), Request),
-    member(user_id=UserId, Cookies),
+    member(cookie(_Cookies), Request),
+    % member(user_id=UserId, Cookies),
     http_parameters(Request, [email(Email, [])]),
-    signin(Email, UserId),
+    login(Email, _UserId),
     http_redirect(see_other, mcclass(.), Request).
 
 % Signup
 handler(signup, Request) :-
     !,
     member(method(post), Request),
-    member(cookie(Cookies), Request),
-    member(user_id=UserId, Cookies),
+    member(cookie(_Cookies), Request),
+    % member(user_id=UserId, Cookies),
     http_parameters(Request, [email(Email, [])]),
-    signup(Email, UserId),
+    login(Email, _UserId),
     http_redirect(see_other, mcclass(.), Request).
 
 
@@ -73,8 +73,8 @@ login_screen :-
       [ title('McClass'),
         link(
           [ rel(stylesheet),
-            href('https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css'),
-            integrity('sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z'),
+            href("https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"),
+            integrity("sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"),
             crossorigin(anonymous)
           ]),
         link(
@@ -187,9 +187,9 @@ login_screen :-
               ])
           ]),
         script(src("/mcclass/signup_form.js"), ''),
-        script([src("https://code.jquery.com/jquery-3.5.1.slim.min.js"), integrity("sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"), crossorigin(anonymous)], ''),
-        script([src("https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"), integrity("sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"), crossorigin(anonymous)], ''),
-        script([src("https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"), integrity("sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"), crossorigin(anonymous)], '')
+        script([src("https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"), 
+                integrity("sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"),
+                crossorigin("anonymous")], '')
       ]).
 
 login_request(Data) :-
