@@ -86,7 +86,7 @@ handle(Task, Form)
         meta([name(viewport), content('width=device-width, initial-scale=1')])
       ],
       [ \navbar,
-        \hello,
+        % \hello,
         \(Task:render(Item, Form)),
         \feedback(Task, Data, Form),
         \solutions(TaskData),
