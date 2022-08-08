@@ -3,12 +3,8 @@ n     = 26L
 p0    = 0.6
 
 uqbinom = function(...)
-{
-    qbinom(..., lower.tail=FALSE)
-}
+  qbinom(..., lower.tail=FALSE) + 1
 
 lqbinom = function(...)
-{
-    qbinom(..., lower.tail=TRUE)
-}
+  qbinom(..., lower.tail=TRUE)
 
