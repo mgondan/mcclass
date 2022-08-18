@@ -3,8 +3,21 @@ n     = 26L
 p0    = 0.6
 
 uqbinom = function(...)
-  qbinom(..., lower.tail=FALSE) + 1
+  as.integer(qbinom(..., lower.tail=FALSE) + 1)
 
 lqbinom = function(...)
-  qbinom(..., lower.tail=TRUE)
+  as.integer(qbinom(..., lower.tail=TRUE) - 1)
+
+cbinom = function(Alpha, N, Pi, Tail, Arg)
+{
+  if(Tail == "upper")
+    return(uqbinom(Alpha, N, Pi))
+
+  if(Tail == "lower")
+    return(lqbinom(Alpha, N, Pi))
+
+  stop("Wrong tail")
+}
+
+tail = arg = identity
 

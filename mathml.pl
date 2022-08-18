@@ -1778,37 +1778,25 @@ math(Flags, qbinom(Alpha, N, Pi), New, X)
     X = fn(under("argmax", k), [fn(sub('P', "Bi"), ([('X' =< k)] ; [N, Pi])) =< Alpha]).
 
 % critical value - this may not yet work fully
-math(Flags, cbinom(Alpha, N, Pi, Tail, Dist), New, X)
+math(Flags, cbinom(Alpha, N, Pi, Tail, Arg), New, X)
  => New = Flags,
-    X = fn(Tail, [fn(sub('P', "Bi"), ([Dist] ; [N, Pi])) =< Alpha]).
+    X = fn(Arg, [fn(sub('P', "Bi"), ([Tail] ; [N, Pi])) =< Alpha]).
 
 math(Flags, tail("upper"), New, X)
  => New = Flags,
-    X = under("argmin", k).
+    X = ('X' >= k).
 
 math(Flags, tail("lower"), New, X)
  => New = Flags,
-    X = under("argmax", k).
-
-math(Flags, tail("upperdens"), New, X)
- => New = Flags,
-    X = under("argmin", k > 'N' * pi).
-
-math(Flags, tail("lowerdens"), New, X)
- => New = Flags,
-    X = under("argmax", k < 'N' * pi).
-
-math(Flags, dist("upper"), New, X)
- => New = Flags,
-    X = ('X' >= k).
-
-math(Flags, dist("lower"), New, X)
- => New = Flags,
     X = ('X' =< k).
 
-math(Flags, dist("density"), New, X)
+math(Flags, arg("min"), New, X)
  => New = Flags,
-    X = ('X' = k).
+    X = sub(argmin, k).
+
+math(Flags, arg("max"), New, X)
+ => New = Flags,
+    X = sub(argmax, k).
 
 mathml :- mathml(dbinom(k, 'N', pi)).
 mathml :- mathml(pbinom(k, 'N', pi)).

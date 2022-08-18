@@ -19,6 +19,9 @@ interval:r_hook(n).
 interval:r_hook(p0).
 interval:r_hook(uqbinom(_Alpha, _Size, _Prob)).
 interval:r_hook(lqbinom(_Alpha, _Size, _Prob)).
+interval:r_hook(tail(_Tail)).
+interval:r_hook(arg(_Arg)).
+interval:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
 interval:r_hook(pbinom(_Q, _Size, _Prob)).
 interval:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
@@ -81,7 +84,7 @@ hint(binomial, [], _Col, Hint) =>
 % Upper tail of the binomial distribution
 expert(stage(2), From, To, [step(expert, upper, [])]) :-
     From = binom(Alpha, N, P0),
-    To   = uqbinom(Alpha, N, P0).
+    To   = cbinom(Alpha, N, P0, tail("upper"), arg("min")).
 
 feedback(upper, [], _Col, Feed) =>
     Feed = [ "Correctly selected the upper tail of the binomial distribution." ].
@@ -92,7 +95,7 @@ hint(upper, [], _Col, Hint) =>
 % Lower tail of the binomial distribution
 buggy(stage(2), From, To, [step(buggy, lower, [])]) :-
     From = binom(Alpha, N, P0),
-    To   = instead(lower, lqbinom(Alpha, N, P0), uqbinom(Alpha, N, P0)).
+    To   = cbinom(Alpha, N, P0, instead(lower, tail("lower"), tail("upper")), instead(lower, arg("max"), arg("min"))).
 
 feedback(lower, [], _Col, Feed) =>
     Feed = [ "The result matches the lower tail of the binomial distribution." ].
@@ -102,8 +105,8 @@ hint(lower, [], _Col, Hint) =>
 
 % Helper function(s)
 binomtable(N, P0, Caption, Rows, Cols, Cells) :-
-    r_task('as.integer'(qbinom(0.05, N, P0) - 1), L),
-    r_task('as.integer'(qbinom(0.95, N, P0) + 1), H),
+    r_task(lqbinom(0.05, N, P0), L),
+    r_task(uqbinom(0.05, N, P0), H),
     Caption = [em("Table 1. "), "Binomial probabilities"],
     Cols = [\mmlm(k), \mmlm(dbinom(k, n = r(N), p0 = r(P0)))],
     % lower tail
