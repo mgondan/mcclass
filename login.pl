@@ -1,11 +1,11 @@
 % User authentication
-:- module(login, [user/1]).
+:- module(login, [user/2]).
 
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/http_session)).
 :- use_module(library(http/http_wrapper)).
 :- use_module(library(http/http_dispatch)).
-% :- use_module(users).
+:- use_module(users).
 
 :- http_handler(mcclass('register.js'), http_reply_file('scripts/register.js', []), []).
 :- http_handler(mcclass(register), handler(register), []).
@@ -14,9 +14,11 @@
 handler(register, Request) :-
     member(method(post), Request),
     http_parameters(Request, [], [form_data(Form)]),
+    member(user=UserId, Form),
     member(email=Email, Form),
+    member(password=Password, Form),
     !,
-    register(Email),
+    register(UserId, Email, Password),
     http_redirect(see_other, '/mcclass', Request).
 
 % Web form for registration
@@ -39,13 +41,30 @@ handler(register, _Request) :-
           div(class('card-body'),
             [ h5(class('card-title'), "Please register"),
               form([class('form-login'), name(register), method('POST'), action('/mcclass/register'), onsubmit('return validateRegisterForm()')],
-                [ div(class('input-group has-validation'),
-                    [ div([class('form-floating'), id('email-group')],
-                        [ input([class('form-control'), type(email), id(email), name(email), placeholder("Email"), autofocus('')], ''),
-                          label(for(email), "Email")
-                        ]),
-                      div(class('invalid-feedback'), "Please choose a valid email address.")
-                    ]),
+                [ div(class('mb-3'), 
+                    div(class('input-group has-validation'),
+                      [ div([class('form-floating'), id('user-group')],
+                          [ input([class('form-control'), type(text), id(user), name(user), placeholder("User Id"), autofocus('')], ''),
+                            label(for(user), "User Id")
+                          ]),
+                        div(class('invalid-feedback'), "Please choose a valid user id.")
+                      ])),
+                  div(class('mb-3'),
+                    div(class('input-group has-validation'),
+                      [ div([class('form-floating'), id('email-group')],
+                          [ input([class('form-control'), type(email), id(email), name(email), placeholder("Email")], ''),
+                            label(for(email), "Email")
+                          ]),
+                        div(class('invalid-feedback'), "Please choose a valid email address.")
+                      ])),
+                  div(class('mb-3'),
+                    div(class('input-group has-validation'),
+                      [ div([class('form-floating'), id('password-group')],
+                          [ input([class('form-control'), type(password), id(password), name(password), placeholder("Password")], ''),
+                            label(for(email), "Password")
+                          ]),
+                        div(class('invalid-feedback'), "Please choose a good password.")
+                      ])),
                   input(
                     [ type(hidden),
                       name(salt),
@@ -67,13 +86,17 @@ handler(logout, Request) :-
     http_redirect(see_other, '/mcclass', Request).
 
 % User database
-register(Email) :-
+register(UserId, Email, Password) :-
     logout,
-    http_session_assert(email(Email)).
-%    add_user(Email).
+    http_session_assert(user(UserId)),
+    http_session_assert(email(Email)),
+    add_user(UserId, Email, Password).
 
-user(Email) :-
+user(UserId, Email) :-
+    http_session_data(user(UserId)),
     http_session_data(email(Email)).
 
 logout :-
+    http_session_retractall(user(_)),
     http_session_retractall(email(_)).
+

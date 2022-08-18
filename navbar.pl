@@ -27,17 +27,17 @@ navbar -->
                       "Exercises"),
                     ul(class("dropdown-menu"), Pages)
                   ])),
-              \user
+              \showuser
             ])
         ]))).
 
-user -->
-    { user(Email) },
+showuser -->
+    { user(UserId, _Email) },
     html(form([class("d-flex"), method('POST'), action('/mcclass/logout')],
-      [ span(class('navbar-text me-2'), Email),
+      [ span(class('navbar-text me-2'), UserId),
         button([class('btn btn-outline-danger'), name(logout), type(submit)], "Logout")
       ])).
 
-user -->
+showuser -->
     html(form([class("d-flex"), method('POST'), action('/mcclass/register')],
       button([class('btn btn-outline-success'), name(register), type(submit)], "Register"))).

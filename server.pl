@@ -9,6 +9,7 @@
 :- use_module(session).
 :- use_module(navbar).
 :- use_module(login).
+:- use_module(users).
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
