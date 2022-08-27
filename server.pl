@@ -27,7 +27,12 @@
 :- dynamic http:location/3.
 http:location(mcclass, root(mcclass), []).
 
+:- http_handler(root('favicon.ico'), http_reply_file('favicon.ico', []), []).
 :- http_handler(mcclass('favicon.ico'), http_reply_file('favicon.ico', []), []).
+:- http_handler(root('bootstrap.min.css'), http_reply_file('css/bootstrap.min.css', []), []).
+:- http_handler(mcclass('bootstrap.min.css'), http_reply_file('css/bootstrap.min.css', []), []).
+:- http_handler(root('bootstrap.bundle.min.js'), http_reply_file('js/bootstrap.bundle.min.js', []), []).
+:- http_handler(mcclass('bootstrap.bundle.min.js'), http_reply_file('js/bootstrap.bundle.min.js', []), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
@@ -77,12 +82,7 @@ handle(Task, Form)
     Task:start(Item),
     reply_html_page(
       [ title('McClass'),
-        link(
-          [ rel(stylesheet),
-            href('https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css'),
-            integrity("sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"),
-            crossorigin(anonymous)
-          ]),
+        link([rel(stylesheet), href('bootstrap.min.css')]),
         link([rel(icon), href('favicon.ico'), type('image/x-icon')]),
         meta([name(viewport), content('width=device-width, initial-scale=1')])
       ],
@@ -94,11 +94,7 @@ handle(Task, Form)
         \hints(TaskData),
         \wrongs(TaskData),
         \traps(TaskData),
-        script(
-          [ src('https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js'),
-            integrity("sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"),
-            crossorigin(anonymous)
-          ], '')
+        script(src('bootstrap.bundle.min.js'), '')
       ]).
 
 
