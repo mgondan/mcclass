@@ -106,64 +106,72 @@ form(Options) :-
       [ h1(class('display-4'), "Welcome to McCLASS"),
         p(class(lead), "Misconception Aware Competence Learning and Assessment Smart System"),
         hr(class('my-4')),
-
-        div([class(card), style('max-width: 20em')], 
-          div(class('card-body'),
-            [ h5(class('card-title'), "New here? Please register"),
-              form([class('form-login'), id('register-form'), name(register), method(post), action(register), novalidate(''), onsubmit("return validateRegister();")],
-                [ div(class('mb-3'), 
-                    div(class('input-group has-validation'),
-                      [ div([class(['form-floating' | RegisterEmailValid]), id('register-email-group')],
-                          [ input([class(['form-control' | RegisterEmailValid]), type(email), id('register-email'), name(email), placeholder("Email"), value(RegisterEmail)], ''),
-                            label(for('register-email'), "Email")
-                          ]),
-                        div(class('invalid-feedback'), "Email address already registered.")
-                      ])),
-                  div(class('mb-3'),
-                    div(class('input-group has-validation'),
-                      [ div([class('form-floating'), id('register-password-group')],
-                          [ input([class('form-control'), type(password), id('register-password'), name(password), placeholder("Password")], ''),
-                            label(for('register-password'), "Password")
-                          ]),
-                        div(class('invalid-feedback'), "Please choose a good password.")
-                      ])),
-                  div(class('mb-3'),
-                    div(class('input-group has-validation'),
-                      [ div([class(['form-floating' | RegisterVerifyValid]), id('verify-group')],
-                          [ input([class(['form-control' | RegisterVerifyValid]), type(password), id('register-verify'), name(verify), placeholder("Verify password")], ''),
-                            label(for('register-verify'), "Verify password")
-                          ]),
-                        div(class('invalid-feedback'), "Passwords do not match.")
-                      ])),
-                  button([class("btn btn-lg btn-primary btn-block"), name(register), value(true), type(submit)], "Register")
-                ])
-            ])),
-
-          div([class(card), style('max-width: 20em')],
-          div(class('card-body'),
-            [ h5(class('card-title'), "Been here already? Please login"),
-              form([class('form-login'), id('login-form'), name(login), method(post), action(login), novalidate(''), onsubmit("return validateLogin();")],
-                [ div(class('mb-3'),
-                    div(class('input-group has-validation'),
-                      [ div([class(['form-floating' | LoginEmailValid]), id('login-email-group')],
-                          [ input([class(['form-control' | LoginEmailValid]), type(email), id('login-email'), name(email), value(LoginEmail), placeholder("Email")], ''),
-                            label(for('login-email'), "Email")
-                          ]),
-                        div(class('invalid-feedback'), "Unknown user id/email address.")
-                      ])),
-                  div(class('mb-3'),
-                    div(class('input-group has-validation'),
-                      [ div([class(['form-floating' | LoginPasswordValid]), id('login-password-group')],
-                          [ input([class(['form-control' | LoginPasswordValid]), type(password), id('login-password'), name(password), placeholder("Password")], ''),
-                            label(for('login-password'), "Password")
-                          ]),
-                        div(class('invalid-feedback'), "Login failed.")
-                      ])),
-                  button([class("btn btn-lg btn-primary btn-block"), name(login), value(true), type(submit)], "Login")
-                ])
-            ])),
+        div([class(accordion), id(accordion)],
+          [ div(class('accordion-item'),
+              [ h2([class('accordion-header'), id(register)],
+                  button([class('accordion-button'), type(button), 'data-bs-toggle'(collapse), 'data-bs-target'('#register-collapse'), 'aria-expanded'(true), 'aria-controls'('register-collapse')],
+                    "New here? Please register"
+                  )),
+                div([class('accordion-collapse collapse show'), id('register-collapse'), 'aria-labelledby'(register), 'data-bs-parent'('#accordion')],
+                  div(class('accordion-body'),
+                    form([class('form-login'), id('register-form'), name(register), method(post), action(register), novalidate(''), onsubmit("return validateRegister();")],
+                      [ div(class('mb-3'), 
+                          div(class('input-group has-validation'),
+                            [ div([class(['form-floating' | RegisterEmailValid]), id('register-email-group')],
+                                [ input([class(['form-control' | RegisterEmailValid]), type(email), id('register-email'), name(email), placeholder("Email"), value(RegisterEmail)], ''),
+                                  label(for('register-email'), "Email")
+                                ]),
+                              div(class('invalid-feedback'), "Email address already registered.")
+                            ])),
+                        div(class('mb-3'),
+                          div(class('input-group has-validation'),
+                            [ div([class('form-floating'), id('register-password-group')],
+                                [ input([class('form-control'), type(password), id('register-password'), name(password), placeholder("Password")], ''),
+                                  label(for('register-password'), "Password")
+                                ]),
+                              div(class('invalid-feedback'), "Please choose a good password.")
+                            ])),
+                        div(class('mb-3'),
+                          div(class('input-group has-validation'),
+                            [ div([class(['form-floating' | RegisterVerifyValid]), id('verify-group')],
+                                [ input([class(['form-control' | RegisterVerifyValid]), type(password), id('register-verify'), name(verify), placeholder("Verify password")], ''),
+                                  label(for('register-verify'), "Verify password")
+                                ]),
+                              div(class('invalid-feedback'), "Passwords do not match.")
+                            ])),
+                        button([class("btn btn-lg btn-primary btn-block"), name(register), value(true), type(submit)], "Register")
+                      ])))
+              ]),
+            div(class('accordion-item'),
+              [ h2([class('accordion-header'), id(login)],
+                  button([class('accordion-button collapsed'), type(button), 'data-bs-toggle'(collapse), 'data-bs-target'('#login-collapse'), 'aria-expanded'(true), 'aria-controls'('login-collapse')],
+                    "Been here before? Please login"
+                  )),
+                div([class('accordion-collapse collapse'), id('login-collapse'), 'aria-labelledby'(login), 'data-bs-parent'('#accordion')],
+                  div(class('accordion-body'),
+                    form([class('form-login'), id('login-form'), name(login), method(post), action(login), novalidate(''), onsubmit("return validateLogin();")],
+                      [ div(class('mb-3'),
+                          div(class('input-group has-validation'),
+                            [ div([class(['form-floating' | LoginEmailValid]), id('login-email-group')],
+                                [ input([class(['form-control' | LoginEmailValid]), type(email), id('login-email'), name(email), value(LoginEmail), placeholder("Email")], ''),
+                                  label(for('login-email'), "Email")
+                                ]),
+                              div(class('invalid-feedback'), "Unknown user id/email address.")
+                            ])),
+                        div(class('mb-3'),
+                          div(class('input-group has-validation'),
+                            [ div([class(['form-floating' | LoginPasswordValid]), id('login-password-group')],
+                                [ input([class(['form-control' | LoginPasswordValid]), type(password), id('login-password'), name(password), placeholder("Password")], ''),
+                                  label(for('login-password'), "Password")
+                                ]),
+                              div(class('invalid-feedback'), "Login failed.")
+                            ])),
+                        button([class("btn btn-lg btn-primary btn-block"), name(login), value(true), type(submit)], "Login")
+                      ])))
+              ])
+          ]),
         script(src('login.js'), ''),
-        script(src("bootstrap.bundle.min.js"), '')
+        script(src('bootstrap.bundle.min.js'), '')
       ]).
 
 % Helpers
