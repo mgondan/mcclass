@@ -32,12 +32,12 @@ navbar -->
         ]))).
 
 showuser -->
-    { user(UserId, _Email) },
-    html(form([class("d-flex"), method('POST'), action('/mcclass/logout')],
-      [ span(class('navbar-text me-2'), UserId),
-        button([class('btn btn-outline-danger'), name(logout), type(submit)], "Logout")
+    { current_user(Email) },
+    html(form([class("d-flex"), method(post), action(logout)],
+      [ span(class('navbar-text me-2'), Email),
+        button([class('btn btn-outline-danger'), type(submit)], "Logout")
       ])).
 
 showuser -->
-    html(form([class("d-flex"), method('POST'), action('/mcclass/register')],
-      button([class('btn btn-outline-success'), name(register), type(submit)], "Register"))).
+    html(form([class("d-flex"), method(post), action(register)],
+      button([class('btn btn-outline-success'), type(submit)], "Login/Register"))).

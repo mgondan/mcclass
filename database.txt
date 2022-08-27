@@ -32,7 +32,7 @@ CREATE DATABASE mcclass OWNER mcclass;
 
 sudo -u postgres psql -h localhost -U mcclass -W
 (Fragt ggfs. nach eigenem Passwort, dann nach dem Passwort für die mcclass-Datenbank)
-CREATE TABLE users (id TEXT NOT NULL PRIMARY KEY, email TEXT NOT NULL, password TEXT NOT NULL);
+CREATE TABLE users (email TEXT NOT NULL PRIMARY KEY, password TEXT NOT NULL);
 \dt
 (sollte dann anzeigen, dass eine solche Tabelle existiert)
 \q
