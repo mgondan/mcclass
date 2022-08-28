@@ -19,7 +19,7 @@ search_(Task, Stage, X, Y, Path) :-
 
 % Return a solution for a given task
 %
-% Search is done in two stages to avoid redundancies. Typical buggy rules for
+% Search is done in three stages to avoid redundancies. Typical buggy rules for
 % stage(1) are mix-up of parameters (see examples in tpaired.pl). At stage(2),
 % bugs refer to wrong steps in the calculation method. In the end, we check 
 % if the solution is complete (not intermediate). The flags are sorted to allow
@@ -29,12 +29,13 @@ search(Task, Expr, Flags) :-
     search(Task, Expr, Flags, _).
 
 search(Task, Expr, Flags, Sorted) :-
-    Task:start(X),
-    search_(Task, stage(1), X, Y, Flags1),
-    search_(Task, stage(2), Y, Expr, Flags2),
+    Task:start(X0),
+    search_(Task, stage(1), X0, X1, Flags1),
+    search_(Task, stage(2), X1, X2, Flags2),
+    search_(Task, stage(3), X2, Expr, Flags3),
     complete(Task, Expr),           % no intermediate solutions
     compatible(Expr),               % no incompatible bugs
-    append(Flags1, Flags2, Flags),  % confusions (stage 1) last in feedback
+    append([Flags1, Flags2, Flags3], Flags),  % confusions (stage 1) last in feedback
     sort(Flags, Sorted).
 
 % Codes for steps

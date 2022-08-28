@@ -1213,7 +1213,7 @@ mathml :- mathml(list(space, [i, j, k])).
 math(Flags, {}(Args), New, M)
  => Flags = New,
     semi(Args, L),
-    M = list(sign(;), L).
+    M = steps(L).
 
 mathml :- mathml({odds_a = frac(p_a, 1-p_a); odds_b = odds_a*2; p_b = frac(odds_b, 1 + odds_b)}).
 
@@ -1224,6 +1224,11 @@ semi(A ; B, X)
 
 semi(A, X)
  => X = [A].
+
+ml(Flags, steps(Steps), M)
+ => maplist(ml(Flags), Steps, Lines0),
+    findall(mtr(mtd(L)), member(L, Lines0), Lines),
+    M = mtable([columnalign(left), displaystyle(true)], Lines).
 
 %
 % Fractions

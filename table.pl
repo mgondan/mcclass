@@ -46,7 +46,7 @@ htmlform(Question, Action, Response) -->
     html(div(class(card), div(class("card-body"),
       [ h4(class("card-title"), [a(id(question), []), "Question"]),
         p(class("card-text"), Question),
-        form([class(form), method("POST"), action(Action)],
+        form([class(form), method(post), action(Action)],
           [ div(class("input-group mb-3"),
               [ div(class("input-group-prepend"),
                   span(class("input-group-text"), "Response")),
