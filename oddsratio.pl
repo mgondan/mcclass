@@ -48,8 +48,7 @@ expert(stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(Pi_A, OR),
     To = { '<-'(odds_A, odds(Pi_A)) ;
            '<-'(odds_B, odds_ratio(odds_A, OR)) ; 
-           '<-'(pi_B, inv_odds(odds_B)) ; 
-           pi_B
+           '<-'(pi_B, inv_odds(odds_B))
          }.
 
 feedback(problem, [], _Col, FB)
@@ -65,11 +64,14 @@ expert(stage(1), From, To, [step(expert, odds, [Pi_A, odds_A])]) :-
     To = dfrac(Pi_A, 1 - Pi_A).
 
 feedback(odds, [Pi_A, _], Col, FB)
- => FB = ["Correctly determined the odds from ", \mmlm(Col, Pi_A)].
+ => FB = [ "Correctly determined the odds ",
+           "from ", \mmlm(Col, Pi_A)
+         ].
 
 hint(odds, [Pi_A, Odds_A], Col, FB)
- => FB = ["Convert ", \mmlm(Col, Pi_A), " to the respective ",
-          "odds, ", \mmlm(Col, Odds_A = dfrac(Pi_A, 1 - Pi_A))].
+ => FB = [ "Convert ", \mmlm(Col, Pi_A), " to the respective ",
+           "odds, ", \mmlm(Col, Odds_A = dfrac(Pi_A, 1 - Pi_A))
+         ].
 
 % Calculate the odds for B
 intermediate(odds_ratio).
@@ -78,11 +80,14 @@ expert(stage(2), From, To, [step(expert, odds_ratio, [Odds_A, odds_B])]) :-
     To = Odds_A * OR.
 
 feedback(odds_ratio, [_Odds_A, Odds_B], Col, FB)
- => FB = ["Sucessfully calculated ", \mmlm(Col, Odds_B)].
+ => FB = [ "Sucessfully ",
+           "calculated ", \mmlm(Col, Odds_B)
+         ].
 
 hint(odds_ratio, [Odds_A, Odds_B], Col, FB)
- => FB = ["Multiply ", \mmlm(Col, Odds_A), " by the odds ratio to ",
-          "obtain ", \mmlm(Col, Odds_B)].
+ => FB = [ "Multiply ", \mmlm(Col, Odds_A), " by the odds ratio to ",
+           "obtain ", \mmlm(Col, Odds_B)
+         ].
 
 % Determine the probability for B
 intermediate(inv_odds).
@@ -94,60 +99,56 @@ feedback(inv_odds, [Odds_B, _], Col, FB)
  => FB = ["Correctly determined the success probability from ", \mmlm(Col, Odds_B)].
 
 hint(inv_odds, [Odds_B, Pi_B], Col, FB)
- => FB = ["Back-transform ", \mmlm(Col, Odds_B), " to the respective ",
-          "success probability, ", \mmlm(Col, Pi_B = dfrac(Odds_B, 1 + Odds_B))].
+ => FB = [ "Back-transform ", \mmlm(Col, Odds_B), " to the respective success ",
+           "probability, ", \mmlm(Col, Pi_B = dfrac(Odds_B, 1 + Odds_B))
+         ].
 
-%% Forgot conversion  of pi_a to odds.
-%buggy(stage(2), From, To, [step(buggy, cona, [Pi_A])]) :-
-%    From = dfrac(Pi_A, (1 - Pi_A)),
-%    To = omit_right(cona, dfrac(Pi_A, 1 - Pi_A)).
-%
-%feedback(cona, [Pi_A], Col, FB) =>
-%    FB = [ "Please remember to convert ", \mmlm(Col, color(cona, Pi_A)), " to ",
-%	   \mmlm(Col, color(cona, odds_A)), ", with ", \mmlm(Col, color(cona, odds_A = frac(Pi_A, 1 - Pi_A)))  ].
-%
-%hint(cona, [Pi_A], Col, FB) =>
-%    FB = [ "You should try converting ", \mmlm(Col, color(cona, Pi_A)), 
-%	   " to odds before continuing." ].
-%
-%% Forgot to multiply odds_a and or.
-%buggy(stage(2), From, To, [step(buggy, mult, [OR])]) :-
-%    From = odds_A * OR,
-%    To = omit_right(mult, odds_A * OR).
-%
-%feedback(mult, [OR], Col, FB) =>
-%    FB = [ "You forgot to multiply ", \mmlm(Col, color(mult, odds_A)), " with ",
-%	   \mmlm(Col, color(mult, OR)) ].
-%
-%hint(mult, [OR], Col, FB) =>
-%    FB = [ "Please remember to multiply ",\mmlm(Col, color(mult, odds_A)), " with ",
-%	   \mmlm(Col, color(mult, OR)) ].
-%
-%% Divided odds_A and or rather then multiplying them.
-%buggy(stage(2), From, To, [step(buggy, divi, [OR])]) :-
-%    From = odds_A * OR,
-%    To = instead(divi, odds_A / OR, odds_A * OR).
-%
-%feedback(divi, [OR], Col, FB) =>
-%    FB = [ "You divided ", \mmlm(Col, color(divi, odds_A)), " by ", 
-%	   \mmlm(Col, color(divi, OR)), " rather than multiplying them." ].
-%
-%hint(divi, [OR], Col, FB) =>
-%    FB = [ "Please remember to multiply ", \mmlm(Col, color(divi, odds_A)), " with ",
-%	   \mmlm(Col, color(divi, OR)), " rather then dividing them." ].
-%
-%% Forgot to convert odds_B to pi_B.
-%buggy(stage(2), From, To, [step(buggy, nopi, [])]) :-
-%    From = dfrac(odds_B, 1 + odds_B),
-%    To = omit_right(nopi, dfrac(odds_B, 1 + odds_B)).
-%
-%feedback(nopi, [], Col, FB) =>
-%    FB = [ "You forgot to convert ", 
-%	   \mmlm(Col, color(nopi, odds_B)),
-%           " back into a probability ", \mmlm(Col, color(nopi, pi_B)), 
-%	   ", with ", \mmlm(Col, color(nopi, pi_B = frac(odds_B, 1 + odds_B))) ].
-%
-%hint(nopi, [], Col, FB) =>
-%    FB = [ "Remember that your end result should be a probability ",
-%	   "rather than ", \mmlm(Col, color(nopi, odds_B)), "." ].
+% Forgot conversion of pi_A to odds_A
+buggy(stage(1), From, To, [step(buggy, forget_odds, [Pi_A, odds_A])]) :-
+    From = odds(Pi_A),
+    To = omit_right(forget_odds, dfrac(Pi_A, 1 - Pi_A)).
 
+feedback(forget_odds, [Pi_A, Odds_A], Col, FB)
+ => FB = [ "Please remember to ",
+           "convert ", \mmlm(Col, color(forget_odds, Pi_A)), " ",
+           "to ", \mmlm(Col, color(forget_odds, Odds_A = frac(Pi_A, 1 - Pi_A)))
+         ].
+
+hint(forget_odds, [Pi_A, _Odds_A], Col, FB)
+ => FB = [ "Do not forget to ",
+           "convert ", \mmlm(Col, color(forget_odds, Pi_A)), " to the ",
+           "respective odds."
+         ].
+
+% Divided odds_A and or rather then multiplying them.
+buggy(stage(2), From, To, [step(buggy, divide, [Odds_A, OR])]) :-
+    From = odds_ratio(Odds_A, OR),
+    To = instead(divide, Odds_A / OR, Odds_A * OR).
+
+feedback(divide, [Odds_A, OR], Col, FB)
+ => FB = [ "The response matches the inverse result in ",
+           "which ", \mmlm(Col, color(divide, Odds_A)), " was divided by ", 
+           "the ", \mmlm(Col, color(divide, OR)), " rather than multiplied."
+         ].
+
+hint(divide, [_Odds_A, OR], Col, FB)
+ => FB = [ "Make sure to multiply by ", \mmlm(Col, color(divide, OR)), " ",
+           "instead of dividing by it."
+         ].
+
+% Forgot to convert odds_B to pi_B
+buggy(stage(3), From, To, [step(buggy, forget_prob, [Odds_B, pi_B])]) :-
+    From = inv_odds(Odds_B),
+    To = omit_right(forget_prob, dfrac(Odds_B, 1 + Odds_B)).
+
+feedback(forget_prob, [Odds_B, Pi_B], Col, FB)
+ => FB = [ "Please remember to ",
+           "back-transform ", \mmlm(Col, color(forget_prob, Odds_B)), " to ",
+           \mmlm(Col, color(forget_prob, Pi_B = frac(Odds_B, 1 + Odds_B)))
+         ].
+
+hint(forget_prob, [Odds_B, _Pi_B], Col, FB)
+ => FB = [ "Do not forget to ",
+           "back-transform ", \mmlm(Col, color(forget_prob, Odds_B)), " to ",
+           "the respective probability."
+         ].

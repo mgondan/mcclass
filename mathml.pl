@@ -1228,7 +1228,7 @@ semi(A, X)
 ml(Flags, steps(Steps), M)
  => maplist(ml(Flags), Steps, Lines0),
     findall(mtr(mtd(L)), member(L, Lines0), Lines),
-    M = mtable([columnalign(left), displaystyle(true)], Lines).
+    M = mtable([align(bottom), columnalign(left), displaystyle(true)], Lines).
 
 %
 % Fractions
