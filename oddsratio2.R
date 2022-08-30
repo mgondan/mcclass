@@ -12,7 +12,7 @@ repeat
   odds_B <- odds(pi_B)
   or <- odds_B / odds_A  
   if(or > 0.9 & or < 1.1)
-    continue
+    next
 
   break
 }
