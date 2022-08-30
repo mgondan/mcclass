@@ -26,126 +26,108 @@ interval:r_hook(or).
 interval:r_hook(odds_B).
 
 render(item(Pi_A, Pi_B), Form) -->
-  { option(resp(R), Form, '#.##') },
+    { option(resp(R), Form, '#.##') },
     html(
-      [ div(class(card), div(class('card-body'),
-        [ h1(class('card-title'), "Clinical Study"),
-          p(class('card-text'),
-            [ "Compare the effectiveness of ",
-              "two therapies. Therapy A has a probability of success of ",
-              \mmlm(Pi_A = r(pi_A)), ". Therapy B ",
-              "one of ", \mmlm(Pi_B = r(pi_B))
-            ])
-        ])),
-	div(class(card), div(class('card-body'),
-	  [ h4(class('card-title'), [a(id(question), []), "Question"]),
-	    p(class('card-text'),
-	      "What is the Odds Ratio in favor of treatment A?"),
-            form([class(form), method('POST'), action('#oddsratio2-reverse')],
-              [ div(class("input-group mb-3"),
-                [ div(class("input-group-prepend"), 
-                    span(class("input-group-text"), "Response")),
-                  input([class("form-control"), type(text), name(resp), value(R)]),
-                  div(class("input-group-append"),
-	            button([class('btn btn-primary'), type(submit)], "Submit"))
-	        ])
-              ])
-	  ]))
+      [ div(class(card),
+          div(class('card-body'),
+            [ h1(class('card-title'), "Odds ratio"),
+              p(class('card-text'),
+                [ "The success probability of Therapy A ",
+                  "is ", \mmlm([r(Pi_A), "."]), " Therapy B has a success ",
+                  "probability of ", \mmlm([r(Pi_B), "."])
+                ])
+            ])),
+        \htmlform("What is the odds ratio relative to Therapy A?", "#oddsratio", R)
       ]).
 
-% Odds ratio with two probabilities. 
+% Odds ratio with two probabilities
 intermediate(item).
-intermediate(odds_A_).
-intermediate(odds_B_).
 start(item(pi_A, pi_B)).
 
-expert(stage(1), From, To, [step(expert, odd, [])]) :-
+expert(stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(Pi_A, Pi_B),
-    To = { '<-'(odds_A, odds_A_(Pi_A)) ;
-	   '<-'(odds_B, odds_B_(Pi_B)) ; 
-	   '<-'(or, odds_A / odds_B) ; 
-	   or
-	 }.
+    To = 
+      { '<-'(odds_A, odds(Pi_A)) ;
+        '<-'(odds_B, odds(Pi_B)) ; 
+        '<-'(or, odds_ratio(odds_B, odds_A))
+      }.
 
-feedback(odd, [], Col, FB) =>
-    FB = [ "Correctly recognised the problem as an ", \mmlm(Col, hyph(odds, "ratio")), "."].
+feedback(problem, [], _Col, FB)
+ => FB = "Correctly identified the problem and the main steps of the calculation.".
 
-hint(odd, [], Col, FB) =>
-    FB = [ "This is an ", \mmlm(Col, hyph(odds, "ratio")), "."].
+hint(problem, [], _Col, FB)
+ => FB = "This is an odds ratio.".
 
+% Determine the odds for A and B
+intermediate(odds).
+expert(stage(1), From, To, [step(expert, odds, [Pi, Odds])]) :-
+    From = '<-'(Odds, odds(Pi)),
+    To = '<-'(Odds, dfrac(Pi, 1 - Pi)).
 
-% correctly identified odds_A.
-expert(stage(1), From, To, [step(expert, oddsa, [Pi_A])]) :-
-    From = odds_A_(Pi_A),
-    To = dfrac(Pi_A, 1 - Pi_A).
+feedback(odds, [Pi, _], Col, FB)
+ => FB = [ "Correctly determined the odds ", "from ", \mmlm(Col, Pi) ].
 
-feedback(oddsa, [_], Col, FB) =>
-    FB = ["Correctly determined ", \mmlm(Col, odds_A)].
+hint(odds, [Pi, Odds], Col, FB)
+ => FB = [ "Convert ", \mmlm(Col, Pi), " to the respective ",
+           "odds, ", \mmlm(Col, Odds = dfrac(Pi, 1 - Pi))
+         ].
 
-hint(oddsa, [Pi_A], _Col, FB) =>
-    FB = ["The first step should be converting ", \mmlm(Col, Pi_A), " to ", \mmlm(Col, odds_A), 
-	  " with ", \mmlm(Col, odds_A = dfrac(Pi_A, 1 - Pi_A))].
+% Calculate OR
+intermediate(odds_ratio).
+expert(stage(2), From, To, [step(expert, odds_ratio, [Odds_B, Odds_A])]) :-
+    From = odds_ratio(Odds_B, Odds_A),
+    To = Odds_B / Odds_A.
 
-% correctly calculated odds_B.
-expert(stage(2), From, To, [step(expert, oddsb, [To])]) :-
-    From = odds_B_(Pi_B),
-    To = dfrac(Pi_B, 1 - Pi_B).
+feedback(odds_ratio, [Odds_B, Odds_A], Col, FB)
+ => FB = [ "Sucessfully calculated ", \mmlm(Col, Odds_B / Odds_A) ].
 
-feedback(oddsb, [_], Col, FB) =>
-    FB = ["Sucessfully calculated ", \mmlm(Col, odds_B)].
+hint(odds_ratio, [Odds_B, Odds_A], Col, FB)
+ => FB = [ "Divide ", \mmlm(Col, Odds_B), " by ", \mmlm(Col, Odds_A), " to ",
+           "determine the OR."
+         ].
 
-hint(oddsb, [To], Col, FB) =>
-    FB = ["Calculate ", \mmlm(Col, oddds_B), " using ", \mmlm(Col, odds_B = To)].
+%% Forgot conversion of pi to odds
+%buggy(stage(1), From, To, [step(buggy, forget_odds, [Pi, Odds])]) :-
+%    From = '<-'(Odds, odds(Pi)),
+%    To = '<-'(Odds, omit_right(forget_odds, dfrac(Pi, 1 - Pi))).
+%
+%feedback(forget_odds, [Pi, Odds], Col, FB)
+% => FB = [ "Please remember to ",
+%           "convert ", \mmlm(Col, color(forget_odds, Pi)), " ",
+%           "to ", \mmlm(Col, color(forget_odds, Odds = frac(Pi, 1 - Pi)))
+%         ].
+%
+%hint(forget_odds, [Pi, _Odds], Col, FB)
+% => FB = [ "Do not forget to ",
+%           "convert ", \mmlm(Col, color(forget_odds, Pi)), " to the ",
+%           "respective odds."
+%         ].
+%
+%% Confuse odds_A and odds_B
+%buggy(stage(2), From, To, [step(buggy, inverse, [Odds_B, Odds_A])]) :-
+%    From = odds_ratio(Odds_B, Odds_A),
+%    To = instead(inverse, odds_A / odds_B, odds_B / odds_A).
+%
+%feedback(inverse, [Odds_B, Odds_A], Col, FB)
+% => FB = [ "The result matches the inverse, ",
+%           "with ", \mmlm(Col, color(inverse, Odds_A)), " being divided ",
+%           "by ", \mmlm(Col, color(inverse, Odds_B)), " instead ",
+%           "of ", \mmlm(Col, color(inverse, Odds_B / Odds_A)) 
+%         ].
+%
+%hint(inverse, [_Odds_B, _Odds_A], _Col, FB)
+% => FB = "Make sure to put the correct odds into the denominator.".
+%
+%% Product instead of ratio
+%buggy(stage(2), From, To, [step(buggy, product, [Odds_B, Odds_A])]) :-
+%    From = odds_ratio(Odds_B, Odds_A),
+%    To = instead(product, odds_A * odds_B, odds_B / odds_A).
+%
+%feedback(product, [Odds_B, Odds_A], Col, FB)
+% => FB = [ "The result matches the product of the two odds instead ",
+%           "of the ratio, ", \mmlm(Col, color(inverse, Odds_B / Odds_A))
+%         ].
+%
+%hint(product, [_Odds_B, _Odds_A], _Col, FB)
+% => FB = "Make sure to calculate the ratio (not the product).".
 
-% 1) Forgot conversion  of pi_a to odds.
-buggy(stage(2), From, To, [step(buggy, cona, [pi_A]), depends(conb)]) :-
-    From = dfrac(pi_A, (1 - pi_A)),
-    To = omit_right(cona, dfrac(pi_A, 1 - pi_A)).
-
-feedback(cona, [pi_A], Col, FB) =>
-    FB = [ "Please remember to convert ", \mmlm(Col, color(cona, pi_A)), " to ",
-	   \mmlm(Col, color(cona, odds_A)), ", with ", \mmlm(Col, color(cona, odds_A = frac(pi_A, 1 - pi_A)))  ].
-
-hint(cona, [pi_A], Col, FB) =>
-    FB = [ "Do not forget to convert ", \mmlm(Col, color(cona, pi_A)), " and ",
-       \mmlm(Col, color(cona, pi_B)), " to odds before continuing." ].
-
-% 2) Forgot conversion  of pi_b to odds.
-buggy(stage(2), From, To, [step(buggy, conb, [pi_B]), depends(cona)]) :-
-    From = dfrac(pi_B, (1 - pi_B)),
-    To = omit_right(conb, dfrac(pi_B, 1 - pi_B)).
-
-feedback(conb, [pi_B], Col, FB) =>
-    FB = [ "Please remember to convert ", \mmlm(Col, color(conb, pi_B)), " to ",
-	   \mmlm(Col, color(conb, odds_B)), ", with ", \mmlm(Col, color(conb, odds_B = frac(pi_B, 1 - pi_B)))  ].
-
-hint(conb, [pi_B], Col, FB) =>
-    FB = [ "Do not forget to convert ", \mmlm(Col, color(conb, pi_A)), " and ",
-	   \mmlm(Col, color(conb, pi_B)), " to odds before continuing." ].
-
-% 3) Flipped odds_A and odds_B.
-buggy(stage(2), From, To, [step(buggy, flip, [])]) :-
-    From = odds_A / odds_B,
-    To = instead(flip, odds_B / odds_A, odds_A / odds_B).
-
-feedback(flip, [], Col, FB) =>
-    FB = [ "Divide ", \mmlm(Col, color(flip, odds_A)), " by ",
-	   \mmlm(Col, color(flip, odds_B)), " instead of ", 
-	   \mmlm(Col, color(flip, odds_B / odds_A)) ].
-
-hint(flip, [], Col, FB) =>
-    FB = [ "Try using ", \mmlm(Col, color(flip, odds_A)), " and ",
-	   \mmlm(Col, color(flip, odds_B)), " in a different configuration."  ].
-	   
-% 4) Multiplied odds_A and odds_B.
-buggy(stage(2), From, To, [step(buggy, mult, [])]) :-
-    From = odds_A / odds_B,
-    To = instead(mult, odds_A * odds_B, odds_A / odds_B).
-
-feedback(mult, [], Col, FB) =>
-    FB = [ "Divide ", \mmlm(Col, color(mult, odds_A)), " by ",
-	   \mmlm(Col, color(mult, odds_B)), " instead of multiplying them." ].
-
-hint(mult, [], Col, FB) =>
-    FB = [ "Do not multiply ", \mmlm(Col, color(mult, odds_A)), " and ",
-	   \mmlm(Col, color(mult, odds_B)) ].
