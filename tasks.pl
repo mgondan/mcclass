@@ -242,7 +242,7 @@ hint(Task, _Data, Expr-Result/Flags) -->
       hint(Expr-Result/Flags, Hints),
       findall(li(H),
         ( member(step(expert, Name, Arg), Flags), 
-          member(Name, Hints), 
+          memberchk(Name, Hints), 
           Task:hint(Name, Arg, [task(Task) | Col], H)
         ), Items)
     },
