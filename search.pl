@@ -1,4 +1,4 @@
-:- module(search, [search/3, searchall/2, searchdep/2]).
+:- module(search, [search/3, searchall/2, searchdep/2, codes/2]).
 
 :- use_module(interval).
 :- use_module(tasks).

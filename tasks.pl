@@ -186,7 +186,16 @@ solution(Task, Expr-Res/Flags) :-
     interval([task(Task)], Expr, Res).
 
 solutions(Task, List) :-
-    findall(ERF, solution(Task, ERF), List).
+    findall(ERF, solution(Task, ERF), List0),
+    % avoid duplicates by permutations, see search.pl
+    findall(sol(Expr, Res/Codes, Flags),
+      ( member(Expr-Res/Flags, List0),
+        sort(Flags, Sorted),
+        codes(Sorted, Codes)
+      ),
+      List1),
+    sort(2, @<, List1, List2),
+    findall(Expr-Res/Flags, member(sol(Expr, Res/_, Flags), List2), List).
 
 % Pretty print
 solution(Task, Expr-Result/Flags) -->
@@ -354,12 +363,13 @@ download(File) :-
 % ?- tasks:test.
 %
 test :-
-    test(qbinom).
+    test(oddsratio2).
 
 test(Task) :-
     r_initialize,
     r('set.seed'(4711)),
     r_session_source(Task),
+    b_setval(task, Task),
     writeln("All solutions"),
     solutions(Task, AllSolutions),
     writeln(AllSolutions),
