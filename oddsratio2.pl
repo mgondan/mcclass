@@ -86,48 +86,48 @@ hint(odds_ratio, [Odds_B, Odds_A], Col, FB)
            "determine the OR."
          ].
 
-%% Forgot conversion of pi to odds
-%buggy(stage(1), From, To, [step(buggy, forget_odds, [Pi, Odds])]) :-
-%    From = '<-'(Odds, odds(Pi)),
-%    To = '<-'(Odds, omit_right(forget_odds, dfrac(Pi, 1 - Pi))).
-%
-%feedback(forget_odds, [Pi, Odds], Col, FB)
-% => FB = [ "Please remember to ",
-%           "convert ", \mmlm(Col, color(forget_odds, Pi)), " ",
-%           "to ", \mmlm(Col, color(forget_odds, Odds = frac(Pi, 1 - Pi)))
-%         ].
-%
-%hint(forget_odds, [Pi, _Odds], Col, FB)
-% => FB = [ "Do not forget to ",
-%           "convert ", \mmlm(Col, color(forget_odds, Pi)), " to the ",
-%           "respective odds."
-%         ].
-%
-%% Confuse odds_A and odds_B
-%buggy(stage(2), From, To, [step(buggy, inverse, [Odds_B, Odds_A])]) :-
-%    From = odds_ratio(Odds_B, Odds_A),
-%    To = instead(inverse, odds_A / odds_B, odds_B / odds_A).
-%
-%feedback(inverse, [Odds_B, Odds_A], Col, FB)
-% => FB = [ "The result matches the inverse, ",
-%           "with ", \mmlm(Col, color(inverse, Odds_A)), " being divided ",
-%           "by ", \mmlm(Col, color(inverse, Odds_B)), " instead ",
-%           "of ", \mmlm(Col, color(inverse, Odds_B / Odds_A)) 
-%         ].
-%
-%hint(inverse, [_Odds_B, _Odds_A], _Col, FB)
-% => FB = "Make sure to put the correct odds into the denominator.".
-%
-%% Product instead of ratio
-%buggy(stage(2), From, To, [step(buggy, product, [Odds_B, Odds_A])]) :-
-%    From = odds_ratio(Odds_B, Odds_A),
-%    To = instead(product, odds_A * odds_B, odds_B / odds_A).
-%
-%feedback(product, [Odds_B, Odds_A], Col, FB)
-% => FB = [ "The result matches the product of the two odds instead ",
-%           "of the ratio, ", \mmlm(Col, color(inverse, Odds_B / Odds_A))
-%         ].
-%
-%hint(product, [_Odds_B, _Odds_A], _Col, FB)
-% => FB = "Make sure to calculate the ratio (not the product).".
+% Forgot conversion of pi to odds
+buggy(stage(1), From, To, [step(buggy, forget_odds, [Pi, Odds])]) :-
+    From = '<-'(Odds, odds(Pi)),
+    To = '<-'(Odds, omit_right(forget_odds, dfrac(Pi, 1 - Pi))).
+
+feedback(forget_odds, [Pi, Odds], Col, FB)
+ => FB = [ "Please remember to ",
+           "convert ", \mmlm(Col, color(forget_odds, Pi)), " ",
+           "to ", \mmlm(Col, color(forget_odds, Odds = frac(Pi, 1 - Pi)))
+         ].
+
+hint(forget_odds, [Pi, _Odds], Col, FB)
+ => FB = [ "Do not forget to ",
+           "convert ", \mmlm(Col, color(forget_odds, Pi)), " to the ",
+           "respective odds."
+         ].
+
+% Confuse odds_A and odds_B
+buggy(stage(2), From, To, [step(buggy, inverse, [Odds_B, Odds_A])]) :-
+    From = odds_ratio(Odds_B, Odds_A),
+    To = instead(inverse, odds_A / odds_B, odds_B / odds_A).
+
+feedback(inverse, [Odds_B, Odds_A], Col, FB)
+ => FB = [ "The result matches the inverse, ",
+           "with ", \mmlm(Col, color(inverse, Odds_A)), " being divided ",
+           "by ", \mmlm(Col, color(inverse, Odds_B)), " instead ",
+           "of ", \mmlm(Col, color(inverse, Odds_B / Odds_A)) 
+         ].
+
+hint(inverse, [_Odds_B, _Odds_A], _Col, FB)
+ => FB = "Make sure to put the correct odds into the denominator.".
+
+% Product instead of ratio
+buggy(stage(2), From, To, [step(buggy, product, [Odds_B, Odds_A])]) :-
+    From = odds_ratio(Odds_B, Odds_A),
+    To = instead(product, odds_A * odds_B, odds_B / odds_A).
+
+feedback(product, [Odds_B, Odds_A], Col, FB)
+ => FB = [ "The result matches the product of the two odds instead ",
+           "of the ratio, ", \mmlm(Col, color(product, Odds_B / Odds_A))
+         ].
+
+hint(product, [_Odds_B, _Odds_A], _Col, FB)
+ => FB = "Make sure to calculate the ratio (not the product).".
 
