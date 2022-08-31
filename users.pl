@@ -2,6 +2,7 @@
 
 :- use_module(library(sha)).
 :- use_module(library(odbc)).
+:- use_module(salt).
 
 db_init :-
     nb_current(add_user, _),
@@ -15,8 +16,6 @@ db_init :-
 exists_user(Email) :-
     db_init,
     odbc_query(mcclass, "SELECT email FROM users WHERE email = '~w'"-[Email], row(Email)).
-
-salt("mcclass").
 
 login_user(Email, Password) :-
     exists_user(Email),
