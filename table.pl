@@ -1,4 +1,4 @@
-:- module(table, [ htmltable//4, htmlform//3 ]).
+:- module(table, [ htmltable//4, htmlform//3, download//1 ]).
 
 /** <module> APA tables in HTML
 
@@ -37,7 +37,7 @@ tbody(RowNames, Data) -->
 
 % produces a line at the bottom
 tfoot -->
-    html(tfoot(tr(""))).
+    html(tfoot(tr(" "))).
 
 trow(Row, Data) -->
     html(tr([th(scope(row), Row) | \foreach(member(D, Data), html(td(D)))])).
@@ -57,6 +57,10 @@ htmlform(Question, Action, Response) -->
               ])
           ])
       ]))).
+
+download(Task) -->
+    html(form(method(post),
+      button([class('btn btn-secondary'), name(download), value(Task)], "Download data"))).
 
 test :-
     phrase(html(\htmltable("A table", 

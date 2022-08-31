@@ -5,8 +5,8 @@
 :- use_module(table).
 :- use_module(r).
 :- use_module(mathml).
-
 :- use_module(navbar).
+
 navbar:page(tgroups, ["Independent ", i(t), "-test (1)"]).
 
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
@@ -54,178 +54,180 @@ render(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 		  [ "Please check the following text from the publication ",
 		    "(40 ± 10 means “average 40, standard deviation 10”):"
 		  ]),
-		p(class('card-text'),
-		  [ "“Laparoscopy-naïve medical students were randomized into ",
-		    "two groups. The Box group (", 
-		    \mmlm(N_BOX = r(n_box)), ") used E-learning for ", 
-		    "laparoscopic cholecystectomy and practiced ",
-		    "basic skills with Box trainers. The VR group (", 
-		    \mmlm(N_VR = r(n_vr)), ") trained ",
-		    "basic skills and laparoscopic cholecystectomy on ",
-		    "LAP Mentor II (Simbionix, Cleveland, USA). Each group ",
-		    "trained 3 × 4 hours followed by a knowledge test. Blinded ",
-		    "raters assessed the operative performance using the ",
-		    "Objective Structured Assessment of Technical Skills ",
-		    "(OSATS). The VR group completed the operation significantly ",
-		    "faster and more often within 80 min than the Box ",
-		    "group (VR: 28% vs. Box: 22%, p = 0.596). The Box group ",
-		    "scored higher than the VR group in the knowledge ",
-		    "test (Box: 13.4 ± 1.2 vs. VR: 10.8 ± 1.8, p < 0.001). Both ",
-		    "groups showed equal operative performance in the OSATS score ",
-		    "(VR: ", \mmlm([digits(1)], r(vr)), " ± ", \mmlm([digits(1)], r(s_vr)), 
-		    " vs. BOX: ", \mmlm([digits(1)], r(box)), " ± ", \mmlm([digits(1)], r(s_box)), 
-		    ", p = 0.437). The significance level is set to ",
-		    \mmlm(alpha = [5, "%"]), " two-tailed. ",
-		    "Students generally liked training and felt well prepared for ", 
-		    "assisting in laparoscopic surgery. The efficiency of the training ",
-		    "was judged higher by the VR group than by the Box group."
-		  ]), 
-		 form(method('POST'),
-		    button([ class('btn btn-secondary'), name(download), value(tgroups) ], "Download data"))
+                div(class(card), 
+                  div(class('card-body'),
+		    p(class('card-text'),
+		      [ "“Laparoscopy-naïve medical students were randomized into ",
+                        "two groups. The Box ",
+                        "group ", \mmlm(["(", N_BOX = r(n_box), ")"]), " used ",
+                        "E-learning for laparoscopic cholecystectomy and practiced ",
+                        "basic skills with Box trainers. The VR ",
+                        "group ", \mmlm(["(", N_VR = r(n_vr), ")"]), " trained ",
+                        "basic skills and laparoscopic cholecystectomy on ",
+                        "LAP Mentor II (Simbionix, Cleveland, USA). Each group ",
+                        "trained 3 × 4 hours followed by a knowledge test. Blinded ",
+                        "raters assessed the operative performance using the ",
+                        "Objective Structured Assessment of Technical Skills ",
+                        "(OSATS). The VR group completed the operation significantly ",
+                        "faster and more often within 80 min than the Box ",
+                        "group (VR: 28% vs. Box: 22%, p = 0.596). The Box group ",
+                        "scored higher than the VR group in the knowledge ",
+                        "test (Box: 13.4 ± 1.2 vs. VR: 10.8 ± 1.8, p < 0.001). Both ",
+                        "groups showed equal operative performance in the OSATS score ",
+                        "(VR: ", \mmlm([digits(1)], r(vr)), " ± ", \mmlm([digits(1)], r(s_vr)), 
+                        " vs. BOX: ", \mmlm([digits(1)], r(box)), " ± ", \mmlm([digits(1)], r(s_box)), 
+                        ", p = 0.437). The significance level is set to ",
+                        \mmlm(alpha = [5, "%"]), " two-tailed. ",
+                        "Students generally liked training and felt well prepared for ", 
+                        "assisting in laparoscopic surgery. The efficiency of the training ",
+                        "was judged higher by the VR group than by the Box group."
+                      ]))),
+                 \download(tgroups)
 	      ])),
-	    div(class(card), div(class('card-body'),
-	    [ h4(class('card-title'), [a(id(question), []), "Question"]),
-	      p(class('card-text'),
-		[ "Is VR training superior to traditional Box training?"
-		]),
-	      form([class(form), method('POST'), action('#tgroups-pnorm')],
-		[ div(class("input-group mb-3"),
-		    [ div(class("input-group-prepend"), 
-			span(class("input-group-text"), "Response")),
-		      input([class("form-control"), type(text), name(resp), value(R)]),
-			div(class("input-group-append"),
-			  button([class('btn btn-primary'), type(submit)], "Submit"))
-	        ])])
-	      ]))
-	]).
+            \htmlform(
+              [ "Is VR training superior to traditional Box training? ",
+                "Please report the ", \mmlm(hyph(t, "ratio,")), " using Box ",
+                "as the control intervention." 
+              ], "#tratio", R)
+          ]).
 
-% t-test for independent groups
 intermediate(item).
 start(item(vr, s_vr, n_vr, box, s_box, n_box)).
 
-% Correctly identified the problem as a t-test for independent groups.
-intermediate(var_pool_).
-intermediate(tcalc).
-expert(stage(1), From, To, [step(expert, indep, [])]) :-
+% t-test for independent groups.
+intermediate(tratio).
+expert(stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(VR, S_VR, N_VR, BOX, S_BOX, N_BOX),
-    To = { '<-'(s2p, var_pool_(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX)) ;
-	   '<-'(t, tcalc(VR, BOX, s2p, N_VR, N_BOX))
-	 }.
+    To = { '<-'(s2p, var_pool(S_VR^2, N_VR, S_BOX^2, N_BOX)) ;
+           '<-'(t, tratio(VR, BOX, s2p, N_VR, N_BOX))
+         }.
 
-feedback(indep, [], Col, FB) =>
-    FB = [ "You identified the problem as a ", \mmlm(Col, hyph(t, "test")),
-	   " for independent samples with all its main steps." ].
+feedback(problem, [], Col, FB)
+ => FB = [ "Correctly identified the problem as ",
+           "a ", \mmlm(Col, hyph(t, "test")), " for independent samples."
+         ].
 
-hint(indep, [], Col, FB) =>
-    FB = [ "First determine the pooled variance, then the ", \mmlm(Col, hyph(t, "statistic.")) ].
+hint(problem, [], Col, FB)
+ => FB = [ "This is a ", \mmlm(Col, hyph(t, "test")), " for independent ",
+           "samples." 
+         ].
 
-% Correctly calculated the pooled variance.
-expert(stage(1), From, To, [step(expert, varpool, [To])]) :-
-    From = var_pool_(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX),
-    To = var_pool(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX).
+% Pooled variance.
+intermediate(var_pool).
+expert(stage(1), From, To, [step(expert, pooled, [S2P])]) :-
+    From = '<-'(S2P, var_pool(S_A^2, N_A, S_B^2, N_B)),
+    To = '<-'(S2P, dfrac((N_A-1) * S_A^2 + (N_B-1) * S_B^2, N_A + N_B - 2)).
 
-feedback(varpool, [_To], Col, FB) =>
-    FB = [ "You correctly determined the pooled variance ", \mmlm(Col, s2p) ].
+feedback(pooled, [S2P], Col, FB)
+ => FB = [ "Correctly determined the pooled variance ", \mmlm(Col, S2P) ].
 
-hint(varpool, [To], Col, FB) =>
-    FB = [ "The pooled variance is ", \mmlm(Col, To) ].
+hint(pooled, [S2P], Col, FB)
+ => FB = [ "The pooled variance ", \mmlm(Col, S2P), " needs to be ",
+           "calculated." 
+         ].
 
-% Correctly calculated t.
-expert(stage(2), From, To, [step(expert, tcalc, [To])]) :-
-    From = tcalc(VR, BOX, s2p, N_VR, N_BOX),
-    To = dfrac(VR - BOX, sqrt(s2p * (1/N_VR + 1/N_BOX))).
+% t-statistic
+expert(stage(2), From, To, [step(expert, tratio, [To])]) :-
+    From = tratio(VR, BOX, S2P, N_VR, N_BOX),
+    To = dfrac(VR - BOX, sqrt(S2P * (1/N_VR + 1/N_BOX))).
 
-feedback(tcalc, [_To], Col, FB) =>
-    FB = [ "You correctly determined the ",  \mmlm(Col, hyph(t, "statistic.")) ].
+feedback(tratio, [_T], Col, FB) =>
+    FB = [ "Correctly determined the ",  \mmlm(Col, hyph(t, "statistic.")) ].
 
-hint(tcalc, [To], Col, FB) =>
-    FB = [ "Use the following formula to calculate the ", 
-	   \mmlm(Col, hyph(t, "statistic:")), " ", \mmlm(Col, To) ].
+hint(tratio, [T], Col, FB) =>
+    FB = [ "The ", \mmlm(Col, hyph(t, "statistic")), " must be determined, ", 
+           \mmlm(Col, T) 
+         ].
 
-% 1) Swap vr and box groups.
-buggy(stage(1), From, To, [step(buggy, swap, [])]) :-
+% Wrong control group
+buggy(stage(1), From, To, [step(buggy, control, [vr, box])]) :-
     From = item(vr, s_vr, n_vr, box, s_box, n_box),
-    To = item(color(swap, box), s_vr, n_vr, color(swap, vr), s_box, n_box).
+    To = item(instead(control, box, vr), s_vr, n_vr, instead(control, vr, box), s_box, n_box).
 
-feedback(swap, [], Col, FB) =>
-    FB = [ "You swapped the ", \mmlm(Col, color(swap, "VR")), " and ",
-	   \mmlm(Col, color(swap, "BOX")), " variables." ].
+feedback(control, [VR, Box], Col, FB)
+ => FB = [ "The sign of the result matches the ",
+           "negative ", \mmlm(Col, hyph(t, "ratio,")), " ",
+           "with ", \mmlm(Col, color(control, VR)), " subtracted ",
+           "from ", \mmlm(Col, [color(control, Box), "."])
+         ].
 
-hint(swap, [], _Col, FB) =>
-    FB = [ "Do not switch the VR groups variables with ",
-	   "those of the Box group." ].
+hint(control, [VR, Box], Col, FB)
+ => FB = [ \mmlm(Col, color(control, VR)), " ",
+           "and ", \mmlm(Col, color(control, Box)), " should not be switched ",
+           "in the numerator of the ", \mmlm(Col, hyph(t, "ratio."))
+         ].
 
-% 2) Forgot to use square of standard deviation in pooled variance.
-buggy(stage(1), From, To, [step(buggy, sqsd, [S_VR, S_BOX])]) :-
-    From = var_pool_(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX),
-    To = var_pool(instead(sqsd, S_VR, S_VR ^ 2), N_VR, 
-	instead(sqsd, S_BOX, S_BOX ^ 2), N_BOX).
+% Forgot to use square of standard deviation in pooled variance
+buggy(stage(1), From, To, [step(buggy, square, [S_A, S_B])]) :-
+    From = var_pool(S_A^2, N_A, S_B^2, N_B),
+    To = dfrac((N_A-1) * omit_right(square, S_A^2) + (N_B-1) * omit_right(square, S_B^2), N_A + N_B - 2).
 
-feedback(sqsd, [S_VR, S_BOX], Col, FB) =>
-    FB = [ "You need to square ", \mmlm(Col, color(sqsd, S_VR)), " and ", 
-	   \mmlm(Col, color(sqsd, S_BOX)) ].
+feedback(square, [S_A, S_B], Col, FB)
+ => FB = [ "The expression for the pooled variance does not seem to include ",
+           "the square of ", \mmlm(Col, color(square, S_A)), " ",
+           "and ", \mmlm(Col, color(square, S_B)) ].
 
-hint(sqsd, [_S_VR, _S_BOX], _Col, FB) =>
-    FB = [ "Use the variance rather than the standard deviation ",
+hint(square, [_S_A, _S_B], _Col, FB)
+ => FB = [ "Do not forget to use the square of the standard deviations ",
 	   "when calculating the pooled variance." ].
 
 % 3) Forgot school math.
-buggy(stage(2), From, To, [step(buggy, school, [From, To])]) :-
-    From = 1 / N_VR + 1 / N_BOX,
-    To = color(school, frac(1, N_VR + N_BOX)).
-
-feedback(school, [From, To], Col, FB) =>
-    FB = [ "Keep in mind that ", 
-	   \mmlm(Col, color(school, From) =\= To) ].
-
-hint(school, [From, To], Col, FB) =>
-    FB = [ "Do not forget that ", 
-	   \mmlm(Col, color(school, From) =\= To) ].
-
-% 4) Forgot paranthesis around numerator in t-statistic.
-buggy(stage(2), From, To, [step(buggy, bug1, [VR, BOX, S2P, N_VR, N_BOX])]) :-
-    From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
-    To = invent_left(bug1, VR - dfrac(BOX, sqrt(S2P * (1/N_VR + 1/N_BOX)))).
-%VR - dfrac(BOX, sqrt(s2p * (1/N_VR + 1/N_BOX))).
-
-feedback(bug1, [_VR, _BOX, S2P, N_VR, N_BOX], Col, FB) =>
-    FB = [ "You forgot the parentheses around the numerator of ",
-	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", overline("VR") - overline("BOX")))), 
-	   sqrt(S2P * (1/N_VR + 1/N_BOX) ) ) )
-	 ].
-
-hint(bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) =>
-    FB = [ "Remember to use parenthesis around numerator. ",
-	   "The correct formula for the ", \mmlm(Col, hyph(t, "ratio")), "is ", 
-	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", VR - BOX))), 
-	   sqrt(S2P * (1/N_VR + 1/N_BOX) ) ) )
-	 ].
-
-% 5) Forgot square root.
-buggy(stage(2), From, To, [step(buggy, nosr1, [A])]) :-
-    From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
-    A = S2P * (1/N_VR + 1/N_BOX),
-    To = dfrac(VR - BOX, instead(nosr1, A, sqrt(A))).
-
-feedback(nosr1, [A], Col, FB) =>
-   FB = [ "You forgot to take the square root of ", \mmlm(Col, color(nosr1, A)) ].
-
-hint(nosr1, [A], Col, FB) =>
-    FB = [ "Keep in mind that you need to take the square root of ", 
-	   \mmlm(Col, color(nosr1, A)) ].
-
-
-% 6) Only took the square root of the first element of the denominator.
-buggy(stage(2), From, To, [step(buggy, nosr2, [S2P, N_VR, N_BOX])]) :-
-    From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
-    A = sqrt(S2P * (1/N_VR + 1/N_BOX)),
-    To = dfrac(VR - BOX, instead(nosr2, sqrt(S2P) * (1/N_VR + 1/N_BOX), A)).
-
-feedback(nosr2, [_, _, _], Col, FB) =>
-   FB = [ "You took the square root of only ", \mmlm(Col, color(nosr2, s2p)),
-	  " instead of the square root of the entire denominator." ].
-
-hint(nosr2, [S2P, N_VR, N_BOX], Col, FB) =>
-   FB = [ "Keep in mind that you need to take the square root of ", 
-	   \mmlm(Col, color(nosr2, S2P * (1/N_VR + 1/N_BOX))), " in its entirety." ].
+%buggy(stage(2), From, To, [step(buggy, school, [From, To])]) :-
+%    From = 1 / N_VR + 1 / N_BOX,
+%    To = color(school, frac(1, N_VR + N_BOX)).
+%
+%feedback(school, [From, To], Col, FB) =>
+%    FB = [ "Keep in mind that ", 
+%	   \mmlm(Col, color(school, From) =\= To) ].
+%
+%hint(school, [From, To], Col, FB) =>
+%    FB = [ "Do not forget that ", 
+%	   \mmlm(Col, color(school, From) =\= To) ].
+%
+%% 4) Forgot paranthesis around numerator in t-statistic.
+%buggy(stage(2), From, To, [step(buggy, bug1, [VR, BOX, S2P, N_VR, N_BOX])]) :-
+%    From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
+%    To = invent_left(bug1, VR - dfrac(BOX, sqrt(S2P * (1/N_VR + 1/N_BOX)))).
+%%VR - dfrac(BOX, sqrt(s2p * (1/N_VR + 1/N_BOX))).
+%
+%feedback(bug1, [_VR, _BOX, S2P, N_VR, N_BOX], Col, FB) =>
+%    FB = [ "You forgot the parentheses around the numerator of ",
+%	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", overline("VR") - overline("BOX")))), 
+%	   sqrt(S2P * (1/N_VR + 1/N_BOX) ) ) )
+%	 ].
+%
+%hint(bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) =>
+%    FB = [ "Remember to use parenthesis around numerator. ",
+%	   "The correct formula for the ", \mmlm(Col, hyph(t, "ratio")), "is ", 
+%	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", VR - BOX))), 
+%	   sqrt(S2P * (1/N_VR + 1/N_BOX) ) ) )
+%	 ].
+%
+%% 5) Forgot square root.
+%buggy(stage(2), From, To, [step(buggy, nosr1, [A])]) :-
+%    From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
+%    A = S2P * (1/N_VR + 1/N_BOX),
+%    To = dfrac(VR - BOX, instead(nosr1, A, sqrt(A))).
+%
+%feedback(nosr1, [A], Col, FB) =>
+%   FB = [ "You forgot to take the square root of ", \mmlm(Col, color(nosr1, A)) ].
+%
+%hint(nosr1, [A], Col, FB) =>
+%    FB = [ "Keep in mind that you need to take the square root of ", 
+%	   \mmlm(Col, color(nosr1, A)) ].
+%
+%
+%% 6) Only took the square root of the first element of the denominator.
+%buggy(stage(2), From, To, [step(buggy, nosr2, [S2P, N_VR, N_BOX])]) :-
+%    From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
+%    A = sqrt(S2P * (1/N_VR + 1/N_BOX)),
+%    To = dfrac(VR - BOX, instead(nosr2, sqrt(S2P) * (1/N_VR + 1/N_BOX), A)).
+%
+%feedback(nosr2, [_, _, _], Col, FB) =>
+%   FB = [ "You took the square root of only ", \mmlm(Col, color(nosr2, s2p)),
+%	  " instead of the square root of the entire denominator." ].
+%
+%hint(nosr2, [S2P, N_VR, N_BOX], Col, FB) =>
+%   FB = [ "Keep in mind that you need to take the square root of ", 
+%	   \mmlm(Col, color(nosr2, S2P * (1/N_VR + 1/N_BOX))), " in its entirety." ].
 

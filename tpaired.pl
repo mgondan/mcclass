@@ -62,8 +62,7 @@ render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, Mu), Form) -->
                         \mmlm([digits(1)], r(s_eot)),
                         \mmlm([digits(1)], r(s1_d)) ]
                     ])))),
-              form(method(post),
-                  button([class('btn btn-secondary'), name(download), value(tpaired)], "Download data"))
+            \download(tpaired)
           ])),
         \htmlform([ "Does rfCBT lead to a relevant reduction (i.e., more ",
             "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean HDRS ",
