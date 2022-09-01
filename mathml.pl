@@ -805,6 +805,27 @@ math(Flags, (A ; B), New, X)
     current_op(Prec, xfy, ;),
     X = xfy(Prec, ;, A, B).
 
+% Powers
+math(Flags, omit_right(_Bug, Base^Pwr), New, M),
+    option(error(correct), Flags, fix)
+ => Flags = New,
+    M = Base^Pwr.
+
+math(Flags, omit_right(_Bug, Base^_Pwr), New, M),
+    option(error(show), Flags, fix)
+ => Flags = New,
+    M = Base.
+
+math(Flags, omit_right(Bug, Base^Pwr), New, M),
+    option(error(fix), Flags, fix)
+ => Flags = New,
+    M = Base^color(Bug, box(color("#000000", Pwr))).
+
+math(Flags, omit_right(Bug, Base^Pwr), New, M),
+    option(error(highlight), Flags, fix)
+ => Flags = New,
+    M = Base^color(Bug, cancel(color("#000000", Pwr))).
+
 math(Flags, A^B, New, X)
  => New = Flags,
     X = sup(A, B).
