@@ -50,14 +50,14 @@ render(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
               "operation time (dichotomized, above or below 80 min), and ",
               "efficiency ratings (ordinal scale, 1=bad ... 5=good)."
             ]),
-		  p(class('card-text'),
-		    [ "Please check the following text from the publication ",
-		      "(40 ± 10 means “average 40, standard deviation 10”):"
-		    ]),
+	  p(class('card-text'),
+            [ "Please check the following text from the publication ",
+              "(40 ± 10 means “average 40, standard deviation 10”):"
+	    ]),
           div(class(card), 
             div(class('card-body'),
               p(class('card-text'),
-		        [ "“Laparoscopy-naïve medical students were randomized into ",
+                [ "“Laparoscopy-naïve medical students were randomized into ",
                   "two groups. The Box ",
                   "group ", \mmlm(["(", N_BOX = r(n_box), ")"]), " used ",
                   "E-learning for laparoscopic cholecystectomy and practiced ",
@@ -219,19 +219,18 @@ hint(school, [A, B], Col, FB)
 %hint(nosr1, [A], Col, FB) =>
 %    FB = [ "Keep in mind that you need to take the square root of ", 
 %	   \mmlm(Col, color(nosr1, A)) ].
-%
-%
-%% 6) Only took the square root of the first element of the denominator.
-%buggy(stage(2), From, To, [step(buggy, nosr2, [S2P, N_VR, N_BOX])]) :-
-%    From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
-%    A = sqrt(S2P * (1/N_VR + 1/N_BOX)),
-%    To = dfrac(VR - BOX, instead(nosr2, sqrt(S2P) * (1/N_VR + 1/N_BOX), A)).
-%
-%feedback(nosr2, [_, _, _], Col, FB) =>
-%   FB = [ "You took the square root of only ", \mmlm(Col, color(nosr2, s2p)),
-%	  " instead of the square root of the entire denominator." ].
-%
-%hint(nosr2, [S2P, N_VR, N_BOX], Col, FB) =>
-%   FB = [ "Keep in mind that you need to take the square root of ", 
-%	   \mmlm(Col, color(nosr2, S2P * (1/N_VR + 1/N_BOX))), " in its entirety." ].
+
+% Forget square root around sample size
+buggy(stage(2), From, To, [step(buggy, nosr2, [Ns])]) :-
+    Ns = frac(1, _N_VR) + frac(1, _N_Box),
+    From = sqrt(S2P * Ns),
+    To = invent_right(nosr2, sqrt(omit_right(nosr2, S2P * Ns)) * Ns).
+
+feedback(nosr2, [Ns], Col, FB)
+ => FB = [ "The square root seems to stop ",
+           "before ", \mmlm(Col, [paren(color(nosr2, Ns)), "."])
+         ].
+
+hint(nosr2, [_Ns], _Col, FB)
+ => FB = [ "The square root of the whole denomiator should be taken." ].
 
