@@ -32,57 +32,57 @@ interval:r_hook(t).
 
 render(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
     { option(resp(R), Form, '#.##') },
-	html(
-	  [ div(class(card), div(class('card-body'),
-	    [ h1(class('card-title'), "Training of surgical skills"),
-		p(class('card-text'),
-		  [ "Surgeons need special motor skills, especially for ",
-		    "endoscopic surgery through the belly. Nickel et al. (2015) ",
-		    "report the results of a study with two learning methods for ",
-		    "motor skill training. One group underwent a virtual reality ",
-		    "training (VR group), the other group participated in a ",
-		    "mixture of online courses and classical training of motor ",
-		    "skill with the so-called Box-trainer (Box group). ",
-		    "The primary dependent variable is the result on the OSATS ",
-		    "test (interval scaled, normally distributed, high scores = ",
-		    "good performance). A few more dependent variables were ",
-		    "assessed, including a knowledge test (interval scaled), ",
-		    "operation time (dichotomized, above or below 80 min), and ",
-		    "efficiency ratings (ordinal scale, 1=bad ... 5=good)."
-		  ]),
-		p(class('card-text'),
-		  [ "Please check the following text from the publication ",
-		    "(40 ± 10 means “average 40, standard deviation 10”):"
-		  ]),
-                div(class(card), 
-                  div(class('card-body'),
-		    p(class('card-text'),
-		      [ "“Laparoscopy-naïve medical students were randomized into ",
-                        "two groups. The Box ",
-                        "group ", \mmlm(["(", N_BOX = r(n_box), ")"]), " used ",
-                        "E-learning for laparoscopic cholecystectomy and practiced ",
-                        "basic skills with Box trainers. The VR ",
-                        "group ", \mmlm(["(", N_VR = r(n_vr), ")"]), " trained ",
-                        "basic skills and laparoscopic cholecystectomy on ",
-                        "LAP Mentor II (Simbionix, Cleveland, USA). Each group ",
-                        "trained 3 × 4 hours followed by a knowledge test. Blinded ",
-                        "raters assessed the operative performance using the ",
-                        "Objective Structured Assessment of Technical Skills ",
-                        "(OSATS). The VR group completed the operation significantly ",
-                        "faster and more often within 80 min than the Box ",
-                        "group (VR: 28% vs. Box: 22%, p = 0.596). The Box group ",
-                        "scored higher than the VR group in the knowledge ",
-                        "test (Box: 13.4 ± 1.2 vs. VR: 10.8 ± 1.8, p < 0.001). Both ",
-                        "groups showed equal operative performance in the OSATS score ",
-                        "(VR: ", \mmlm([digits(1)], r(vr)), " ± ", \mmlm([digits(1)], r(s_vr)), 
-                        " vs. BOX: ", \mmlm([digits(1)], r(box)), " ± ", \mmlm([digits(1)], r(s_box)), 
-                        ", p = 0.437). The significance level is set to ",
-                        \mmlm(alpha = [5, "%"]), " two-tailed. ",
-                        "Students generally liked training and felt well prepared for ", 
-                        "assisting in laparoscopic surgery. The efficiency of the training ",
-                        "was judged higher by the VR group than by the Box group."
-                      ]))),
-                 \download(tgroups)
+    html(
+      [ div(class(card), div(class('card-body'),
+        [ h1(class('card-title'), "Training of surgical skills"),
+          p(class('card-text'),
+            [ "Surgeons need special motor skills, especially for ",
+              "endoscopic surgery through the belly. Nickel et al. (2015) ",
+              "report the results of a study with two learning methods for ",
+              "motor skill training. One group underwent a virtual reality ",
+              "training (VR group), the other group participated in a ",
+              "mixture of online courses and classical training of motor ",
+              "skill with the so-called Box-trainer (Box group). ",
+              "The primary dependent variable is the result on the OSATS ",
+              "test (interval scaled, normally distributed, high scores = ",
+              "good performance). A few more dependent variables were ",
+              "assessed, including a knowledge test (interval scaled), ",
+              "operation time (dichotomized, above or below 80 min), and ",
+              "efficiency ratings (ordinal scale, 1=bad ... 5=good)."
+            ]),
+		  p(class('card-text'),
+		    [ "Please check the following text from the publication ",
+		      "(40 ± 10 means “average 40, standard deviation 10”):"
+		    ]),
+          div(class(card), 
+            div(class('card-body'),
+              p(class('card-text'),
+		        [ "“Laparoscopy-naïve medical students were randomized into ",
+                  "two groups. The Box ",
+                  "group ", \mmlm(["(", N_BOX = r(n_box), ")"]), " used ",
+                  "E-learning for laparoscopic cholecystectomy and practiced ",
+                  "basic skills with Box trainers. The VR ",
+                  "group ", \mmlm(["(", N_VR = r(n_vr), ")"]), " trained ",
+                  "basic skills and laparoscopic cholecystectomy on ",
+                  "LAP Mentor II (Simbionix, Cleveland, USA). Each group ",
+                  "trained 3 × 4 hours followed by a knowledge test. Blinded ",
+                  "raters assessed the operative performance using the ",
+                  "Objective Structured Assessment of Technical Skills ",
+                  "(OSATS). The VR group completed the operation significantly ",
+                  "faster and more often within 80 min than the Box ",
+                  "group (VR: 28% vs. Box: 22%, p = 0.596). The Box group ",
+                  "scored higher than the VR group in the knowledge ",
+                  "test (Box: 13.4 ± 1.2 vs. VR: 10.8 ± 1.8, p < 0.001). Both ",
+                  "groups showed equal operative performance in the OSATS score ",
+                  "(VR: ", \mmlm([digits(1)], r(vr)), " ± ", \mmlm([digits(1)], r(s_vr)), 
+                  " vs. BOX: ", \mmlm([digits(1)], r(box)), " ± ", \mmlm([digits(1)], r(s_box)), 
+                  ", p = 0.437). The significance level is set to ",
+                  \mmlm(alpha = [5, "%"]), " two-tailed. ",
+                  "Students generally liked training and felt well prepared for ", 
+                  "assisting in laparoscopic surgery. The efficiency of the training ",
+                  "was judged higher by the VR group than by the Box group."
+                ]))),
+            \download(tgroups)
 	      ])),
             \htmlform(
               [ "Is VR training superior to traditional Box training? ",
@@ -129,7 +129,7 @@ hint(pooled, [S2P], Col, FB)
 % t-statistic
 expert(stage(2), From, To, [step(expert, tratio, [To])]) :-
     From = tratio(VR, BOX, S2P, N_VR, N_BOX),
-    To = dfrac(VR - BOX, sqrt(S2P * (1/N_VR + 1/N_BOX))).
+    To = dfrac(VR - BOX, sqrt(S2P * (frac(1, N_VR) + frac(1, N_BOX)))).
 
 feedback(tratio, [_T], Col, FB) =>
     FB = [ "Correctly determined the ",  \mmlm(Col, hyph(t, "statistic.")) ].
@@ -165,25 +165,29 @@ buggy(stage(1), From, To, [step(buggy, square, [S_A, S_B])]) :-
 feedback(square, [S_A, S_B], Col, FB)
  => FB = [ "The expression for the pooled variance does not seem to include ",
            "the square of ", \mmlm(Col, color(square, S_A)), " ",
-           "and ", \mmlm(Col, color(square, S_B)) ].
+           "and ", \mmlm(Col, color(square, S_B)) 
+         ].
 
 hint(square, [_S_A, _S_B], _Col, FB)
  => FB = [ "Do not forget to use the square of the standard deviations ",
-	   "when calculating the pooled variance." ].
+           "when calculating the pooled variance." 
+         ].
 
-% 3) Forgot school math.
-%buggy(stage(2), From, To, [step(buggy, school, [From, To])]) :-
-%    From = 1 / N_VR + 1 / N_BOX,
-%    To = color(school, frac(1, N_VR + N_BOX)).
-%
-%feedback(school, [From, To], Col, FB) =>
-%    FB = [ "Keep in mind that ", 
-%	   \mmlm(Col, color(school, From) =\= To) ].
-%
-%hint(school, [From, To], Col, FB) =>
-%    FB = [ "Do not forget that ", 
-%	   \mmlm(Col, color(school, From) =\= To) ].
-%
+% Forgot school math
+buggy(stage(2), From, To, [step(buggy, school, [N_A, N_B])]) :-
+    From = frac(1, N_A) + frac(1, N_B),
+    To = color(school, frac(1, N_A + N_B)).
+
+feedback(school, [A, B], Col, FB)
+ => FB = [ "Please keep in mind ",
+           "that ", \mmlm(Col, color(school, color("black", frac(1, A)) + color("black", frac(1, B))) =\= frac(1, color(school, color("black", A) + color("black", B))))
+         ].
+
+hint(school, [A, B], Col, FB)
+ => FB = [ "Do not forget that ",
+           \mmlm(Col, color(school, color("black", frac(1, A)) + color("black", frac(1, B))) =\= frac(1, color(school, color("black", A) + color("black", B)))) 
+         ].
+
 %% 4) Forgot paranthesis around numerator in t-statistic.
 %buggy(stage(2), From, To, [step(buggy, bug1, [VR, BOX, S2P, N_VR, N_BOX])]) :-
 %    From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
