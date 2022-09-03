@@ -206,31 +206,33 @@ hint(school, [A, B], Col, FB)
 %	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", VR - BOX))), 
 %	   sqrt(S2P * (1/N_VR + 1/N_BOX) ) ) )
 %	 ].
-%
-%% 5) Forgot square root.
-%buggy(stage(2), From, To, [step(buggy, nosr1, [A])]) :-
-%    From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
-%    A = S2P * (1/N_VR + 1/N_BOX),
-%    To = dfrac(VR - BOX, instead(nosr1, A, sqrt(A))).
-%
-%feedback(nosr1, [A], Col, FB) =>
-%   FB = [ "You forgot to take the square root of ", \mmlm(Col, color(nosr1, A)) ].
-%
-%hint(nosr1, [A], Col, FB) =>
-%    FB = [ "Keep in mind that you need to take the square root of ", 
-%	   \mmlm(Col, color(nosr1, A)) ].
+
+% Forgot square root around the denominator
+buggy(stage(2), From, To, [step(buggy, sqrt1, [S2P * Ns])]) :-
+    From = dfrac(Num, sqrt(S2P * Ns)),
+    To = dfrac(Num, instead(sqrt, S2P * Ns, sqrt(S2P * Ns))).
+
+feedback(sqrt1, [S2P_Ns], Col, FB)
+ => FB = [ "The square root around ", \mmlm(Col, color(sqrt1, S2P_Ns)), " ",
+           "seems to have been omitted."
+         ].
+
+hint(sqrt1, [_], Col, FB)
+ => FB = [ "Do not forget the square root around the denominator of ",
+           "the ", \mmlm(Col, hyph(t, "ratio."))
+         ].
 
 % Forget square root around sample size
-buggy(stage(2), From, To, [step(buggy, nosr2, [Ns])]) :-
+buggy(stage(2), From, To, [step(buggy, sqrt2, [Ns])]) :-
     Ns = frac(1, _N_VR) + frac(1, _N_Box),
-    From = sqrt(S2P * Ns),
-    To = invent_right(nosr2, sqrt(omit_right(nosr2, S2P * Ns)) * Ns).
+    From = dfrac(Num, sqrt(S2P * Ns)),
+    To = dfrac(Num, invent_right(sqrt2, sqrt(omit_right(sqrt2, S2P * Ns)) * Ns)).
 
 feedback(nosr2, [Ns], Col, FB)
  => FB = [ "The square root seems to stop ",
-           "before ", \mmlm(Col, [paren(color(nosr2, Ns)), "."])
+           "before ", \mmlm(Col, [paren(color(sqrt2, Ns)), "."])
          ].
 
-hint(nosr2, [_Ns], _Col, FB)
+hint(sqrt2, [_Ns], _Col, FB)
  => FB = [ "The square root of the whole denomiator should be taken." ].
 

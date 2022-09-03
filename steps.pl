@@ -11,10 +11,9 @@ step(Task, Stage, X, Y, Flags) :-
     Task:buggy(Stage, X, Y, Flags).
 
 % Handle special compounds
-step(Task, Stage, instead(Bug, X, Of), Z, Flags) :-
+step(Task, Stage, instead(Bug, X, Of), Y, Flags) :-
     !,
-    step(Task, Stage, X, Y, Flags),
-    Z = instead(Bug, Y, Of, Of).
+    step(Task, Stage, instead(Bug, X, Of, Of), Y, Flags).
 
 step(Task, Stage, instead(Bug, X, Of0, Of), Z, Flags) :-
     step(Task, Stage, X, Y, Flags),

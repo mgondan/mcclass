@@ -363,7 +363,7 @@ download(File) :-
 % ?- tasks:test.
 %
 test :-
-    test(oddsratio2).
+    test(tgroups).
 
 test(Task) :-
     r_initialize,
