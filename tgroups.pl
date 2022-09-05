@@ -127,9 +127,10 @@ hint(pooled, [S2P], Col, FB)
          ].
 
 % t-statistic
-expert(stage(2), From, To, [step(expert, tratio, [To])]) :-
+expert(stage(2), From, Fmt, [step(expert, tratio, [To])]) :-
     From = tratio(VR, BOX, S2P, N_VR, N_BOX),
-    To = dfrac(VR - BOX, sqrt(S2P * (frac(1, N_VR) + frac(1, N_BOX)))).
+    To = dfrac(VR - BOX, sqrt(S2P * (frac(1, N_VR) + frac(1, N_BOX)))),
+    Fmt = tstat(To).
 
 feedback(tratio, [_T], Col, FB) =>
     FB = [ "Correctly determined the ",  \mmlm(Col, hyph(t, "statistic.")) ].

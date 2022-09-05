@@ -65,6 +65,7 @@ feedback(Task, Data, Form) -->
       memberchk(solutions(Solutions), Data),
       member(Expr-Res/Flags, Solutions),
       colors(Expr, Col),
+      http_log("Num: ~w, Res: ~w~n", [Num, Res]),
       interval([task(Task) | Col], Num =@= Res, _),
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
