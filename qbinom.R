@@ -8,6 +8,18 @@ uqbinom = function(...)
 lqbinom = function(...)
   as.integer(qbinom(..., lower.tail=TRUE) - 1)
 
+udbinom = function(Alpha, N, Pi)
+{
+  v = dbinom(round(N*Pi), N, Pi)
+  N - sum(v <= Alpha) + 1L
+}
+
+ldbinom = function(Alpha, N, Pi)
+{
+  v = dbinom(0L:round(N*Pi), N, Pi)
+  sum(v <= Alpha) - 1
+}
+
 cbinom = function(Alpha, N, Pi, Tail, Arg)
 {
   if(Tail == "upper")
