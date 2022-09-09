@@ -695,7 +695,7 @@ example :-
 %
 % Format result as a t-ratio
 %
-int(Flags, tratio(X), Res),
+int(Flags, tstat(X), Res),
     option(engine(pl), Flags)
  => int([digits(2) | Flags], format(X), Res).
 

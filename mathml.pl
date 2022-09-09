@@ -639,7 +639,7 @@ mathml :- mathml(underover(sign(&(sum)), i=1, 'N')).
 %
 % Formatting numbers
 %
-math(Flags, tratio(A), New, X)
+math(Flags, tstat(A), New, X)
  => New = [digits(2) | Flags],
     A = X.
 
@@ -2076,8 +2076,8 @@ fmt(Flags, Expr, F),
     atomic(Expr)
  => F = Flags.
 
-fmt(Flags, tratio(Expr), F)
- => fmt([format(tratio) | Flags], Expr, F).
+fmt(Flags, tstat(Expr), F)
+ => fmt([format(tstat) | Flags], Expr, F).
 
 fmt(Flags, chi2ratio(Expr), F)
  => fmt([format(chi2ratio) | Flags], Expr, F).

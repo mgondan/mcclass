@@ -93,7 +93,7 @@ hint(paired, [], Col, Hint) =>
 % "display" mode (a bit larger font than normal)
 expert(stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
     X = paired(D, Mu, S_D, N),
-    Y = tratio(dfrac(D - Mu, S_D / sqrt(N))).
+    Y = tstat(dfrac(D - Mu, S_D / sqrt(N))).
 
 feedback(tratio, [_D, _Mu, _S_D, _N], Col, FB) =>
     FB = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
@@ -106,7 +106,7 @@ hint(tratio, [D, Mu, S_D, N], Col, Hint) =>
 % Another correct result
 expert(stage(2), X, Y, [step(expert, abs_tratio, [D, Mu, S_D, N])]) :-
     X = paired(D, Mu, S_D, N),
-    Y = tratio(abs(dfrac(D - Mu, S_D / sqrt(N)))).
+    Y = tstat(abs(dfrac(D - Mu, S_D / sqrt(N)))).
 
 feedback(abs_tratio, [_D, _Mu, _S_D, _N], Col, FB) =>
     FB = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
@@ -126,7 +126,7 @@ hint(abs_tratio, [D, Mu, S_D, N], Col, Hint) =>
 % in SPSS only allows for mu = 0. 
 buggy(stage(2), X, Y, [step(buggy, mu, [Mu])]) :-
     X = paired(D, Mu, S_D, N),
-    Y = tratio(dfrac(omit_right(mu, D - Mu), S_D / sqrt(N))).
+    Y = tstat(dfrac(omit_right(mu, D - Mu), S_D / sqrt(N))).
 
 feedback(mu, [Mu], Col, FB) =>
     FB = [ "In the ", \mmlm(hyph(t, "ratio,")), " the null ",
@@ -159,7 +159,7 @@ expert(stage(2), X, Y,
         [step(expert, tratio_indep, [T0, S_T0, N, EOT, S_EOT])]) :-
     X = indep(T0, S_T0, N, EOT, S_EOT, N),
     P = abbrev(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
-    Y = tratio(dfrac(T0 - EOT, sqrt(P * (1/N + 1/N)))).
+    Y = tstat(dfrac(T0 - EOT, sqrt(P * (1/N + 1/N)))).
 
 feedback(tratio_indep, [_T0, _S_T0, _N, _EOT, _S_EOT], Col, FB) =>
     FB = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " ",
