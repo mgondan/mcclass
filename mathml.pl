@@ -1816,6 +1816,14 @@ math(Flags, tail("lower"), New, X)
  => New = Flags,
     X = ('X' =< k).
 
+math(Flags, tail("upperdens"), New, X)
+ => New = Flags,
+    X = ('X' = k).
+
+math(Flags, tail("lowerdens"), New, X)
+ => New = Flags,
+    X = ('X' = k).
+
 math(Flags, arg("min"), New, X)
  => New = Flags,
     X = sub(argmin, k).
