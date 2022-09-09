@@ -228,7 +228,7 @@ buggy(stage(2), From, To, [step(buggy, sqrt2, [Ns])]) :-
     From = dfrac(Num, sqrt(S2P * Ns)),
     To = dfrac(Num, invent_right(sqrt2, sqrt(omit_right(sqrt2, S2P * Ns)) * Ns)).
 
-feedback(nosr2, [Ns], Col, FB)
+feedback(sqrt2, [Ns], Col, FB)
  => FB = [ "The square root seems to stop ",
            "before ", \mmlm(Col, [paren(color(sqrt2, Ns)), "."])
          ].
