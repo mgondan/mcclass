@@ -327,7 +327,7 @@ denoting(_Flags, boolean(_), Den)
 %
 math(Flags, space, New, X)
  => New = Flags,
-    X = space(thickmathspace).
+    X = space('0.3em').
 
 ml(_Flags, space(Width), M)
  => M = mspace(width(Width), []).
@@ -776,8 +776,10 @@ math(Flags, A - B, New, X)
 
 % Use dot or no dot instead of asterisk
 math(Flags, A * B, New, X),
-    type(Flags, A, atomic),
-    type(Flags, B, atomic)
+    type(Flags, A, TypeA),
+    member(TypeA, [atomic, sub(_, _)]),
+    type(Flags, B, TypeB),
+    member(TypeB, [atomic, sub(_, _)])
  => New = Flags,
     X = nodot(A, B).
 
@@ -1198,18 +1200,18 @@ ml(Flags, list1(_, [A]), M)
 
 ml(Flags, list1(Sep, [A, B | T]), M)
  => ml(Flags, A, X),
-    ml(Flags, tail(Sep, [B | T]), Y),
+    ml(Flags, tailx(Sep, [B | T]), Y),
     M = mrow([X | Y]).
 
-ml(Flags, tail(Sep, [A]), M)
+ml(Flags, tailx(Sep, [A]), M)
  => ml(Flags, Sep, S),
     ml(Flags, A, X),
     M = [S, X].
 
-ml(Flags, tail(Sep, [A, B | T]), M)
+ml(Flags, tailx(Sep, [A, B | T]), M)
  => ml(Flags, Sep, S),
     ml(Flags, A, X),
-    ml(Flags, tail(Sep, [B | T]), Y),
+    ml(Flags, tailx(Sep, [B | T]), Y),
     M = [S, X | Y].
 
 paren(Flags, list1(_, List), Paren)
@@ -1369,6 +1371,14 @@ mathml :- mathml(cancel('D')).
 %
 % Box
 %
+math(Flags, boxes([], A), New, M)
+ => Flags = New,
+    A = M.
+
+math(Flags, boxes([Col | Boxes], A), New, M)
+ => Flags = New,
+    M = color(Col, box(color("#000000", boxes(Boxes, A)))).
+
 ml(Flags, box(A), M)
  => ml(Flags, A, X),
     M = menclose(notation(roundedbox), X).
@@ -1566,25 +1576,9 @@ math(Flags, drop_right(_Bug, Expr), New, M),
     Flags = New,
     M = L.
 
-math(Flags, instead(_Bug, _Wrong, Correct), New, M),
-    option(error(correct), Flags, fix)
+math(Flags, instead(Bug, Wrong, Correct), New, M)
  => Flags = New,
-    M = Correct.
-
-math(Flags, instead(Bug, Wrong, _Correct), New, M),
-    option(error(show), Flags, fix)
- => Flags = New,
-    M = color(Bug, Wrong).
-
-math(Flags, instead(Bug, _Wrong, Correct), New, M),
-    option(error(fix), Flags, fix)
- => Flags = New,
-    M = color(Bug, box(color("#000000", Correct))).
-
-math(Flags, instead(Bug, Wrong, Correct), New, M),
-    option(error(highlight), Flags, fix)
- => New = Flags,
-    M = underbrace(list(space, ["instead of", correct(Correct)]), color(Bug, show(Wrong))).
+    M = instead(Bug, Wrong, Correct, Correct).
 
 math(Flags, instead(_Bug, _Wrong, _Correct0, Correct), New, M),
     option(error(correct), Flags, fix)
@@ -1596,10 +1590,11 @@ math(Flags, instead(Bug, Wrong, _Correct0, _Correct), New, M),
  => Flags = New,
     M = color(Bug, Wrong).
 
-math(Flags, instead(Bug, _Wrong, _Correct0, Correct), New, M),
+math(Flags, instead(Bug, Wrong, _Correct0, Correct), New, M),
     option(error(fix), Flags, fix)
- => Flags = New,
-    M = color(Bug, box(color("#000000", Correct))).
+ => bugs(Wrong, Bugs),
+    Flags = New,
+    M = boxes([Bug | Bugs], Correct).
 
 math(Flags, instead(Bug, Wrong, Correct0, _Correct), New, M),
     option(error(highlight), Flags, fix)
@@ -1803,34 +1798,30 @@ math(Flags, qbinom(Alpha, N, Pi), New, X)
  => New = Flags,
     X = fn(under("argmax", k), [fn(sub('P', "Bi"), ([('X' =< k)] ; [N, Pi])) =< Alpha]).
 
-% critical value - this may not yet work fully
+% critical value
 math(Flags, cbinom(Alpha, N, Pi, Tail, Arg), New, X)
  => New = Flags,
     X = fn(Arg, [fn(sub('P', "Bi"), ([Tail] ; [N, Pi])) =< Alpha]).
 
-math(Flags, tail("upper"), New, X)
+math(Flags, tail("upper", K), New, X)
  => New = Flags,
-    X = ('X' >= k).
+    X = ('X' >= K).
 
-math(Flags, tail("lower"), New, X)
+math(Flags, tail("lower", K), New, X)
  => New = Flags,
-    X = ('X' =< k).
+    X = ('X' =< K).
 
-math(Flags, tail("upperdens"), New, X)
+math(Flags, tail("equal", K), New, X)
  => New = Flags,
-    X = ('X' = k).
+    X = ('X' = K).
 
-math(Flags, tail("lowerdens"), New, X)
+math(Flags, arg("min", K), New, X)
  => New = Flags,
-    X = ('X' = k).
+    X = sub(argmin, K).
 
-math(Flags, arg("min"), New, X)
+math(Flags, arg("max", K), New, X)
  => New = Flags,
-    X = sub(argmin, k).
-
-math(Flags, arg("max"), New, X)
- => New = Flags,
-    X = sub(argmax, k).
+    X = sub(argmax, K).
 
 mathml :- mathml(dbinom(k, 'N', pi)).
 mathml :- mathml(pbinom(k, 'N', pi)).
