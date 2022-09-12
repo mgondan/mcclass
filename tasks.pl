@@ -92,6 +92,7 @@ feedback(Task, Data, Form) -->
       member(wrongall(ERF), Data),
       member(Expr-Res/Flags, ERF),
       colors(Expr, Col),
+      http_log("Expr: ~w~n", [Expr]),
       interval([task(Task) | Col], Num =@= Res, _),
       % relevant feedback
       findall(li(FB),
@@ -364,7 +365,7 @@ download(File) :-
 % ?- tasks:test.
 %
 test :-
-    test(tgroups).
+    test(qbinom).
 
 test(Task) :-
     r_initialize,

@@ -31,6 +31,8 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass('favicon.ico'), http_reply_file('favicon.ico', []), []).
 :- http_handler(root('bootstrap.min.css'), http_reply_file('css/bootstrap.min.css', []), []).
 :- http_handler(mcclass('bootstrap.min.css'), http_reply_file('css/bootstrap.min.css', []), []).
+:- http_handler(root('bootstrap.min.css.map'), http_reply_file('css/bootstrap.min.css.map', []), []).
+:- http_handler(mcclass('bootstrap.min.css.map'), http_reply_file('css/bootstrap.min.css.map', []), []).
 :- http_handler(root('bootstrap.bundle.min.js'), http_reply_file('js/bootstrap.bundle.min.js', []), []).
 :- http_handler(mcclass('bootstrap.bundle.min.js'), http_reply_file('js/bootstrap.bundle.min.js', []), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
@@ -84,7 +86,14 @@ handle(Task, Form)
       [ title('McClass'),
         link([rel(stylesheet), href('bootstrap.min.css')]),
         link([rel(icon), href('favicon.ico'), type('image/x-icon')]),
-        meta([name(viewport), content('width=device-width, initial-scale=1')])
+        meta([name(viewport), content('width=device-width, initial-scale=1')]),
+        style(
+          [ ".table thead tr th { padding-top: 0.1rem; padding-bottom: 0.1rem; }",
+            ".table thead tr:first-child { border-top: 2px solid black; border-bottom: 1px solid black; }",
+            ".table tbody tr td { border: none; padding-top: 0.1rem; padding-bottom: 0.1rem; }",
+            ".table tbody tr th { border: none; padding-top: 0.1rem; padding-bottom: 0.1rem; }",
+            ".table tbody tr:last-child { border-bottom: 2px solid black; }"
+          ])
       ],
       [ \navbar,
         % \hello,
