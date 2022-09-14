@@ -24,6 +24,7 @@
 :- use_module(ztrans2).
 :- use_module(dbinom).
 :- use_module(qbinom).
+:- use_module(powbinom).
 :- use_module(chisq).
 :- use_module(power).
 

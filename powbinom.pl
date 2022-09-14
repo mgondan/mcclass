@@ -6,6 +6,8 @@
 :- use_module(r).
 :- use_module(mathml).
 
+:- http_handler(mcclass(powbinom), handler(powbinom), []).
+
 :- use_module(navbar).
 navbar:page(powbinom, "Power test").
 
@@ -29,7 +31,7 @@ interval:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
 render(item(Alpha, N, P0, P1), Form) -->
     { option(resp(R), Form, '#'),
-      binomtable(N, P0,P1, Caption, Rows, Cols, Cells)
+      binomtable(N, P0, P1, Caption, Rows, Cols, Cells)
     },
     html(
       [ div(class(card), div(class('card-body'),
@@ -40,8 +42,9 @@ render(item(Alpha, N, P0, P1), Form) -->
                 "number of therapeutic successes in the sample. We assume ",
                 "that the successes occur independently, and under the null ",
                 "hypothesis, the success probability is ", \mmlm(r(P0)), " ",
-                "in all patients. The binomial probabilities are given in ",
-                "the table below. With what probability does the new treatment succeed (power)?"
+                "in all patients. Under the alternative hypothesis, we hope ",
+                "that the success probability is ", \mmlm([r(P1), "."]), "The ",
+                "binomial probabilities are given in the table below."
 	          ]),
 	        div(class(container),
 	          div(class("row justify-content-md-center"),
@@ -52,9 +55,8 @@ render(item(Alpha, N, P0, P1), Form) -->
           [ h4(class('card-title'), [a(id(question), []),
               "Question"]),
             p(class('card-text'),
-              [ "How many successes are needed to rule out the null ",
-                "hypothesis at the one-tailed significance level ",
-                "of ", \mmlm(alpha = r(Alpha)), "?"
+              [ "What is the power of the test at the one-tailed ",
+                "significance level of ", \mmlm([alpha = r(Alpha), "?"])
               ]),
             form([class(form), method('POST'), action('#dbinom-dbinom')],
               [ div(class("input-group mb-3"),
@@ -108,7 +110,7 @@ hint(lower, [], _Col, Hint)
 % Critical value based on distribution
 expert(stage(2), From, To, [step(expert, dist, [])]) :-
     From = binom(Alpha, N, P0, P1, Tail, Arg),
-    To   = cbinom(Alpha, N, P0, P1, Tail, Arg).
+    To   = cbinom(Alpha, N, P0, Tail, Arg).
 
 feedback(dist, [], _Col, Feed)
  => Feed = [ "Correctly used the critical value of the cumulative ",
@@ -139,26 +141,24 @@ hint(dens, [_K], _Col, Hint)
            ].
 
 % Helper function(s)
-binomtable(N, P0,  Caption, Rows, Cols, Cells) :-
-    r_task(lqbinom(0.05, N, P0, P1), L),
-    r_task(uqbinom(0.05, N, P0, P1), H),
+binomtable(N, P0, P1, Caption, Rows, Cols, Cells) :-
+    r_task(lqbinom(0.05, N, P0), L),
+    r_task(uqbinom(0.05, N, P1), H),
     Caption = [em("Table 1. "), "Binomial probabilities"],
-    Cols = [\mmlm(k), \mmlm(dbinom(k, n = r(N), p0 = r(P0))), \mmlm(dbinom(k, n = r(N), p1 = r(P1)))],
+    Cols = [\mmlm(k), \mmlm(dbinom(k, N = r(N), p0 = r(P0))), \mmlm(dbinom(k, N = r(N), p1 = r(P1)))],
     % lower tail
     L0 is L - 1,
-    Row0 = \mmlm([0, "...", L0]),
-    Cell0 = \mmlm([digits=3], r(pbinom(L0, n, p0))),
-    Cell1 = \mmlm([digits=3], r(pbinom(L0, n, p1))),
+    FirstRow = \mmlm([0, "...", L0]),
+    FirstCell0 = \mmlm([digits=3], r(pbinom(L0, N, P0))),
+    FirstCell1 = \mmlm([digits=3], r(pbinom(L0, N, P1))),
     % middle range
-    findall(\mmlm(R), between(L, H, R), RowsX),
-    findall([\mmlm([digits=3], r(dbinom(D, n, p0)))], between(L, H, D), CellsX),
-    findall([\mmlm([digits=3], r(dbinom(D, n, p1)))], between(L, H, D), CellsY),
+    findall(\mmlm(R), between(L, H, R), MiddleRows),
+    findall([\mmlm([digits=3], r(dbinom(D, N, P0))), \mmlm([digits=3], r(dbinom(D, N, P1)))], between(L, H, D), MiddleCells),
     % upper tail
     HN is H + 1,
-    RowN = \mmlm([HN, "...", N]),
-    CellN = \mmlm([digits=3], r(pbinom(H, n, p0, 'lower.tail'='FALSE'))), % H not HN
-    CellN = \mmlm([digits=3], r(pbinom(H, n, p1, 'lower.tail'='FALSE'))), % H not HN
-    append([[Row0], RowsX, [RowN]], Rows),
-    append([[[Cell0]], CellsX, [[CellN]]], Cells),
-    append([[[Cell1]], CellsY, [[CellN]]], Cells).
+    LastRow = \mmlm([HN, "...", N]),
+    LastCell0 = \mmlm([digits=3], r(pbinom(H, N, P0, 'lower.tail'='FALSE'))), % H not HN
+    LastCell1 = \mmlm([digits=3], r(pbinom(H, N, P1, 'lower.tail'='FALSE'))),
+    append([[FirstRow], MiddleRows, [LastRow]], Rows),
+    append([[[FirstCell0, FirstCell1]], MiddleCells, [[LastCell0, LastCell1]]], Cells).
 
