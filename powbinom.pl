@@ -13,7 +13,10 @@ navbar:page(powbinom, "Power test").
 
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
-mathml_hook(p0, sub(pi, 0), p1).
+mathml_hook(p0, sub(pi, 0)).
+mathml_hook(p1, sub(pi, 1)).
+mathml_hook(crit, c).
+mathml_hook(power, 'Pwr').
 mathml_hook(n, 'N').
 
 interval:r_hook(alpha).
@@ -21,11 +24,13 @@ interval:r_hook(n).
 interval:r_hook(p0).
 interval:r_hook(p1).
 interval:r_hook(k).
+interval:r_hook(crit).
 interval:r_hook(uqbinom(_Alpha, _Size, _Prob)).
 interval:r_hook(lqbinom(_Alpha, _Size, _Prob)).
 interval:r_hook(tail(_Tail, _K)).
 interval:r_hook(arg(_Arg, _K)).
 interval:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
+interval:r_hook(pwbinom(_Crit, _Size, _Prob, _Tail)).
 interval:r_hook(pbinom(_Q, _Size, _Prob)).
 interval:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
@@ -73,71 +78,82 @@ render(item(Alpha, N, P0, P1), Form) -->
 intermediate(item).
 start(item(alpha, n, p0, p1)).
 
-% This is a problem that involves the binomial test
-intermediate(binom).
-expert(stage(2), From, To, [step(expert, problem, [])]) :-
+% This is a problem that involves two steps, critical value and binomial probability
+intermediate(crit).
+intermediate(power).
+expert(stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(Alpha, N, P0, P1),
-    To   = binom(Alpha, N, P0, P1).
+    To = { '<-'(crit, crit(Alpha, N, P0)) ;
+           '<-'(power, power(crit, N, P1))
+         }.
 
 feedback(problem, [], _Col, Feed) =>
-    Feed = [ "Correctly identified the problem as a binomial test." ].
+    Feed = [ "Correctly identified the two steps of the problem." ].
 
 hint(problem, [], _Col, Hint) =>
-    Hint = [ "This problem involves the binomial test." ].
+    Hint = [ "In the first step, the critical value is determined. In the ",
+             "second step, the probability for a significant result is ",
+             "calculated."
+           ].
 
 % Upper tail of the binomial distribution
-expert(stage(2), From, To, [step(expert, upper, [])]) :-
-    From = binom(Alpha, N, P0, P1),
-    To   = binom(Alpha, N, P0, P1, tail("upper", k), arg("min", k > N*P0)).
+expert(stage(2), From, To, [step(expert, upper1, [])]) :-
+    From = crit(Alpha, N, P0),
+    To   = crit(Alpha, N, P0, tail("upper", k), arg("min", k > N*P0)).
 
-feedback(upper, [], _Col, Feed)
- => Feed = [ "Correctly selected the upper tail of the binomial distribution." ].
+feedback(upper1, [], _Col, Feed)
+ => Feed = [ "Correctly determined the critical value from the upper tail of ",
+             "the binomial distribution." 
+           ].
 
-hint(upper, [], _Col, Hint)
- => Hint = [ "The upper tail of the binomial distribution is needed." ].
+hint(upper1, [], _Col, Hint)
+ => Hint = [ "The critical value is determined from the upper tail of the ",
+             "binomial distribution." 
+           ].
 
-% Lower tail of the binomial distribution
-buggy(stage(2), From, To, [step(buggy, lower, [])]) :-
-    From = binom(Alpha, N, P0, P1),
-    To   = binom(Alpha, N, P0, P1, instead(lower, tail("lower", k), tail("upper", k)), instead(lower, arg("max", k < N*P0), arg("min", k > N*P0))).
-
-feedback(lower, [], _Col, Feed)
- => Feed = [ "The result matches the lower tail of the binomial distribution." ].
-
-hint(lower, [], _Col, Hint)
- => Hint = [ "Do not select the lower tail of the binomial distribution." ].
-
-% Critical value based on distribution
-expert(stage(2), From, To, [step(expert, dist, [])]) :-
-    From = binom(Alpha, N, P0, P1, Tail, Arg),
+% Critical value based on cumulative distribution
+expert(stage(2), From, To, [step(expert, dist1, [])]) :-
+    From = crit(Alpha, N, P0, Tail, Arg),
     To   = cbinom(Alpha, N, P0, Tail, Arg).
 
-feedback(dist, [], _Col, Feed)
+feedback(dist1, [], _Col, Feed)
  => Feed = [ "Correctly used the critical value of the cumulative ",
              "distribution."
            ].
 
-hint(dist, [], _Col, Hint)
+hint(dist1, [], _Col, Hint)
  => Hint = [ "The critical value should be determined on the cumulative ",
              "distribution."
            ].
 
-% Critical value based on density
-buggy(stage(3), From, To, [step(buggy, dens, [K])]) :-
-    From = tail(Tail, K),
-    member(Tail, ["upper", "lower"]),
-    To = instead(dens, tail("equal", K), tail("upper", K)).
+% Power based on upper tail
+expert(stage(3), From, To, [step(expert, upper2, [])]) :-
+    From = power(Alpha, N, P1),
+    To   = power(Alpha, N, P1, tail("upper", k)).
 
-feedback(dens, [K], Col, Feed)
- => Feed = [ "The result matches the critical value based on the binomial ",
-             "probability, ", \mmlm(Col, [fn(sub('P', "Bi"), [color(dens, tail("equal", K))]), "."]),
-             "Please report the critical value based on the cumulative ",
-             "distribution, ", \mmlm(Col, [fn(sub('P', "Bi"), [tail("upper", K)]), "."])
+feedback(upper2, [], _Col, Feed)
+ => Feed = [ "Correctly selected the upper tail of cumulative distribution ",
+             "for the power."
            ].
 
-hint(dens, [_K], _Col, Hint)
- => Hint = [ "Make sure to use the cumulative binomial distribution to ",
-             "determine the critical value."
+hint(upper2, [], _Col, Hint)
+ => Hint = [ "The power is determined from the upper tail of the binomial ",
+             "distribution."
+           ].
+
+% Power based on cumulative distribution
+expert(stage(3), From, To, [step(expert, dist2, [])]) :-
+    From = power(Alpha, N, P1, Tail),
+    To   = pwbinom(Alpha, N, P1, Tail).
+
+feedback(dist2, [], _Col, Feed)
+ => Feed = [ "Correctly calculated the power using the cumulative ",
+             "distribution."
+           ].
+
+hint(dist2, [], _Col, Hint)
+ => Hint = [ "The power should be determined using the cumulative ",
+             "distribution."
            ].
 
 % Helper function(s)

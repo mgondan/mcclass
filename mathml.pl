@@ -1780,9 +1780,9 @@ math(Flags, pbinom(K, N, Pi), New, X)
     X = fn(sub('P', "Bi"), (['X' =< K] ; [N, Pi])).
 
 % upper tail
-math(Flags, upbinom(K, N, Pi), New, X)
+math(Flags, pwbinom(_K, N, Pi, Tail), New, X)
  => New = Flags,
-    X = fn(sub('P', "Bi"), (['X' >= K] ; [N, Pi])).
+    X = fn(sub('P', "Bi"), ([Tail] ; [N, Pi])).
 
 % upper critical value
 math(Flags, uqbinom(Alpha, N, Pi), New, X)

@@ -45,30 +45,27 @@ tail = function(Tail, K)
 arg = function(Arg, K)
   return(Arg)
 
-powbinom <- function(Alpha, N, P0, P1, Tail, Arg)
+pwbinom <- function(Crit, N, P1, Tail)
 {
-  if(Tail == "lower" & Arg == "max")
+  if(Tail == "lower")
   {
 
-    c <- cbinom(Alpha, N, P0, Tail, Arg)
-    v <- dbinom(0L:c, N, P1)
+    v <- dbinom(0L:Crit, N, P1)
     return(sum(v))
   }
 
-  if(Tail == "upper" & Arg == "min")
+  if(Tail == "upper")
   {
-    c <- cbinom(Alpha, N, P0, Tail, Arg)
-    v <- dbinom(c:N, N, P1)
+    v <- dbinom(Crit:N, N, P1)
     return(sum(v))
   }
 
   if(Tail == "equal")
   {
-    c <- cbinom(Alpha, N, P0, Tail, Arg)
-    v <- dbinom(c, N, P1)
-    return(sum(v))
+    v <- dbinom(Crit, N, P1)
+    return(v)
   }
 
-  stop("powbinom: wrong Tail or Arg: ", Tail, Arg)
+  stop("pwbinom: wrong Tail: ", Tail)
 }
 
