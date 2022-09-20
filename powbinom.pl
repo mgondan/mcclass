@@ -128,8 +128,8 @@ hint(dist1, [], _Col, Hint)
 
 % Power based on upper tail
 expert(stage(3), From, To, [step(expert, upper2, [])]) :-
-    From = power(Alpha, N, P1),
-    To   = power(Alpha, N, P1, tail("upper", k)).
+    From = power(Crit, N, P1),
+    To   = power(Crit, N, P1, tail("upper", Crit)).
 
 feedback(upper2, [], _Col, Feed)
  => Feed = [ "Correctly selected the upper tail of cumulative distribution ",
@@ -142,9 +142,9 @@ hint(upper2, [], _Col, Hint)
            ].
 
 % Power based on cumulative distribution
-expert(stage(3), From, To, [step(expert, dist2, [])]) :-
-    From = power(Alpha, N, P1, Tail),
-    To   = pwbinom(Alpha, N, P1, Tail).
+expert(stage(2), From, To, [step(expert, dist2, [])]) :-
+    From = power(Crit, N, P1, Tail),
+    To   = pwbinom(Crit, N, P1, Tail).
 
 feedback(dist2, [], _Col, Feed)
  => Feed = [ "Correctly calculated the power using the cumulative ",
