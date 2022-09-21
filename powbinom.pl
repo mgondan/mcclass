@@ -127,7 +127,7 @@ hint(dist1, [], _Col, Hint)
            ].
 
 % Power based on upper tail
-expert(stage(3), From, To, [step(expert, upper2, [])]) :-
+expert(stage(2), From, To, [step(expert, upper2, [])]) :-
     From = power(Crit, N, P1),
     To   = power(Crit, N, P1, tail("upper", Crit)).
 
