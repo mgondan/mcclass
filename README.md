@@ -24,6 +24,8 @@ Later, you just invoke `R -e "Rserve::Rserve()"` to start the R server.
 
 The rest is described in database.txt.
 
+Later, you just invoke `sudo service postgresql restart` to start the database.
+
 ## Step 3: install Prolog
 
 Install a current version of SWI-Prolog from www.swi-prolog.org.
