@@ -22,11 +22,7 @@ Later, you just invoke `R -e "Rserve::Rserve()"` to start the R server.
 
 `sudo apt install unixodbc-dev odbc-postgresql postgresql-contrib`
 
-Invoke swipl, and then
-
-* `pack_install(rologp).`
-* `pack_install(quantity).`
-* `halt.`
+The rest is described in database.txt.
 
 ## Step 3: install Prolog
 
