@@ -45,6 +45,10 @@ To serve incoming connections at 8001 under linux, enter the folder mcclass and 
 
 Use `kill $(cat http.pid)` to stop the server. Sometimes this doesn't work, then use `killall -9 swipl` :-)
 
+## Watch the program
+
+Open firefox and go to http://localhost:8001/mcclass
+
 ## Behind an Apache proxy
 Let's assume you have a working https-configuration. Then add the following two lines to your, e.g.,
 /etc/apache2/sites-enabled/000-default-le-ssl.conf
