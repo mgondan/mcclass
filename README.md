@@ -4,9 +4,10 @@ MisConception-aware Competence Learning and Assessment Smart System
 If you wish, try it at https://mcclass.vps.webdock.cloud/mcclass
 
 ## Step 1: install R
+
 Install a current version of R
 
-sudo apt install r-base
+`sudo apt install r-base`
 
 Invoke R, and then
 
@@ -16,12 +17,24 @@ Invoke R, and then
 
 Later, you just invoke `R -e "Rserve::Rserve()"` to start the R server.
 
-## Step 2: install Prolog
+## Step 2: install postgresql
+
+`sudo apt install unixodbc-dev odbc-postgresql postgresql-contrib`
+
+Invoke swipl, and then
+
+* `pack_install(rologp).`
+* `pack_install(quantity).`
+* `halt.`
+
+## Step 3: install Prolog
+
 Install a current version of SWI-Prolog from www.swi-prolog.org.
 
 Invoke swipl, and then
 
-* `pack_install('https://github.com/JanWielemaker/rserve_client.git').`
+* `pack_install(rologp).`
+* `pack_install(quantity).`
 * `halt.`
 
 ## Start the server
