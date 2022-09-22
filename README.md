@@ -11,6 +11,7 @@ Install a current version of R
 
 Invoke R, and then
 
+* `install.packages("RInside")`
 * `install.packages("Rserve", repos="http://rforge.net/", type="source")`
 * You also need WriteXLS for exporting Excel files: `install.packages("WriteXLS")`
 * `quit()`
