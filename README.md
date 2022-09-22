@@ -11,10 +11,10 @@ sudo apt install r-base
 Invoke R, and then
 
 * `install.packages("Rserve", repos="http://rforge.net/", type="source")`
-* `library(Rserve)`
-* `Rserve()`
 * You also need WriteXLS for exporting Excel files: `install.packages("WriteXLS")`
 * `quit()`
+
+Later, you just invoke `R -e "Rserve::Rserve()"` to start the R server.
 
 ## Step 2: install Prolog
 Install a current version of SWI-Prolog from www.swi-prolog.org.
