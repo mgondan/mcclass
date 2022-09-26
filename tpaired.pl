@@ -116,6 +116,7 @@ hint(abs_tratio, [D, Mu, S_D, N], Col, Hint) =>
     Hint = [ "The ", \mmlm(Col, hyph(t, "ratio")), " ",
          "is ", \mmlm(Col, abs(dfrac(D - Mu, S_D / sqrt(N)))) ].
 
+
 % Misconception: Run the paired t-test against zero, that is, just test for a
 % decrease in symptoms. This is a frequent misconception, the problem is known
 % as "regression to the mean": Scores at T0 tend to be systematically too low
@@ -307,4 +308,35 @@ hint(s_eot, [_S, S_EOT], Col, FB) =>
            "EOT ", \mmlm(Col, color(s_eot, S_EOT)), " into ",
            "the ", \mmlm(Col, hyph(t, "ratio.")), " Use the change scores ",
            "instead." ].
+
+% Use of N instead of sqrt(N)
+buggy(stage(2), X, Y, [step(buggy, sqrt1, [n])]) :-
+    X = sqrt(n),
+    Y = omit_right(sqrt1, n^(1/2)).
+
+feedback(sqrt1, [N], Col, FB)
+ => FB = [ "Please do not forget the square root around ", 
+           \mmlm(Col, color(sqrt1, N))
+         ].
+
+hint(sqrt1, [N], Col, FB)
+ => FB = [ "Do not forget the square root around ",
+           \mmlm(Col, color(sqrt1, N))
+	     ].
+
+% Use of N instead of sqrt(N)
+buggy(stage(2), X, Y, [step(buggy, sqrt2, [N])]) :-
+    X = sqrt(N),
+    dif(N, n),
+    Y = omit_right(sqrt2, N^(1/2)).
+
+feedback(sqrt2, [N], Col, FB)
+ => FB = [ "Please do not forget the square root around ",
+           \mmlm(Col, color(sqrt2, N))
+         ].
+
+hint(sqrt2, [N], Col, FB)
+ => FB = [ "Do not forget the square root around ",
+           \mmlm(Col, color(sqrt2, N))
+         ].
 
