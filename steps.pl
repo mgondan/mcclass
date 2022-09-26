@@ -46,6 +46,20 @@ step(Type, Task, Stage, omit(Bug, Expr), Z, Flags) :-
     step(Type, Task, Stage, Expr, New, Flags),
     Z = omit(Bug, New).
 
+step(Type, Task, Stage, drop_left(Bug, Expr), Z, Flags) :-
+    !,
+    Expr =.. [Op, L, R],
+    step(Type, Task, Stage, R, New, Flags),
+    Y =.. [Op, L, New],
+    Z = drop_left(Bug, Y).
+
+step(Type, Task, Stage, drop_right(Bug, Expr), Z, Flags) :-
+    !,
+    Expr =.. [Op, L, R],
+    step(Type, Task, Stage, L, New, Flags),
+    Y =.. [Op, New, R],
+    Z = drop_right(Bug, Y).
+
 step(Type, Task, Stage, abbrev(Abbrev, Expr, Text), Z, Flags) :-
     !,
     step(Type, Task, Stage, Expr, New, Flags),
