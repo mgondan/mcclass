@@ -69,6 +69,12 @@ mmlm(A) -->
 %    html(ol(type(a), Items)).
 
 mmlm(Flags, A) -->
+    { member(abbrev(false), Flags),
+      mathml(Flags, A, M, _With)
+    },
+    html(M).
+
+mmlm(Flags, A) -->
     { colors(A, Colors),
       append(Flags, Colors, List),
       mathml(List, A, M, With) 

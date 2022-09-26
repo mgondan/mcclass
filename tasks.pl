@@ -111,7 +111,7 @@ feedback(Task, Data, Form) -->
       findall(li(FB),
         ( member(step(buggy, Name, Args), Flags),
           memberchk(Name, Traps),
-          Task:feedback(Name, Args, [task(Task) | Col], FB)
+          Task:feedback(Name, Args, [task(Task), abbrev(false) | Col], FB)
         ), Wrong0),
       ( Wrong0 = []
         -> Wrong = p(class("card-text"), "")
@@ -124,7 +124,7 @@ feedback(Task, Data, Form) -->
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
           \+ memberchk(Name, Hints),
-          Task:feedback(Name, Args, [task(Task) | Col], FB)
+          Task:feedback(Name, Args, [task(Task), abbrev(false) | Col], FB)
         ), Praise0),
       ( Praise0 = []
         -> Praise = p(class("card-text"), "")
@@ -136,7 +136,7 @@ feedback(Task, Data, Form) -->
       findall(li(FB),
         ( member(step(buggy, Name, Args), Flags),
           \+ memberchk(Name, Traps),
-          Task:feedback(Name, Args, [task(Task) | Col], FB)
+          Task:feedback(Name, Args, [task(Task), abbrev(false) | Col], FB)
         ), Blame0),
       ( Blame0 = []
         -> Blame = p(class("card-text"), "")
