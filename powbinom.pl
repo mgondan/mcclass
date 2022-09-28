@@ -114,6 +114,22 @@ hint(upper1, [], _Col, Hint)
              "binomial distribution." 
            ].
 
+%Lower tail of the binomial distribution
+buggy(stage(2), From, To, [step(buggy, lower1, [])]) :-
+    From = crit(Alpha, N, P0),
+    To   = crit(Alpha, N, P0, instead(lower1, tail1("lower", k), tail1("upper", k)),
+                instead(lower1, arg("max", k < N*P0), arg("min", k > N*P0))).
+
+feedback(lower1, [], _Col, Feed)
+ => Feed = [ "The result appears to be obtained from the lower critical ",
+             "value of the binomial distribution." 
+           ].
+
+hint(lower1, [], _Col, Hint)
+ => Hint = [ "Make sure to determine the critical value from the upper tail ",
+             "of the binomial distribution."
+           ].
+
 % Critical value based on cumulative distribution
 expert(stage(2), From, To, [step(expert, dist1, [])]) :-
     From = crit(Alpha, N, P0, Tail, Arg),
@@ -127,6 +143,24 @@ feedback(dist1, [], _Col, Feed)
 hint(dist1, [], _Col, Hint)
  => Hint = [ "The critical value should be determined on the cumulative ",
              "distribution."
+           ].
+
+% Critical value based on density = not cumulated
+buggy(stage(2), From, To, [step(buggy, dens1, [K])]) :-
+    From = tail1(Tail, K),
+    member(Tail, ["upper", "lower"]),
+    To = instead(dens1, tail1("equal", K), tail1("upper", K)).
+
+feedback(dens1, [K], Col, Feed)
+ => Feed = [ "The result matches the critical value based on the binomial ",
+             "probability, ", \mmlm(Col, [fn(sub('P', "Bi"), [color(dens1, tail1("equal", K))]), "."]),
+             "Please calculate the critical value based on the cumulative ",
+             "distribution, ", \mmlm(Col, [fn(sub('P', "Bi"), [tail1("upper", K)]), "."])
+           ].
+
+hint(dens1, [_K], _Col, Hint)
+ => Hint = [ "Make sure to use the cumulative binomial distribution to ",
+             "determine the critical value."
            ].
 
 % Power based on upper tail
