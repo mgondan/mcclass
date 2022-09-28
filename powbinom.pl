@@ -18,6 +18,8 @@ mathml_hook(p1, sub(pi, 1)).
 mathml_hook(crit, c).
 mathml_hook(power, 'Pwr').
 mathml_hook(n, 'N').
+mathml_hook(tail1(Tail, K), tail(Tail, K)).
+mathml_hook(tail2(Tail, K), tail(Tail, K)).
 
 interval:r_hook(alpha).
 interval:r_hook(n).
@@ -27,7 +29,8 @@ interval:r_hook(k).
 interval:r_hook(crit).
 interval:r_hook(uqbinom(_Alpha, _Size, _Prob)).
 interval:r_hook(lqbinom(_Alpha, _Size, _Prob)).
-interval:r_hook(tail(_Tail, _K)).
+interval:r_hook(tail1(_Tail, _K)).
+interval:r_hook(tail2(_Tail, _K)).
 interval:r_hook(arg(_Arg, _K)).
 interval:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
 interval:r_hook(pwbinom(_Crit, _Size, _Prob, _Tail)).
@@ -99,7 +102,7 @@ hint(problem, [], _Col, Hint) =>
 % Upper tail of the binomial distribution
 expert(stage(2), From, To, [step(expert, upper1, [])]) :-
     From = crit(Alpha, N, P0),
-    To   = crit(Alpha, N, P0, tail("upper", k), arg("min", k > N*P0)).
+    To   = crit(Alpha, N, P0, tail1("upper", k), arg("min", k > N*P0)).
 
 feedback(upper1, [], _Col, Feed)
  => Feed = [ "Correctly determined the critical value from the upper tail of ",
@@ -129,7 +132,7 @@ hint(dist1, [], _Col, Hint)
 % Power based on upper tail
 expert(stage(2), From, To, [step(expert, upper2, [])]) :-
     From = power(Crit, N, P1),
-    To   = power(Crit, N, P1, tail("upper", Crit)).
+    To   = power(Crit, N, P1, tail2("upper", Crit)).
 
 feedback(upper2, [], _Col, Feed)
  => Feed = [ "Correctly selected the upper tail of cumulative distribution ",

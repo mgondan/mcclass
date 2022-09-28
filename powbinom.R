@@ -39,7 +39,7 @@ cbinom = function(Alpha, N, Pi, Tail, Arg)
   stop("Wrong Tail or Arg")
 }
 
-tail = function(Tail, K)
+tail1 = tail2 = function(Tail, K)
   return(Tail)
 
 arg = function(Arg, K)
