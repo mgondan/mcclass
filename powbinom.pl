@@ -178,6 +178,19 @@ hint(upper2, [], _Col, Hint)
              "distribution."
            ].
 
+% Power based on lower tail (wrong tail for power)
+buggy(stage(2), From, To, [step(buggy, lower2, [])]) :-
+    From = power(Crit, N, P1),
+    To   = power(Crit, N, P1, instead(lower2, tail2("lower", k), tail2("upper", k))).
+
+feedback(lower2, [], _Col, Feed)
+ => Feed = "The power matches the lower tail of the binomial distribution.".
+
+hint(lower2, [], _Col, Hint)
+ => Hint = [ "The power is determined from the upper tail of the binomial ",
+             "distribution. Don't select the lower tail of the binomial distribution."
+           ].
+
 % Power based on cumulative distribution
 expert(stage(2), From, To, [step(expert, dist2, [])]) :-
     From = power(Crit, N, P1, Tail),
