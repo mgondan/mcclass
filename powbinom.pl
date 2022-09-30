@@ -191,6 +191,24 @@ hint(lower2, [], _Col, Hint)
              "distribution. Don't select the lower tail of the binomial distribution."
            ].
 
+% Critical value based on density
+buggy(stage(2), From, To, [step(buggy, dens2, [C])]) :-
+    From = tail2(Tail, C),
+    member(Tail, ["upper", "lower"]),
+    To = instead(dens2, tail2("equal", C), tail2("upper", C)).
+
+feedback(dens2, [C], Col, Feed)
+ => Feed = [ "The power matches the binomial probability, ",
+             \mmlm(Col, [fn(sub('P', "Bi"), [color(dens2, tail2("equal", C))]), "."]),
+             "Please report the power based on the cumulative ",
+             "distribution, ", \mmlm(Col, [fn(sub('P', "Bi"), [tail2("upper", C)]), "."])
+           ].
+
+hint(dens2, [_C], _Col, Hint)
+ => Hint = [ "Make sure to use the cumulative binomial distribution to ",
+             "determine the power."
+           ].
+
 % Power based on cumulative distribution
 expert(stage(2), From, To, [step(expert, dist2, [])]) :-
     From = power(Crit, N, P1, Tail),
