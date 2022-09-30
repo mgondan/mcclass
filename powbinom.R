@@ -40,7 +40,9 @@ cbinom = function(Alpha, N, Pi, Tail, Arg)
 }
 
 tail1 = tail2 = function(Tail, K)
+{
   return(Tail)
+}
 
 arg = function(Arg, K)
   return(Arg)
@@ -49,7 +51,6 @@ pwbinom <- function(Crit, N, P1, Tail)
 {
   if(Tail == "lower")
   {
-
     v <- dbinom(0L:Crit, N, P1)
     return(sum(v))
   }
