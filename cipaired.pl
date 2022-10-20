@@ -7,7 +7,7 @@
 :- use_module(mathml).
 
 :- use_module(navbar).
-navbar:page(cipaired, ["paired ", i(t), "-test"]).
+navbar:page(cipaired, ["Confidence interval for paired samples"]).
 
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
