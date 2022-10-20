@@ -92,7 +92,7 @@ hint(paired, [], Col, Hint) =>
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal) % todo: correct comment
 expert(stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N])]) :-
-    X = paired(D, S_D, N, Alpha),
+    X = paired(D, S_D, N),
     Y = tstat(D + 1.96 * S_D / sqrt(N)). % todo: one decimal place
 
 % Aufgabe
