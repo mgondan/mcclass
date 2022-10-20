@@ -39,6 +39,7 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
 :- http_handler(mcclass(tpaired), handler(tpaired), []).
+:- http_handler(mcclass(cipaired), handler(cipaired), []).
 :- http_handler(mcclass(oddsratio), handler(oddsratio), []).
 :- http_handler(mcclass(oddsratio2), handler(oddsratio2), []).
 :- http_handler(mcclass(easyodds), handler(easyodds), []).
