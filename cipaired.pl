@@ -92,8 +92,19 @@ hint(paired, [], Col, Hint) =>
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal) % todo: correct comment
 expert(stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N])]) :-
-    X = paired(D, S_D, N),
-    Y = tstat(D - 1.96 * S_D / sqrt(N)). % todo: one decimal place
+    X = paired(D, S_D, N, Alpha),
+    Y = tstat(D + 1.96 * S_D / sqrt(N)). % todo: one decimal place
+
+% Aufgabe
+% 0) Aufgabentext anpassen
+% 1a) 1.96 -> qnorm(0.975)
+% 1b) Dazu muss auch eine r_hook für qnorm definiert werden, damit das Programm weiß, dass qnorm in R berechnet werden muss. Hint: in anderen Blättern nachschauen.
+% 1c) Dann in mathml.pl eine schöne Darstellung für qnorm(P) definieren, etwa so: z_P, hier also z_0.975 (Tiefstellung geht mit sub(z, P)).
+% 2) "minus" qnorm(0.975) -> "plus" qnorm(0.025) ändern und Euch klarmachen, dass das das gleiche ist.
+% 3) qnorm(0.025) -> qnorm(Alpha/2) und Alpha zu den Aufgabenparametern hinzufügen. -> zu dem "item"
+% 4a) qnorm(Alpha/2) -> qt(Alpha/2, N-1)
+% 4b) r_hook für qt
+% 4c) mathml.pl eine schöne Darstellung für qt(P, DF), z.B. T_P(DF), fn(sub('T', P), DF)
 
 feedback(ci_lower, [_D, _S_D, _N], Col, FB) =>
     FB = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
