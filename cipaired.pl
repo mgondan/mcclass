@@ -21,6 +21,7 @@ mathml_hook(eot, overline("EOT")).
 mathml_hook(s_eot, sub(s, "EOT")).
 mathml_hook(s2p, sub(s, "pool")^2).
 mathml_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
+mathml_hook(alpha, greek("alpha")).
 
 % R definitions
 interval:r_hook(var_pool(_N1, _V1, _N2, _V2)).
@@ -33,20 +34,16 @@ interval:r_hook(t0).
 interval:r_hook(s_t0).
 interval:r_hook(eot).
 interval:r_hook(s_eot).
+interval:r_hook(qnorm).
+interval:r_hook(qt).
 
-render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, Mu), Form) -->
+render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha), Form) -->
     { option(resp(R), Form, '#.##') },
     html(
       [ div(class(card), div(class('card-body'),
-          [ h1(class('card-title'), "Phase II clinical study"),
+          [ h1(class('card-title'), "Efficency of self-confidence traning"),
             p(class('card-text'),
-            [ "Consider a clinical study on rumination-focused Cognitive ",
-              "Behavioral Therapy (rfCBT) with ",
-              \mmlm(N = r(N)), " patients. The primary ",
-              "outcome is the score on the Hamilton Rating Scale for ", 
-              "Depression (HDRS, range from best = 0 to worst = 42). ",
-              "The significance level is set to ",
-              \mmlm(alpha = perc(0.05)), " two-tailed."]),
+            [ "You organize a self-confidence training and want to know whether it improves the self-confidence of the participants. For this purpose, you measure the self-confidence of", \mmlm(N = r(N)),  "participants before and after the training. The training is considered effective if the self-confidence has increased by more than 5 units after the training. Higher values mean higher self-confidence."]),
             div(class('container'),
               div(class("row justify-content-md-center"),
                 div(class("col-6"),
@@ -64,22 +61,20 @@ render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, Mu), Form) -->
                     ])))),
             \download(cipaired)
           ])),
-        \htmlform([ "Does rfCBT lead to a relevant reduction (i.e., more ",
-            "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean HDRS ",
-            "scores between baseline (T0) and End of Treatment (EOT)? ",
-            "Please report the ", \mmlm(hyph(t, "ratio.")) ], "#tratio", R)
-      ]).
+        \htmlform(["Determine the confidence interval for the change in participants' self-confidence. The alpha level is", \mmlm(alpha = perc(0.05))
+                ], '#cipaired', R)
+    ]).
 
 % t-test for paired samples
 intermediate(item).
-start(item(t0, s_t0, eot, s_eot, d, s_d, n, mu)). % todo: alpha
+start(item(t0, s_t0, eot, s_eot, d, s_d, n, mu, alpha)).
 
 % First step: Extract the correct information for a paired t-test from the task
 % description
 intermediate(paired).
 expert(stage(2), X, Y, [step(expert, paired, [])]) :-
-    X = item(_, _, _, _, D, S_D, N, _Mu),
-    Y = { '<-'(lo, paired(D, S_D, N)) }.
+    X = item(_, _, _, _, D, S_D, N, _Mu, Alpha),
+    Y = { '<-'(lo, paired(D, S_D, N, Alpha)) }.
 
 feedback(paired, [], Col, FB) =>
     FB = [ "Correctly recognised the problem as ",
@@ -91,9 +86,9 @@ hint(paired, [], Col, Hint) =>
 
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal) % todo: correct comment
-expert(stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N])]) :-
+expert(stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N, Alpha])]) :-
     X = paired(D, S_D, N, Alpha),
-    Y = tstat(D + 1.96 * S_D / sqrt(N)). % todo: one decimal place
+    Y = tstat(D + qnorm(Alpha/2) * S_D / sqrt(N)). % to do: one decimal place
 
 % Aufgabe
 % 0) Aufgabentext anpassen
@@ -106,10 +101,10 @@ expert(stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N])]) :-
 % 4b) r_hook für qt
 % 4c) mathml.pl eine schöne Darstellung für qt(P, DF), z.B. T_P(DF), fn(sub('T', P), DF)
 
-feedback(ci_lower, [_D, _S_D, _N], Col, FB) =>
+feedback(ci_lower, [_D, _S_D, _N, _Alpha], Col, FB) =>
     FB = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
            "paired samples." ].
 
-hint(ci_lower, [D, S_D, N], Col, Hint)
+hint(ci_lower, [D, S_D, N, Alpha], Col, Hint)
  => Hint = [ "The lower bound of the confidence interval ",
-         "is ", \mmlm(Col, D - 1.96 * S_D / sqrt(N)) ].
+         "is ", \mmlm(Col, D - qnorm(Alpha/2) * S_D / sqrt(N)) ].
