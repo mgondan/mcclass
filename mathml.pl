@@ -1865,6 +1865,10 @@ math(Flags, qnorm(P), New, X)
  => New = Flags,
     X = fn('Phi' ^(-1), [P]).
 
+math(Flags, qt(P, DF), New, X)
+ => New = Flags,
+    X = fn(sub('T' ^(-1), DF), [P]).
+
 %
 % Intervals
 %

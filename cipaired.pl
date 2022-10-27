@@ -34,16 +34,16 @@ interval:r_hook(t0).
 interval:r_hook(s_t0).
 interval:r_hook(eot).
 interval:r_hook(s_eot).
-interval:r_hook(qnorm).
-interval:r_hook(qt).
+interval:r_hook(qt(_P, _DF)).
 
 render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha), Form) -->
     { option(resp(R), Form, '#.##') },
     html(
       [ div(class(card), div(class('card-body'),
-          [ h1(class('card-title'), "Efficency of self-confidence traning"),
+          [ h1(class('card-title'), "Efficiency of self-confidence training"),
             p(class('card-text'),
-            [ "You organize a self-confidence training and want to know whether it improves the self-confidence of the participants. For this purpose, you measure the self-confidence of", \mmlm(N = r(N)),  "participants before and after the training. The training is considered effective if the self-confidence has increased by more than 5 units after the training. Higher values mean higher self-confidence."]),
+            [ "You organize a self-confidence training and want to know ",
+              "whether it improves the self-confidence of the participants. For this purpose, you measure the self-confidence of ", \mmlm(N = r(N)),  "participants before and after the training. The training is considered effective if the self-confidence has increased by more than 5 units after the training. Higher values mean higher self-confidence."]),
             div(class('container'),
               div(class("row justify-content-md-center"),
                 div(class("col-6"),
@@ -61,7 +61,7 @@ render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha), Form) -->
                     ])))),
             \download(cipaired)
           ])),
-        \htmlform(["Determine the confidence interval for the change in participants' self-confidence. The alpha level is", \mmlm(alpha = perc(0.05))
+        \htmlform(["Determine the confidence interval for the change in participants' self-confidence. The alpha level is ", \mmlm(alpha = perc(0.05))
                 ], '#cipaired', R)
     ]).
 
@@ -88,18 +88,7 @@ hint(paired, [], Col, Hint) =>
 % "display" mode (a bit larger font than normal) % todo: correct comment
 expert(stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N, Alpha])]) :-
     X = paired(D, S_D, N, Alpha),
-    Y = tstat(D + qnorm(Alpha/2) * S_D / sqrt(N)). % to do: one decimal place
-
-% Aufgabe
-% 0) Aufgabentext anpassen
-% 1a) 1.96 -> qnorm(0.975)
-% 1b) Dazu muss auch eine r_hook für qnorm definiert werden, damit das Programm weiß, dass qnorm in R berechnet werden muss. Hint: in anderen Blättern nachschauen.
-% 1c) Dann in mathml.pl eine schöne Darstellung für qnorm(P) definieren, etwa so: z_P, hier also z_0.975 (Tiefstellung geht mit sub(z, P)).
-% 2) "minus" qnorm(0.975) -> "plus" qnorm(0.025) ändern und Euch klarmachen, dass das das gleiche ist.
-% 3) qnorm(0.025) -> qnorm(Alpha/2) und Alpha zu den Aufgabenparametern hinzufügen. -> zu dem "item"
-% 4a) qnorm(Alpha/2) -> qt(Alpha/2, N-1)
-% 4b) r_hook für qt
-% 4c) mathml.pl eine schöne Darstellung für qt(P, DF), z.B. T_P(DF), fn(sub('T', P), DF)
+    Y = tstat(D + qt(Alpha/2, N-1) * S_D / sqrt(N)). % to do: one decimal place
 
 feedback(ci_lower, [_D, _S_D, _N, _Alpha], Col, FB) =>
     FB = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
@@ -108,3 +97,10 @@ feedback(ci_lower, [_D, _S_D, _N, _Alpha], Col, FB) =>
 hint(ci_lower, [D, S_D, N, Alpha], Col, Hint)
  => Hint = [ "The lower bound of the confidence interval ",
          "is ", \mmlm(Col, D - qnorm(Alpha/2) * S_D / sqrt(N)) ].
+
+% Aufgaben
+% grep tstat *.pl
+% tstat kopieren in hrds und dann 1 Nachkommastelle
+% zusätzlicher Lösungsschritt: paired -> irgendwas -> D +/- qt()
+% 1 buggy rule: irgendwas -> D +/- t-statistik
+
