@@ -649,6 +649,10 @@ math(Flags, tstat(A), New, X)
  => New = [digits(2) | Flags],
     A = X.
 
+math(Flags, hdrs(A), New, X)
+ => New = [digits(1) | Flags],
+    A = X.
+
 math(Flags, chi2ratio(A), New, X)
  => New = [digits(2) | Flags],
     A = X.
@@ -2087,6 +2091,9 @@ fmt(Flags, Expr, F),
 
 fmt(Flags, tstat(Expr), F)
  => fmt([format(tstat) | Flags], Expr, F).
+
+fmt(Flags, hdrs(Expr), F)
+ => fmt([format(hdrs) | Flags], Expr, F).
 
 fmt(Flags, chi2ratio(Expr), F)
  => fmt([format(chi2ratio) | Flags], Expr, F).

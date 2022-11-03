@@ -699,6 +699,10 @@ int(Flags, tstat(X), Res),
     option(engine(pl), Flags)
  => int([digits(2) | Flags], format(X), Res).
 
+int(Flags, hdrs(X), Res),
+    option(engine(pl), Flags)
+ => int([digits(1) | Flags], format(X), Res).
+
 int(Flags, chi2ratio(X), Res),
     option(engine(pl), Flags)
  => int([digits(2) | Flags], format(X), Res).
