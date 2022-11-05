@@ -828,12 +828,14 @@ example :-
     writeln(sin-1),
     r_initialize,
     r_session('<-'(r, 'new.env'())),
+    b_setval(task, r),
     interval([], r(sin(0.1)), Z),
     writeln(sin(0.1) --> Z).
 
 example :-
     writeln(sin-2),
     r_session('<-'(r, 'new.env'())),
+    b_setval(task, r),
     interval([], r(sin(0.1 ... 0.2)), Z),
     writeln(sin(0.1 ... 0.2) --> Z).
 
@@ -854,6 +856,7 @@ example :-
     Size = 11,
     Prob = 0.6 ... 0.7,
     r_session('<-'(r, 'new.env'())),
+    b_setval(task, r),
     interval([], r(pbinom(X, Size, Prob)), P),
     writeln(pbinom(X, Size, Prob) --> P).
 
@@ -863,6 +866,7 @@ example :-
     Size = 10 ... 11,
     Prob = 0.6 ... 0.7,
     r_session('<-'(r, 'new.env'())),
+    b_setval(task, r),
     interval([], r(pbinom(X, Size, Prob)), P),
     writeln(pbinom(X, Size, Prob) --> P).
 
@@ -872,6 +876,7 @@ example :-
     Size = 10.0 ... 11.0,
     Prob = 0.6 ... 0.7,
     r_session('<-'(r, 'new.env'())),
+    b_setval(task, r),
     interval([], r(pbinom(X, Size, Prob, 'log.p'=true)), P),
     writeln(pbinom(X, Size, Prob, 'log.p'=true) --> P).
 
@@ -879,6 +884,7 @@ example :-
     writeln($(x, y)),
     r_initialize,
     r_session_source(tpaired),
+    b_setval(task, tpaired),
     interval([task(tpaired)], r(mu), X),
     writeln($(tpaired, mu) = X).
 
