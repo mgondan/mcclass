@@ -1,5 +1,5 @@
 % Interval arithmetic in Prolog
-:- module(interval, [ interval/3, op(150, xfx, ...) ]).
+:- module(interval, [ interval/0, interval/3, op(150, xfx, ...) ]).
 
 :- use_module(r).
 :- use_module(session).
@@ -10,13 +10,17 @@
 
 :- discontiguous int/3.
 :- discontiguous interval/2.
-:- discontiguous example/0.
+:- discontiguous interval/0.
 
 :- multifile r_hook/1, hook/4.
 
 % Determine result using integer arithmetic
-interval(Flags, Expr, Res) :-
-    int([engine(pl) | Flags], Expr, Res).
+interval(Flags, Expr, Res),
+    ci(Flags, Expr)
+ => ci([engine(pl) | Flags], Expr, Res).
+
+interval(Flags, Expr, Res)
+ => int([engine(pl) | Flags], Expr, Res).
 
 % Allows for external definitions
 int(Flags, Expr, Res),
@@ -72,14 +76,56 @@ hook(Flags, '{}'(Expr), Flags, Res) :-
 hook(Flags, @(Expr, Options), New, Expr) :-
     append(Options, Flags, New).
 
-example :-
+interval :-
     writeln(quantity-1),
     interval([], @(1.0, [digits(2)]), X),
     writeln(X).
 
-example :-
+interval :-
     writeln(quantity-2),
     interval([], @(2 ... 3, [digits(2)]), X),
+    writeln(X).
+
+%
+% Handle different input formats
+%
+int(Flags, Atomic, Res),
+    option(engine(pl), Flags),
+    atomic(Atomic)
+ => B is Atomic,
+    Res = B ... B.
+
+int(Flags, L ... U, Res),
+    option(engine(pl), Flags)
+ => Res = L ... U.
+
+int(Flags, ci(L, _), Res),
+    member(ci(lower), Flags)
+ => int(Flags, L, Res).
+
+int(Flags, ci(_, U), Res),
+    member(ci(upper), Flags)
+ => int(Flags, U, Res).
+
+% int(Flags, X ... Y, Res),
+%     option(engine(pl), Flags)
+%  => interval(X ... Y, Res). % unclear why interval is called
+
+% compatible with atoms like pi
+interval(A ... B, Res) :-
+    !,
+    L is A,
+    U is B,
+    Res = L ... U.
+
+interval :-
+    writeln(type-1),
+    interval([], 1.0, X),
+    writeln(X).
+
+interval :-
+    writeln(type-2),
+    interval([], 0.99 ... 1.01, X),
     writeln(X).
 
 %
@@ -112,37 +158,6 @@ strictneg(_, U) :-
     U < 0.
 
 %
-% Convert to interval
-%
-int(Flags, X, Res),
-    atomic(X),
-    option(engine(pl), Flags)
- => L is X,
-    U is X,
-    Res = L ... U.
-
-int(Flags, X ... Y, Res),
-    option(engine(pl), Flags)
- => interval(X ... Y, Res).
-
-% compatible with atoms like pi
-interval(A ... B, Res) :-
-    !,
-    L is A,
-    U is B,
-    Res = L ... U.
-
-example :-
-    writeln(type-1),
-    interval([], 1.0, X),
-    writeln(X).
-
-example :-
-    writeln(type-2),
-    interval([], 0.99 ... 1.01, X),
-    writeln(X).
-
-%
 % Equality = overlapping
 %
 int(Flags, X =@= Y, Res)
@@ -153,14 +168,14 @@ int(Flags, X =@= Y, Res)
     L =< U,
     Res = L ... U.
 
-example :-
+interval :-
     writeln(equality-1),
     X = 1.00 ... 1.02,
     Y = 1.01 ... 1.0Inf,
     interval([], X =@= Y, Z),
     writeln(X =@= Y --> Z).
 
-example :-
+interval :-
     writeln(equality-2),
     interval(1.00 ... 1.02, X),
     interval(1.03 ... 1.04, Y),
@@ -180,14 +195,14 @@ interval(A...B + C...D, Res) :-
     U is B + D,
     Res = L ... U.
 
-example :-
+interval :-
     writeln(sum-1),
     X = 1.00 ... 1.02,
     Y = 1.01 ... 1.0Inf,
     interval([], X + Y, Z),
     writeln(X + Y --> Z).
 
-example :-
+interval :-
     writeln(sum-2),
     X = 1.00 ... 1.02,
     Y = 1.03 ... 1.04,
@@ -207,14 +222,14 @@ interval(A...B - C...D, Res) :-
     U is B - C,
     Res = L ... U.
 
-example :-
+interval :-
     writeln(diff-1),
     X = 0.99 ... 1.01,
     Y = 0.99 ... 1.01,
     interval([], X - Y, Z),
     writeln(X - Y --> Z).
 
-example :-
+interval :-
     writeln(diff-2),
     interval(1.00 ... 1.02, X),
     interval(1.03 ... 1.0Inf, Y),
@@ -568,56 +583,56 @@ interval(A ... B / C ... D, Res) :-
     U is A / D,
     Res = L ... U.
 
-example :-
+interval :-
     writeln(page-3-(-inf ... 0, 1...inf)),
     X = 1.00 ... 1.00,
     Y = -1.0Inf ... 1.0,
     interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
-example :-
+interval :-
     writeln(example-4.2-3-(0 ... inf)),
     X = 0.00 ... 1.00,
     Y = 0.00 ... 1.00,
     interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
-example :-
+interval :-
     writeln(example-4.2-4-(r-without-0)),
     X = 1.00 ... 1.00,
     Y = -1.0Inf ... 1.0Inf,
     interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
-example :-
+interval :-
     writeln(example-4.2-5-(-inf ... -1, 1 ... inf)),
     X = 1.0 ... 1.0,
     Y = -1.0 ... 1.0,
     interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
-example :-
+interval :-
     writeln(example-4.2-6-(-inf ... -1, +0 ... inf)),
     X = 1.0 ... 1.0,
     Y = -1.0 ... 1.0Inf,
     interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
-example :-
+interval :-
     writeln(page-8-(-inf ... -0, 1 ... inf)),
     X = 1.0 ... 1.0,
     Y = -1.0Inf ... 1.0,
     interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
-example :-
+interval :-
     writeln(page-9-a-(0 ... inf)),
     X = 0.0 ... 1.0,
     Y = 0.0 ... 2.0,
     interval([], X / Y, Z),
     writeln(X / Y --> Z).
 
-example :-
+interval :-
     writeln(page-9-b-(0 ... 1)),
     X = 1.0 ... 1.0,
     Y = 1.0 ... 1.0Inf,
@@ -652,25 +667,25 @@ int(Flags, abs(X), Res),
     ),
     Res = RL ... RU.
 
-example :-
+interval :-
     writeln(abs-1),
     X = -0.2 ... -0.1,
     interval([], abs(X), Res),
     writeln(abs(X) --> Res).
 
-example :-
+interval :-
     writeln(abs-2),
     X = 0.1 ... 0.2,
     interval([], abs(X), Res),
     writeln(abs(X) --> Res).
     
-example :-
+interval :-
     writeln(abs-3),
     X = -0.2 ... 0.1,
     interval([], abs(X), Res),
     writeln(abs(X) --> Res).
 
-example :-
+interval :-
     writeln(abs-4),
     X = -0.1 ... 0.2,
     interval([], abs(X), Res),
@@ -686,7 +701,7 @@ int(Flags, frac(X, Y), Res),
 int(Flags, dfrac(Num, Den), Res)
  => int(Flags, frac(Num, Den), Res).
 
-example :-
+interval :-
     writeln(frac),
     X = 2.0 ... 2.0,
     interval([], 1 + frac(1, X), Z),
@@ -732,7 +747,7 @@ interval(sqrt(A ... B), Res) :-
     U is sqrt(B),
     Res = L ... U.
 
-example :-
+interval :-
     writeln(sqrt-1),
     X = 2.0 ... 2.0,
     interval([], 1 + sqrt(X), Z),
@@ -757,6 +772,31 @@ int(Flags, Name=X, Res),
     option(engine(r), Flags)
  => int(Flags, X, ResA),
     Res = (Name = ResA).
+
+%
+% Plus/Minus: return a confidence interval
+%
+int(Flags, pm(X, Y), Res),
+    option(ci(lower), Flags)
+ => int(Flags, X - Y, Res).
+
+int(Flags, pm(X, Y), Res),
+    option(ci(upper), Flags)
+ => int(Flags, X + Y, Res).
+
+int(Flags, pm(X, Y), Res),
+    option(engine(pl), Flags)
+ => int(Flags, X - Y, L),
+    int(Flags, X + Y, U),
+    Res = ci(L, U).
+
+interval :-
+    writeln(pm-1),
+    D = 2.0 ... 2.1,
+    S = 1.6 ... 1.7,
+    N = 20,
+    interval([], pm(D, 1.96 * S / sqrt(N)), CI),
+    writeln(pm(D, 1.96 * S / sqrt(N)) --> CI).
 
 %
 % Monotonically increasing or decreasing functions handled by R
@@ -824,7 +864,7 @@ int(Flags, Expr, Res),
  => r_task(Expr, R),
     Res = R...R.
 
-example :-
+interval :-
     writeln(sin-1),
     r_initialize,
     r_session('<-'(r, 'new.env'())),
@@ -832,14 +872,14 @@ example :-
     interval([], r(sin(0.1)), Z),
     writeln(sin(0.1) --> Z).
 
-example :-
+interval :-
     writeln(sin-2),
     r_session('<-'(r, 'new.env'())),
     b_setval(task, r),
     interval([], r(sin(0.1 ... 0.2)), Z),
     writeln(sin(0.1 ... 0.2) --> Z).
 
-example(1) :-
+interval :-
     writeln(pbinom),
     r_initialize,
     X = 3,
@@ -847,10 +887,11 @@ example(1) :-
     Prob = 0.6 ... 0.7,
     r_session('<-'(r, 'new.env'())),
     r_session_source(tpaired),
+    b_setval(task, tpaired),
     interval([task(tpaired)], r(pbinom(X, Size, Prob)), P),
     writeln(pbinom(X, Size, Prob) --> P).
 
-example :-
+interval :-
     writeln(pbinom),
     X = 3,
     Size = 11,
@@ -860,7 +901,7 @@ example :-
     interval([], r(pbinom(X, Size, Prob)), P),
     writeln(pbinom(X, Size, Prob) --> P).
 
-example :-
+interval :-
     writeln(pbinom),
     X = 3,
     Size = 10 ... 11,
@@ -870,8 +911,9 @@ example :-
     interval([], r(pbinom(X, Size, Prob)), P),
     writeln(pbinom(X, Size, Prob) --> P).
 
-example :-
+interval :-
     writeln(pbinom),
+    r_initialize,
     X = 3,
     Size = 10.0 ... 11.0,
     Prob = 0.6 ... 0.7,
@@ -880,7 +922,7 @@ example :-
     interval([], r(pbinom(X, Size, Prob, 'log.p'=true)), P),
     writeln(pbinom(X, Size, Prob, 'log.p'=true) --> P).
 
-example :-
+interval :-
     writeln($(x, y)),
     r_initialize,
     r_session_source(tpaired),
@@ -917,17 +959,17 @@ int(Flags, X, Res),
      ;  Res = L ... U
     ).
 
-example :-
+interval :-
     writeln(power-generic),
     interval([], 2 ... 3 ^ (-(2 ... 3)), Z),
     writeln("2 ... 3 ^ (-(2 ... 3))" --> Z).
 
-example :-
+interval :-
     writeln(sin-1),
     interval([], sin(0.1), Z),
     writeln(sin(0.1) --> Z).
 
-example :-
+interval :-
     writeln(sin-1),
     interval([], sin(0.1 ... 0.2), Z),
     writeln(sin(0.1 ... 0.2) --> Z).
@@ -935,7 +977,7 @@ example :-
 %
 % t-test example
 %
-example :-
+interval :-
     writeln(ttest),
     D = 5.7 ... 5.8,
     Mu = 4.0 ... 4.0,
@@ -943,6 +985,38 @@ example :-
     N = 24,
     interval([], frac(D - Mu, S / sqrt(N)), T),
     writeln(t --> T).
+
+%
+% Confidence intervals
+%
+ci(Flags, Op, Res),
+    compound(Op)
+ => int([ci(lower) | Flags], Op, L),
+    int([ci(upper) | Flags], Op, U),
+    Res = ci(L, U).
+
+%
+% Test if a CI is to be calculated
+%
+ci(_Flags, ci(_, _)).
+
+ci(_Flags, pm(_, _)).
+
+ci(Flags, Expr) :-
+    compound(Expr),
+    Expr =.. [_ | Args],
+    include(ci(Flags), Args, [_ | _]).
+
+%
+% paired t-test: confidence interval
+%
+interval :-
+    writeln(cipaired),
+    D = 5.7 ... 5.8,
+    S = 3.8 ... 3.8,
+    N = 24,
+    interval([], D + ci(-1.96, 1.96) * S / sqrt(N), CI),
+    writeln(ci --> CI).
 
 init :-
     session_data(interval),
