@@ -74,81 +74,88 @@ render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha), Form) -->
 intermediate(item).
 start(item(t0, s_t0, eot, s_eot, d, s_d, n, mu, alpha)).
 
-% First step: Extract the correct information for a paired t-test and associated confidence intervall
-% from the task description
+% First step: Extract the correct information for a paired t-test and 
+% associated confidence interval from the task description
 intermediate(paired).
 expert(stage(2), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu, Alpha),
-    Y = { '<-'(lo, paired(D, Mu, S_D, N, Alpha)) }.
+    Y = paired(D, Mu, S_D, N, Alpha).
 
-feedback(paired, [], Col, FB) =>
-    FB = [ "Correctly recognised the problem as ",
-           "a ", \mmlm(Col, hyph(t, "test")), " for paired samples and the confidence interval for a mean value." ].
+feedback(paired, [], Col, F)
+ => F = [ "Correctly recognised the problem as ",
+          "a ", \mmlm(Col, hyph(t, "test")), " for paired samples and the ",
+          "confidence interval for a mean value." 
+        ].
 
-hint(paired, [], Col, Hint) =>
-    Hint = [ "This is a ", \mmlm(Col, hyph(t, "test")), " for paired ",
-           "samples. Calculate the confidence interval for a mean value" ].
+hint(paired, [], Col, H)
+ => H = [ "This is a ", \mmlm(Col, hyph(t, "test")), " for paired ",
+          "samples. Calculate the confidence interval for the mean difference." 
+        ].
 
 % Second step: Apply the formula for the confidence interval for a mean value.
 intermediate(quant).
 expert(stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N, Alpha])]) :-
     X = paired(D, Mu, S_D, N, Alpha),
-    Y = hdrs(D + quant(D, Mu, S_D, N, Alpha) * frac(S_D, sqrt(N))).
+    Y = hdrs(pm(D, quant(D, Mu, S_D, N, Alpha) * frac(S_D, sqrt(N)))).
 
-feedback(ci_lower, [_D, _S_D, _N, _Alpha], Col, FB)
- => FB = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
+feedback(ci_lower, [_D, _S_D, _N, _Alpha], Col, F)
+ => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
            "paired samples and the confidence interval for a mean value." 
-         ].
+        ].
 
-hint(ci_lower, [D, S_D, N, Alpha], Col, Hint)
- => Hint = [ "The lower bound of the confidence interval ",
-             "is ", \mmlm(Col, D + qt(Alpha/2, N-1) * frac(S_D, sqrt(N)))
-           ].
+hint(ci_lower, [D, S_D, N, Alpha], Col, H)
+ => H = [ "The lower bound of the confidence interval ",
+          "is ", \mmlm(Col, D + qt(Alpha/2, N-1) * frac(S_D, sqrt(N)))
+        ].
 
 % Third step: Choose the correct quantile of the t-distribution
 expert(stage(2), X, Y, [step(expert, tquant, [N, Alpha])]) :-
     X = quant(_D, _Mu, _S_D, N, Alpha),
-    Y = qt(Alpha/2, N-1).
+    Y = qt(1-Alpha/2, N-1).
 
-feedback(tquant, [_N, _Alpha], Col, FB)
- => FB = [ "Correctly used the alpha/2-quantile of the ",
-           \mmlm(Col, hyph(t, "distribution"))
-         ].
+feedback(tquant, [_N, Alpha], Col, F)
+ => F = [ "Correctly used the ", \mmlm(Col, hyph(1-Alpha/2, "quantile")),
+          "of the ", \mmlm(Col, hyph(t, "distribution"))
+        ].
 
-hint(tquant, [_N, _Alpha], Col, FB)
- => FB = [ "Make sure to use the alpha/2-quantile of the ",
-           \mmlm(Col, hyph(t, "distribution"))
-         ].
+hint(tquant, [_N, Alpha], Col, H)
+ => H = [ "Make sure to use the ", \mmlm(Col, hyph(1-Alpha/2, "quantile")),
+          "of the ", \mmlm(Col, hyph(t, "distribution"))
+        ].
 
 % Use t-statistic instead of t-quantile
 buggy(stage(2), X, Y, [step(buggy, tstat, [D, S_D, N, Mu, Alpha])]) :-
     X = quant(D, Mu, S_D, N, Alpha),
-    Y = -dfrac(D - Mu, S_D / sqrt(N)). % abbreviation abbrev(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance")
+    Y = dfrac(D - Mu, S_D / sqrt(N)). % abbreviation abbrev(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance")
 
-feedback(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, FB)
- => FB = [ "The result matches the interval based on the observed",
-            " ", \mmlm(Col, hyph(t, "statistic.")), " Please use the ",
-            "quantile of the ", \mmlm(Col, hyph(t, "distribution")), "instead."
-         ].
+feedback(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, F)
+ => F = [ "The result matches the confidence interval based on the observed",
+           " ", \mmlm(Col, hyph(t, "statistic.")), " Please use the quantile ",
+           "of the ", \mmlm(Col, hyph(t, "distribution")), "instead."
+        ].
 
-hint(tstat, [_D, _S_D, _N, _Mu, _Alpha], _Col, FB)
- => FB = [ "Do not insert the t-statistic into the expression for the ",
-           "confidence interval. Use the quantile of the t-distribution instead."
-         ].
+hint(tstat, [_D, _S_D, _N, _Mu, _Alpha], _Col, H)
+ => H = [ "Do not insert the t-statistic into the expression for the ",
+          "confidence interval. Use the quantile of the t-distribution instead."
+        ].
 
-% Buggy-Rule: Instead of the t-quantil the z-quantile is used
+% Buggy-Rule: Use z-quantile instead of t-quantile. This rule may be dropped
+% because we might not be able to distinguish the results.
 buggy(stage(2), X, Y, [step(buggy, qt, [N, Alpha])]) :-
-    X = qt(Alpha/2, N-1),
-    Y = instead(qt, qnorm(Alpha/2) , qt(Alpha/2, N-1)).
+    X = qt(1-Alpha/2, N-1),
+    Y = instead(qt, qnorm(1-Alpha/2) , qt(1-Alpha/2, N-1)).
 
-feedback(qt, [N, Alpha], Col, FB) =>
-    FB = [ "Please insert the quantil of the t-statistic ",
-           \mmlm(Col, color(qt, qt(Alpha/2, N-1))), " into ",
-           "the ", \mmlm(Col, hyph(t, "ratio.")) ].
+feedback(qt, [N, Alpha], Col, F)
+ => F = [ "Please insert the quantile of the t-statistic ",
+          \mmlm(Col, color(qt, qt(1-Alpha/2, N-1))), " into ",
+          "the ", \mmlm(Col, hyph(t, "ratio.")) % not t-ratio, please change
+        ].
 
-hint(qt, [_N, _Alpha], Col, FB) =>
-    FB = [ "Do not insert the t-statistic into the ",
-           \mmlm(Col, hyph(t, "ratio.")), " Use the quantil of it instead " ].
+hint(qt, [_N, _Alpha], Col, H)
+ => H = [ "Do not insert the t-statistic into the ",
+          \mmlm(Col, hyph(t, "ratio.")), " Use the quantile of the ", % see above
+          "distribution instead."
+        ].
 
 % 1. Bitte Feedback verschoenern. Hier viel Energie reinstecken, pädagogisch sinnvoll
 % 2. Abkürzung für t-Statistik, evtl. auch für t-Quantil (wahrscheinlich nicht)

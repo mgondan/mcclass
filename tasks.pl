@@ -361,15 +361,16 @@ download(File) :-
 
 %
 % Run example outside of webserver
+%
 % $ swipl
 % ?- [tasks].
 % ?- trace.   (if needed)
-% ?- tasks:test.
+% ?- tasks:tasks.
 %
-test :-
-    test(qbinom).
+tasks :-
+    tasks(cipaired).
 
-test(Task) :-
+tasks(Task) :-
     r_initialize,
     r('set.seed'(4711)),
     r_session_source(Task),

@@ -722,23 +722,22 @@ int(Flags, chi2ratio(X), Res),
     option(engine(pl), Flags)
  => int([digits(2) | Flags], format(X), Res).
 
+%
+% This needs to be rewritten
+%
 int(Flags, format(X), Res),
     option(engine(pl), Flags)
  => option(digits(D), Flags, 2),
-    interval(Flags, X, L0 ... U0),
+    int(Flags, X, Fmt),
+    findall(R, bound(Fmt, R), List),
+    min_list(List, L0),
+    max_list(List, U0),
     L is floor(L0*10^D) / 10^D,
     U is ceiling(U0*10^D) / 10^D,
-    Res = L ... U.
-
-%
-% Square root. This declaration should be dropped because it
-% only applies the sqrt function to the two bounds of the
-% interval, which is the default.
-%
-int(Flags, sqrt(X), Res),
-    option(engine(pl), Flags)
- => int(Flags, X, ResX),
-    interval(sqrt(ResX), Res).
+    (   length(List, 1)
+     -> Res = L
+     ;  Res = L ... U
+    ).
 
 interval(sqrt(A ... B), Res) :-
     (zero(A, B) ; positive(A, B)),

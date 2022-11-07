@@ -734,6 +734,11 @@ mathml :- mathml(-3.555).
 %
 % Operators
 %
+math(Flags, pm(A, B), New, X)
+ => New = Flags,
+    current_op(Prec, yfx, -),
+    X = yfx(Prec, &(pm), A, B).
+
 math(Flags, A = B, New, X)
  => New = Flags,
     current_op(Prec, xfx, =),
@@ -1876,6 +1881,10 @@ math(Flags, qt(P, DF), New, X)
 %
 % Intervals
 %
+math(Flags, ci(L, U), New, X)
+ => New = Flags,
+    X = brackets(list(',', [L, U])).
+
 math(Flags, '...'(L, U), New, X)
  => New = Flags,
     X = xfx(699, '...', floor(L), ceiling(U)).
