@@ -36,6 +36,7 @@ interval:r_hook(eot).
 interval:r_hook(s_eot).
 interval:r_hook(qt(_P, _DF)).
 
+% Task description
 render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha), Form) -->
     { option(resp(R), Form, '#.##') },
     html(
@@ -69,14 +70,14 @@ render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha), Form) -->
         \htmlform(["Determine the confidence interval for the change in participants' self-confidence. The alpha level is ", \mmlm(alpha = perc(0.05))
                 ], '#cipaired', R)
     ]).
- %Sollte noch eine Vorgabe für die Eingabe in der Aufgabenstellung angegeben werden?
+
 
 % t-test and confidence intervall for paired samples 
 intermediate(item).
 start(item(t0, s_t0, eot, s_eot, d, s_d, n, mu, alpha)).
 
 % First step: Extract the correct information for a paired t-test and 
-% associated confidence interval from the task description
+% the associated confidence interval from the task description
 intermediate(paired).
 expert(stage(2), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu, Alpha),
@@ -97,7 +98,7 @@ hint(paired, [], Col, H)
 intermediate(quant).
 expert(stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N, Alpha])]) :-
     X = paired(D, Mu, S_D, N, Alpha),
-    Y = hdrs(pm(D, quant(D, Mu, S_D, N, Alpha) * frac(S_D, sqrt(N)))).
+    Y = hdrs(pm(D, dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
 
 feedback(ci_lower, [_D, _S_D, _N, _Alpha], _Col, F)					
  => F = [ "Correctly identified the formula for the upper and lower bound of ",
@@ -107,7 +108,7 @@ feedback(ci_lower, [_D, _S_D, _N, _Alpha], _Col, F)
 hint(ci_lower, [D, S_D, N, Alpha], Col, H)
  => H = [ "The formula to calculate the lower and upper bound of the ",
           "confidence interval is ",
-	  \mmlm(Col, pm(D, qt(1 - Alpha/2, N-1) * frac(S_D, sqrt(N))))
+	  \mmlm(Col, pm(D, qt(1 - Alpha/2, N-1) * S_D / sqrt(N)))
         ].
 
 % Third step: Choose the correct quantile of the t-distribution
@@ -125,10 +126,10 @@ hint(tquant, [_N, Alpha], Col, H)
           "of the ", \mmlm(Col, hyph(t, "distribution"))
         ].
 
-% Use t-statistic instead of t-quantile
+% Buggy-Rule: Use t-statistic instead of t-quantile
 buggy(stage(2), X, Y, [step(buggy, tstat, [D, S_D, N, Mu, Alpha])]) :-
     X = quant(D, Mu, S_D, N, Alpha),
-    P = abbrev(t, dfrac(D - Mu, S_D / sqrt(N)), ["the observed", space, t, "-statistic."]),		%Ist es möglich, die t-statistik hier auch kursiv zu schrebien?
+    P = abbrev(t, dfrac(D - Mu, S_D / sqrt(N)), ["the observed", space, t, "-statistic."]),
     Y = P. 
 
 feedback(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, F)
@@ -138,67 +139,67 @@ feedback(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, F)
         ].
 
 hint(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, H)
- => H = [ "Do not insert the ", \mmlm(Col, hyph(t, "statistic ")), "into the ",
-          "formula for the confidence interval. Use the quantile of the ",
-	   \mmlm(Col, hyph(t, "distribution")), " instead."
+ => H = [ "Do not insert the observed ", \mmlm(Col, hyph(t, "statistic ")),
+          "into the formula for the confidence interval. Use the quantile of ", 
+	  "the ", \mmlm(Col, hyph(t, "distribution")), " instead."
         ].
 
-% Buggy-Rule: Use z-quantile instead of t-quantile. This rule may be dropped
-% because we might not be able to distinguish the results.
-buggy(stage(2), X, Y, [step(buggy, qt, [N, Alpha])]) :-
+% Buggy-Rule: Use z-quantile instead of t-quantile. 
+% This rule may be dropped because we might not be able to distinguish the results.
+buggy(stage(2), X, Y, [step(buggy, qnorm, [N, Alpha])]) :-
     X = quant(_D, _Mu, _S_D, N, Alpha),
     Y = instead(qt, qnorm(1 - Alpha/2) , qt(1 - Alpha/2, N - 1)).
 
-feedback(qt, [N, Alpha], Col, F)
+feedback(qnorm, [N, Alpha], Col, F)
  => F = [ "The result matches the confidence interval based on the standard ",
           "Normal distribution. ",
           "Please insert the quantile of the ", \mmlm(Col, hyph(t, "distribution")),
-          \mmlm(Col, color(qt, qt(1 - Alpha/2, N - 1))), " into ",
+          \mmlm(Col, color(qnorm, qt(1 - Alpha/2, N - 1))), " into ",
           "the formula for the confidence interval."
         ].
 
-hint(qt, [_N, _Alpha], Col, H)
+hint(qnorm, [_N, _Alpha], Col, H)
  => H = [ "Do not insert the quantile of the ", \mmlm(Col, hyph(z, "distribution ")), 
           "into the formula for the confidence interval. Use the quantile of the ", 			
 	  \mmlm(Col, hyph(t, "distribution")), "instead."
         ].
 
 
-% 3. Buggy rule SPSS
-% 6. in tpaired-celina reinschauen, ob Ihr noch irgendwelche bugs findet/dort noch irgendwelche stehen: https://www.dropbox.com/scl/fo/4npx22e6wowo4zad3riau/h?dl=0&rlkey=51k1yq6a6u66uef5vf727qmgz
-
-% buggy rule/spss: mu
-buggy(stage(2), X, Y, [step(buggy, spss, [Mu])]) :-
+% Buggy-Rule: Calculating the confidence intervall with SPSS
+% and forgetting to add Mu to the results of the bounds in the end.
+buggy(stage(2), X, Y, [step(buggy, spss, [Mu]), excludes(qnorm), excludes(tstat), excludes(sqrt1)]) :-
     X = paired(D, Mu, S_D, N, Alpha),
-    Y = hdrs(pm(invent_right(spss, D - Mu), quant(D, Mu, S_D, N, Alpha) * frac(S_D, sqrt(N)))).
+    Y = hdrs(pm(invent_right(spss, D - Mu), dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
 
 feedback(spss, [Mu], Col, F)
- => F = [ "The result matches...(bitte weiter) Please do not forget to add ", \mmlm(Col, Mu), " to the upper and lower bound",
-	  " of the confidence interval, if you calculate the bounds with SPSS."
+ => F = [ "The result matches the upper and lower bound calculated by SPSS. ",
+	  "Please do not forget to add ", \mmlm(Col, Mu), " to the upper and lower ",
+	  "bound of the confidence interval, if you calculate it with SPSS."
         ].
 
 hint(spss, [Mu], Col, H)
- => H = [ "If you calculate the bounds of the confindence intervall with SPSS ",
-	  "keep in mind, that SPSS subtracts", \mmlm(Col, Mu), " from the two ",
-          "bounds of the CI (which must be undone)."
+ => H = [ "If you calculate the confindence intervall with SPSS keep in mind,",
+	  " that SPSS subtracts ", \mmlm(Col, Mu), " from the two bounds of",
+          " the CI (which must be undone)."
         ].
 
-% Buggy-Rule: Use of N instead of sqrt(N)				% Durch Buggy-Rule mit t-statistik zweimal Fehler mit Wurzel vergessen möglich,
-buggy(stage(2), X, Y, [step(buggy, sqrt1, [N])]) :-			% sollte dies im Text oder farblich unterschieden werden?
-    X = quant(D, Mu, S_D, N, Alpha) * frac(S_D, sqrt(N)),
-    Y = quant(D, Mu, S_D, N, Alpha) * frac(S_D, omit_right(sqrt1, (2*N)^(1/2))).
+% Buggy-Rule: Use of N instead of sqrt(N)				
+buggy(stage(2), X, Y, [step(buggy, sqrt1, [N])]) :-			
+    X = dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)),
+    Y = dot(quant(D, Mu, S_D, N, Alpha), S_D / omit_right(sqrt1, (2*N)^(1/2))).
 
-feedback(sqrt1, [N], Col, FB)
- => FB = [ "Please do not forget the square root around ", 
-           \mmlm(Col, color(sqrt1, N))
-         ].
+feedback(sqrt1, [N], Col, F)
+ => F = [ "The result matches the confidence interval without square root around ", 
+          \mmlm(Col, color(sqrt1, N)), ". Please do not forget the square root",
+          " around ", \mmlm(Col, color(sqrt1, N)), "."
+        ].
 
-hint(sqrt1, [N], Col, FB)
- => FB = [ "Do not forget the square root around ",
-           \mmlm(Col, color(sqrt1, N))
-	     ].
+hint(sqrt1, [N], Col, F)
+ => F = [ "Do not forget the square root around ",
+          \mmlm(Col, color(sqrt1, N))
+        ].
 
-% Same mistake in the t-ratio
+% Buggy-Rule: Use of N instead of sqrt(N) in the t-ratio
 buggy(stage(2), X, Y, [step(buggy, sqrt2, [N])]) :-
     X = dfrac(D - Mu, S_D / sqrt(N)),
     Y = dfrac(D - Mu, S_D / omit_right(sqrt2, (3*N)^(1/2))).

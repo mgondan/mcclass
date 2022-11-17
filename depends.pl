@@ -1,11 +1,16 @@
 % Check dependencies in flags
-:- module(depends, [dependencies/1, compatible/1]).
+:- module(depends, [dependencies/1, exclusive/1, compatible/1]).
 
 % Check if there is a step for each dependency
 dependencies(Flags) :-
     findall(D, member(depends(D), Flags), Dependencies),
     findall(S, member(step(_, S, _), Flags), Steps),
     subtract(Dependencies, Steps, []).
+
+exclusive(Flags) :-
+    findall(D, member(excludes(D), Flags), Excludes),
+    findall(S, member(step(_, S, _), Flags), Steps),
+    subtract(Excludes, Steps, Excludes).
 
 % Check if bugs are compatible
 compatible(Term) :-

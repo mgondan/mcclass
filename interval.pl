@@ -714,6 +714,13 @@ interval :-
     writeln(1 + frac(1, X) --> Z).
 
 %
+% Multiply
+%
+int(Flags, dot(X, Y), Res),
+    option(engine(pl), Flags)
+ => int(Flags, X * Y, Res).
+
+%
 % Format result as a t-ratio
 %
 int(Flags, tstat(X), Res),

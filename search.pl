@@ -52,6 +52,7 @@ searchdep(Task, Expr_Res_Flags) :-
     findall(res(E, R/C, F), 
       ( search(Task, E, F, S),
         dependencies(S),            % check dependencies here
+        exclusive(S),
         codes(S, C),
         interval([task(Task)], available(E), R)
       ), Results),
