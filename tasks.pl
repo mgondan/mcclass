@@ -369,7 +369,7 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(cipaired).
+    tasks(powbinom).
 
 tasks(Task) :-
     r_initialize,
