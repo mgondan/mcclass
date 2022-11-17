@@ -49,10 +49,14 @@ download <- function(fname)
 
 ancova_f = function(d, Prim, Cov, Strata, Other, Int, Ex, Main)
 {
-   return(0.5)
+   Predictors = paste(c(Cov, Strata, list(Main)), collapse="+")
+   print(Predictors)
 
-   Predictors = paste(c(Cov, Strata, Main), collapse="+")
    formula = sprintf("%s ~ %s", Prim, Predictors)
+   print(formula)
+
    m = lm(formula, data=d)
+   print(m)
+
    anova(m)[Main, "F value"]
 }
