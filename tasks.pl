@@ -369,7 +369,7 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(powbinom).
+    tasks(baseline).
 
 tasks(Task) :-
     r_initialize,

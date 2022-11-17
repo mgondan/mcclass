@@ -47,16 +47,10 @@ download <- function(fname)
     write.csv2(data, fname, row.names=FALSE)
 }
 
-ancova_f = function(d, Prim, Cov, Strata, Other, Int, Ex, Main)
+ancova_f = function(Prim, Cov, Strata, Other, Int, Ex, Main)
 {
    Predictors = paste(c(Cov, Strata, list(Main)), collapse="+")
-   print(Predictors)
-
    formula = sprintf("%s ~ %s", Prim, Predictors)
-   print(formula)
-
-   m = lm(formula, data=d)
-   print(m)
-
+   m = lm(formula, data=data)
    anova(m)[Main, "F value"]
 }

@@ -1336,7 +1336,7 @@ prec(_Flags, sqrt(_), Prec)
 mathml :- mathml(sqrt(2)).
 mathml :- mathml(sqrt(2)^2).
 
-math(Flags, ancova_f(_Data, DV, Cov, Strata, Other, Int, _Excl, Main), New, M)
+math(Flags, ancova_f(DV, Cov, Strata, Other, Int, _Excl, Main), New, M)
  => New = Flags,
     append([Cov, Strata, Other, Int, [Main]], Pred),
     M = fn(lm, [~(DV, list(+, Pred))]).

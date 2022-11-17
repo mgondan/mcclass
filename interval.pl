@@ -107,6 +107,12 @@ int(Flags, ci(_, U), Res),
     member(ci(upper), Flags)
  => int(Flags, U, Res).
 
+int(_Flags, [], Res)
+ => Res = [] ... [].
+
+int(_Flags, [H | T], Res)
+ => Res = [H | T] ... [H | T].
+
 % int(Flags, X ... Y, Res),
 %     option(engine(pl), Flags)
 %  => interval(X ... Y, Res). % unclear why interval is called
