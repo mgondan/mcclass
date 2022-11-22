@@ -315,7 +315,7 @@ hint(interactions, [_Int], _Col, H)
 %	             "treatment-by-covariate interactions."].
 
 % Step 6: Apply linear regression
-expert(stage(2), X, Y, [step(expert, ancova, [Int])]) :-
+expert(stage(2), X, Y, [step(expert, ancova, [Therapy])]) :-
     X = baseline5(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Y = ancova_f(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
