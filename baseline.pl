@@ -134,7 +134,7 @@ render(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy), Form) -->
 
 % baseline adjusted ANCOVA
 intermediate(item).
-start(item("EOT", ["T0", "Fidel"], ["Sex"], ["Fidel", "FU"], [], [], "Therapy")).
+start(item("EOT", ["T0"], ["Sex"], ["Fidel", "FU"], [], [], "Therapy")).
 
 % Step 1: Extract the correct information for a ANCOVA from the
 % task description
@@ -158,27 +158,30 @@ expert(stage(2), X, Y, [step(expert, covariates, [Cov])]) :-
     Y = baseline2(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
 feedback(covariates, [Cov], Col, F)
- => F = [ "The correct covariates ", \mmlm(Col, Cov), " were included ",
+ => F = [ "The correct covariates ", \mmlm(Col, list(+, Cov)), " were included ",
           "in the model."
         ].
 
 hint(covariates, [Cov], Col, H)
- => H = [ "The covariate(s) ", \mmlm(Col, Cov), " should be included ",
+ => H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
           "in the statistical model."
         ].
 
+% Omit relevant covariates (ex. forget to include baseline (T0))
 buggy(stage(2), X, Y, [step(buggy, covariates, [Cov, [R | Removed]])]) :-
-    X = baseline1(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
+    X = baseline1(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
     my_subset(Subset, Cov, [R | Removed]),
+    findall(omit(covariates, O), member(O, [R | Removed]), Omitted),
+    append(Exclude0, Omitted, Exclude),
     Y = baseline2(Prim, Subset, Strata, Other, Int, Exclude, Therapy).
 
 feedback(covariates, [_Cov, Removed], Col, F)
- => F = [ "The covariates ", \mmlm(Col, Removed), " were forgotten ",
+ => F = [ "The covariates ", \mmlm(Col, list(+, Removed)), " were forgotten ",
           "in the model."
         ].
 
 hint(covariates, [Cov, _Removed], Col, H)
- => H = [ "The covariate(s) ", \mmlm(Col, Cov), " should be included ",
+ => H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
           "in the statistical model."
         ].
 
@@ -189,55 +192,30 @@ expert(stage(2), X, Y, [step(expert, stratification, [Strata])]) :-
     Y = baseline3(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
 feedback(stratification, [Strata], Col, F)
- => F = [ "The correct strata ", \mmlm(Col, Strata), " were included ",
+ => F = [ "The correct strata ", \mmlm(Col, list(+, Strata)), " were included ",
           "in the model."
         ].
 
 hint(stratification, [Strata], Col, H)
- => H = [ "The strata ", \mmlm(Col, Strata), " should be included ",
+ => H = [ "The strata ", \mmlm(Col, list(+, Strata)), " should be included ",
           "in the statistical model."
         ].
 
+% Misconception: Exclude Strata variable(s)
+buggy(stage(2), X, Y, [step(buggy, misstrata, [Strata, [R | Removed]])]) :-
+    X = baseline2(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
+    my_subset(Subset, Strata, [R | Removed]),
+    findall(omit(misstrata, O), member(O, [R | Removed]), Omitted),
+    append(Exclude0, Omitted, Exclude),
+    Y = baseline3(Prim, Cov, Subset, Other, Int, Exclude, Therapy).
 
-%%2. step: Potential Misconception:
-%%Omit relevant covariates (ex. forget to include baseline (T0).
-% buggy(stage(2), X, Y, [step(buggy, [T0, AgeMo, Sex, Fidel, Therapy])]) :-
-%    X = baseline(T0, AgeMo, Sex, Fidel, Therapy),
-%    Y = anova_test(omit_covariate(T0, EOT ~ T0 + AgeMo + Sex + Fidel +
-%    Therapy).
-%
-%feedback(T0, [T0], Col, FB) =>
-%    FB = [ "In the ANCOVA the baseline covariate (T0) ",
-%		"has been omitted." ].
-%
-%hint(T0, [TO], Col, FB) =>
-%    FB = [ "Do not omit the baseline covariate (T0)", \mmlm(Col,                       color(t0,
-%                                                                                       T0)),
-%                                                                                       "
-%                                                                                       ",
-%
-%           "in the ANCOVA."].
+feedback(misstrata, [_Strata, Removed], Col, F)
+ => F = [ "The relevant stratification variable(s) ", \mmlm(Col, list(+, Removed)), " were excluded ",
+          "in the statistical model."].
 
-%
-%% Omit one or more stratification variables
-% buggy(stage(2), X, Y, [step(buggy, Prim, Cov, , Other, Int, Exclude, Therapy])]) :-
-%   X = baseline(Prim, Cov, , Other, Int, Exclude, Therapy),
-%    Y = anova_test(EOT ~ Prim, Cov, [Strata], Other, Int,                                                        Exclude,
-%                                                                                                                       Therapy).
-%
-%
-%feedback(Strata, [Strata], Col, FB) =>
-%    FB = [ "In the ANCOVA the stratification variable(s)",
-%		"has been excluded" ].
-%
-%hint(Strata, [Strata], Col, FB) =>
-%    FB = [ "Do not exclude the stratification variable(s)(Strata)",            \mmlm(Col,
-%                                                                               color(Strata,
-%                                                                               Strata)),
-%                                                                               "
-%                                                                               ",
-%
-%           "in the ANCOVA."].
+hint(misstrata, [Strata, _Removed], Col, H)
+ => H = [ "The stratification variable(s) ", \mmlm(Col, list(+, Strata)), " should be included ",
+          "in the statistical model."].
 
 % Step 4: Ignore distractors
 intermediate(baseline4).
@@ -246,73 +224,78 @@ expert(stage(2), X, Y, [step(expert, distractors, [Other])]) :-
     Y = baseline4(Prim, Cov, Strata, [], Int, Exclude, Therapy).
 
 feedback(distractors, [Other], Col, F)
- => F = [ "The post-randomization variable(s) ", \mmlm(Col, Other), " were ",
+ => F = [ "The post-randomization variable(s) ", \mmlm(Col, list(+, Other)), " were ",
           "correctly excluded from the statistical model."
         ].
 
 hint(distractors, [Other], Col, H)
  => H = [ "Do not include the post-randomization ",
-          "variables ", \mmlm(Col, Other), " in the statistical model."
+          "variables ", \mmlm(Col, list(+, Other)), " in the statistical model."
         ].
 
-%% Add one or more wrong predictors
-% buggy(stage(2), X, Y, [step(buggy, Prim, Cov, Other, Int, Exclude, Therapy]) :-
-%    X = baseline(Prim, Cov, , Other, Int, Exclude, Therapy),
-%    Y = anova_test(EOT ~ Prim, Cov, Strata, Other, Int,                                          Exclude,
-%                                                                                                       Therapy).
-%
-%
-%feedback([Other], Other, Col, FB) =>
-%    FB = [ "The distractor variable(s) should not be used in",
-%		the analysis." ].
-%
-%hint([Other], Other,  Col, FB) =>
-%    FB = [ "The distractor variable(s) \mml(Flags, Other),"
-%		"are not used."].
-%
+%Step 4: Potential Misconception: add distractor variables to the model
+buggy(stage(2), X, Y, [step(buggy, distractors, [Other, [R | Removed]])]) :-
+    X = baseline3(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
+    my_subset(Subset, Other, [R | Removed]),
+    findall(omit(misstrata, O), member(O, [R | Removed]), Omitted),
+    append(Exclude0, Omitted, Exclude),
+    Y = baseline4(Prim, Cov, Strata, Subset, Int, Exclude, Therapy).
+
+feedback(distractors, [_Other, Removed], Col, F)
+ => F = [ "The distractor variable(s) ", \mmlm(Col, list(+,Removed)), " were successfully ",
+          "excluded in the model."
+        ].
+
+hint(distractors, [Other, _Removed], Col, H)
+ => H = [ "The distractor variable(s) ", \mmlm(Col, list(+,Other)), " should be excluded ",
+          "in the statistical model."
+        ].
 
 % Step 5: No treatment-by-covariate interactions
 intermediate(baseline5).
-expert(stage(2), X, Y, [step(expert, interactions, [Int])]) :-
+expert(stage(2), X, Y, [step(expert, noint, [Int])]) :-
     X = baseline4(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Y = baseline5(Prim, Cov, Strata, Other, [], Exclude, Therapy).
 
-feedback(interactions, [_Int], _Col, F)
+feedback(noint, [_Int], _Col, F)
  => F = [ "Correctly excluded any treatment-by-covariate interactions from ",
           "the analysis."
         ].
 
-hint(interactions, [_Int], _Col, H)
+hint(noint, [_Int], _Col, H)
  => H = [ "Do not put any treatment-by-covariate interactions in the ",
           "statistical model."
         ].
 
-%atomics_to_string_sep(Sep, List, String) :-
-%    atomics_to_string(List, Sep, String).
-%
-%% Allow for treatment-by-covariate interactions
-%buggy(baseline: interactions, From >> To, Flags, Feed, Trap) :-
-%    From = ancova_ffff(Prim, Cov, Strata, Other, Int, Exclude,
-%    Therapy),
-%    % T0, Sex
-%    append(Strata, Cov, Covariates),
-%    % [[T0], [Sex], [T0, Sex]]
-%    findall([H | T], my_subset([H | T], Covariates, _), Subsets),
-%    reverse(Subsets, Rev),
-%    % [[T0], [T0, Sex]]
-%    my_subset([S | Subset], Rev, _),
-%    % [[Therapy, T0], [Therapy, T0, Sex]]
-%    maplist(append([Therapy]), [S | Subset], Interactions),
-%    % [Therapy:T0, Therapy:T0:Sex]
-%    maplist(atomics_to_string_sep(:), Interactions, Colon),
-%    To   = ancova_fffff(Prim, Cov, Strata, Other,
-%             [add(interactions, Colon) | Int], Exclude, Therapy),
-%    Feed = [ "The statistical model should not include
-%    treatment-by-covariate ",
-%             "interactions ", \nowrap([\mml(Flags, Colon), "."])
-%           ],
-%    Trap = [ "The statistical model should not include any ",
-%	             "treatment-by-covariate interactions."].
+% Allow for treatment-by-covariate-interactions
+atomics_to_string_sep(Sep, List, String) :-
+  atomics_to_string(List, Sep, String).
+
+buggy(stage(2), X, Y, [step(buggy, interactions, [Int])]) :-
+    X = baseline4(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
+    % T0, Sex
+    append(Strata, Cov, Covariates),
+    % [[T0], [Sex], [T0, Sex]]
+    findall([H | T], my_subset([H | T], Covariates, _), Subsets),
+    reverse(Subsets, Rev),
+    % [[T0], [T0, Sex]]
+    my_subset([S | Subset], Rev, _),
+    % [[Therapy, T0], [Therapy, T0, Sex]]
+    maplist(append([Therapy]), [S | Subset], Interactions),
+    % [Therapy:T0, Therapy:T0:Sex]
+    maplist(atomics_to_string_sep(:), Interactions, Colon),
+    append(Colon, Int, New),
+    Y = baseline5(Prim, Cov, Strata, Other, New, Exclude, Therapy).
+
+feedback(interactions, [_Int], _Col, F)
+ => F = [ "The statistical model should not include treatment-by-covariate ",
+          "interactions"
+        ].
+
+hint(interactions, [_Int], _Col, H)
+ => H = [ "The statistical model should not include any ",
+          "treatment-by-covariate interactions."
+        ].
 
 % Step 6: Apply linear regression
 expert(stage(2), X, Y, [step(expert, ancova, [Therapy])]) :-
@@ -326,4 +309,3 @@ feedback(ancova, [Therapy], Col, F)
 hint(ancova, [Therapy], Col, H)
  => H = [ "Report the main effect for ", \mmlm(Col, Therapy), "."
         ].
-
