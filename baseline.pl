@@ -267,6 +267,9 @@ hint(noint, [_Int], _Col, H)
           "statistical model."
         ].
 
+atomics_to_string_sep(Sep, List, String) :-
+    atomics_to_string(List, Sep, String).
+
 % Allow for treatment-by-covariate-interactions
 atomics_to_string_sep(Sep, List, String) :-
   atomics_to_string(List, Sep, String).
