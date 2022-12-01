@@ -29,6 +29,7 @@
 :- use_module(powbinom).
 :- use_module(chisq).
 :- use_module(power).
+:- use_module(cigroups).
 
 % Render R result
 mathml:mathml_hook(Flags, r(Expr), Flags, Res) :-
