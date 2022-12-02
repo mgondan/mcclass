@@ -1193,6 +1193,9 @@ ml(Flags, cell(Cell), M)
 %
 omit(Flags, omit(_, _)) :-
     option(error(show), Flags, fix).
+%Kopie Invent
+invent(Flags, invent(_, _)) :-
+    option(error(fix), Flags, fix).
 
 math(Flags, [], New, M)
  => Flags = New,
@@ -1204,6 +1207,11 @@ math(Flags, [H | T], New, M)
 
 math(Flags, list(Sep, A), New, M)
  => exclude(omit(Flags), A, Excluded),
+    Flags = New,
+    M = list1(Sep, Excluded).
+
+math(Flags, list(Sep, A), New, M)
+ => exclude(invent(Flags), A, Excluded),
     Flags = New,
     M = list1(Sep, Excluded).
 
@@ -1535,18 +1543,42 @@ math(Flags, omit(_Bug, Expr), New, M),
  => Flags = New,
     M = Expr.
 
+%Kopie Invent
+math(Flags, invent(_Bug, Expr), New, M),
+    option(error(correct), Flags, fix)
+ => Flags = New,
+    M = Expr.
+
 math(Flags, omit(_Bug, _Expr), New, M),
     option(error(show), Flags, fix)
  => Flags = New,
     M = "omitted".
+
+%Kopie Invent
+math(Flags, invent(_Bug, _Expr), New, M),
+    option(error(show), Flags, fix)
+ => Flags = New,
+    M = "invented".
 
 math(Flags, omit(Bug, Expr), New, M),
     option(error(fix), Flags, fix)
  => Flags = New,
     M = color(Bug, box(color("#000000", Expr))).
 
+% Kopie!
+math(Flags, invent(Bug, Expr), New, M),
+    option(error(highlight), Flags, fix)
+ => Flags = New,
+    M = color(Bug, box(color("#000000", Expr))).
+
 math(Flags, omit(Bug, Expr), New, M),
     option(error(highlight), Flags, fix)
+ => Flags = New,
+    M = color(Bug, cancel(color("#000000", Expr))).
+
+%Kopie Invent
+math(Flags, invent(Bug, Expr), New, M),
+    option(error(fix), Flags, fix)
  => Flags = New,
     M = color(Bug, cancel(color("#000000", Expr))).
 
@@ -2056,6 +2088,11 @@ bugs_(omit_right(Bug, Expr), List)
     List = [Bug | Bugs].
 
 bugs_(omit(Bug, Expr), List)
+ => bugs_(Expr, Bugs),
+    List = [Bug | Bugs].
+
+%Kopie Invent
+bugs_(invent(Bug, Expr), List)
  => bugs_(Expr, Bugs),
     List = [Bug | Bugs].
 

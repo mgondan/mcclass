@@ -134,7 +134,7 @@ render(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy), Form) -->
 
 % baseline adjusted ANCOVA
 intermediate(item).
-start(item("EOT", ["T0"], ["Sex"], ["Fidel", "FU"], [], [], "Therapy")).
+start(item("EOT", ["T0"], ["Sex"], ["FU"], [], [], "Therapy")).
 
 % Step 1: Extract the correct information for a ANCOVA from the
 % task description
@@ -171,7 +171,7 @@ hint(covariates, [Cov], Col, H)
 buggy(stage(2), X, Y, [step(buggy, covariates, [Cov, [R | Removed]])]) :-
     X = baseline1(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
     my_subset(Subset, Cov, [R | Removed]),
-    findall(omit(covariates, O), member(O, [R | Removed]), Omitted),
+    findall(omit(covariates , O), member(O, [R | Removed]), Omitted),
     append(Exclude0, Omitted, Exclude),
     Y = baseline2(Prim, Subset, Strata, Other, Int, Exclude, Therapy).
 
@@ -219,35 +219,35 @@ hint(misstrata, [Strata, _Removed], Col, H)
 
 % Step 4: Ignore distractors
 intermediate(baseline4).
-expert(stage(2), X, Y, [step(expert, distractors, [Other])]) :-
+expert(stage(2), X, Y, [step(expert, ignore, [Other])]) :-
     X = baseline3(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Y = baseline4(Prim, Cov, Strata, [], Int, Exclude, Therapy).
 
-feedback(distractors, [Other], Col, F)
+feedback(ignore, [Other], Col, F)
  => F = [ "The post-randomization variable(s) ", \mmlm(Col, list(+, Other)), " were ",
           "correctly excluded from the statistical model."
         ].
 
-hint(distractors, [Other], Col, H)
+hint(ignore, [Other], Col, H)
  => H = [ "Do not include the post-randomization ",
           "variables ", \mmlm(Col, list(+, Other)), " in the statistical model."
         ].
 
-%Step 4: Potential Misconception: add distractor variables to the model
-buggy(stage(2), X, Y, [step(buggy, distractors, [Other, [R | Removed]])]) :-
+% Step 4: Potential Misconception: add distractor variables to the model
+buggy(stage(2), X, Y, [step(buggy, distractors, [Other, [S | Subset]])]) :-
     X = baseline3(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
-    my_subset(Subset, Other, [R | Removed]),
-    findall(omit(misstrata, O), member(O, [R | Removed]), Omitted),
-    append(Exclude0, Omitted, Exclude),
-    Y = baseline4(Prim, Cov, Strata, Subset, Int, Exclude, Therapy).
+    my_subset([S | Subset], Other, Difference),
+    findall(invent(distractors, D), member(D, [S | Subset]), Distractors),
+    append(Exclude0, Distractors, Exclude),
+    Y = baseline4(Prim, Cov, Strata, Difference, Int, Exclude, Therapy).
 
-feedback(distractors, [_Other, Removed], Col, F)
- => F = [ "The distractor variable(s) ", \mmlm(Col, list(+,Removed)), " were successfully ",
-          "excluded in the model."
+feedback(distractors, [_Other, Dist], Col, F)
+ => F = [ "The distractor variable(s) ", \mmlm(Col, list(+, Dist)), " were erroneously ",
+          "included in the model."
         ].
 
-hint(distractors, [Other, _Removed], Col, H)
- => H = [ "The distractor variable(s) ", \mmlm(Col, list(+,Other)), " should be excluded ",
+hint(distractors, [Other, _Dist], Col, H)
+ => H = [ "Do not include the distractor variable(s) ", \mmlm(Col, list(+, Other)),
           "in the statistical model."
         ].
 
@@ -274,8 +274,8 @@ atomics_to_string_sep(Sep, List, String) :-
 atomics_to_string_sep(Sep, List, String) :-
   atomics_to_string(List, Sep, String).
 
-buggy(stage(2), X, Y, [step(buggy, interactions, [Int])]) :-
-    X = baseline4(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
+buggy(stage(2), X, Y, [step(buggy, interactions, [Colon])]) :-
+    X = baseline4(Prim, Cov, Strata, Other, Int0, Exclude, Therapy),
     % T0, Sex
     append(Strata, Cov, Covariates),
     % [[T0], [Sex], [T0, Sex]]
@@ -287,12 +287,13 @@ buggy(stage(2), X, Y, [step(buggy, interactions, [Int])]) :-
     maplist(append([Therapy]), [S | Subset], Interactions),
     % [Therapy:T0, Therapy:T0:Sex]
     maplist(atomics_to_string_sep(:), Interactions, Colon),
-    append(Colon, Int, New),
-    Y = baseline5(Prim, Cov, Strata, Other, New, Exclude, Therapy).
+    findall(invent(interactions, C), member(C, Colon), Invented),
+    append(Invented, Int0, Int),
+    Y = baseline5(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
-feedback(interactions, [_Int], _Col, F)
- => F = [ "The statistical model should not include treatment-by-covariate ",
-          "interactions"
+feedback(interactions, [Int], Col, F)
+ => F = [ "The statistical model should not include the treatment-by-covariate ",
+          "interactions", \mmlm(Col, [list(+, Int), "."])
         ].
 
 hint(interactions, [_Int], _Col, H)
@@ -310,5 +311,5 @@ feedback(ancova, [Therapy], Col, F)
         ].
 
 hint(ancova, [Therapy], Col, H)
- => H = [ "Report the main effect for ", \mmlm(Col, Therapy), "."
+ => H = [ "Report the main effect for ", \mmlm(Col, [Therapy, "."])
         ].

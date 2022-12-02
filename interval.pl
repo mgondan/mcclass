@@ -73,8 +73,12 @@ hook(Flags, ';'(Expr1, Expr2), Flags, Res) :-
 hook(Flags, '{}'(Expr), Flags, Res) :-
     int(Flags, Expr, Res).
 
-hook(Flags, @(Expr, Options), New, Expr) :-
-    append(Options, Flags, New).
+hook(Flags, @(Expr, Options), New, L ... U) :-
+    append(Options, Flags, New),
+    interval(New, Expr, L0 ... U0),
+    option(digits(D), New, 0),
+    L is L0 - 10^(-D)/2,
+    U is U0 + 10^(-D)/2.
 
 interval :-
     writeln(quantity-1),
