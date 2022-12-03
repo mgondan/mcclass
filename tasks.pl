@@ -46,6 +46,10 @@ mathml:mathml_hook(Flags, r(Expr), Flags, Res) :-
 %
 % more to come
 task(Task, Data) :-
+    session_data(taskdata(Task, D)),
+    !, Data=D.
+
+task(Task, Data) :-
     r_initialize,
     r_session_source(Task),
     solutions(Task, Solutions),
@@ -59,7 +63,8 @@ task(Task, Data) :-
         wrong(E_R_F),
         wrongall(E_R_F_All), % this needs a better solution
         traps(Traps)
-      ]).
+      ]),
+    session_assert(taskdata(Task, Data)).
 
 % Correct response
 feedback(Task, Data, Form) -->
