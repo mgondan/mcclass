@@ -37,100 +37,38 @@ render(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy), Form) -->
     { option(resp(R), Form, '#.##') },
     html(
       [ div(class(card), div(class('card-body'),
-        [ h1(class('card-title'), "Training of surgical skills"),
+        [ h1(class('card-title'), "Treatment of early stuttering"),
           p(class('card-text'),
-            [ "Surgeons need special motor skills, especially for ",
-              "endoscopic surgery through the belly. Nickel et al. (2015) ",
-              "report the results of a study with two learning methods for ",
-              "motor skill training. One group underwent a virtual reality ",
-              "training (VR group), the other group participated in a ",
-              "mixture of online courses and classical training of motor ",
-              "skill with the so-called Box-trainer (Box group). ",
-              "The primary dependent variable is the result on the OSATS ",
-              "test (interval scaled, normally distributed, high scores = ",
-              "good performance). A few more dependent variables were ",
-              "assessed, including a knowledge test (interval scaled), ",
-              "operation time (dichotomized, above or below 80 min), and ",
-              "efficiency ratings (ordinal scale, 1=bad ... 5=good)."
+            [ "Jones et al. (2005) investigated the efficacy of the ",
+              "so-called Lidcombe therapy for the treatment of stuttering ",
+              "in early childhood. The study is a randomized trial ",
+              "on ", \mmlm(r('N')), "children, comparing Lidcombe ",
+              "with treatment as usual (TAU). The significance level ",
+              "is ", \mmlm(alpha = perc(0.05)), " two-tailed. ",
+              "Please analyze the data and draw the correct conclusions." 
             ]),
-	  p(class('card-text'),
-            [ "Please check the following text from the publication ",
-              "(40 +/- 10 means average 40, standard deviation 10):"
-	    ]),
-          div(class(card),
-            div(class('card-body'),
-              p(class('card-text'),
-                [ "Laparoscopy-naive medical students were randomized into ",
-                  "was judged higher by the VR group than by the Box group."
-                ]))),
+          p(class('card-text'),
+            [ "Insert Note here" ]),
+          div(class('container'),
+            div(class("row justify-content-md-center"),
+              p(class("col-6"),
+                \htmltable(
+                    [ em("Table 1. "), "Key to dataset" ],
+                    [ "ID", "Sex", "AgeMo", "T0", "Therapy", "Fidel" ],
+                    [ "Variable", "Legend" ],
+                    [ [ \mmlm([digits(1)], "Patient Number") ],
+                      [ \mmlm([digits(1)], "F, M (stratification factor)") ],
+                      [ \mmlm([digits(1)], "Age in months at inclusion") ],
+                      [ \mmlm([digits(1)], "Percentage of stuttered syllables at baseline")],
+                      [ \mmlm([digits(1)], "Lidcombe, TAU")],
+                      [ \mmlm([digits(1)], "Treatment fidelity in percent")]
+                    ])))),
           \download(baseline)
-          ])),
-        \htmlform(
-              [ "Is VR training superior to traditional Box training? ",
-                "Please report the ", \mmlm(hyph('F', "ratio,")), " using Box ",
-                "as the control intervention."
-              ], "#fratio", R)
-          ]).
-
-%
-%
-%item(baseline, Response) -->
-%    { r_init(baseline),
-%      N <- 'N',
-%      Lid_T0 <- sprintf("%.1f (%.1f)", m_T0["Lidcombe"],
-%      s_T0["Lidcombe"]),
-%      TAU_T0  <- sprintf("%.1f (%.1f)", m_T0["TAU"], s_T0["TAU"]),
-%      Lid_EOT <- sprintf("%.1f (%.1f)", m_EOT["Lidcombe"],
-%      s_EOT["Lidcombe"]),
-%      TAU_EOT <- sprintf("%.1f (%.1f)", m_EOT["TAU"], s_EOT["TAU"]),
-%      Lid_FU <- sprintf("%.1f (%.1f)", m_FU["Lidcombe"],
-%      s_FU["Lidcombe"]),
-%      TAU_FU  <- sprintf("%.1f (%.1f)", m_FU["TAU"], s_FU["TAU"]),
-%      Tails   <- tails,
-%      Alpha   <- alpha,
-%      maplist(mathml, ["Syllables %, Mean (SD)", "Lidcombe", "TAU"],
-%      H),
-%      maplist(mathml, ["Baseline", Lid_T0, TAU_T0], T0),
-%      maplist(mathml, ["EOT", Lid_EOT, TAU_EOT], EOT),
-%      maplist(mathml, ["FU", Lid_FU, TAU_FU], FU)
-%    },
-%    html(
-%      [ div(class(card), div(class('card-body'),
-%        [ h1(class('card-title'), "Treatment of early stuttering"),
-%        p(class('card-text'), [ "Jones et al. (2005) investigated the
-%        efficacy of the ",
-%"so-called Lidcombe therapy for the treatment of stuttering ",
-%"in early childhood. The study is a randomized trial ",
-%"on ", \mml('N' = N), " children, comparing Lidcombe ",
-%"with treatment as usual(TAU). The significance level ",
-%"is ", \mmlm(alpha = perc(0.05)), " two-tailed. ",
-%"Please analyze the data and draw the correct conclusions." ]),
-%  \table(H, [T0, EOT, FU]),
-%    p(class('card-text'),
-%	"The ficticious results can be downloaded below."),
-%	 ul(
-%     [li("ID: Patient number"),
-%	li("Sex: F, M (stratification factor)"),
-%	li("AgeMo: Age in months at inclusion"),
-%	li("T0: Percentage of stuttered syllables at baseline"),
-%	li("Therapy: Lidcombe, TAU"),
-%	li(["Fidel: Treatment fidelity in percent, summarizing ",
-%		            "different indicators of adherence: ",
-%		            "0% (none)...100% (perfect)"]),
-%       li(["EOT: Percentage of stuttered syllables 9 months", "after ",
-%		            "randomization (primary endpoint)"]),
-%       li(["FU: Percentage of stuttered syllables 15 months" "after ",
-%		            "randomization (secondary endpoint)"])
-%              ]),
-%            \download(baseline)
-%          ])),
-%%Unsicher, wie ich die Tabelle formatieren sollte
-%  \htmlform([ "Does the Lidcombe therapy lead to a",
-%"reduction in stuttered syllables compared to TAU?",
-%    "Please report the ", \mmlm(hyph(F, "ratio.")) ], "#Fratio", R)
-%      ]).
-
-
+        ])),
+        \htmlform([ "Does the Lidcombe therapy lead to a ",
+          "reduction in stuttered syllables compared to TAU? ",
+          "Please report the ", \mmlm(hyph('F', "ratio.")) ], "#Fratio", R)
+      ]).
 
 % baseline adjusted ANCOVA
 intermediate(item).
