@@ -41,6 +41,17 @@ s_FU  <- by(data$FU, data$Therapy, sd)
 alpha <- 0.05
 tails <- "two-tailed"
 
+#descriptive Variables
+Lidcombe_T0_Mean   <- m_T0["Lidcombe"]
+TAU_T0_Mean        <- m_T0["TAU"]
+Lidcombe_T0_SD     <- s_T0["Lidcombe"]
+TAU_T0_SD          <- s_T0["TAU"]
+Lidcombe_EOT_Mean  <- m_EOT["Lidcombe"]
+TAU_EOT_Mean       <- m_EOT["TAU"]
+Lidcombe_EOT_SD    <- s_EOT["Lidcombe"]
+TAU_EOT_SD         <- s_EOT["TAU"]
+
+
 # Export data for download
 download <- function(fname)
 {
