@@ -33,8 +33,7 @@
 
 % Render R result
 mathml:mathml_hook(Flags, r(Expr), Flags, Res) :-
-    r_task(Expr, Res),
-    number(Res).
+    r_task(Expr, Res).
 
 % Gather useful information
 %
