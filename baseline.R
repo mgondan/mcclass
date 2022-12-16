@@ -49,7 +49,7 @@ TAU_T0_SD          <- s_T0["TAU"]
 Lidcombe_EOT_Mean  <- m_EOT["Lidcombe"]
 TAU_EOT_Mean       <- m_EOT["TAU"]
 Lidcombe_EOT_SD    <- s_EOT["Lidcombe"]
-TAU_EOT_SD         <- s_EOT["TAU"]
+TAU_EOT_SD         <- "hallo" # s_EOT["TAU"]
 
 
 # Export data for download

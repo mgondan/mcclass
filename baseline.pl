@@ -73,11 +73,12 @@ render(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy), Form) -->
                     [ [ \mmlm([digits(1)], r('Lidcombe_T0_Mean')),
                         \mmlm([digits(1)], r('Lidcombe_T0_SD')),
                         \mmlm([digits(1)], r('Lidcombe_EOT_Mean')),
-                        \mmlm([digits(1)], r('Lidcombe_EOT_SD'))],
-                       [\mmlm([digits(1)], r('TAU_T0_Mean')),
+                        \mmlm([digits(1)], r('Lidcombe_EOT_SD'))
+	              ],
+                      [ \mmlm([digits(1)], r('TAU_T0_Mean')),
 		        \mmlm([digits(1)], r('TAU_T0_SD')),
-		        \mmlm([digits(1)], r('TAU_EOT_Mean')),
-                        \mmlm([digits(1)], r('TAU_EOT_SD'))]
+		        \mmlm([digits(1)], r('TAU_EOT_Mean'))
+                      ]
                     ])))),
           \download(baseline)
         ])),
