@@ -4,6 +4,7 @@
 :- use_module(library(http/html_write)).
 :- use_module(table).
 :- use_module(r).
+:- use_module(rint).
 :- use_module(mathml).
 
 :- use_module(navbar).
@@ -14,17 +15,17 @@ navbar:page(qbinom, "Binomial test").
 mathml_hook(p0, sub(pi, 0)).
 mathml_hook(n, 'N').
 
-r:r_hook(alpha).
-r:r_hook(n).
-r:r_hook(p0).
-r:r_hook(k).
-r:r_hook(uqbinom(_Alpha, _Size, _Prob)).
-r:r_hook(lqbinom(_Alpha, _Size, _Prob)).
-r:r_hook(tail(_Tail, _K)).
-r:r_hook(arg(_Arg, _K)).
-r:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
-r:r_hook(pbinom(_Q, _Size, _Prob)).
-r:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
+rint:r_hook(alpha).
+rint:r_hook(n).
+rint:r_hook(p0).
+rint:r_hook(k).
+rint:r_hook(uqbinom(_Alpha, _Size, _Prob)).
+rint:r_hook(lqbinom(_Alpha, _Size, _Prob)).
+rint:r_hook(tail(_Tail, _K)).
+rint:r_hook(arg(_Arg, _K)).
+rint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
+rint:r_hook(pbinom(_Q, _Size, _Prob)).
+rint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
 render(item(Alpha, N, P0), Form) -->
     { option(resp(R), Form, '#'),

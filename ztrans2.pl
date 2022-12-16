@@ -4,20 +4,21 @@
 :- use_module(session).
 :- use_module(table).
 :- use_module(r).
+:- use_module(rint).
 :- use_module(mathml).
 
 :- use_module(navbar).
-navbar:page(tpaired, [i(z), "-transform (2)"]).
+navbar:page(ztrans2, [i(z), "-transform (2)"]).
 
 :- multifile intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
 mathml_hook(x, 'X').
 
-r:r_hook(x).
-r:r_hook(sigma).
-r:r_hook(z).
-r:r_hook(qnorm(_P)).
-r:r_hook(p).
+rint:r_hook(x).
+rint:r_hook(sigma).
+rint:r_hook(z).
+rint:r_hook(qnorm(_P)).
+rint:r_hook(p).
 
 render(item(P, Mu, Sigma), Form) -->
     { option(resp(R), Form, '#.##') },

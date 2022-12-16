@@ -3,6 +3,7 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(r).
+:- use_module(rint).
 :- use_module(mathml).
 
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
@@ -17,14 +18,14 @@ mathml_hook(s_box, sub(s, "Box")).
 mathml_hook(n, sub('N', "total")).
 
 % Obtain information from R
-r:r_hook(n_vr).
-r:r_hook(n_box).
-r:r_hook(vr).
-r:r_hook(s_vr).
-r:r_hook(box).
-r:r_hook(s_box).
-r:r_hook(n).
-r:r_hook(df).
+rint:r_hook(n_vr).
+rint:r_hook(n_box).
+rint:r_hook(vr).
+rint:r_hook(s_vr).
+rint:r_hook(box).
+rint:r_hook(s_box).
+rint:r_hook(n).
+rint:r_hook(df).
 
 render(item(VR, S_VR, N_VR, Box, S_Box, N_Box), Form) -->
     { option(resp(R), Form, '##.##') },

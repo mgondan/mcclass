@@ -4,6 +4,7 @@
 :- use_module(session).
 :- use_module(table).
 :- use_module(r).
+:- use_module(rint).
 :- use_module(mathml).
 
 :- use_module(navbar).
@@ -19,11 +20,11 @@ mathml_hook(odds_B, sub(odds, "B")).
 mathml_hook(or, 'OR').
 
 % R constants
-r:r_hook(odds_A).
-r:r_hook(pi_A).
-r:r_hook(pi_B).
-r:r_hook(or).
-r:r_hook(odds_B).
+rint:r_hook(odds_A).
+rint:r_hook(pi_A).
+rint:r_hook(pi_B).
+rint:r_hook(or).
+rint:r_hook(odds_B).
 
 render(item(Pi_A, Pi_B), Form) -->
     { option(resp(R), Form, '#.##') },

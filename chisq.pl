@@ -1,5 +1,6 @@
 :- module(chisq, []).
 
+:- use_module(rint).
 :- use_module(navbar).
 navbar:page(chisq, "chi-square").
 
@@ -16,15 +17,15 @@ mathml_hook(chi2, chi^2).
 mathml_hook(p_pool, sub(p, "pool")).
 
 % R constants
-r:r_hook(p_VR).
-r:r_hook(s_VR).
-r:r_hook(n_VR).
-r:r_hook(p_Box).
-r:r_hook(s_Box).
-r:r_hook(n_Box).
-r:r_hook(z).
-r:r_hook(chi2).
-r:r_hook(p_pool).
+rint:r_hook(p_VR).
+rint:r_hook(s_VR).
+rint:r_hook(n_VR).
+rint:r_hook(p_Box).
+rint:r_hook(s_Box).
+rint:r_hook(n_Box).
+rint:r_hook(z).
+rint:r_hook(chi2).
+rint:r_hook(p_pool).
 
 render(item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box), Form) -->
     { option(resp(R), Form, "#.##") },

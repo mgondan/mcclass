@@ -6,7 +6,6 @@
 :- set_prolog_flag(float_zero_div, infinity).
 
 :- discontiguous interval/1, interval/3, int/3, unary/3, binary/4.
-:- multifile monotonical/1, hook/2.
 
 % Determine result using integer arithmetic
 interval(Expr, Res)
@@ -23,13 +22,20 @@ int(Expr, Res, Flags),
     hook(Expr, R, Flags)
  => Res = R.
 
+:- multifile hook/4.
+int(Expr, Res, Flags),
+    hook(Expr, Flags, Expr1, Flags1)
+ => int(Expr1, Res, Flags1).
+
 % Different order of arguments (used in maplist)
 int_(Flags, A, Res) :-
     int(A, Res, Flags).
 
 %
-% Standard math, hookable, no intervals
+% Standard math, hookable
 %
+:- multifile monotonical/1.
+:- multifile hook/2.
 eval(X, Res),
     hook(X, R)
  => Res = R.
@@ -499,11 +505,23 @@ interval(page-9-b-(0 ... 1)) :-
 % Power
 %
 % todo: only for positive base
-monotonical(^(*, *)).
+int(A^B, Res, Flags)
+ => int(A, A1, Flags),
+    int(B, B1, Flags),
+    binary(^, A1, B1, Res).
+
+binary(^, A ... B, C, Res)
+ => eval(A^C, B^C, Res).
+
+monotonical(^(*, /)).
+
+interval(power-1) :-
+    interval(2^2, Res),
+    writeln(2^2 --> Res).
 
 interval(power-generic) :-
-    interval(2 ... 3 ^ (-(2 ... 3)), Res),
-    writeln("2 ... 3 ^ (-(2 ... 3))" --> Res).
+    interval(2 ... 3 ^ -2, Res),
+    writeln(2 ... 3 ^ -2 --> Res).
 
 %
 % Available: not NA
@@ -606,21 +624,14 @@ int(chi2ratio(A), Res, Flags)
 int(format(A), Res, Flags)
  => option(digits(D), Flags, 2),
     int(A, Fmt, Flags),
-    findall(R, bound(Fmt, R), List),
-    min_list(List, L0),
-    max_list(List, U0),
-    eval(floor(L0*10^D) / 10^D, L),
-    eval(ceiling(U0*10^D) / 10^D, U),
-    (   length(List, 1)
-     -> Res = L
-     ;  Res = L ... U
-    ).
+    lower(+, Fmt, L0),
+    upper(+, Fmt, U0),
+    eval(floor(L0*10^D) / 10^D, ceiling(U0*10^D) / 10^D, Res).
 
 % Square root
 int(sqrt(A), Res, Flags),
     int(A, A1, Flags)
- => unary(sqrt, A1, Res),
-    writeln(sqrt).
+ => unary(sqrt, A1, Res).
 
 unary(sqrt, A ... B, Res)
  => ( zero(A, B)
@@ -687,11 +698,11 @@ upper(*, A, U)
 upper(/, A, U)
  => U = A.
 
-noint(_ ... _, _)
- => fail.
+noint(A ... B)
+ => throw(error(type_error(atomic, A ... B), noint)).
 
-noint(A, B)
- => B = A.
+noint(_)
+ => true.
 
 %
 % Monotonically behaving in all arguments
@@ -796,8 +807,12 @@ int(A, Res, Flags),
     compound(A)
  => compound_name_arguments(A, Name, Args),
     maplist(int_(Flags), Args, Args1),
-    maplist(noint, Args1, Args2),
-    compound_name_arguments(C, Name, Args2),
+    catch_with_backtrace(
+        maplist(noint, Args1),
+        Error,
+        print_message(error, Error)
+    ),
+    compound_name_arguments(C, Name, Args1),
     eval(C, Res).
 
 hook(ttest2(A, B, C, D), Res) :-

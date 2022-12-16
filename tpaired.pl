@@ -4,6 +4,7 @@
 :- use_module(session).
 :- use_module(table).
 :- use_module(r).
+:- use_module(rint).
 :- use_module(mathml).
 
 :- use_module(navbar).
@@ -23,16 +24,16 @@ mathml_hook(s2p, sub(s, "pool")^2).
 mathml_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 
 % R definitions
-interval:r_hook(var_pool(_N1, _V1, _N2, _V2)).
-interval:r_hook(t).
-interval:r_hook(d).
-interval:r_hook(mu).
-interval:r_hook(s_d).
-interval:r_hook(n).
-interval:r_hook(t0).
-interval:r_hook(s_t0).
-interval:r_hook(eot).
-interval:r_hook(s_eot).
+rint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
+rint:r_hook(t).
+rint:r_hook(d).
+rint:r_hook(mu).
+rint:r_hook(s_d).
+rint:r_hook(n).
+rint:r_hook(t0).
+rint:r_hook(s_t0).
+rint:r_hook(eot).
+rint:r_hook(s_eot).
 
 render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, Mu), Form) -->
     { option(resp(R), Form, '#.##') },
@@ -79,7 +80,7 @@ start(item(t0, s_t0, eot, s_eot, d, s_d, n, mu)).
 intermediate(paired).
 expert(stage(2), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu),
-    Y = { '<-'(t, paired(D, Mu, S_D, N)) }.
+    Y = paired(D, Mu, S_D, N).
 
 feedback(paired, [], Col, FB) =>
     FB = [ "Correctly recognised the problem as ",
@@ -142,7 +143,7 @@ hint(mu, [Mu], Col, FB) =>
 intermediate(indep).
 buggy(stage(2), X, Y, [step(buggy, indep, [])]) :-
     X = item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu),
-    Y = { '<-'(t, instead(indep, indep(T0, S_T0, N, EOT, S_EOT, N), paired(D, Mu, S_D, N))) }.
+    Y = instead(indep, indep(T0, S_T0, N, EOT, S_EOT, N), paired(D, Mu, S_D, N)).
 
 feedback(indep, [], Col, FB) =>
     FB = [ "The problem was mistakenly identified as ",

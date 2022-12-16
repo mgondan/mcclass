@@ -5,8 +5,8 @@
 
 :- multifile r_hook/1.
 interval:hook(Expr, Res) :-
-    r_hook(Expr),
-    !, r_task(Expr, Res).
+    !, 
+    r_task(Expr, Res).
 
 interval:monotonical(pbinom(+, -, -)).
 

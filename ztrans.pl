@@ -4,6 +4,7 @@
 :- use_module(session).
 :- use_module(table).
 :- use_module(r).
+:- use_module(rint).
 :- use_module(mathml).
 
 :- use_module(navbar).
@@ -13,11 +14,11 @@ navbar:page(ztrans, [i(z), "-transform (1)"]).
 
 mathml_hook(x, 'X').
 
-r:r_hook(x).
-r:r_hook(sigma).
-r:r_hook(z).
-r:r_hook(pnorm(_Z)).
-r:r_hook(p).
+rint:r_hook(x).
+rint:r_hook(sigma).
+rint:r_hook(z).
+rint:r_hook(pnorm(_Z)).
+rint:r_hook(p).
 
 render(item(X, Mu, Sigma), Form) -->
     { option(resp(R), Form, '#.##') },

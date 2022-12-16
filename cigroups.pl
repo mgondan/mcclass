@@ -4,6 +4,7 @@
 :- use_module(session).
 :- use_module(table).
 :- use_module(r).
+:- use_module(rint).
 :- use_module(mathml).
 :- use_module(navbar).
 
@@ -22,17 +23,17 @@ mathml_hook(s2p, sub(s, "pool")^2).
 mathml_hook(alpha, greek("alpha")).
 
 % R definitions
-r:r_hook(n_mc).
-r:r_hook(n_rc).
-r:r_hook(mc).
-r:r_hook(s_mc).
-r:r_hook(rc).
-r:r_hook(s_rc).
-r:r_hook(s2p).
-r:r_hook(t).
-r:r_hook(lo).
-r:r_hook(mu).
-r:r_hook(qt(_P, _DF)).
+rint:r_hook(n_mc).
+rint:r_hook(n_rc).
+rint:r_hook(mc).
+rint:r_hook(s_mc).
+rint:r_hook(rc).
+rint:r_hook(s_rc).
+rint:r_hook(s2p).
+rint:r_hook(t).
+rint:r_hook(lo).
+rint:r_hook(mu).
+rint:r_hook(qt(_P, _DF)).
 
 % Task description
 render(item(RC, S_RC, N_RC, MC, S_MC, N_MC, Alpha), Form) -->

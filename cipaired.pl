@@ -4,6 +4,7 @@
 :- use_module(session).
 :- use_module(table).
 :- use_module(r).
+:- use_module(rint).
 :- use_module(mathml).
 
 :- use_module(navbar).
@@ -24,17 +25,17 @@ mathml_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 mathml_hook(alpha, greek("alpha")).
 
 % R definitions
-r:r_hook(var_pool(_N1, _V1, _N2, _V2)).
-r:r_hook(lo).
-r:r_hook(d).
-r:r_hook(mu).
-r:r_hook(s_d).
-r:r_hook(n).
-r:r_hook(t0).
-r:r_hook(s_t0).
-r:r_hook(eot).
-r:r_hook(s_eot).
-r:r_hook(qt(_P, _DF)).
+rint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
+rint:r_hook(lo).
+rint:r_hook(d).
+rint:r_hook(mu).
+rint:r_hook(s_d).
+rint:r_hook(n).
+rint:r_hook(t0).
+rint:r_hook(s_t0).
+rint:r_hook(eot).
+rint:r_hook(s_eot).
+rint:r_hook(qt(_P, _DF)).
 
 % Task description
 render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha), Form) -->

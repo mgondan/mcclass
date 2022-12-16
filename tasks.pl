@@ -43,6 +43,46 @@ interval:hook(@(Expr, Options), Res, Flags) :-
     MEps is -Eps,
     interval(Expr + MEps...Eps, Res, New).
 
+interval:hook(abbrev(_Sym, Expr, _Text), Flags, Expr, Flags).
+
+interval:hook(color(_Col, Expr), Flags, Expr, Flags).
+
+interval:hook(instead(_Bug, Wrong, _Correct), Flags, Wrong, Flags).
+
+interval:hook(instead(_Bug, Wrong, _Correct0, _Correct), Flags, Wrong, Flags).
+
+interval:hook(omit_right(_Bug, Expr), Flags, Left, Flags) :-
+    Expr =.. [_Op, Left, _Right].
+
+interval:hook(omit_left(_Bug, Expr), Flags, Right, Flags) :-
+    Expr =.. [_Op, _Left, Right].
+
+interval:hook(omit(_Bug, _Expr), Flags, na, Flags).
+
+interval:hook(drop_right(_Bug, Expr), Flags, Left, Flags) :-
+    Expr =.. [_Op, Left, _Right].
+
+interval:hook(drop_left(_Bug, Expr), Flags, Right, Flags) :-
+    Expr =.. [_Op, _Left, Right].
+
+interval:hook(invent_left(_Bug, Expr), Flags, Expr, Flags).
+
+interval:hook(invent_right(_Bug, Expr), Flags, Expr, Flags).
+
+interval:hook('<-'(Var, Expr), Res, Flags) :-
+    interval(Expr, Res, Flags),
+    ( Res = L ... _
+     -> r_task('<-'(Var, L)) % incomplete
+     ;  r_task('<-'(Var, Res))
+    ).
+
+interval:hook(';'(Expr1, Expr2), Res, Flags) :-
+    interval(Expr1, _, Flags),
+    interval(Expr2, Res, Flags).
+
+interval:hook('{}'(Expr), Res, Flags) :-
+    interval(Expr, Res, Flags).
+
 % Gather useful information
 %
 % 1. Identify (correct) solution
@@ -382,7 +422,7 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(baseline).
+    tasks(tpaired).
 
 tasks(Task) :-
     r_initialize,

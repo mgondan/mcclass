@@ -4,6 +4,7 @@
 :- use_module(session).
 :- use_module(table).
 :- use_module(r).
+:- use_module(rint).
 :- use_module(mathml).
 
 :- use_module(navbar).
@@ -21,14 +22,14 @@ mathml_hook(s_box, sub(s, "Box")).
 mathml_hook(s2p, sub(s, "pool")^2).
 
 % Obtain information from R
-r:r_hook(n_vr).
-r:r_hook(n_box).
-r:r_hook(vr).
-r:r_hook(s_vr).
-r:r_hook(box).
-r:r_hook(s_box).
-r:r_hook(s2p).
-r:r_hook(t).
+rint:r_hook(n_vr).
+rint:r_hook(n_box).
+rint:r_hook(vr).
+rint:r_hook(s_vr).
+rint:r_hook(box).
+rint:r_hook(s_box).
+rint:r_hook(s2p).
+rint:r_hook(t).
 
 render(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
     { option(resp(R), Form, '#.##') },

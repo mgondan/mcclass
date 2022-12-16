@@ -4,6 +4,7 @@
 :- use_module(library(http/html_write)).
 :- use_module(table).
 :- use_module(r).
+:- use_module(rint).
 :- use_module(mathml).
 
 :- http_handler(mcclass(powbinom), handler(powbinom), []).
@@ -21,21 +22,21 @@ mathml_hook(n, 'N').
 mathml_hook(tail1(Tail, K), tail(Tail, K)).
 mathml_hook(tail2(Tail, K), tail(Tail, K)).
 
-r:r_hook(alpha).
-r:r_hook(n).
-r:r_hook(p0).
-r:r_hook(p1).
-r:r_hook(k).
-r:r_hook(crit).
-r:r_hook(uqbinom(_Alpha, _Size, _Prob)).
-r:r_hook(lqbinom(_Alpha, _Size, _Prob)).
-r:r_hook(tail1(_Tail, _K)).
-r:r_hook(tail2(_Tail, _K)).
-r:r_hook(arg(_Arg, _K)).
-r:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
-r:r_hook(pwbinom(_Crit, _Size, _Prob, _Tail)).
-r:r_hook(pbinom(_Q, _Size, _Prob)).
-r:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
+rint:r_hook(alpha).
+rint:r_hook(n).
+rint:r_hook(p0).
+rint:r_hook(p1).
+rint:r_hook(k).
+rint:r_hook(crit).
+rint:r_hook(uqbinom(_Alpha, _Size, _Prob)).
+rint:r_hook(lqbinom(_Alpha, _Size, _Prob)).
+rint:r_hook(tail1(_Tail, _K)).
+rint:r_hook(tail2(_Tail, _K)).
+rint:r_hook(arg(_Arg, _K)).
+rint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
+rint:r_hook(pwbinom(_Crit, _Size, _Prob, _Tail)).
+rint:r_hook(pbinom(_Q, _Size, _Prob)).
+rint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
 render(item(Alpha, N, P0, P1), Form) -->
     { option(resp(R), Form, '#'),

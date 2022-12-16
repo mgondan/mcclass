@@ -5,6 +5,7 @@
 :- use_module(session).
 :- use_module(table).
 :- use_module(r).
+:- use_module(rint).
 :- use_module(mathml).
 :- use_module(interval).
 
@@ -16,10 +17,10 @@ navbar:page(dbinom, "Binomial probability").
 mathml_hook(n, 'N').
 mathml_hook(p0, pi).
 
-r:r_hook(n).
-r:r_hook(k).
-r:r_hook(p0).
-r:r_hook(factorial(_N)).
+rint:r_hook(n).
+rint:r_hook(k).
+rint:r_hook(p0).
+rint:r_hook(factorial(_N)).
 
 render(item(K, N, P0), Form) -->
     { option(resp(R), Form, '#.##') },
