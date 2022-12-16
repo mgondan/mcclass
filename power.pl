@@ -21,14 +21,14 @@ mathml_hook(s_box, sub(s, "Box")).
 mathml_hook(s2p, sub(s, "pool")^2).
 
 % Obtain information from R
-interval:r_hook(n_vr).
-interval:r_hook(n_box).
-interval:r_hook(vr).
-interval:r_hook(s_vr).
-interval:r_hook(box).
-interval:r_hook(s_box).
-interval:r_hook(s2p).
-interval:r_hook(t).
+r:r_hook(n_vr).
+r:r_hook(n_box).
+r:r_hook(vr).
+r:r_hook(s_vr).
+r:r_hook(box).
+r:r_hook(s_box).
+r:r_hook(s2p).
+r:r_hook(t).
 
 render(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
     { option(resp(R), Form, '#.##') },

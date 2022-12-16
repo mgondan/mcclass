@@ -54,7 +54,7 @@ searchdep(Task, Expr_Res_Flags) :-
         dependencies(S),            % check dependencies here
         exclusive(S),
         codes(S, C),
-        interval([task(Task)], available(E), R)
+        interval(available(E), R, [task(Task)])
       ), Results),
     sort(2, @<, Results, Sorted),
     findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
@@ -63,7 +63,7 @@ searchall(Task, Expr_Res_Flags) :-
     findall(res(E, R/S, F),
       ( search(Task, E, F, S),
         % dependencies(S),          % do not check dependencies (needed for the traps)
-        interval([task(Task)], E, R)
+        interval(E, R, [task(Task)])
       ), Results),
     sort(2, @<, Results, Sorted),
     findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).

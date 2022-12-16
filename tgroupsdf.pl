@@ -17,14 +17,14 @@ mathml_hook(s_box, sub(s, "Box")).
 mathml_hook(n, sub('N', "total")).
 
 % Obtain information from R
-interval:r_hook(n_vr).
-interval:r_hook(n_box).
-interval:r_hook(vr).
-interval:r_hook(s_vr).
-interval:r_hook(box).
-interval:r_hook(s_box).
-interval:r_hook(n).
-interval:r_hook(df).
+r:r_hook(n_vr).
+r:r_hook(n_box).
+r:r_hook(vr).
+r:r_hook(s_vr).
+r:r_hook(box).
+r:r_hook(s_box).
+r:r_hook(n).
+r:r_hook(df).
 
 render(item(VR, S_VR, N_VR, Box, S_Box, N_Box), Form) -->
     { option(resp(R), Form, '##.##') },

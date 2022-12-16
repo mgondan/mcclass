@@ -14,17 +14,17 @@ navbar:page(qbinom, "Binomial test").
 mathml_hook(p0, sub(pi, 0)).
 mathml_hook(n, 'N').
 
-interval:r_hook(alpha).
-interval:r_hook(n).
-interval:r_hook(p0).
-interval:r_hook(k).
-interval:r_hook(uqbinom(_Alpha, _Size, _Prob)).
-interval:r_hook(lqbinom(_Alpha, _Size, _Prob)).
-interval:r_hook(tail(_Tail, _K)).
-interval:r_hook(arg(_Arg, _K)).
-interval:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
-interval:r_hook(pbinom(_Q, _Size, _Prob)).
-interval:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
+r:r_hook(alpha).
+r:r_hook(n).
+r:r_hook(p0).
+r:r_hook(k).
+r:r_hook(uqbinom(_Alpha, _Size, _Prob)).
+r:r_hook(lqbinom(_Alpha, _Size, _Prob)).
+r:r_hook(tail(_Tail, _K)).
+r:r_hook(arg(_Arg, _K)).
+r:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
+r:r_hook(pbinom(_Q, _Size, _Prob)).
+r:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
 render(item(Alpha, N, P0), Form) -->
     { option(resp(R), Form, '#'),

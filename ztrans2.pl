@@ -13,11 +13,11 @@ navbar:page(tpaired, [i(z), "-transform (2)"]).
 
 mathml_hook(x, 'X').
 
-interval:r_hook(x).
-interval:r_hook(sigma).
-interval:r_hook(z).
-interval:r_hook(qnorm(_P)).
-interval:r_hook(p).
+r:r_hook(x).
+r:r_hook(sigma).
+r:r_hook(z).
+r:r_hook(qnorm(_P)).
+r:r_hook(p).
 
 render(item(P, Mu, Sigma), Form) -->
     { option(resp(R), Form, '#.##') },

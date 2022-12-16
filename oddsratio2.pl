@@ -19,11 +19,11 @@ mathml_hook(odds_B, sub(odds, "B")).
 mathml_hook(or, 'OR').
 
 % R constants
-interval:r_hook(odds_A).
-interval:r_hook(pi_A).
-interval:r_hook(pi_B).
-interval:r_hook(or).
-interval:r_hook(odds_B).
+r:r_hook(odds_A).
+r:r_hook(pi_A).
+r:r_hook(pi_B).
+r:r_hook(or).
+r:r_hook(odds_B).
 
 render(item(Pi_A, Pi_B), Form) -->
     { option(resp(R), Form, '#.##') },

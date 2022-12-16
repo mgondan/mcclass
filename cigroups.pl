@@ -22,18 +22,17 @@ mathml_hook(s2p, sub(s, "pool")^2).
 mathml_hook(alpha, greek("alpha")).
 
 % R definitions
-interval:r_hook(n_mc).
-interval:r_hook(n_rc).
-interval:r_hook(mc).
-interval:r_hook(s_mc).
-interval:r_hook(rc).
-interval:r_hook(s_rc).
-interval:r_hook(s2p).
-interval:r_hook(t).
-
-interval:r_hook(lo).
-interval:r_hook(mu).
-interval:r_hook(qt(_P, _DF)).
+r:r_hook(n_mc).
+r:r_hook(n_rc).
+r:r_hook(mc).
+r:r_hook(s_mc).
+r:r_hook(rc).
+r:r_hook(s_rc).
+r:r_hook(s2p).
+r:r_hook(t).
+r:r_hook(lo).
+r:r_hook(mu).
+r:r_hook(qt(_P, _DF)).
 
 % Task description
 render(item(RC, S_RC, N_RC, MC, S_MC, N_MC, Alpha), Form) -->

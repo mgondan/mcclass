@@ -13,15 +13,13 @@ navbar:page(dbinom, "Binomial probability").
 
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
 
-% Render symbols
 mathml_hook(n, 'N').
 mathml_hook(p0, pi).
 
-% R definitions
-interval:r_hook(n).
-interval:r_hook(k).
-interval:r_hook(p0).
-interval:r_hook(factorial(_N)).
+r:r_hook(n).
+r:r_hook(k).
+r:r_hook(p0).
+r:r_hook(factorial(_N)).
 
 render(item(K, N, P0), Form) -->
     { option(resp(R), Form, '#.##') },

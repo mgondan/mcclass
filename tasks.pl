@@ -35,6 +35,14 @@
 mathml:mathml_hook(Flags, r(Expr), Flags, Res) :-
     r_task(Expr, Res).
 
+% read intervals from input
+interval:hook(@(Expr, Options), Res, Flags) :-
+    !, append(Options, Flags, New),
+    option(digits(D), New, 1.0Inf),
+    Eps is 10^(-D)/2,
+    MEps is -Eps,
+    interval(Expr + MEps...Eps, Res, New).
+
 % Gather useful information
 %
 % 1. Identify (correct) solution
@@ -69,12 +77,12 @@ task(Task, Data) :-
 feedback(Task, Data, Form) -->
     { option(resp(R), Form),
       quantity(N0, Opt, R),
-      interval([task(Task)], @(N0, Opt), Num),
+      interval(@(N0, Opt), Num, [task(Task)]),
       memberchk(solutions(Solutions), Data),
       member(Expr-Res/Flags, Solutions),
       colors(Expr, Col),
       http_log("Num: ~w, Res: ~w~n", [Num, Res]),
-      interval([task(Task) | Col], Num =@= Res, _),
+      interval(Num =@= Res, _, [task(Task) | Col]),
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
           Task:feedback(Name, Args, [task(Task) | Col], FB)
@@ -92,7 +100,7 @@ feedback(Task, Data, Form) -->
 feedback(Task, Data, Form) -->
     { option(resp(R), Form),
       quantity(N0, Opt, R),
-      interval([task(Task)], @(N0, Opt), Num),
+      interval(@(N0, Opt), Num, [task(Task)]),
       member(traps(Traps), Data),
       member(hints(Hints0), Data),
       append(Hints0, Hints1),
@@ -101,7 +109,7 @@ feedback(Task, Data, Form) -->
       member(Expr-Res/Flags, ERF),
       colors(Expr, Col),
       http_log("Expr: ~w~n", [Expr]),
-      interval([task(Task) | Col], Num =@= Res, _),
+      interval(Num =@= Res, _, [task(Task) | Col]),
       % relevant feedback
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
@@ -193,7 +201,7 @@ feedback(_Task, _Data, _Form) -->
 solution(Task, Expr-Res/Flags) :-
     search(Task, Expr, Flags),
     findall(Bug, member(step(buggy, Bug, _), Flags), []),
-    interval([task(Task)], Expr, Res).
+    interval(Expr, Res, [task(Task)]).
 
 solutions(Task, List) :-
     findall(ERF, solution(Task, ERF), List0),

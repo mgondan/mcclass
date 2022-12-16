@@ -1,142 +1,85 @@
 % Interval arithmetic in Prolog
-:- module(interval, [ interval/0, interval/3, op(150, xfx, ...) ]).
-
-:- use_module(r).
-:- use_module(session).
+:- module(interval, [ interval/2, interval/3, op(150, xfx, ...) ]).
 
 :- set_prolog_flag(float_overflow, infinity).
 :- set_prolog_flag(float_undefined, nan).
 :- set_prolog_flag(float_zero_div, infinity).
 
-:- discontiguous int/3.
-:- discontiguous interval/2.
-:- discontiguous interval/0.
-
-:- multifile r_hook/1, hook/4.
+:- discontiguous interval/1, interval/3, int/3, unary/3, binary/4.
+:- multifile monotonical/1, hook/2.
 
 % Determine result using integer arithmetic
-interval(Flags, Expr, Res),
-    ci(Flags, Expr)
- => ci([engine(pl) | Flags], Expr, Res).
+interval(Expr, Res)
+ => interval(Expr, Res, []).
 
-interval(Flags, Expr, Res)
- => int([engine(pl) | Flags], Expr, Res).
+interval(Expr, Res, Flags)
+ => int(Expr, Res, Flags).
 
+%
 % Allows for external definitions
-int(Flags, Expr, Res),
-    option(engine(pl), Flags),
-    r_hook(Expr)
- => int([engine(r) | Flags], Expr, Res).
+%
+:- multifile hook/3.
+int(Expr, Res, Flags),
+    hook(Expr, R, Flags)
+ => Res = R.
 
-int(Flags, Expr, Res),
-    hook(Flags, Expr, New, Hook)
- => int(New, Hook, Res).
-
-% Some standard R functions and own definitions. These will be moved elsewhere.
-hook(Flags, choose(N, K), Flags, r(choose(N, K))) :-
-    option(engine(pl), Flags).
-
-hook(Flags, instead(_Bug, Wrong, _Correct), Flags, Wrong).
-
-hook(Flags, instead(_Bug, Wrong, _Correct0, _Correct), Flags, Wrong).
-
-hook(Flags, omit_right(_Bug, Expr), Flags, Left) :-
-    Expr =.. [_Op, Left, _Right].
-
-hook(Flags, omit_left(_Bug, Expr), Flags, Right) :-
-    Expr =.. [_Op, _Left, Right].
-
-hook(Flags, omit(_Bug, _Expr), Flags, Res) :-
-    Res = 0.0 ... 1.0.
-
-hook(Flags, drop_right(_Bug, Expr), Flags, Left) :-
-    Expr =.. [_Op, Left, _Right].
-
-hook(Flags, drop_left(_Bug, Expr), Flags, Right) :-
-    Expr =.. [_Op, _Left, Right].
-
-hook(Flags, invent_left(_Bug, Expr), Flags, Expr).
-
-hook(Flags, invent_right(_Bug, Expr), Flags, Expr).
-
-hook(Flags, abbrev(_Sym, Expr, _Text), Flags, Expr).
-
-hook(Flags, color(_Col, Expr), Flags, Expr).
-
-hook(Flags, '<-'(Var, Expr), Flags, r('<-'(Var, pl(Expr)))) :-
-    option(engine(pl), Flags).
-
-hook(Flags, ';'(Expr1, Expr2), Flags, Res) :-
-    int(Flags, Expr1, _),
-    int(Flags, Expr2, Res).
-
-hook(Flags, '{}'(Expr), Flags, Res) :-
-    int(Flags, Expr, Res).
-
-hook(Flags, @(Expr, Options), New, Res) :-
-    append(Options, Flags, New),
-    option(digits(D), New, 1.0Inf),
-    Eps is 10^(-D)/2,
-    MEps is -Eps,
-    interval(New, Expr + MEps...Eps, Res).
-
-interval :-
-    writeln(quantity-1),
-    interval([], @(1.0, [digits(2)]), X),
-    writeln(X).
-
-interval :-
-    writeln(quantity-2),
-    interval([], @(2 ... 3, [digits(2)]), X),
-    writeln(X).
+% Different order of arguments (used in maplist)
+int_(Flags, A, Res) :-
+    int(A, Res, Flags).
 
 %
-% Handle different input formats
+% Standard math, hookable, no intervals
 %
-int(Flags, Atomic, Res),
-    option(engine(pl), Flags),
-    atomic(Atomic)
- => B is Atomic,
-    Res = B ... B.
+eval(X, Res),
+    hook(X, R)
+ => Res = R.
 
-int(Flags, L ... U, Res),
-    option(engine(pl), Flags)
- => Res = L ... U.
+% default is/2
+eval(X, Res)
+ => Res is X.
+    
+%
+% internal calculations
+%
+% int/3 is given priority, so this is the default at the end
+% int(Expr, Res, Flags),
+%     int(Expr, Res0)
+%  => Res = Res0.
 
-int(Flags, ci(L, _), Res),
-    member(ci(lower), Flags)
- => int(Flags, L, Res).
+% Atoms like pi
+int(Atom, Res, _Flags),
+    atom(Atom)
+ => eval(Atom, Res).
 
-int(Flags, ci(_, U), Res),
-    member(ci(upper), Flags)
- => int(Flags, U, Res).
+int(Number, Res, _Flags),
+    number(Number)
+ => eval(Number, Res).
 
-int(_Flags, [], Res)
- => Res = [] ... [].
+int(String, Res, _Flags),
+    string(String)
+ => Res = String.
 
-int(_Flags, [H | T], Res)
- => Res = [H | T] ... [H | T].
+int(L ... U, Res, _Flags)
+ => eval(L, U, Res).
 
-% int(Flags, X ... Y, Res),
-%     option(engine(pl), Flags)
-%  => interval(X ... Y, Res). % unclear why interval is called
+int([], Res, _Flags)
+ => Res = [].
 
-% compatible with atoms like pi
-interval(A ... B, Res) :-
-    !,
-    L is A,
-    U is B,
-    Res = L ... U.
+int([H | T], Res, _Flags)
+ => Res = [H | T]. % todo: check if maplist is needed
 
+% These are example calls. Todo: unit tests
 interval :-
-    writeln(type-1),
-    interval([], 1.0, X),
-    writeln(X).
+    interval(X),
+    writeln(this-was-X).
 
-interval :-
-    writeln(type-2),
-    interval([], 0.99 ... 1.01, X),
-    writeln(X).
+interval(type-1) :-
+    interval(1.0, Res),
+    writeln(Res).
+
+interval(type-2) :-
+    interval(0.99 ... 1.01, Res),
+    writeln(Res).
 
 %
 % Hickey Figure 1
@@ -170,876 +113,748 @@ strictneg(_, U) :-
 %
 % Equality = overlapping
 %
-int(Flags, X =@= Y, Res)
- => int(Flags, X, A ... B),
-    int(Flags, Y, C ... D),
-    L is max(A, C),
-    U is min(B, D),
+int(A =@= B, Res, Flags)
+ => int(A, A1, Flags),
+    int(B, B1, Flags),
+    binary(=@=, A1, B1, Res).
+
+binary(=@=, A ... B, C ... D, Res)
+ => eval(max(A, C), min(B, D), L ... U),
     L =< U,
     Res = L ... U.
 
-interval :-
-    writeln(equality-1),
+binary(=@=, A, B, Res),
+    atomic(A),
+    atomic(B)
+ => A =@= B,
+    Res = A. % todo: boolean
+
+interval(equality-1) :-
     X = 1.00 ... 1.02,
     Y = 1.01 ... 1.0Inf,
-    interval([], X =@= Y, Z),
+    interval(X =@= Y, Z),
     writeln(X =@= Y --> Z).
 
-interval :-
-    writeln(equality-2),
+interval(equality-2) :-
     interval(1.00 ... 1.02, X),
     interval(1.03 ... 1.04, Y),
-    \+ interval([], X =@= Y, _),
+    \+ interval(X =@= Y, _),
     writeln(X =@= Y --> fails).
 
 %
 % Hickey, Theorem 4
 %
-int(Flags, X + Y, Res)
- => int(Flags, X, ResX),
-    int(Flags, Y, ResY),
-    interval(ResX + ResY, Res).
+% int(A + B, Res, Flags)
+%  => int(A, A1, Flags),
+%     int(B, B1, Flags),
+%     binary(+, A1, B1, Res).
+%
+% binary(+, A ... B, C ... D, Res)
+%  => eval(A + C, B + D, Res).
+monotonical(+(+, +)).
 
-interval(A...B + C...D, Res) :-
-    L is A + C,
-    U is B + D,
-    Res = L ... U.
+interval(sum-1) :-
+    A = 1.00 ... 1.02,
+    B = 1.01 ... 1.0Inf,
+    interval(A + B, Res),
+    writeln(A + B --> Res).
 
-interval :-
-    writeln(sum-1),
-    X = 1.00 ... 1.02,
-    Y = 1.01 ... 1.0Inf,
-    interval([], X + Y, Z),
-    writeln(X + Y --> Z).
+interval(sum-2) :-
+    A = 1.00 ... 1.02,
+    B = 1.03 ... 1.04,
+    interval(A + B, Res),
+    writeln(A + B --> Res).
 
-interval :-
-    writeln(sum-2),
-    X = 1.00 ... 1.02,
-    Y = 1.03 ... 1.04,
-    interval([], X + Y, Z),
-    writeln(X + Y --> Z).
+interval(sum-3) :-
+    A = 1.00,
+    B = 1.01 ... 1.0Inf,
+    interval(A + B, Res),
+    writeln(A + B --> Res).
+
+interval(sum-4) :-
+    A = 1.00 ... 1.02,
+    B = 1.01,
+    interval(A + B, Res),
+    writeln(A + B --> Res).
+
+interval(sum-5) :-
+    A = 1.00,
+    B = 1.01,
+    interval(A + B, Res),
+    writeln(A + B --> Res).
+
+% Unary plus
+monotonical(+(+)).
 
 %
 % Hickey, Theorem 4
 %
-int(Flags, X - Y, Res)
- => int(Flags, X, ResX),
-    int(Flags, Y, ResY),
-    interval(ResX - ResY, Res).
+int(A - B, Res, Flags)
+ => int(A, A1, Flags),
+    int(B, B1, Flags),
+    binary(-, A1, B1, Res).
 
-interval(A...B - C...D, Res) :-
-    L is A - D,
-    U is B - C,
-    Res = L ... U.
+binary(-, A ... B, C ... D, Res)
+ => eval(A - D, B - C, Res).
 
-interval :-
-    writeln(diff-1),
-    X = 0.99 ... 1.01,
-    Y = 0.99 ... 1.01,
-    interval([], X - Y, Z),
-    writeln(X - Y --> Z).
+interval(diff-1) :-
+    A = 0.99 ... 1.01,
+    B = 0.99 ... 1.01,
+    interval(A - B, Res),
+    writeln(A - B --> Res).
 
-interval :-
-    writeln(diff-2),
-    interval(1.00 ... 1.02, X),
-    interval(1.03 ... 1.0Inf, Y),
-    interval([], X - Y, Z),
-    writeln(X - Y --> Z).
+interval(diff-2) :-
+    A = 1.00 ... 1.02,
+    B = 1.03 ... 1.0Inf,
+    interval(A - B, Res),
+    writeln(A - B --> Res).
+
+interval(diff-3) :-
+    A = 1.00,
+    B = 1.01 ... 1.0Inf,
+    interval(A - B, Res),
+    writeln(A - B --> Res).
+
+interval(diff-4) :-
+    A = 1.00 ... 1.02,
+    B = -pi,
+    interval(A - B, Res),
+    writeln(A - B --> Res).
+
+interval(diff-5) :-
+    A = 1.00,
+    B = pi,
+    interval(A - B, Res),
+    writeln(A - B --> Res).
+
+% Unary minus
+monotonical(-(-)).
 
 %
 % Hickey Theorem 6 and Figure 3
 %
-int(Flags, X * Y, Res)
- => int(Flags, X, ResX),
-    int(Flags, Y, ResY),
-    interval(ResX * ResY, Res).
+int(A * B, Res, Flags)
+ => int(A, A1, Flags),
+    int(B, B1, Flags),
+    binary(*, A1, B1, Res).
 
-%
-% Hickey, Figure 3 (last rows first)
-%
-interval(A ... B * C ... D, Res) :-
-    once(zero(A, B); zero(C, D)),
-    !,
-    Res = 0.0 ... 0.0.
+binary(*, A ... B, C ... D, Res),
+    once(zero(A, B); zero(C, D))
+ => Res = 0.0 ... 0.0.
 
-% P * P
-interval(A ... B * C ... D, Res) :-
+binary(*, A ... B, C ... D, Res),
     positive(A, B),
-    positive(C, D),
-    !,
-    L is A * C,
-    U is B * D,
-    Res = L ... U.
+    positive(C, D)
+ => eval(A * C, B * D, Res).
 
-% P * M
-interval(A ... B * C ... D, Res) :-
+binary(*, A ... B, C ... D, Res),
     positive(A, B),
-    mixed(C, D),
-    !,
-    L is B * C,
-    U is B * D,
-    Res = L ... U.
+    mixed(C, D)
+ => eval(B * C, B * D, Res).
 
-% P * N
-interval(A ... B * C ... D, Res) :-
+binary(*, A ... B, C ... D, Res),
     positive(A, B),
-    negative(C, D),
-    !,
-    L is B * C,
-    U is A * D,
-    Res = L ... U.
+    negative(C, D)
+ => eval(B * C, A * D, Res).
 
-% M * P
-interval(A ... B * C ... D, Res) :-
+binary(*, A ... B, C ... D, Res),
     mixed(A, B),
-    positive(C, D),
-    !,
-    L is A * D,
-    U is B * D,
-    Res = L ... U.
+    positive(C, D)
+ => eval(A * D, B * D, Res).
 
-% M * M
-interval(A ... B * C ... D, Res) :-
+binary(*, A ... B, C ... D, Res),
     mixed(A, B),
-    mixed(C, D),
-    !,
-    L is min(A * D, B * C),
-    U is max(A * C, B * D),
-    Res = L ... U.
+    mixed(C, D)
+ => eval(min(A * D, B * C), max(A * C, B * D), Res).
 
-% M * N
-interval(A ... B * C ... D, Res) :-
+binary(*, A ... B, C ... D, Res),
     mixed(A, B),
-    negative(C, D),
-    !,
-    L is B * C,
-    U is A * C,
-    Res = L ... U.
+    negative(C, D)
+ => eval(B * C, A * C, Res).
 
-% N * P
-interval(A ... B * C ... D, Res) :-
+binary(*, A ... B, C ... D, Res),
     negative(A, B),
-    positive(C, D),
-    !,
-    L is A * D,
-    U is B * C,
-    Res = L ... U.
+    positive(C, D)
+ => eval(A * D, B * C, Res).
 
-% N * M
-interval(A ... B * C ... D, Res) :-
+binary(*, A ... B, C ... D, Res),
     negative(A, B),
-    mixed(C, D),
-    !,
-    L is A * D,
-    U is A * C,
-    Res = L ... U.
+    mixed(C, D)
+ => eval(A * D, A * C, Res).
 
-% N * N
-interval(A ... B * C ... D, Res) :-
+binary(*, A ... B, C ... D, Res),
     negative(A, B),
-    negative(C, D),
-    !,
-    L is B * D,
-    U is A * C,
-    Res = L ... U.
+    negative(C, D)
+ => eval(B * D, A * C, Res).
 
-example :-
-    writeln(example-4.2-1),
-    interval([], pi ... pi, Y),
-    interval([], 2 * Y, Z),
-    writeln(2 * Y --> Z).
+interval(example-4.2-1) :-
+    A = pi ... pi,
+    B = 2,
+    interval(A * B, Res),
+    writeln(A * B --> Res).
 
-example :-
-    writeln(example-4.2-2),
-    interval([], 0.0 ... 0.0, X),
-    interval([], -1.0Inf ... 1.0Inf, Y),
-    interval([], X * Y, Z),
-    writeln(X * Y --> Z).
+interval(example-4.2-2) :-
+    A = 0.0 ... 0.0,
+    B = -1.0Inf ... 1.0Inf,
+    interval(A * B, Res),
+    writeln(A * B --> Res).
 
 %
 % Hickey Theorem 8 and Figure 4
 %
-int(Flags, X / Y, Res)
- => int(Flags, X, ResX),
-    int(Flags, Y, ResY),
-    interval(ResX / ResY, Res).
+int(A / B, Res, Flags)
+ => int(A, A1, Flags),
+    int(B, B1, Flags),
+    binary(/, A1, B1, Res).
 
 % P1 / P (special case, then general case)
-interval(A ... B / 0.0 ... D, Res) :-
+binary(/, A ... B, 0.0 ... D, Res),
     strictpos(A, B),
-    positive(0.0, D),
-    !,
-    L is A / D,
-    U is 1.0Inf,
-    Res = L ... U.
+    positive(0.0, D)
+ => eval(A / D, 1.0Inf, Res).
 
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     strictpos(A, B),
-    positive(C, D),
-    !,
-    L is A / D,
-    U is B / C,
-    Res = L ... U.
+    positive(C, D)
+ => eval(A / D, B / C, Res).
 
 % P0 / P
-interval(A ... B / 0.0 ... D, Res) :-
+binary(/, A ... B, 0.0 ... D, Res),
     zeropos(A, B),
-    positive(0.0, D),
-    !,
-    L is 0.0,
-    U is 1.0Inf,
-    Res = L ... U.
+    positive(0.0, D)
+ => eval(0.0, 1.0Inf, Res).
 
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     zeropos(A, B),
-    positive(C, D),
-    !,
-    L is 0.0,
-    U is B / C,
-    Res = L ... U.
+    positive(C, D)
+ => eval(0.0, B / C, Res).
 
 % M / P
-interval(A ... B / 0.0 ... D, Res) :-
+binary(/, A ... B, 0.0 ... D, Res),
     mixed(A, B),
-    positive(0.0, D),
-    !,
-    L is -1.0Inf,
-    U is 1.0Inf,
-    Res = L ... U.
+    positive(0.0, D)
+ => eval(-1.0Inf, 1.0Inf, Res).
 
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     mixed(A, B),
-    positive(C, D),
-    !,
-    L is A / C,
-    U is B / C,
-    Res = L ... U.
+    positive(C, D)
+ => eval(A / C, B / C, Res).
 
 % N0 / P
-interval(A ... B / 0.0 ... D, Res) :-
+binary(/, A ... B, 0.0 ... D, Res),
     zeroneg(A, B),
-    positive(0.0, D),
-    !,
-    L is -1.0Inf,
-    U is 0.0,
-    Res = L ... U.
+    positive(0.0, D)
+ => eval(-1.0Inf, 0.0, Res).
 
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     zeroneg(A, B),
-    positive(C, D),
-    !,
-    L is A / C,
-    U is 0.0,
-    Res = L ... U.
+    positive(C, D)
+ => eval(A / C, 0.0, Res).
 
 % N1 / P
-interval(A ... B / 0.0 ... D, Res) :-
+binary(/, A ... B, 0.0 ... D, Res),
     strictneg(A, B),
-    positive(0.0, D),
-    !,
-    L is -1.0Inf,
-    U is B / D,
-    Res = L ... U.
+    positive(0.0, D)
+ => eval(-1.0Inf, B / D, Res).
 
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     strictneg(A, B),
-    positive(C, D),
-    !,
-    L is A / C,
-    U is B / D,
-    Res = L ... U.
+    positive(C, D)
+ => eval(A / C, B / D, Res).
 
 % P1 / M (2 solutions)
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     strictpos(A, B),
-    mixed(C, D),
-    L is -1.0Inf,
-    U is A / C,
-    Res = L ... U.
-
-interval(A ... B / C ... D, Res) :-
-    strictpos(A, B),
-    mixed(C, D),
-    !,
-    L is A / D,
-    U is 1.0Inf,
-    Res = L ... U.
+    mixed(C, D)
+ => eval(-1.0Inf, A / C, Res) ; eval(A / D, 1.0Inf, Res).
 
 % P0 / M
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     zeropos(A, B),
-    mixed(C, D),
-    !,
-    L is -1.0Inf,
-    U is 1.0Inf,
-    Res = L ... U.
+    mixed(C, D)
+ => eval(-1.0Inf, 1.0Inf, Res).
 
 % M / M
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     mixed(A, B),
-    mixed(C, D),
-    !,
-    L is -1.0Inf,
-    U is 1.0Inf,
-    Res = L ... U.
+    mixed(C, D)
+ => eval(-1.0Inf, 1.0Inf, Res).
 
 % N0 / M
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     zeroneg(A, B),
-    mixed(C, D),
-    !,
-    L is -1.0Inf,
-    U is 1.0Inf,
-    Res = L ... U.
+    mixed(C, D)
+ => eval(-1.0Inf, 1.0Inf, Res).
 
 % N1 / M (2 solutions)
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     strictneg(A, B),
-    mixed(C, D),
-    L is -1.0Inf,
-    U is B / D,
-    Res = L ... U.
-
-interval(A ... B / C ... D, Res) :-
-    strictneg(A, B),
-    mixed(C, D),
-    !,
-    L is B / C,
-    U is 1.0Inf,
-    Res = L ... U.
+    mixed(C, D)
+ => eval(-1.0Inf, B / D, Res) ; eval(B / C, 1.0Inf, Res).
 
 % P1 / N
-interval(A ... B / C ... 0.0, Res) :-
+binary(/, A ... B, C ... 0.0, Res),
     strictpos(A, B),
-    negative(C, 0.0),
-    !,
-    L is -1.0Inf,
-    U is A / C,
-    Res = L ... U.
+    negative(C, 0.0)
+ => eval(-1.0Inf, A / C, Res).
 
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     strictpos(A, B),
-    negative(C, D),
-    !,
-    L is B / D,
-    U is A / C,
-    Res = L ... U.
+    negative(C, D)
+ => eval(B / D, A / C, Res).
 
 % P0 / N
-interval(A ... B / C ... 0.0, Res) :-
+binary(/, A ... B, C ... 0.0, Res),
     zeropos(A, B),
-    negative(C, 0.0),
-    !,
-    L is -1.0Inf,
-    U is 0.0,
-    Res = L ... U.
+    negative(C, 0.0)
+ => eval(-1.0Inf, 0.0, Res).
 
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     zeropos(A, B),
-    negative(C, D),
-    !,
-    L is B / D,
-    U is 0.0,
-    Res = L ... U.
+    negative(C, D)
+ => eval(B / D, 0.0, Res).
 
 % M / N
-interval(A ... B / C ... 0.0, Res) :-
+binary(/, A ... B, C ... 0.0, Res),
     mixed(A, B),
-    negative(C, 0.0),
-    !,
-    L is -1.0Inf,
-    U is 1.0Inf,
-    Res = L ... U.
+    negative(C, 0.0)
+ => eval(-1.0Inf, 1.0Inf, Res).
 
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     mixed(A, B),
-    negative(C, D),
-    !,
-    L is B / D,
-    U is A / D,
-    Res = L ... U.
+    negative(C, D)
+ => eval(B / D, A / D, Res).
 
 % N0 / N
-interval(A ... B / C ... 0.0, Res) :-
+binary(/, A ... B, C ... 0.0, Res),
     zeroneg(A, B),
-    negative(C, 0.0),
-    !,
-    L is 0.0,
-    U is 1.0Inf,
-    Res = L ... U.
+    negative(C, 0.0)
+ => eval(0.0, 1.0Inf, Res).
 
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     zeroneg(A, B),
-    negative(C, D),
-    !,
-    L is 0.0,
-    U is A / D,
-    Res = L ... U.
+    negative(C, D)
+ => eval(0.0, A / D, Res).
 
 % N1 / N
-interval(A ... B / C ... 0.0, Res) :-
+binary(/, A ... B, C ... 0.0, Res),
     strictneg(A, B),
-    negative(C, 0.0),
-    !,
-    L is B / C,
-    U is 1.0Inf,
-    Res = L ... U.
+    negative(C, 0.0)
+ => eval(B / C, 1.0Inf, Res).
 
-interval(A ... B / C ... D, Res) :-
+binary(/, A ... B, C ... D, Res),
     strictneg(A, B),
-    negative(C, D),
-    !,
-    L is B / C,
-    U is A / D,
-    Res = L ... U.
+    negative(C, D)
+ => eval(B / C, A / D, Res).
 
-interval :-
-    writeln(page-3-(-inf ... 0, 1...inf)),
-    X = 1.00 ... 1.00,
-    Y = -1.0Inf ... 1.0,
-    interval([], X / Y, Z),
-    writeln(X / Y --> Z).
+interval(page-3-(-inf ... 0, 1...inf)) :-
+    A = 1.00 ... 1.00,
+    B = -1.0Inf ... 1.0,
+    interval(A / B, Res),
+    writeln(A / B --> Res).
 
-interval :-
-    writeln(example-4.2-3-(0 ... inf)),
-    X = 0.00 ... 1.00,
-    Y = 0.00 ... 1.00,
-    interval([], X / Y, Z),
-    writeln(X / Y --> Z).
+interval(example-4.2-3-(0 ... inf)) :-
+    A = 0.00 ... 1.00,
+    B = 0.00 ... 1.00,
+    interval(A / B, Res),
+    writeln(A / B --> Res).
 
-interval :-
-    writeln(example-4.2-4-(r-without-0)),
-    X = 1.00 ... 1.00,
-    Y = -1.0Inf ... 1.0Inf,
-    interval([], X / Y, Z),
-    writeln(X / Y --> Z).
+interval(example-4.2-4-(r-without-0)) :-
+    A = 1.00,
+    B = -1.0Inf ... 1.0Inf,
+    interval(A / B, Res),
+    writeln(A / B --> Res).
 
-interval :-
-    writeln(example-4.2-5-(-inf ... -1, 1 ... inf)),
-    X = 1.0 ... 1.0,
-    Y = -1.0 ... 1.0,
-    interval([], X / Y, Z),
-    writeln(X / Y --> Z).
+interval(example-4.2-5-(-inf ... -1, 1 ... inf)) :-
+    A = 1.0,
+    B = -1.0 ... 1.0,
+    interval(A / B, Res),
+    writeln(A / B --> Res).
 
-interval :-
-    writeln(example-4.2-6-(-inf ... -1, +0 ... inf)),
-    X = 1.0 ... 1.0,
-    Y = -1.0 ... 1.0Inf,
-    interval([], X / Y, Z),
-    writeln(X / Y --> Z).
+interval(example-4.2-6-(-inf ... -1, +0 ... inf)) :-
+    A = 1.0 ... 1.0,
+    B = -1.0 ... 1.0Inf,
+    interval(A / B, Res),
+    writeln(A / B --> Res).
 
-interval :-
-    writeln(page-8-(-inf ... -0, 1 ... inf)),
-    X = 1.0 ... 1.0,
-    Y = -1.0Inf ... 1.0,
-    interval([], X / Y, Z),
-    writeln(X / Y --> Z).
+interval(page-8-(-inf ... -0, 1 ... inf)) :-
+    A = 1.0 ... 1.0,
+    B = -1.0Inf ... 1.0,
+    interval(A / B, Res),
+    writeln(A / B --> Res).
 
-interval :-
-    writeln(page-9-a-(0 ... inf)),
-    X = 0.0 ... 1.0,
-    Y = 0.0 ... 2.0,
-    interval([], X / Y, Z),
-    writeln(X / Y --> Z).
+interval(page-9-a-(0 ... inf)) :-
+    A = 0.0 ... 1.0,
+    B = 0.0 ... 2.0,
+    interval(A / B, Res),
+    writeln(A / B --> Res).
 
-interval :-
-    writeln(page-9-b-(0 ... 1)),
-    X = 1.0 ... 1.0,
-    Y = 1.0 ... 1.0Inf,
-    interval([], X / Y, Z),
-    writeln(X / Y --> Z).
+interval(page-9-b-(0 ... 1)) :-
+    A = 1.0 ... 1.0,
+    B = 1.0 ... 1.0Inf,
+    interval(A / B, Res),
+    writeln(A / B --> Res).
+
+%
+% Power
+%
+% todo: only for positive base
+monotonical(^(*, *)).
+
+interval(power-generic) :-
+    interval(2 ... 3 ^ (-(2 ... 3)), Res),
+    writeln("2 ... 3 ^ (-(2 ... 3))" --> Res).
 
 %
 % Available: not NA
 %
-int(Flags, available(X), Res),
-    option(engine(pl), Flags)
- => int(Flags, X, L ... U),
-    (integer(L); (\+integer(L), float_class(L, ClassL), dif(ClassL, nan))),
-    (integer(U); (\+integer(U), float_class(U, ClassU), dif(ClassU, nan))),
-    Res = L ... U.  % todo: rewrite as a boolean function
+% todo: boolean function
+int(available(A), Res, Flags)
+ => int(A, A1, Flags),
+    available(A1, Res).
+
+available(A, Res),
+    integer(A)
+ => eval(A, Res).
+
+available(A, Res),
+    number(A)
+ => float_class(A, Class),
+    dif(Class, nan),
+    eval(A, Res).
+
+available(A, Res),
+    atom(A)
+ => eval(A, A1),
+    available(A1, Res).
+
+available(A ... B, Res)
+ => available(A, A1),
+    available(B, B1),
+    eval(A1, B1, Res).
 
 %
 % Absolute value
 %
-int(Flags, abs(X), Res),
-    option(engine(pl), Flags)
- => int(Flags, X, L ... U),
-    (   positive(L, U)
-     -> RL is L,
-        RU is U
-      ; negative(L, U)
-     -> RL is abs(U),
-        RU is abs(L)
-      ; % mixed
-        RL is 0.0,
-        RU is max(abs(L), U)
-    ),
-    Res = RL ... RU.
+int(abs(A), Res, Flags)
+ => int(A, A1, Flags),
+    unary(abs, A1, Res).
 
-interval :-
-    writeln(abs-1),
-    X = -0.2 ... -0.1,
-    interval([], abs(X), Res),
-    writeln(abs(X) --> Res).
+unary(abs, A ... B, Res)
+ => ( positive(A, B)
+     -> eval(A, B, Res)
+    ; negative(A, B)
+     -> eval(abs(B), abs(A), Res)
+    ; % mixed
+        eval(0.0, max(abs(A), B), Res)
+    ).
 
-interval :-
-    writeln(abs-2),
-    X = 0.1 ... 0.2,
-    interval([], abs(X), Res),
-    writeln(abs(X) --> Res).
+interval(abs-1) :-
+    A = -0.2 ... -0.1,
+    interval(abs(A), Res),
+    writeln(abs(A) --> Res).
+
+interval(abs-2) :-
+    A = 0.1 ... 0.2,
+    interval(abs(A), Res),
+    writeln(abs(A) --> Res).
     
-interval :-
-    writeln(abs-3),
-    X = -0.2 ... 0.1,
-    interval([], abs(X), Res),
-    writeln(abs(X) --> Res).
+interval(abs-3) :-
+    A = -0.2 ... 0.1,
+    interval(abs(A), Res),
+    writeln(abs(A) --> Res).
 
-interval :-
-    writeln(abs-4),
-    X = -0.1 ... 0.2,
-    interval([], abs(X), Res),
-    writeln(abs(X) --> Res).
+interval(abs-4) :-
+    A = -0.1 ... 0.2,
+    interval(abs(A), Res),
+    writeln(abs(A) --> Res).
 
-%
+interval(abs-5) :-
+    A = -0.1,
+    interval(abs(A), Res),
+    writeln(abs(A) --> Res).
+
 % Fraction
-%
-int(Flags, frac(X, Y), Res),
-    option(engine(pl), Flags)
- => int(Flags, X / Y, Res).
+int(frac(A, B), Res, Flags)
+ => int(A / B, Res, Flags).
 
-int(Flags, dfrac(Num, Den), Res)
- => int(Flags, frac(Num, Den), Res).
+int(dfrac(A, B), Res, Flags)
+ => int(A / B, Res, Flags).
 
-interval :-
-    writeln(frac),
-    X = 2.0 ... 2.0,
-    interval([], 1 + frac(1, X), Z),
-    writeln(1 + frac(1, X) --> Z).
+interval(frac) :-
+    A = 2.0 ... 2.0,
+    interval(1 + frac(1, A), Res),
+    writeln(1 + frac(1, A) --> Res).
 
-%
 % Multiply
-%
-int(Flags, dot(X, Y), Res),
-    option(engine(pl), Flags)
- => int(Flags, X * Y, Res).
+int(dot(A, B), Res, Flags)
+ => int(A * B, Res, Flags).
 
-%
 % Format result as a t-ratio
-%
-int(Flags, tstat(X), Res),
-    option(engine(pl), Flags)
- => int([digits(2) | Flags], format(X), Res).
+int(tstat(A), Res, Flags)
+ => int(format(A), Res, [digits(2) | Flags]).
 
-int(Flags, hdrs(X), Res),
-    option(engine(pl), Flags)
- => int([digits(1) | Flags], format(X), Res).
+int(hdrs(A), Res, Flags)
+ => int(format(A), Res, [digits(1) | Flags]).
 
-int(Flags, chi2ratio(X), Res),
-    option(engine(pl), Flags)
- => int([digits(2) | Flags], format(X), Res).
+int(chi2ratio(A), Res, Flags)
+ => int(format(A), Res, [digits(2) | Flags]).
 
 %
 % This needs to be rewritten
 %
-int(Flags, format(X), Res),
-    option(engine(pl), Flags)
+int(format(A), Res, Flags)
  => option(digits(D), Flags, 2),
-    int(Flags, X, Fmt),
+    int(A, Fmt, Flags),
     findall(R, bound(Fmt, R), List),
     min_list(List, L0),
     max_list(List, U0),
-    L is floor(L0*10^D) / 10^D,
-    U is ceiling(U0*10^D) / 10^D,
+    eval(floor(L0*10^D) / 10^D, L),
+    eval(ceiling(U0*10^D) / 10^D, U),
     (   length(List, 1)
      -> Res = L
      ;  Res = L ... U
     ).
 
-interval(sqrt(A ... B), Res) :-
-    (zero(A, B) ; positive(A, B)),
-    !,
-    L is sqrt(A),
-    U is sqrt(B),
-    Res = L ... U.
+% Square root
+int(sqrt(A), Res, Flags),
+    int(A, A1, Flags)
+ => unary(sqrt, A1, Res),
+    writeln(sqrt).
 
-interval :-
-    writeln(sqrt-1),
-    X = 2.0 ... 2.0,
-    interval([], 1 + sqrt(X), Z),
-    writeln(1 + sqrt(X) --> Z).
+unary(sqrt, A ... B, Res)
+ => ( zero(A, B)
+     -> eval(0.0, 0.0, Res)
+    ; positive(A, B)
+     -> eval(sqrt(A), sqrt(B), Res)
+    ; mixed(A, B)
+     -> eval(0.0, sqrt(B), Res)
+    ).
 
-%
+interval(sqrt-1) :-
+    A = 2.0 ... 2.0,
+    interval(1 + sqrt(A), Res),
+    writeln(1 + sqrt(A) --> Res).
+
 % Handle lists
-%
-int(_Flags, [], Res)
+int([], Res, _Flags)
  => Res = [].
 
-int(Flags, [H | T], Res)
- => exclude(omit(Flags), [H | T], Excluded),
-    maplist(int(Flags), Excluded, Res).
+int([H | T], Res, _Flags)
+ => exclude(omit_(Flags), [H | T], Excluded),
+    maplist(int_(Flags), Excluded, Res).
 
-omit(_Flags, omit(_, _)).
+omit_(_Flags, omit(_, _)).
 
 %
 % Equation sign: named arguments in R functions (leave name unchanged)
 %
-int(Flags, Name=X, Res),
+int(Name=A, Res, Flags),
     option(engine(r), Flags)
- => int(Flags, X, ResA),
-    Res = (Name = ResA).
+ => int(A, A1, Flags),
+    Res = (Name = A1).
 
 %
-% Plus/Minus: return a confidence interval
+% Interval bounds for monotonically behaving functions
 %
-int(Flags, pm(X, Y), Res),
-    option(ci(lower), Flags)
- => int(Flags, X - Y, Res).
+lower(+, A ... _, L)
+ => L = A.
 
-int(Flags, pm(X, Y), Res),
-    option(ci(upper), Flags)
- => int(Flags, X + Y, Res).
+lower(+, A, L)
+ => L = A.
 
-int(Flags, pm(X, Y), Res),
-    option(engine(pl), Flags)
- => int(Flags, X - Y, L),
-    int(Flags, X + Y, U),
-    Res = ci(L, U).
+lower(-, A, L)
+ => upper(+, A, L).
 
-interval :-
-    writeln(pm-1),
-    D = 2.0 ... 2.1,
-    S = 1.6 ... 1.7,
-    N = 20,
-    interval([], pm(D, 1.96 * S / sqrt(N)), CI),
-    writeln(pm(D, 1.96 * S / sqrt(N)) --> CI).
+lower(*, A, L)
+ => lower(+, A, L) ; lower(-, A, L).
+
+lower(/, A, L)
+ => L = A.
+
+upper(+, _ ... B, U)
+ => U = B.
+
+upper(+, A, U)
+ => U = A.
+
+upper(-, A, U)
+ => lower(+, A, U).
+
+upper(*, A, U)
+ => upper(+, A, U) ; upper(-, A, U).
+
+upper(/, A, U)
+ => U = A.
+
+noint(_ ... _, _)
+ => fail.
+
+noint(A, B)
+ => B = A.
 
 %
-% Monotonically increasing or decreasing functions handled by R
+% Monotonically behaving in all arguments
 %
-bound(A ... _, A).
+% +: increasing
+% -: decreasing
+% *: increasing or decreasing
+% /: not an interval
+monotonical(A, Dir) :-
+    compound(A),
+    compound_name_arity(A, Name, Arity),
+    compound_name_arity(New, Name, Arity),
+    monotonical(New),
+    compound_name_arguments(New, Name, Dir).
 
-bound(_ ... B, B) :-
-    !.
-
-bound(X, X).
-
-%
-% Evaluate function for all possible combinations of bounds
-% e.g., rint(^(2 ... 3, 4 ... 5), Res) yields 2^3, 2^5, 3^4, and 3^5
-%
-rint(_Flags, Function, Arguments, Res) :-
-    maplist(bound, Arguments, Bounds),
-    compound_name_arguments(Expr, Function, Bounds),
-    r_task(Expr, Res).
-
-int(Flags, r(Expr), Res)
- => int([engine(r) | Flags], Expr, Res).
-
-int(Flags, pl(Expr), Res)
- => int([engine(pl) | Flags], Expr, Res).
-
-int(Flags, Expr, Res),
-    atomic(Expr),
-    option(engine(r), Flags)
- => r_task(Expr, R),
-    (   R = _ ... _
-     -> Res = R
-      ; Res = R ... R
-    ).
-
-int(Flags, X ... Y, Res),
-    option(engine(r), Flags)
- => r_task(X, ResX),
-    r_task(Y, ResY),
-    Res = ResX ... ResY.
-
-int(Flags, '<-'(Var, Expr), Res),
-    option(engine(r), Flags)
- => int(Flags, Expr, Res),
-    r_task('<-'(Var, Res)).
-
-int(Flags, $(Env, Var), Res),
-    option(engine(r), Flags)
- => r_task($(Env, Var), R),
-    int([engine(pl) | Flags], R, Res).
-
-int(Flags, Expr, Res),
-    option(engine(r), Flags),
-    compound(Expr)
- => compound_name_arguments(Expr, Function, Arguments),
-    maplist(int(Flags), Arguments, New),
-    findall(R, rint(Flags, Function, New, R), Bounds),
-    min_member(L, Bounds),
-    max_member(U, Bounds),
+int(A, Res, Flags),
+    compound(A),
+    monotonical(A, Dir)
+ => compound_name_arguments(A, Name, Args),
+    maplist(int_(Flags), Args, Args1),
+    findall(R,
+        ( maplist(lower, Dir, Args1, Args2),
+          compound_name_arguments(C, Name, Args2),
+          eval(C, R)
+        ), Lower),
+    findall(R,
+        ( maplist(upper, Dir, Args1, Args2),
+          compound_name_arguments(C, Name, Args2),
+          eval(C, R)
+        ), Upper),
+    min_list(Lower, L),
+    max_list(Upper, U),
     Res = L ... U.
 
-int(Flags, Expr, Res),
-    option(engine(r), Flags),
-    atomic(Expr)
- => r_task(Expr, R),
-    Res = R...R.
+monotonical(ttest(*, *, -, /)).
 
-interval :-
-    writeln(sin-1),
-    r_initialize,
-    r_session('<-'(r, 'new.env'())),
-    b_setval(task, r),
-    interval([], r(sin(0.1)), Z),
-    writeln(sin(0.1) --> Z).
+hook(ttest(A, B, C, D), Res) :-
+    !, Res is (A - B) / (C / sqrt(D)).
 
-interval :-
-    writeln(sin-2),
-    r_session('<-'(r, 'new.env'())),
-    b_setval(task, r),
-    interval([], r(sin(0.1 ... 0.2)), Z),
-    writeln(sin(0.1 ... 0.2) --> Z).
-
-interval :-
-    writeln(pbinom),
-    r_initialize,
-    X = 3,
-    Size = 10,
-    Prob = 0.6 ... 0.7,
-    r_session('<-'(r, 'new.env'())),
-    r_session_source(tpaired),
-    b_setval(task, tpaired),
-    interval([task(tpaired)], r(pbinom(X, Size, Prob)), P),
-    writeln(pbinom(X, Size, Prob) --> P).
-
-interval :-
-    writeln(pbinom),
-    X = 3,
-    Size = 11,
-    Prob = 0.6 ... 0.7,
-    r_session('<-'(r, 'new.env'())),
-    b_setval(task, r),
-    interval([], r(pbinom(X, Size, Prob)), P),
-    writeln(pbinom(X, Size, Prob) --> P).
-
-interval :-
-    writeln(pbinom),
-    X = 3,
-    Size = 10 ... 11,
-    Prob = 0.6 ... 0.7,
-    r_session('<-'(r, 'new.env'())),
-    b_setval(task, r),
-    interval([], r(pbinom(X, Size, Prob)), P),
-    writeln(pbinom(X, Size, Prob) --> P).
-
-interval :-
-    writeln(pbinom),
-    r_initialize,
-    X = 3,
-    Size = 10.0 ... 11.0,
-    Prob = 0.6 ... 0.7,
-    r_session('<-'(r, 'new.env'())),
-    b_setval(task, r),
-    interval([], r(pbinom(X, Size, Prob, 'log.p'=true)), P),
-    writeln(pbinom(X, Size, Prob, 'log.p'=true) --> P).
-
-interval :-
-    writeln($(x, y)),
-    r_initialize,
-    r_session_source(tpaired),
-    b_setval(task, tpaired),
-    interval([task(tpaired)], r(mu), X),
-    writeln($(tpaired, mu) = X).
-
-%
-% (Non-R) general functions that do not account for intervals.
-%
-% Examples
-% * int(pl, sin(0.1 ... 0.2), X)
-% * int(pl, sin(0.1), X)
-%
-% Evaluate interval for the arguments first, and then (blindly) apply
-% the function to the lower and upper bound. Obviously, this only
-% works for functions that behave monotonically in all their
-% arguments.
-%
-int(Flags, X, Res),
-    compound(X),
-    option(engine(pl), Flags)
- => compound_name_arguments(X, Name, Arguments),
-    maplist(int(Flags), Arguments, Results),
-    findall(R,
-        (   maplist(bound, Results, Bounds),
-            compound_name_arguments(New, Name, Bounds),
-            R is New
-        ), List),
-    min_list(List, L),
-    max_list(List, U),
-    (   length(List, 1)
-     -> [Res] = List
-     ;  Res = L ... U
-    ).
-
-interval :-
-    writeln(power-generic),
-    interval([], 2 ... 3 ^ (-(2 ... 3)), Z),
-    writeln("2 ... 3 ^ (-(2 ... 3))" --> Z).
-
-interval :-
-    writeln(sin-1),
-    interval([], sin(0.1), Z),
-    writeln(sin(0.1) --> Z).
-
-interval :-
-    writeln(sin-1),
-    interval([], sin(0.1 ... 0.2), Z),
-    writeln(sin(0.1 ... 0.2) --> Z).
-
-%
-% t-test example
-%
-interval :-
-    writeln(ttest),
+interval(ttest) :-
     D = 5.7 ... 5.8,
-    Mu = 4.0 ... 4.0,
-    S = 3.8 ... 3.8,
+    Mu = 4.1 ... 4.2,
+    S = 3.8 ... 3.9,
     N = 24,
-    interval([], frac(D - Mu, S / sqrt(N)), T),
-    writeln(t --> T).
+    interval(ttest(D, Mu, S, N), Res),
+    writeln(t --> Res).
 
 %
-% Confidence intervals
+% Sine, not monotonically behaving
 %
-ci(Flags, Op, Res),
-    compound(Op)
- => int([ci(lower) | Flags], Op, L),
-    int([ci(upper) | Flags], Op, U),
-    Res = ci(L, U).
+int(sin(A), Res, Flags)
+ => int(A, A1, Flags),
+    unary(sin, A1, Res).
+
+unary(sin, A ... B, Res)
+ => PA is (A - pi/2) / 2 / pi,
+    PB is (B - pi/2) / 2 / pi,
+    ( floor(PB) - floor(PA) >= 1
+     -> U = 1
+      ; U is max(sin(A), sin(B))
+    ),
+    QA is (A + pi/2) / 2 / pi,
+    QB is (B + pi/2) / 2 / pi,
+    ( floor(QB) - floor(QA) >= 1
+     -> L = -1
+      ; L is min(sin(A), sin(B))
+    ),
+    Res = L ... U.
+
+interval(sin-1) :-
+    interval(sin(0.1), Res),
+    writeln(sin(0.1) --> Res).
+
+interval(sin-2) :-
+    interval(sin(0.0 ... 4*pi), Res),
+    writeln(sin(0.0 ... 4*pi) --> Res).
+
+interval(sin-3) :-
+    interval((pi/2 - 0.2) ... (pi/2 + 0.3), A),
+    interval(sin(A), Res),
+    writeln(sin(A) --> Res).
+
+interval(sin-4) :-
+    interval((2*pi/2 - 0.2) ... (2*pi/2 + 0.3), A),
+    interval(sin(A), Res),
+    writeln(sin(A) --> Res).
+
+interval(sin-5) :-
+    interval((3*pi/2 - 0.2) ... (3*pi/2 + 0.3), A),
+    interval(sin(A), Res),
+    writeln(sin(A) --> Res).
+
+interval(sin-6) :-
+    interval((4*pi/2 - 0.2) ... (4*pi/2 + 0.3), A),
+    interval(sin(A), Res),
+    writeln(sin(A) --> Res).
 
 %
-% Test if a CI is to be calculated
+% No intervals at play
 %
-ci(_Flags, ci(_, _)).
+int(A, Res, Flags),
+    compound(A)
+ => compound_name_arguments(A, Name, Args),
+    maplist(int_(Flags), Args, Args1),
+    maplist(noint, Args1, Args2),
+    compound_name_arguments(C, Name, Args2),
+    eval(C, Res).
 
-ci(_Flags, pm(_, _)).
+hook(ttest2(A, B, C, D), Res) :-
+    !, Res is (A - B) / (C / sqrt(D)).
 
-ci(Flags, Expr) :-
-    compound(Expr),
-    Expr =.. [_ | Args],
-    include(ci(Flags), Args, [_ | _]).
-
-%
-% paired t-test: confidence interval
-%
-interval :-
-    writeln(cipaired),
+% includes an interval, therefore fails
+interval(ttest2) :-
+    writeln(ttest2-fails),
     D = 5.7 ... 5.8,
-    S = 3.8 ... 3.8,
+    Mu = 4.1 ... 4.2,
+    S = 3.8 ... 3.9,
     N = 24,
-    interval([], D + ci(-1.96, 1.96) * S / sqrt(N), CI),
-    writeln(ci --> CI).
+    interval(ttest2(D, Mu, S, N), Res),
+    writeln(t --> Res).
 
-init :-
-    session_data(interval),
-    !.
+% no intervals, therefore succeeds
+interval(ttest3) :-
+    writeln(ttest3-succeeds),
+    D = 5.7,
+    Mu = 4.1,
+    S = 3.8,
+    N = 24,
+    interval(ttest2(D, Mu, S, N), Res),
+    writeln(t --> Res).
 
-init :-
-    r(source("interval.R")),
-    session_assert(interval).
+%
+% Operations with atomic elements
+%
+% For convenience
+eval(Expr1, Expr2, L ... U) :-
+    eval(Expr1, L),
+    eval(Expr2, U).
 
-:- init.
+% Default operations for unary functions
+unary(Op, A, Res),
+    atomic(A)
+ => Call =.. [Op, A],
+    eval(Call, Res).
+
+unary(Op, A ... B, Res)
+ => CallA =.. [Op, A],
+    eval(CallA, A1),
+    CallB =.. [Op, B],
+    eval(CallB, B1),
+    msort([A1, B1], Res).
+
+binary(Op, A, B, Res),
+    atomic(A),
+    atomic(B)
+ => Call =.. [Op, A, B],
+    eval(Call, Res).
+
+binary(Op, A, B ... C, Res),
+    atomic(A)
+ => binary(Op, A ... A, B ... C, Res).
+
+binary(Op, A ... B, C, Res),
+    atomic(C)
+ => binary(Op, A ... B, C ... C, Res).
+

@@ -16,15 +16,15 @@ mathml_hook(chi2, chi^2).
 mathml_hook(p_pool, sub(p, "pool")).
 
 % R constants
-interval:r_hook(p_VR).
-interval:r_hook(s_VR).
-interval:r_hook(n_VR).
-interval:r_hook(p_Box).
-interval:r_hook(s_Box).
-interval:r_hook(n_Box).
-interval:r_hook(z).
-interval:r_hook(chi2).
-interval:r_hook(p_pool).
+r:r_hook(p_VR).
+r:r_hook(s_VR).
+r:r_hook(n_VR).
+r:r_hook(p_Box).
+r:r_hook(s_Box).
+r:r_hook(n_Box).
+r:r_hook(z).
+r:r_hook(chi2).
+r:r_hook(p_pool).
 
 render(item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box), Form) -->
     { option(resp(R), Form, "#.##") },

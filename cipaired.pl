@@ -24,17 +24,17 @@ mathml_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 mathml_hook(alpha, greek("alpha")).
 
 % R definitions
-interval:r_hook(var_pool(_N1, _V1, _N2, _V2)).
-interval:r_hook(lo).
-interval:r_hook(d).
-interval:r_hook(mu).
-interval:r_hook(s_d).
-interval:r_hook(n).
-interval:r_hook(t0).
-interval:r_hook(s_t0).
-interval:r_hook(eot).
-interval:r_hook(s_eot).
-interval:r_hook(qt(_P, _DF)).
+r:r_hook(var_pool(_N1, _V1, _N2, _V2)).
+r:r_hook(lo).
+r:r_hook(d).
+r:r_hook(mu).
+r:r_hook(s_d).
+r:r_hook(n).
+r:r_hook(t0).
+r:r_hook(s_t0).
+r:r_hook(eot).
+r:r_hook(s_eot).
+r:r_hook(qt(_P, _DF)).
 
 % Task description
 render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha), Form) -->

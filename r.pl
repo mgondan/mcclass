@@ -10,6 +10,7 @@
 :- use_module(library(http/http_session)).
 :- use_module(library(http/http_log)).
 
+:- multifile r_hook/1.
 :- dynamic r_initialized/0.
 
 % Initialize R, load some code into the base environment.
