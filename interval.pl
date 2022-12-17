@@ -88,6 +88,54 @@ interval(type-2) :-
     writeln(Res).
 
 %
+% Confidence intervals
+%
+hook(A, Res, Flags) :-
+    \+ member(ci(_), Flags),
+    ci(Flags, A),
+    !,
+    int(A, L, [ci(lower) | Flags]),
+    int(A, U, [ci(upper) | Flags]),
+    Res = ci(L, U).
+
+hook(pm(X, Y), Res, Flags) :-
+    option(ci(lower), Flags),
+    !,
+    interval:int(X - Y, Res, Flags).
+
+hook(pm(X, Y), Res, Flags) :-
+    option(ci(upper), Flags),
+    !,
+    interval:int(X + Y, Res, Flags).
+
+% Test if a CI is to be calculated
+ci(_Flags, pm(_, _)) :-
+    !.
+
+ci(Flags, A) :-
+    compound(A),
+    compound_name_arguments(A, _, Args),
+    include(ci(Flags), Args, [_ | _]).
+
+% Plus/Minus: return a confidence interval
+hook(pm(X, Y), Res, Flags) :-
+    option(ci(lower), Flags),
+    !,
+    int(X - Y, Res, Flags).
+
+hook(pm(X, Y), Res, Flags) :-
+    option(ci(upper), Flags),
+    !,
+    int(X + Y, Res, Flags).
+
+interval(ci) :-
+    D = 2.0 ... 2.1,
+    S = 1.6 ... 1.7,
+    N = 20,
+    interval(D + pm(0.0, 1.96 * S / sqrt(N)), CI),
+    writeln(D + pm(0.0, 1.96 * S / sqrt(N)) --> CI).
+
+%
 % Hickey Figure 1
 %
 mixed(L, U) :-
