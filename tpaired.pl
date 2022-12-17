@@ -80,7 +80,7 @@ start(item(t0, s_t0, eot, s_eot, d, s_d, n, mu)).
 intermediate(paired).
 expert(stage(2), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu),
-    Y = paired(D, Mu, S_D, N).
+    Y = { '<-'(t, paired(D, Mu, S_D, N)) }.
 
 feedback(paired, [], Col, FB) =>
     FB = [ "Correctly recognised the problem as ",
@@ -143,7 +143,9 @@ hint(mu, [Mu], Col, FB) =>
 intermediate(indep).
 buggy(stage(2), X, Y, [step(buggy, indep, [])]) :-
     X = item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu),
-    Y = instead(indep, indep(T0, S_T0, N, EOT, S_EOT, N), paired(D, Mu, S_D, N)).
+    Y = { '<-'(t, instead(indep, indep(T0, S_T0, N, EOT, S_EOT, N), 
+            paired(D, Mu, S_D, N))) 
+        }.
 
 feedback(indep, [], Col, FB) =>
     FB = [ "The problem was mistakenly identified as ",

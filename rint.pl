@@ -15,6 +15,8 @@ interval:monotonical(pbinom(+, -, -)).
 
 r_hook(pbinom(_K, _N, _Pi)).
 
+:- r_source(interval).
+
 rint :-
     K = 10 ... 11,
     N = 20 ... 21,

@@ -2,3 +2,4 @@
 http.pid
 httpd.log
 .token
+.RData
