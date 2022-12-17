@@ -41,22 +41,22 @@ s_FU  <- by(data$FU, data$Therapy, sd)
 alpha <- 0.05
 tails <- "two-tailed"
 
-#descriptive Variables
-Lidcombe_T0_Mean   <- m_T0["Lidcombe"]
-TAU_T0_Mean        <- m_T0["TAU"]
-Lidcombe_T0_SD     <- s_T0["Lidcombe"]
-TAU_T0_SD          <- s_T0["TAU"]
-Lidcombe_EOT_Mean  <- m_EOT["Lidcombe"]
-TAU_EOT_Mean       <- m_EOT["TAU"]
-Lidcombe_EOT_SD    <- s_EOT["Lidcombe"]
-TAU_EOT_SD         <- "hallo" # s_EOT["TAU"]
-
+Lidcombe_T0_Mean  <- m_T0["Lidcombe"]
+Lidcombe_T0_SD    <- s_T0["Lidcombe"]
+Lidcombe_T0       <- sprintf("%.1f (%.1f)", Lidcombe_T0_Mean, Lidcombe_T0_SD)
+TAU_T0_Mean       <- m_T0["TAU"]
+TAU_T0_SD         <- s_T0["TAU"]
+TAU_T0            <- sprintf("%.1f (%.1f)", TAU_T0_Mean, TAU_T0_SD)
+Lidcombe_EOT_Mean <- m_EOT["Lidcombe"]
+Lidcombe_EOT_SD   <- s_EOT["Lidcombe"]
+Lidcombe_EOT      <- sprintf("%.1f (%.1f)", Lidcombe_EOT_Mean, Lidcombe_EOT_SD)
+TAU_EOT_Mean      <- m_EOT["TAU"]
+TAU_EOT_SD        <- s_EOT["TAU"]
+TAU_EOT           <- sprintf("%.1f (%.1f)", TAU_EOT_Mean, TAU_EOT_SD)
 
 # Export data for download
 download <- function(fname)
-{
     write.csv2(data, fname, row.names=FALSE)
-}
 
 ancova_f = function(Prim, Cov, Strata, Other, Int, Ex, Main)
 {

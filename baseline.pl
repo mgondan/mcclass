@@ -48,39 +48,32 @@ render(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy), Form) -->
               "is ", \mmlm(alpha = perc(0.05)), " two-tailed. ",
               "Please analyze the data and draw the correct conclusions." 
             ]),
-          p(class('card-text'),
-             "The ficticious results can be downloaded below."),
-	 ul(
-     [li("ID: Patient number"),
-	li("Sex: F, M (stratification factor)"),
-	li("AgeMo: Age in months at inclusion"),
-	li("T0: Percentage of stuttered syllables at baseline"),
-	li("Therapy: Lidcombe, TAU"),
-	li(["Fidel: Treatment fidelity in percent, summarizing ",
-		            "different indicators of adherence: ",
-		            "0% (none)...100% (perfect)"]),
-       li(["EOT: Percentage of stuttered syllables 9 months", "after ",
-		            "randomization (primary endpoint)"]),
-       li(["FU: Percentage of stuttered syllables 15 months after ",
-		            "randomization (secondary endpoint)"])
-		]), 
           div(class('container'),
             div(class("row justify-content-md-center"),
               p(class("col-6"),
                 \htmltable(
-                    [ em("Table 1. "), "Descriptive statistic" ],
-                    [ "Lidcombe", "TAU" ],
-                    [ "Therapy", "Average at T0", "SD at T0", "Average at EOT", "SD at EOT" ],
-                    [ [ \mmlm([digits(1)], r('Lidcombe_T0_Mean')),
-                        \mmlm([digits(1)], r('Lidcombe_T0_SD')),
-                        \mmlm([digits(1)], r('Lidcombe_EOT_Mean')),
-                        \mmlm([digits(1)], r('Lidcombe_EOT_SD'))
-	              ],
-                      [ \mmlm([digits(1)], r('TAU_T0_Mean')),
-		        \mmlm([digits(1)], r('TAU_T0_SD')),
-		        \mmlm([digits(1)], r('TAU_EOT_Mean'))
-                      ]
+                    [ em("Table 1. "), "Descriptive statistics" ],
+                    [ "T0", "EOT" ],
+                    [ "", "Lidcombe", "TAU" ],
+                    [ [ \mmlm(r('Lidcombe_T0')), \mmlm(r('TAU_T0')) ],
+                      [ \mmlm(r('Lidcombe_EOT')), \mmlm(r('TAU_EOT')) ]
                     ])))),
+          p(class('card-text'),
+             "Ficticious data can be downloaded below."),
+	  ul(
+            [ li("ID: Patient number"),
+              li("Sex: F, M (stratification factor)"),
+              li("AgeMo: Age in months at inclusion"),
+              li("T0: Percentage of stuttered syllables at baseline"),
+              li("Therapy: Lidcombe, TAU"),
+              li(["Fidel: Treatment fidelity in percent, summarizing ",
+                "different indicators of adherence: ",
+                "0% (none)...100% (perfect)"]),
+              li(["EOT: Percentage of stuttered syllables 9 months after ",
+                "randomization (primary endpoint)"]),
+              li(["FU: Percentage of stuttered syllables 15 months after ",
+                "randomization (secondary endpoint)"])
+            ]), 
           \download(baseline)
         ])),
         \htmlform([ "Does the Lidcombe therapy lead to a ",
