@@ -198,14 +198,13 @@ interval(equality-2) :-
 %
 % Hickey, Theorem 4
 %
-% int(A + B, Res, Flags)
-%  => int(A, A1, Flags),
-%     int(B, B1, Flags),
-%     binary(+, A1, B1, Res).
-%
-% binary(+, A ... B, C ... D, Res)
-%  => eval(A + C, B + D, Res).
-monotonical(+(+, +)).
+int(A + B, Res, Flags)
+ => int(A, A1, Flags),
+    int(B, B1, Flags),
+    binary(+, A1, B1, Res).
+
+binary(+, A ... B, C ... D, Res)
+ => eval(A + C, B + D, Res).
 
 interval(sum-1) :-
     A = 1.00 ... 1.02,

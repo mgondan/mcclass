@@ -34,6 +34,7 @@ rint:r_hook(t).
 rint:r_hook(lo).
 rint:r_hook(mu).
 rint:r_hook(qt(_P, _DF)).
+rint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
 
 % Task description
 render(item(RC, S_RC, N_RC, MC, S_MC, N_MC, Alpha), Form) -->

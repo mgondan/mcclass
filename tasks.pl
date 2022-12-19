@@ -422,7 +422,7 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(tpaired).
+    tasks(cigroups).
 
 tasks(Task) :-
     r_initialize,
