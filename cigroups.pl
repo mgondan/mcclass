@@ -149,3 +149,206 @@ hint(tquant, [Alpha], Col, H)
  => H = [ "Make sure to use the ", \mmlm(Col, hyph(1 - Alpha/2, "quantile")),
           "of the ", \mmlm(Col, hyph(t, "distribution"))
         ].
+
+
+
+				
+% Buggy-Rule: Use t-statistic instead of t-quantile
+buggy(stage(2), X, Y, [step(buggy, tstat, [N_RC, N_MC, Alpha])]) :-
+    X = quant(RC, MC, S2P, N_RC, N_MC, Alpha),
+    P = abbrev(t, dfrac(RC - MC, sqrt(S2P * (frac(1, N_RC) + frac(1, N_MC)))), ["the observed", space, t, "-statistic."]),
+    Y = P. 
+
+feedback(tstat, [N_RC, N_MC, Alpha], Col, F)
+ => F = [ "The result matches the confidence interval based on the observed ",
+          \mmlm(Col, hyph(t, "statistic.")), " Please use the quantile ",
+           "of the ", \mmlm(Col, hyph(t, "distribution ")), 
+	   \mmlm(Col, color(qt, qt(1 - Alpha/2, N_RC + N_MC - 2))), " instead."
+        ].
+
+hint(tstat, [_N_RC, _N_MC, _Alpha], Col, H)
+ => H = [ "Do not insert the observed ", \mmlm(Col, hyph(t, "statistic ")),
+          "into the formula for the confidence interval. Use the quantile of ", 
+	  "the ", \mmlm(Col, hyph(t, "distribution")), " instead."
+        ].
+
+
+% Buggy-Rule: Use z-quantile instead of t-quantile. 
+% This rule may be dropped because we might not be able to distinguish the results.
+buggy(stage(2), X, Y, [step(buggy, qt, [N_RC, N_MC, Alpha])]) :-
+    X = quant(_RC, _MC, _S2P, N_RC, N_MC, Alpha),
+    Y = instead(qt, qnorm(1 - Alpha/2) , qt(1 - Alpha/2, N_RC + N_MC - 2)).
+
+feedback(qt, [N_RC, N_MC, Alpha], Col, F)
+ => F = [ "The result matches the confidence interval based on the standard ",
+          "Normal distribution. ",
+          "Please insert the quantile of the ", \mmlm(Col, hyph(t, "distribution")),
+          \mmlm(Col, color(qt, qt(1 - Alpha/2, N_RC + N_MC - 2))), " into ",
+          "the formula for the confidence interval."
+        ].
+
+hint(qt, [_N_RC, _N_MC, _Alpha], Col, H)
+ => H = [ "Do not insert the quantile of the ", \mmlm(Col, hyph(z, "distribution ")), 
+          "into the formula for the confidence interval. Use the quantile of the ", 			
+	  \mmlm(Col, hyph(t, "distribution")), "instead."
+        ].
+
+
+% Buggy-Rule: Using the wrong control group
+buggy(stage(1), X, Y, [step(buggy, control, [rc, mc])]) :-
+    X = item(rc, s_rc, n_rc, mc, s_mc, n_mc, alpha),
+    Y = item(instead(control, mc, rc), s_rc, n_rc, instead(control, rc, mc), s_mc, n_mc, alpha).
+
+feedback(control, [RC, MC], Col, FB)
+ => FB = [ "The sign of the result matches the ",
+           "negative ", \mmlm(Col, hyph(t, "ratio,")), " ",
+           "with ", \mmlm(Col, color(control, RC)), " subtracted ",
+           "from ", \mmlm(Col, [color(control, MC)]), ". Please keep in mind ",
+	   "that the control intervention must be subtracted from the tested ",
+	   "intervention."
+         ]. 
+
+hint(control, [_RC, _MC], _Col, FB)
+ => FB = [ "The control intervention must be subtracted from the tested ",
+	   "intervention in the formula of the confidence interval for the difference",
+	   " of group means."
+         ].
+
+
+% Buggy-Rule: Forgot to use square of standard deviation in pooled variance
+buggy(stage(1), From, To, [step(buggy, square, [S_A, S_B])]) :-
+    From = var_pool(S_A^2, N_A, S_B^2, N_B),
+    To = dfrac((N_A-1) * omit_right(square, S_A^2) + (N_B-1) * omit_right(square, S_B^2), N_A + N_B - 2).
+
+feedback(square, [S_A, S_B], Col, FB)
+ => FB = [ "The result matches the expression for the pooled variance without ",
+	   "the square of ", \mmlm(Col, color(square, S_A)), " and ", 
+	   \mmlm(Col, color(square, S_B)), ". Please do not forget the square of ",
+	   \mmlm(Col, color(square, S_A)), " and ", \mmlm(Col, color(square, S_B)),
+	   "when calculating the pooled variance."
+         ].
+
+hint(square, [_S_A, _S_B], _Col, FB)
+ => FB = [ "Do not forget to use the square of the standard deviations ",
+           "when calculating the pooled variance." 
+         ].
+
+
+% Buggy-Rule: Forgot school math [1/N1 + 1/N2 is not 1/(N1 + N2)] when calculating CI
+buggy(stage(2), From, To, [step(buggy, school_1, [N_A, N_B])]) :-
+    From = dot(quant(RC, MC, S2P, N_A, N_B, Alpha), sqrt(dot(S2P, frac(1, N_A) + frac(1, N_B)))),
+    To = dot(quant(RC, MC, S2P, N_A, N_B, Alpha), sqrt(dot(S2P, color(school_1, frac(1, N_A + N_B))))).
+
+feedback(school_1, [A, B], Col, FB)
+ => FB = [ "The result matches the the confidence interval for independent samples with ",
+	   \mmlm(Col, frac(1, color(school_1, color("black", A) + color("black", B)))),
+	   ". Please keep in mind that ", \mmlm(Col, color(school_1, 
+		color("black", frac(1, A)) + color("black", frac(1, B)))
+		=\= frac(1, color(school_1, color("black", A) + color("black", B)))), "."
+         ].
+
+hint(school_1, [A, B], Col, FB)
+ => FB = [ "Do not forget that ",
+           \mmlm(Col, color(school_1, color("black", frac(1, A)) + color("black", frac(1, B))) =\= frac(1, color(school_1, color("black", A) + color("black", B)))), 
+           "."
+         ].
+
+
+% Buggy-Rule: Forgot school math [1/N1 + 1/N2 is not 1/(N1 + N2)] when calculating t-statistic
+buggy(stage(2), From, To, [step(buggy, school_2, [N_A, N_B])]) :-
+    From = dfrac(RC - MC, sqrt(S2P * (frac(1, N_A) + frac(1, N_B)))),
+    To = dfrac(RC - MC, sqrt(S2P * color(school_2, frac(1, N_A + N_B)))).
+
+feedback(school_2, [A, B], Col, FB)
+ => FB = [ "The result matches the expression for the ", 
+	   \mmlm(Col, hyph(t, "ratio")), " for independent samples with ",
+	   \mmlm(Col, frac(1, color(school_2, color("black", A) + color("black", B)))),
+	   ". Please keep in mind that ", \mmlm(Col, color(school_2, 
+		color("black", frac(1, A)) + color("black", frac(1, B)))
+		=\= frac(1, color(school_2, color("black", A) + color("black", B)))), "."
+         ].
+
+hint(school_2, [A, B], Col, FB)
+ => FB = [ "Do not forget that ",
+           \mmlm(Col, color(school_2, color("black", frac(1, A)) + color("black", frac(1, B))) =\= frac(1, color(school_2, color("black", A) + color("black", B)))), 
+           "."
+         ].
+
+
+% Buggy-Rule: Forget square root around the denominator	when calculating the CI
+buggy(stage(2), X, Y, [step(buggy, sqrt1, [S2P, N_RC, N_MC])]) :-			
+    X = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), sqrt(dot(S2P, frac(1, N_RC) + frac(1, N_MC)))),
+    Y = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), omit_right(sqrt1, (dot(S2P, frac(1, N_RC) + frac(1, N_MC)))^(1/2))).
+
+
+feedback(sqrt1, [S2P, N_RC, N_MC], Col, FB)
+ => FB = [ "The result matches the confidence interval without square root around ", 
+           \mmlm(Col, color(sqrt1, dot(S2P, frac(1, N_RC) + frac(1, N_MC)))), ". Please do not forget the square root",
+           " around the denominator."
+         ].
+
+hint(sqrt1, [S2P, N_RC, N_MC], Col, FB)
+ => FB = [ "Do not forget the square root around ",
+           \mmlm(Col, color(sqrt1, dot(S2P, frac(1, N_RC) + frac(1, N_MC))))
+	     ].
+
+
+% Buggy-Rule: Forget square root around the denominator	when calculating the t-statistic
+buggy(stage(2), X, Y, [step(buggy, sqrt2, [S2P, N_RC, N_MC])]) :-			
+    X = dfrac(RC - MC, sqrt(S2P * (frac(1, N_RC) + frac(1, N_MC)))),
+    Y = dfrac(RC - MC, omit_right(sqrt2, (S2P * frac(1, N_RC) + frac(1, N_MC))^(1/2))).
+
+
+feedback(sqrt2, [S2P, N_RC, N_MC], Col, FB)
+ => FB = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), " without ",
+	   "square root around ", 
+           \mmlm(Col, color(sqrt2, dot(S2P, frac(1, N_RC) + frac(1, N_MC)))), ". Please do not forget the square root",
+           " around the denominator."
+         ].
+
+hint(sqrt2, [S2P, N_RC, N_MC], Col, FB)
+ => FB = [ "Do not forget the square root around ",
+           \mmlm(Col, color(sqrt2, dot(S2P, frac(1, N_RC) + frac(1, N_MC))))
+	     ].
+
+
+% Buggy-Rule: Forget square root around sample size when calculating the CI
+buggy(stage(2), X, Y, [step(buggy, sqrt3, [Ns])]) :-
+    Ns = frac(1, _N_RC) + frac(1, _N_MC),
+    X = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), sqrt(dot(S2P, Ns))),
+    Y = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), invent_right(sqrt3, sqrt(omit_right(sqrt3, dot(S2P, Ns))) * Ns)).
+
+feedback(sqrt3, [Ns], Col, FB)
+ => FB = [ "The result matches the confidence interval with the square root ",
+	   "stopping before ", \mmlm(Col, paren(color(sqrt3, Ns))), 
+	   ". Please do not forget to take the square root of the whole denominator."
+	 ].
+% Alternative Rückmeldung (hierfür müsste die Variable in der eckigen Klammer geändert werden): 
+% "The result matches the confidence interval with the square root only around ",
+% \mmlm(Col, paren(color(sqrt3, S2P)), ". Please do not forget to take the "
+% "square root of the whole denominator."
+
+hint(sqrt3, [_Ns], _Col, FB)
+ => FB = [ "The square root of the whole denomiator should be taken." 
+	].
+
+% Buggy-Rule: Forget square root around sample size when calculating the t-statistic
+buggy(stage(2), X, Y, [step(buggy, sqrt4, [Ns])]) :-
+    Ns = frac(1, _N_RC) + frac(1, _N_MC),
+    X = dfrac(RC - MC, sqrt(S2P * Ns)),
+    Y = dfrac(RC - MC, invent_right(sqrt4, sqrt(omit_right(sqrt4, dot(S2P, Ns))) * Ns)).
+
+feedback(sqrt4, [Ns], Col, FB)
+ => FB = [ "The result matches the expression for the ", 
+	   \mmlm(Col, hyph(t, "ratio")), " with the square root stopping before ",
+	   \mmlm(Col, paren(color(sqrt4, Ns))), ". Please do not forget to take the ",
+	   "square root of the whole denominator."
+	 ].
+% Alternative Rückmeldung (hierfür müsste die Variable in der eckigen Klammer geändert werden): 
+% "The result matches the expression for the ", \mmlm(Col, hyph(t, "ratio")),
+% " with the square root only around ", \mmlm(Col, paren(color(sqrt4, S2P)),
+% ". Please do not forget to take the square root of the whole denominator."
+
+hint(sqrt4, [_Ns], _Col, FB)
+ => FB = [ "The square root of the whole denomiator should be taken." 
+	].
