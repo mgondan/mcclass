@@ -98,18 +98,11 @@ hook(A, Res, Flags) :-
     int(A, U, [ci(upper) | Flags]),
     Res = ci(L, U).
 
-hook(pm(X, Y), Res, Flags) :-
-    option(ci(lower), Flags),
-    !,
-    interval:int(X - Y, Res, Flags).
-
-hook(pm(X, Y), Res, Flags) :-
-    option(ci(upper), Flags),
-    !,
-    interval:int(X + Y, Res, Flags).
-
 % Test if a CI is to be calculated
 ci(_Flags, pm(_, _)) :-
+    !.
+
+ci(_Flags, ci(_, _)) :-
     !.
 
 ci(Flags, A) :-
@@ -134,6 +127,30 @@ interval(ci) :-
     N = 20,
     interval(D + pm(0.0, 1.96 * S / sqrt(N)), CI),
     writeln(D + pm(0.0, 1.96 * S / sqrt(N)) --> CI).
+
+hook(ci(L, _H), Res, Flags) :-
+    option(ci(lower), Flags),
+    !,
+    int(L, Res, Flags).
+
+hook(ci(_L, H), Res, Flags) :-
+    option(ci(upper), Flags),
+    !,
+    int(H, Res, Flags).
+
+hook(A =@= B, Res, Flags) :-
+    select_option(ci(lower), Flags, New),
+    !,
+    int(A, LA, Flags),
+    int(B, LB, Flags),
+    int(LA =@= LB, Res, New).
+
+hook(A =@= B, Res, Flags) :-
+    select_option(ci(upper), Flags, New),
+    !,
+    int(A, UA, Flags),
+    int(B, UB, Flags),
+    int(UA =@= UB, Res, New).
 
 %
 % Hickey Figure 1
@@ -866,14 +883,14 @@ hook(ttest2(A, B, C, D), Res) :-
     !, Res is (A - B) / (C / sqrt(D)).
 
 % includes an interval, therefore fails
-interval(ttest2) :-
-    writeln(ttest2-fails),
-    D = 5.7 ... 5.8,
-    Mu = 4.1 ... 4.2,
-    S = 3.8 ... 3.9,
-    N = 24,
-    interval(ttest2(D, Mu, S, N), Res),
-    writeln(t --> Res).
+%interval(ttest2) :-
+%    writeln(ttest2-fails),
+%    D = 5.7 ... 5.8,
+%    Mu = 4.1 ... 4.2,
+%    S = 3.8 ... 3.9,
+%    N = 24,
+%    interval(ttest2(D, Mu, S, N), Res),
+%    writeln(t --> Res).
 
 % no intervals, therefore succeeds
 interval(ttest3) :-
