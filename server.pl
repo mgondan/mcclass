@@ -1,6 +1,7 @@
 % swipl server.pl --port=8001 --workers=10 --pidfile=http.pid
 
 :- use_module(library(dcg/basics)).
+:- use_module(library(dcg/high_order)).
 :- use_module(tasks).
 :- use_module(r).
 :- use_module(search).
@@ -55,36 +56,34 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(power), handler(power), []).
 :- http_handler(mcclass(cigroups), handler(cigroups), []).
 
-handler(Task, Request) :-
+handler(Topic, Request) :-
     member(method(post), Request),
     !,
     http_parameters(Request, [], [form_data(Form)]),
-    handle(Task, Form).
+    handle(Topic, Form).
 
-handler(Task, _) :-
-    handle(Task, []).
+handler(Topic, _) :-
+    handle(Topic, []).
 
 % Download csv data
-handle(Task, Form),
+handle(Topic, Form),
     member(download=_, Form)
  => r_initialize,
-    b_setval(task, Task),
-    task(Task, _TaskData),
+    b_setval(topic, Topic),
     download(Local),
-    format(atom(File), "attachment; filename=~k.csv", [Task]),
+    format(atom(File), "attachment; filename=~k.csv", [Topic]),
     http_current_request(Request),
     http_reply_file(Local,
       [ unsafe(true),
         mime_type(text/csv), headers(['Content-Disposition'(File)])
       ], Request).
 
-% Task sheet
-handle(Task, Form)
+% Task sheet with feedback
+handle(Topic, Form)
  => r_initialize,
-    b_setval(task, Task),
-    task(Task, TaskData),
-    TaskData = task(Task, Data),
-    Task:start(Item),
+    r_session_source(Topic),
+    b_setval(topic, Topic),
+    findall(T, Topic:task(T), Tasks),
     reply_html_page(
       [ title('McClass'),
         link([rel(stylesheet), href('bootstrap.min.css')]),
@@ -99,14 +98,21 @@ handle(Task, Form)
           ])
       ],
       [ \navbar,
-        % \hello,
-        \(Task:render(Item, Form)),
-        \feedback(Task, Data, Form),
-        \solutions(TaskData),
-        \hints(TaskData),
-        \wrongs(TaskData),
-        \traps(TaskData),
+        \(Topic:render),
+        nav(div([class('nav nav-tabs'), id('nav-tab'), role(tablist)],
+          \foreach(member(T, Tasks),
+            html(button([class('nav-link'), id('nav-~w-tab'-[T]), 'data-bs-toggle'(tab), 'data-bs-target'('#nav-~w'-[T]), type(button), role(tab), 'aria-controls'('nav-~w'-[T]), 'aria-selected'(false)], T))))),
+        div([class('tab-content'), id('nav-tabContent')],
+          \foreach((member(T, Tasks), task(Topic, T, task(Topic, T, Data))),
+            html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)], 
+              div([
+                \(Topic:task(T, Form)),
+                \feedback(Topic, T, Data, Form),
+                \pp_solutions(Topic, T, Data),
+                \pp_hints(Topic, T, Data),
+                \pp_wrongs(Topic, T, Data),
+                \pp_traps(Topic, T, Data)])
+            )))),
         script(src('bootstrap.bundle.min.js'), '')
       ]).
-
 

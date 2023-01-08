@@ -2,7 +2,7 @@
   [ r_initialize/0,
     r/1, r/2, r//1, r_source/1, 
     r_session/1, r_session/2, r_session//1, r_session_source/1,
-    r_task/1, r_task/2, r_task//1
+    r_topic/1, r_topic/2, r_topic//1
   ]).
 
 :- use_module(library(rologp)).
@@ -60,7 +60,7 @@ r_session_end
  => session_id(Session),
     r_call(rm(Session)).
 
-% Evaluate R expression in the current http_session for the current task
+% Evaluate R expression in the current http_session for the current topic
 r_session(Expr)
  => session_id(Session),
     r(with(Session, Expr)).
@@ -74,30 +74,30 @@ r_session(Expr) -->
     term_string(Res, String),
     html(String).
 
-r_task(Expr),
-    b_getval(task, Task)
- => r_session(with(Task, Expr)).
+r_topic(Expr),
+    b_getval(topic, Topic)
+ => r_session(with(Topic, Expr)).
 
-r_task(Expr, Res),
-    b_getval(task, Task)
- => r_session(with(Task, Expr), Res).
+r_topic(Expr, Res),
+    b_getval(topic, Topic)
+ => r_session(with(Topic, Expr), Res).
 
-r_task(Expr) -->
-    { r_task(Expr, Res) },
+r_topic(Expr)
+--> { r_topic(Expr, Res) },
     term_string(Res, String),
     html(String).
 
-% Load a task file into the current session
-r_session_source(Task),
-    session_data(task(Task))
+% Load a topic file into the current session
+r_session_source(Topic),
+    session_data(topic(Topic))
  => true.
 
-r_session_source(Task)
- => format(string(S), "~w.R", [Task]),
+r_session_source(Topic)
+ => format(string(S), "~w.R", [Topic]),
     session_id(Session),
-    r(with(Session, '<-'(Task, 'new.env'()))),
-    r(with(Session, with(Task, source(S, local='TRUE')))),
-    session_assert(task(Task)).
+    r(with(Session, '<-'(Topic, 'new.env'()))),
+    r(with(Session, with(Topic, source(S, local='TRUE')))),
+    session_assert(topic(Topic)).
 
 test :-
    r_init,
@@ -112,8 +112,8 @@ test :-
    r_session($(tpaired, mu), Mu1),
    writeln(session($(tpaired, mu))=Mu1),
    r_session_source(tpaired),
-   b_setval(task, tpaired),
-   r_task(mu, Mu2),
-   writeln(task(tpaired, mu)=Mu2).
+   b_setval(topic, tpaired),
+   r_topic(mu, Mu2),
+   writeln(topic(tpaired, mu)=Mu2).
 
 

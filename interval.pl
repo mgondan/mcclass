@@ -682,6 +682,9 @@ int(hdrs(A), Res, Flags)
 int(chi2ratio(A), Res, Flags)
  => int(format(A), Res, [digits(2) | Flags]).
 
+int(pval(A), Res, Flags)
+ => int(format(A), Res, [digits(3) | Flags]).
+
 %
 % This needs to be rewritten
 %

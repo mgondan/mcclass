@@ -31,8 +31,8 @@ caption(Caption) -->
 thead(ColNames) -->
     html(thead(tr(\foreach(member(C, ColNames), html(th(scope(col), C)))))).
 
-tbody(RowNames, Data) -->
-    {pairs_keys_values(Pairs, RowNames, Data)},
+tbody(RowNames, Data)
+--> { pairs_keys_values(Pairs, RowNames, Data) },
     html(tbody(\foreach(member(R-D, Pairs), html(\trow(R, D))))).
 
 % produces a line at the bottom
@@ -43,17 +43,18 @@ trow(Row, Data) -->
     html(tr([th(scope(row), Row) | \foreach(member(D, Data), html(td(D)))])).
 
 htmlform(Question, Action, Response) -->
-    html(div(class(card), div(class("card-body"),
-      [ h4(class("card-title"), [a(id(question), []), "Question"]),
-        p(class("card-text"), Question),
-        form([class(form), method(post), action(Action)],
-          [ div(class("input-group mb-3"),
-              [ div(class("input-group-prepend"),
-                  span(class("input-group-text"), "Response")),
-                input([class("form-control"), type(text), name(resp), 
+    html(div(class(card), div(class('card-body'),
+      [ h4(class('card-title'), [a(id(question), []), "Question"]),
+        p(class('card-text'), Question),
+        form([class(form), method(post), action("#~w"-[Action])],
+          [ div(class('input-group mb-3'),
+              [ div(class('input-group-prepend'),
+                  span(class('input-group-text'), "Response")),
+                input([class('form-control'), type(text), name(resp), 
                   value(Response)]),
-                div(class("input-group-append"),
-                  button([class("btn btn-primary"), type(submit)], "Submit"))
+                input([type(hidden), name(task), value(Action)]),
+                div(class('input-group-append'),
+                  button([class('btn btn-primary'), type(submit)], "Submit"))
               ])
           ])
       ]))).

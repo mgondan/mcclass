@@ -6,12 +6,9 @@
 :- multifile r_hook/1.
 interval:hook(Expr, Res) :-
     !, 
-    r_task(Expr, Res).
+    r_topic(Expr, Res).
 
 interval:monotonical(pbinom(+, -, -)).
-
-% interval:hook(pbinom(K, N, Pi), Res) :-
-%     !, r(pbinom(K, N, Pi), Res).
 
 r_hook(pbinom(_K, _N, _Pi)).
 

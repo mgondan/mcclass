@@ -126,8 +126,8 @@ math(Flags, A, New, X),
 % Check if a macro has been defined in an external module
 %
 math(Flags, A, New, X),
-    b_getval(task, Task),
-    Task:mathml_hook(A, X0)
+    b_getval(topic, Topic),
+    Topic:mathml_hook(A, X0)
  => New = Flags,
     X = X0.
 
@@ -662,6 +662,10 @@ math(Flags, perc(A), New, X)
     D is D0 - 2,
     New = [digits(D), mult(100) | Flags],
     X = [A, '%'].
+
+math(Flags, pval(A), New, X)
+ => New = [digits(3) | Flags],
+    A = X.
 
 %
 % Numbers
@@ -1911,6 +1915,10 @@ math(Flags, qnorm(P), New, X)
  => New = Flags,
     X = sub(z, P).
 
+math(Flags, pt(T, DF), New, X)
+ => New = Flags,
+    X = fn(sub('P', DF), ['T' =< T]).
+
 math(Flags, qt(P, DF), New, X)
  => New = Flags,
     X = fn(sub('T', P), [DF]).
@@ -2151,6 +2159,9 @@ fmt(Flags, chi2ratio(Expr), F)
 
 fmt(Flags, fratio(Expr), F)
  => fmt([format(fratio) | Flags], Expr, F).
+
+fmt(Flags, pval(Expr), F)
+ => fmt([format(pval) | Flags], Expr, F).
 
 fmt(Flags, Expr, F),
     compound(Expr)

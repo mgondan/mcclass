@@ -1,4 +1,4 @@
-:- module(search, [search/3, searchall/2, searchdep/2, codes/2]).
+:- module(search, [search/4, searchall/3, searchdep/3, codes/2]).
 
 :- use_module(interval).
 :- use_module(tasks).
@@ -9,12 +9,12 @@
 :- use_module(mathml).
 
 % Reached the goal
-search_(_, _, Y, Y, []).
+search_(_, _, _, Y, Y, []).
 
 % Continue search
-search_(Task, Stage, X, Y, Path) :-
-    step(Task, Stage, X, Z, Flags),
-    search_(Task, Stage, Z, Y, Steps),
+search_(Topic, Task, Stage, X, Y, Path) :-
+    step(Topic, Task, Stage, X, Z, Flags),
+    search_(Topic, Task, Stage, Z, Y, Steps),
     append(Flags, Steps, Path).
 
 % Return a solution for a given task
@@ -25,17 +25,17 @@ search_(Task, Stage, X, Y, Path) :-
 % if the solution is complete (not intermediate). The flags are sorted to allow
 % elimination of redundant solutions that occur within stages (e.g., 
 % permutations)
-search(Task, Expr, Flags) :-
-    search(Task, Expr, Flags, _).
+search(Topic, Task, Expr, Flags) :-
+    search(Topic, Task, Expr, Flags, _).
 
-search(Task, Expr, Flags, Sorted) :-
-    Task:start(X0),
-    search_(Task, stage(1), X0, X1, Flags1),
-    search_(Task, stage(2), X1, X2, Flags2),
-    search_(Task, stage(3), X2, Expr, Flags3),
-    complete(Task, Expr),           % no intermediate solutions
+search(Topic, Task, Expr, Flags, Sorted) :-
+    Topic:start(X0),
+    search_(Topic, Task, stage(1), X0, X1, Flags1),
+    search_(Topic, Task, stage(2), X1, X2, Flags2),
+    search_(Topic, Task, stage(3), X2, Expr, Flags3),
+    complete(Topic, Task, Expr),    % no intermediate solutions
     compatible(Expr),               % no incompatible bugs
-    append([Flags1, Flags2, Flags3], Flags),  % confusions (stage 1) last in feedback
+    append([Flags1, Flags2, Flags3], Flags),
     sort(Flags, Sorted).
 
 % Codes for steps
@@ -48,22 +48,22 @@ codes(Steps, Codes) :-
 % (redundant = same flags and same numerical result).
 %
 % Moreover, solutions with NA as numerical result are eliminated.
-searchdep(Task, Expr_Res_Flags) :-
+searchdep(Topic, Task, Expr_Res_Flags) :-
     findall(res(E, R/C, F), 
-      ( search(Task, E, F, S),
+      ( search(Topic, Task, E, F, S),
         dependencies(S),            % check dependencies here
         exclusive(S),
         codes(S, C),
-        interval(available(E), R, [task(Task)])
+        interval(available(E), R, [topic(Topic), task(Task)])
       ), Results),
     sort(2, @<, Results, Sorted),
     findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
 
-searchall(Task, Expr_Res_Flags) :-
+searchall(Topic, Task, Expr_Res_Flags) :-
     findall(res(E, R/S, F),
-      ( search(Task, E, F, S),
+      ( search(Topic, Task, E, F, S),
         % dependencies(S),          % do not check dependencies (needed for the traps)
-        interval(E, R, [task(Task)])
+        interval(E, R, [topic(Topic), task(Task)])
       ), Results),
     sort(2, @<, Results, Sorted),
     findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
