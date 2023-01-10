@@ -1,4 +1,4 @@
-:- module(table, [ htmltable//4, htmlform//3, download//1 ]).
+:- module(table, [ htmltable//4, htmlform//3, download//1, navtabs//2, tabcontents//2 ]).
 
 /** <module> APA tables in HTML
 
@@ -62,6 +62,37 @@ htmlform(Question, Action, Response) -->
 download(Task) -->
     html(form(method(post),
       button([class('btn btn-secondary'), name(download), value(Task)], "Download data"))).
+
+navtabs(Tasks, Current)
+--> html(nav(div([class('nav nav-tabs'), id('nav-tab'), role(tablist)],
+      \foreach(member(T, Tasks), html(\navtab(T, Current)))))).
+
+navtab(Task, Task)
+--> html(button([class('nav-link active'), id('nav-~w-tab'-[Task]),
+        'data-bs-toggle'(tab), 'data-bs-target'('#nav-~w'-[Task]),
+        type(button), role(tab), 'aria-controls'('nav-~w'-[Task]),
+        'aria-selected'(true)], Task)).
+
+navtab(Task, _)
+--> html(button([class('nav-link'), id('nav-~w-tab'-[Task]), 
+        'data-bs-toggle'(tab), 'data-bs-target'('#nav-~w'-[Task]), 
+        type(button), role(tab), 'aria-controls'('nav-~w'-[Task]), 
+        'aria-selected'(false)], 
+      Task)).
+
+tabcontents(Contents, Current)
+--> html(div([class('tab-content'), id('nav-tabContent')],
+      \foreach(member(T-C, Contents), html(\tabcontent(C, T, Current))))).
+
+tabcontent(Content, Task, Task)
+--> html(div([class('tab-pane fade show active'), id('nav-~w'-[Task]), 
+        role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[Task]), tabindex(0)],
+      Content)).
+
+tabcontent(Content, Task, _)
+--> html(div([class('tab-pane fade'), id('nav-~w'-[Task]),
+        role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[Task]), tabindex(0)],
+      Content)).
 
 test :-
     phrase(html(\htmltable("A table", 

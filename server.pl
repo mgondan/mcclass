@@ -11,6 +11,7 @@
 :- use_module(navbar).
 :- use_module(login).
 :- use_module(users).
+:- use_module(table).
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
@@ -83,7 +84,8 @@ handle(Topic, Form)
  => r_initialize,
     r_session_source(Topic),
     b_setval(topic, Topic),
-    findall(T, Topic:task(T), Tasks),
+    findall(T, Topic:task(T), [T1 | Tasks]),
+    option(task(Current), Form, T1),
     reply_html_page(
       [ title('McClass'),
         link([rel(stylesheet), href('bootstrap.min.css')]),
@@ -99,20 +101,26 @@ handle(Topic, Form)
       ],
       [ \navbar,
         \(Topic:render),
-        nav(div([class('nav nav-tabs'), id('nav-tab'), role(tablist)],
-          \foreach(member(T, Tasks),
-            html(button([class('nav-link'), id('nav-~w-tab'-[T]), 'data-bs-toggle'(tab), 'data-bs-target'('#nav-~w'-[T]), type(button), role(tab), 'aria-controls'('nav-~w'-[T]), 'aria-selected'(false)], T))))),
+        \navtabs([T1 | Tasks], Current),
         div([class('tab-content'), id('nav-tabContent')],
-          \foreach((member(T, Tasks), task(Topic, T, task(Topic, T, Data))),
-            html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)], 
-              div([
-                \(Topic:task(T, Form)),
-                \feedback(Topic, T, Data, Form),
-                \pp_solutions(Topic, T, Data),
-                \pp_hints(Topic, T, Data),
-                \pp_wrongs(Topic, T, Data),
-                \pp_traps(Topic, T, Data)])
-            )))),
+          \foreach((member(T, [T1 | Tasks]), task(Topic, T, task(Topic, T, Data))),
+            ( {T = Current}
+            ->  html(div([class('tab-pane fade show active'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)], 
+                  div([
+                    \(Topic:task(T, Form)),
+                    \feedback(Topic, T, Data, Form),
+                    \pp_solutions(Topic, T, Data),
+                    \pp_hints(Topic, T, Data),
+                    \pp_wrongs(Topic, T, Data),
+                    \pp_traps(Topic, T, Data)])))
+            ;   html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
+                  div([
+                    \(Topic:task(T, Form)),
+                    \feedback(Topic, T, Data, Form),
+                    \pp_solutions(Topic, T, Data),
+                    \pp_hints(Topic, T, Data),
+                    \pp_wrongs(Topic, T, Data),
+                    \pp_traps(Topic, T, Data)])))))),
         script(src('bootstrap.bundle.min.js'), '')
       ]).
 
