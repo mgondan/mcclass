@@ -120,7 +120,7 @@ feedback(Topic, Task, Data, Form)
       memberchk(solutions(Solutions), Data),
       member(Expr-Res/Flags, Solutions),
       colors(Expr, Col),
-      interval(Num =@= Res, _, [topic(Topic), task(Task) | Col]),
+      interval(Num =@= Res, true, [topic(Topic), task(Task) | Col]),
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
           Topic:feedback(Name, Args, [topic(Topic), task(Task) | Col], FB)
@@ -139,14 +139,14 @@ feedback(Topic, Task, Data, Form)
 --> { option(resp(R), Form),
       quantity(N0, Opt, R),
       interval(@(N0, Opt), Num, [topic(Topic), task(Task)]),
+      memberchk(wrongall(Wrongs), Data),
+      member(Expr-Res/Flags, Wrongs),
+      colors(Expr, Col),
+      interval(Num =@= Res, true, [topic(Topic), task(Task) | Col]),
       member(traps(Traps), Data),
       member(hints(Hints0), Data),
       append(Hints0, Hints1),
       sort(Hints1, Hints),
-      member(wrongall(ERF), Data),
-      member(Expr-Res/Flags, ERF),
-      colors(Expr, Col),
-      interval(Num =@= Res, _, [topic(Topic), task(Task) | Col]),
       % relevant feedback
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
@@ -420,7 +420,7 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(tpaired, pvalue).
+    tasks(cigroups, cigroups).
 
 tasks(Topic, Task) :-
     r_initialize,

@@ -9,8 +9,9 @@
 :- use_module(navbar).
 
 navbar:page(cigroups, ["Confidence interval for independent samples"]).
+task(cigroups).
 
-:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
 mathml_hook(n_mc, sub(n, "MC")).
@@ -37,10 +38,10 @@ rint:r_hook(qt(_P, _DF)).
 rint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
 
 % Task description
-render(item(RC, S_RC, N_RC, MC, S_MC, N_MC, Alpha), Form) -->
-    { option(resp(R), Form, '#.##') },
+render
+--> {start(item(_RC, _S_RC, N_RC, _MC, _S_MC, N_MC, _Alpha)) },
     html(
-      [ div(class(card), div(class('card-body'),
+       div(class(card), div(class('card-body'),
           [ h1(class('card-title'), "New math teaching concept"),
             p(class('card-text'),
             [ "There are plans to introduce a new concept for teaching ",
@@ -62,29 +63,32 @@ render(item(RC, S_RC, N_RC, MC, S_MC, N_MC, Alpha), Form) -->
                       "and reference class." ],
                     [ "Average", "SD" ],
                     [ "", "Model class", "Reference class"],
-                    [ [ \mmlm([digits(1)], r(MC)),
-                        \mmlm([digits(1)], r(RC)) ],
-                      [ \mmlm([digits(1)], r(S_MC)),
-                        \mmlm([digits(1)], r(S_RC))]
+                    [ [ \mmlm([digits(1)], r(mc)),
+                        \mmlm([digits(1)], r(rc)) ],
+                      [ \mmlm([digits(1)], r(s_mc)),
+                        \mmlm([digits(1)], r(s_rc))]
                     ])))),
             \download(cigroups)
-          ])),
-        \htmlform(["Determine the confidence interval for the difference between the two group means. The alpha level is ", \mmlm([], alpha = perc(Alpha))
-                ], '#cigroups', R)
-    ]).
+          ]))).
 
+task(cigroups, Form)
+-->     { start(item(_RC, _S_RC, _N_RC, _MC, _S_MC, _N_MC, Alpha)),
+	  option(resp(R), Form, '#.##')
+	},
+	html(\htmlform(["Determine the confidence interval for the difference between the two group means. The alpha level is ", \mmlm([], alpha = perc(Alpha))
+                ], "cigroups", R)).
 
 % t-test and confidence intervall for independent samples 
-intermediate(item).
+intermediate(cigroups, item).
 start(item(rc, s_rc, n_rc, mc, s_mc, n_mc, alpha)). 
 
 % First step: Extract the correct information for a t-test for independent 
 % samples and the associated confidence interval from the task description
-intermediate(tratio).
-expert(stage(1), X, Y, [step(expert, problem, [])]) :-
+intermediate(cigroups, indep).
+expert(cigroups, stage(1), X, Y, [step(expert, problem, [])]) :-
     X = item(RC, S_RC, N_RC, MC, S_MC, N_MC, Alpha),
     Y = { '<-'(s2p, var_pool(S_RC^2, N_RC, S_MC^2, N_MC)) ;
-          '<-'(t, tratio(RC, MC, s2p, N_RC, N_MC, Alpha))
+          '<-'(ci, indep(RC, MC, s2p, N_RC, N_MC, Alpha))
          }.
 
 feedback(problem, [], Col, F)
@@ -103,8 +107,8 @@ hint(problem, [], Col, H)
 % group means, the pooled variance has to be calculated first. Apply the formula
 % for the pooled variance.
 % dfrac/2 is a fraction in "display" mode (a bit larger font than normal)
-intermediate(var_pool).
-expert(stage(1), X, Y, [step(expert, pooled, [S2P])]) :-
+intermediate(cigroups, var_pool).
+expert(cigroups, stage(1), X, Y, [step(expert, pooled, [S2P])]) :-
     X = '<-'(S2P, var_pool(S_A^2, N_A, S_B^2, N_B)),
     Y = '<-'(S2P, dfrac((N_A-1) * S_A^2 + (N_B-1) * S_B^2, N_A + N_B - 2)).
 
@@ -119,9 +123,9 @@ hint(pooled, [S2P], Col, FB)
 
 % Third step: Apply the formula for the confidence interval for the difference
 % of group means
-intermediate(quant).
-expert(stage(2), X, Y, [step(expert, ci_bounds, [RC, MC, S2P, N_RC, N_MC, Alpha])]) :-
-    X = tratio(RC, MC, S2P, N_RC, N_MC, Alpha),
+intermediate(cigroups, quant).
+expert(cigroups, stage(2), X, Y, [step(expert, ci_bounds, [RC, MC, S2P, N_RC, N_MC, Alpha])]) :-
+    X = indep(RC, MC, S2P, N_RC, N_MC, Alpha),
     Y = hdrs(pm(RC - MC, dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), sqrt(dot(S2P, frac(1, N_RC) + frac(1, N_MC)))))).
 
 feedback(ci_bounds, [_RC, _MC, _S2P, _N_RC, _N_MC, _Alpha], _Col, F)					
@@ -136,7 +140,7 @@ hint(ci_bounds, [RC, MC, S2P, N_RC, N_MC, Alpha], Col, H)
         ].
 
 % Fourth step: Choose the correct quantile of the t-distribution
-expert(stage(2), X, Y, [step(expert, tquant, [Alpha])]) :-
+expert(cigroups, stage(2), X, Y, [step(expert, tquant, [Alpha])]) :-
     X = quant(_RC, _MC, _S2P, N_RC, N_MC, Alpha),
     Y = qt(1 - Alpha/2, N_RC + N_MC - 2).
 
@@ -154,7 +158,7 @@ hint(tquant, [Alpha], Col, H)
 
 				
 % Buggy-Rule: Use t-statistic instead of t-quantile
-buggy(stage(2), X, Y, [step(buggy, tstat, [N_RC, N_MC, Alpha])]) :-
+buggy(cigroups, stage(2), X, Y, [step(buggy, tstat, [N_RC, N_MC, Alpha])]) :-
     X = quant(RC, MC, S2P, N_RC, N_MC, Alpha),
     P = abbrev(t, dfrac(RC - MC, sqrt(S2P * (frac(1, N_RC) + frac(1, N_MC)))), ["the observed", space, t, "-statistic."]),
     Y = P. 
@@ -175,7 +179,7 @@ hint(tstat, [_N_RC, _N_MC, _Alpha], Col, H)
 
 % Buggy-Rule: Use z-quantile instead of t-quantile. 
 % This rule may be dropped because we might not be able to distinguish the results.
-buggy(stage(2), X, Y, [step(buggy, qt, [N_RC, N_MC, Alpha])]) :-
+buggy(cigroups, stage(2), X, Y, [step(buggy, qt, [N_RC, N_MC, Alpha])]) :-
     X = quant(_RC, _MC, _S2P, N_RC, N_MC, Alpha),
     Y = instead(qt, qnorm(1 - Alpha/2) , qt(1 - Alpha/2, N_RC + N_MC - 2)).
 
@@ -195,7 +199,7 @@ hint(qt, [_N_RC, _N_MC, _Alpha], Col, H)
 
 
 % Buggy-Rule: Using the wrong control group
-buggy(stage(1), X, Y, [step(buggy, control, [rc, mc])]) :-
+buggy(cigroups, stage(1), X, Y, [step(buggy, control, [rc, mc])]) :-
     X = item(rc, s_rc, n_rc, mc, s_mc, n_mc, alpha),
     Y = item(instead(control, mc, rc), s_rc, n_rc, instead(control, rc, mc), s_mc, n_mc, alpha).
 
@@ -216,7 +220,7 @@ hint(control, [_RC, _MC], _Col, FB)
 
 
 % Buggy-Rule: Forgot to use square of standard deviation in pooled variance
-buggy(stage(1), From, To, [step(buggy, square, [S_A, S_B])]) :-
+buggy(cigroups, stage(1), From, To, [step(buggy, square, [S_A, S_B])]) :-
     From = var_pool(S_A^2, N_A, S_B^2, N_B),
     To = dfrac((N_A-1) * omit_right(square, S_A^2) + (N_B-1) * omit_right(square, S_B^2), N_A + N_B - 2).
 
@@ -235,7 +239,7 @@ hint(square, [_S_A, _S_B], _Col, FB)
 
 
 % Buggy-Rule: Forgot school math [1/N1 + 1/N2 is not 1/(N1 + N2)] when calculating CI
-buggy(stage(2), From, To, [step(buggy, school_1, [N_A, N_B])]) :-
+buggy(cigroups, stage(2), From, To, [step(buggy, school_1, [N_A, N_B])]) :-
     From = dot(quant(RC, MC, S2P, N_A, N_B, Alpha), sqrt(dot(S2P, frac(1, N_A) + frac(1, N_B)))),
     To = dot(quant(RC, MC, S2P, N_A, N_B, Alpha), sqrt(dot(S2P, color(school_1, frac(1, N_A + N_B))))).
 
@@ -255,7 +259,7 @@ hint(school_1, [A, B], Col, FB)
 
 
 % Buggy-Rule: Forgot school math [1/N1 + 1/N2 is not 1/(N1 + N2)] when calculating t-statistic
-buggy(stage(2), From, To, [step(buggy, school_2, [N_A, N_B])]) :-
+buggy(cigroups, stage(2), From, To, [step(buggy, school_2, [N_A, N_B])]) :-
     From = dfrac(RC - MC, sqrt(S2P * (frac(1, N_A) + frac(1, N_B)))),
     To = dfrac(RC - MC, sqrt(S2P * color(school_2, frac(1, N_A + N_B)))).
 
@@ -276,7 +280,7 @@ hint(school_2, [A, B], Col, FB)
 
 
 % Buggy-Rule: Forget square root around the denominator	when calculating the CI
-buggy(stage(2), X, Y, [step(buggy, sqrt1, [S2P, N_RC, N_MC])]) :-			
+buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt1, [S2P, N_RC, N_MC])]) :-			
     X = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), sqrt(dot(S2P, frac(1, N_RC) + frac(1, N_MC)))),
     Y = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), omit_right(sqrt1, (dot(S2P, frac(1, N_RC) + frac(1, N_MC)))^(1/2))).
 
@@ -294,7 +298,7 @@ hint(sqrt1, [S2P, N_RC, N_MC], Col, FB)
 
 
 % Buggy-Rule: Forget square root around the denominator	when calculating the t-statistic
-buggy(stage(2), X, Y, [step(buggy, sqrt2, [S2P, N_RC, N_MC])]) :-			
+buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt2, [S2P, N_RC, N_MC])]) :-			
     X = dfrac(RC - MC, sqrt(S2P * (frac(1, N_RC) + frac(1, N_MC)))),
     Y = dfrac(RC - MC, omit_right(sqrt2, (S2P * frac(1, N_RC) + frac(1, N_MC))^(1/2))).
 
@@ -313,7 +317,7 @@ hint(sqrt2, [S2P, N_RC, N_MC], Col, FB)
 
 
 % Buggy-Rule: Forget square root around sample size when calculating the CI
-buggy(stage(2), X, Y, [step(buggy, sqrt3, [Ns])]) :-
+buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt3, [Ns])]) :-
     Ns = frac(1, _N_RC) + frac(1, _N_MC),
     X = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), sqrt(dot(S2P, Ns))),
     Y = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), invent_right(sqrt3, sqrt(omit_right(sqrt3, dot(S2P, Ns))) * Ns)).
@@ -333,7 +337,7 @@ hint(sqrt3, [_Ns], _Col, FB)
 	].
 
 % Buggy-Rule: Forget square root around sample size when calculating the t-statistic
-buggy(stage(2), X, Y, [step(buggy, sqrt4, [Ns])]) :-
+buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt4, [Ns])]) :-
     Ns = frac(1, _N_RC) + frac(1, _N_MC),
     X = dfrac(RC - MC, sqrt(S2P * Ns)),
     Y = dfrac(RC - MC, invent_right(sqrt4, sqrt(omit_right(sqrt4, dot(S2P, Ns))) * Ns)).

@@ -94,6 +94,18 @@ hook(A, Res, Flags) :-
     \+ member(ci(_), Flags),
     ci(Flags, A),
     !,
+    cihook(A, Res, Flags).
+
+cihook(A =@= B, Res, Flags) :-
+    !,
+    int(A =@= B, L, [ci(lower) | Flags]),
+    int(A =@= B, U, [ci(upper) | Flags]),
+    (   L = true, U = true
+    ->  Res = true
+    ;   Res = false
+    ).
+
+cihook(A, Res, Flags) :-
     int(A, L, [ci(lower) | Flags]),
     int(A, U, [ci(upper) | Flags]),
     Res = ci(L, U).
@@ -121,12 +133,16 @@ hook(pm(X, Y), Res, Flags) :-
     !,
     int(X + Y, Res, Flags).
 
-interval(ci) :-
+interval(ci1) :-
     D = 2.0 ... 2.1,
     S = 1.6 ... 1.7,
     N = 20,
     interval(D + pm(0.0, 1.96 * S / sqrt(N)), CI),
     writeln(D + pm(0.0, 1.96 * S / sqrt(N)) --> CI).
+
+interval(ci2) :-
+    interval(ci(1 ... 2, 3 ... 4) =@= ci(1 ... 2, 3 ... 4), Res),
+    writeln(ci(1 ... 2, 3 ... 4) =@= ci(1 ... 2, 3 ... 4) --> Res).
 
 hook(ci(L, _H), Res, Flags) :-
     option(ci(lower), Flags),
@@ -191,14 +207,18 @@ int(A =@= B, Res, Flags)
 
 binary(=@=, A ... B, C ... D, Res)
  => eval(max(A, C), min(B, D), L ... U),
-    L =< U,
-    Res = L ... U.
+    (   L =< U
+    ->  Res = true
+    ;   Res = false
+    ).
 
 binary(=@=, A, B, Res),
     atomic(A),
     atomic(B)
- => A =@= B,
-    Res = A. % todo: boolean
+ => (   A =@= B
+    ->  Res = true
+    ;   Res = false
+    ).
 
 interval(equality-1) :-
     X = 1.00 ... 1.02,
