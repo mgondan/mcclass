@@ -3,6 +3,7 @@
     [ session_id/1,
       session_assert/1,
       session_data/1,
+      session_data/2,
       session_retract/1,
       session_retractall/1,
       session_tmpfile/1
@@ -34,6 +35,13 @@ session_data(Data) :-
     http_in_session(_),
     !,
     http_session_data(Data).
+
+session_data(Data, _Default) :-
+    session_data(D),
+    !,
+    Data = D.
+
+session_data(Default, Default).
 
 % Remove information, same as above
 session_retract(Data) :-
@@ -67,11 +75,13 @@ session_end :-
     session_retract(tmp(File)),
     fail. % force backtracking
 
-test(session) :-
-    session_assert(data),
-    session_data(D),
-    writeln(D),
-    session_retract(data),
+session :-
+    session_assert(data(data=1)),
+    session_data(data(D)),
+    writeln(data(D)),
+    session_retract(data(_)),
+    session_data(nodata(N), nodata(nodata)),
+    writeln(nodata(N)),
     session_tmpfile(Temp),
     writeln(Temp).
 
