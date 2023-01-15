@@ -113,8 +113,9 @@ task(Topic, Task, Data) :-
     session_assert(taskdata(Topic, Task, Data)).
 
 % Correct response
-feedback(Topic, Task, Data, Form)
---> { option(resp(R), Form),
+feedback(Topic, Task, Data, _Form)
+--> { % option(resp(R), Form),
+      session_data(resp(Topic, Task, R)),
       quantity(N0, Opt, R),
       interval(@(N0, Opt), Num, [topic(Topic), task(Task)]),
       memberchk(solutions(Solutions), Data),
@@ -135,8 +136,9 @@ feedback(Topic, Task, Data, Form)
       ])).
 
 % Buggy response
-feedback(Topic, Task, Data, Form)
---> { option(resp(R), Form),
+feedback(Topic, Task, Data, _Form)
+--> { % option(resp(R), Form),
+      session_data(resp(Topic, Task, R)),
       quantity(N0, Opt, R),
       interval(@(N0, Opt), Num, [topic(Topic), task(Task)]),
       memberchk(wrongall(Wrongs), Data),
@@ -209,9 +211,10 @@ feedback(Topic, Task, Data, Form)
           ])
       ])).
 
-feedback(_Topic, _Task, _Data, Form) -->
+feedback(Topic, Task, _Data, Form) -->
     { http_log("Form: ~w~n", [Form]),
-      option(resp(R), Form),
+      % option(resp(R), Form),
+      session_data(resp(Topic, Task, R)),
       quantity(N, Opt, R)
     },
     html(div(class(card),
@@ -220,8 +223,10 @@ feedback(_Topic, _Task, _Data, Form) -->
           p(class('card-text'), "Response: ~p ~p"-[N, Opt]))
       ])).
 
-feedback(_Topic, _Task, _Data, Form) -->
-    { option(resp(R), Form) },
+feedback(Topic, Task, _Data, _Form) -->
+    { % option(resp(R), Form),
+      session_data(resp(Topic, Task, R))
+    },
     html(div(class(card),
       [ div(class('card-header text-white bg-secondary'), "Feedback"),
         div(class('card-body'),

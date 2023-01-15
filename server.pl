@@ -86,6 +86,19 @@ handle(Topic, Form)
     b_setval(topic, Topic),
     findall(T, Topic:task(T), [T1 | Tasks]),
     option(task(Current), Form, T1),
+
+%    findall(Tab, 
+%      (   member(T, [T1 | Tasks]), 
+%          task(Topic, T, task(Topic, T, Data)),
+%          phrase(html(div([
+%              \(Topic:task(T, Form)),
+%              \feedback(Topic, T, Data, Form),
+%              \pp_solutions(Topic, T, Data),
+%              \pp_hints(Topic, T, Data),
+%              \pp_wrongs(Topic, T, Data),
+%              \pp_traps(Topic, T, Data)])), Tab)
+%      ), Tabs),
+
     reply_html_page(
       [ title('McClass'),
         link([rel(stylesheet), href('bootstrap.min.css')]),
