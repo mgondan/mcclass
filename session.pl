@@ -10,8 +10,9 @@
     ]).
 
 :- use_module(library(http/http_session)).
+:- use_module(library(http/http_log)).
 
-:- dynamic session_data/1.
+:- dynamic local_session_data/1.
 
 session_id(Session),
     http_in_session(S)
@@ -24,10 +25,10 @@ session_id(Session)
 % predicate session_data/1
 session_assert(Data),
     http_in_session(_)
- => http_session_assert(Data).
+ => http_session_asserta(Data).
 
 session_assert(Data)
- => assert(session_data(Data)).
+ => assert(local_session_data(Data)).
 
 % Retrieve information. If no http session is running, the dynamic predicate
 % session_data/1 is used.
@@ -36,21 +37,21 @@ session_data(Data) :-
     !,
     http_session_data(Data).
 
+session_data(Data) :-
+    local_session_data(Data).
+
 session_data(Data, _Default) :-
-    session_data(D),
-    !,
-    Data = D.
+    session_data(Data).
 
 session_data(Default, Default).
 
 % Remove information, same as above
-session_retract(Data) :-
-    http_in_session(_),
-    !,
-    http_session_retract(Data).
+session_retract(Data),
+    http_in_session(_)
+ => http_session_retract(Data).
 
-session_retract(Data) :-
-    retract(session_data(Data)).
+session_retract(Data)
+ => retract(local_session_data(Data)).
 
 session_retractall(Data),
     http_in_session(_)
@@ -82,6 +83,8 @@ session :-
     session_retract(data(_)),
     session_data(nodata(N), nodata(nodata)),
     writeln(nodata(N)),
+    session_data(resp(tpaired, tratio, Resp), resp(tpaired, tratio, '#.##')),
+    writeln(Resp),
     session_tmpfile(Temp),
     writeln(Temp).
 
