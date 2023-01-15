@@ -8,11 +8,12 @@
 :- use_module(interval).
 :- use_module(rint).
 :- use_module(mathml).
-
 :- use_module(navbar).
 navbar:page(baseline, ["baseline covariates"]).
+task(fratio).
 
-:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
 mathml_hook(m_T0, overline("T0")).
@@ -34,10 +35,12 @@ my_subset([X | L], [X | S], D) :-
 my_subset(L, [H | S], [H | D]) :-
     my_subset(L, S, D).
 
-render(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy), Form) -->
-    { option(resp(R), Form, '#.##') },
+render
+--> { start(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)) },
+ 
+
     html(
-      [ div(class(card), div(class('card-body'),
+      div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Treatment of early stuttering"),
           p(class('card-text'),
             [ "Jones et al. (2005) investigated the efficacy of the ",
@@ -72,23 +75,27 @@ render(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy), Form) -->
               li(["EOT: Percentage of stuttered syllables 9 months after ",
                 "randomization (primary endpoint)"]),
               li(["FU: Percentage of stuttered syllables 15 months after ",
-                "randomization (secondary endpoint)"])
-            ]), 
+                "randomization (secondary endpoint)"])]), 
           \download(baseline)
-        ])),
-        \htmlform([ "Does the Lidcombe therapy lead to a ",
-          "reduction in stuttered syllables compared to TAU? ",
-          "Please report the ", \mmlm(hyph('F', "ratio.")) ], "#Fratio", R)
-      ]).
+        ]))).
+task(fratio, Form)
+--> { start(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)),
+      option(resp(Resp), Form, '#.##') 
+    },
+	html(\htmlform([ "Does the Lidcombe therapy lead to a relevant reduction",
+	"im stutterd syllables compared to TAU? ",
+	"Please report the ", \mmlm(hyph('F', "ratio.")) ], "Fratio", 
+Resp)).
+
 
 % baseline adjusted ANCOVA
-intermediate(item).
-start(item("EOT", ["T0"], ["Sex"], ["FU"], [], [], "Therapy")).
+intermediate(fratio, item).
+start(item("EOT", ["T0", "AgeMo"], ["Sex"], ["FU"], [], [], "Therapy")).
 
 % Step 1: Extract the correct information for a ANCOVA from the
 % task description
-intermediate(baseline1).
-expert(stage(1), X, Y, [step(expert, baseline, [])]) :-
+intermediate(fratio, baseline1).
+expert(fratio, stage(1), X, Y, [step(expert, baseline, [])]) :-
     X = item(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Y = baseline1(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
@@ -101,8 +108,8 @@ hint(baseline, [], _Col, H)
  => H = [ "This is a group comparison with covariate adjustment." ].
 
 % Step 2: Use the correct covariate(s)
-intermediate(baseline2).
-expert(stage(2), X, Y, [step(expert, covariates, [Cov])]) :-
+intermediate(fratio, baseline2).
+expert(fratio, stage(2), X, Y, [step(expert, covariates, [Cov])]) :-
     X = baseline1(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Y = baseline2(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
@@ -117,7 +124,7 @@ hint(covariates, [Cov], Col, H)
         ].
 
 % Omit relevant covariates (ex. forget to include baseline (T0))
-buggy(stage(2), X, Y, [step(buggy, covariates, [Cov, [R | Removed]])]) :-
+buggy(fratio, stage(2), X, Y, [step(buggy, covariates, [Cov, [R | Removed]])]) :-
     X = baseline1(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
     my_subset(Subset, Cov, [R | Removed]),
     findall(omit(covariates , O), member(O, [R | Removed]), Omitted),
@@ -135,8 +142,8 @@ hint(covariates, [Cov, _Removed], Col, H)
         ].
 
 % Step 3: Use the correct stratification variable(s)
-intermediate(baseline3).
-expert(stage(2), X, Y, [step(expert, stratification, [Strata])]) :-
+intermediate(fratio, baseline3).
+expert(fratio, stage(2), X, Y, [step(expert, stratification, [Strata])]) :-
     X = baseline2(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Y = baseline3(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
@@ -151,7 +158,7 @@ hint(stratification, [Strata], Col, H)
         ].
 
 % Misconception: Exclude Strata variable(s)
-buggy(stage(2), X, Y, [step(buggy, misstrata, [Strata, [R | Removed]])]) :-
+buggy(fratio, stage(2), X, Y, [step(buggy, misstrata, [Strata, [R | Removed]])]) :-
     X = baseline2(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
     my_subset(Subset, Strata, [R | Removed]),
     findall(omit(misstrata, O), member(O, [R | Removed]), Omitted),
@@ -167,8 +174,8 @@ hint(misstrata, [Strata, _Removed], Col, H)
           "in the statistical model."].
 
 % Step 4: Ignore distractors
-intermediate(baseline4).
-expert(stage(2), X, Y, [step(expert, ignore, [Other])]) :-
+intermediate(fratio, baseline4).
+expert(fratio, stage(2), X, Y, [step(expert, ignore, [Other])]) :-
     X = baseline3(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Y = baseline4(Prim, Cov, Strata, [], Int, Exclude, Therapy).
 
@@ -183,7 +190,7 @@ hint(ignore, [Other], Col, H)
         ].
 
 % Step 4: Potential Misconception: add distractor variables to the model
-buggy(stage(2), X, Y, [step(buggy, distractors, [Other, [S | Subset]])]) :-
+buggy(fratio, stage(2), X, Y, [step(buggy, distractors, [Other, [S | Subset]])]) :-
     X = baseline3(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
     my_subset([S | Subset], Other, Difference),
     findall(invent(distractors, D), member(D, [S | Subset]), Distractors),
@@ -201,8 +208,8 @@ hint(distractors, [Other, _Dist], Col, H)
         ].
 
 % Step 5: No treatment-by-covariate interactions
-intermediate(baseline5).
-expert(stage(2), X, Y, [step(expert, noint, [Int])]) :-
+intermediate(fratio, baseline5).
+expert(fratio, stage(2), X, Y, [step(expert, noint, [Int])]) :-
     X = baseline4(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Y = baseline5(Prim, Cov, Strata, Other, [], Exclude, Therapy).
 
@@ -223,7 +230,7 @@ atomics_to_string_sep(Sep, List, String) :-
 atomics_to_string_sep(Sep, List, String) :-
   atomics_to_string(List, Sep, String).
 
-buggy(stage(2), X, Y, [step(buggy, interactions, [Colon])]) :-
+buggy(fratio, stage(2), X, Y, [step(buggy, interactions, [Colon])]) :-
     X = baseline4(Prim, Cov, Strata, Other, Int0, Exclude, Therapy),
     % T0, Sex
     append(Strata, Cov, Covariates),
@@ -251,7 +258,7 @@ hint(interactions, [_Int], _Col, H)
         ].
 
 % Step 6: Apply linear regression
-expert(stage(2), X, Y, [step(expert, ancova, [Therapy])]) :-
+expert(fratio, stage(2), X, Y, [step(expert, ancova, [Therapy])]) :-
     X = baseline5(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Y = ancova_f(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
