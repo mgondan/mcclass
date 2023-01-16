@@ -8,8 +8,8 @@
 
 :- use_module(navbar).
 navbar:page(easyodds, "OR (3)").
-
-:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+task(oratio).
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
 mathml_hook(pi_A, sub(pi, "A")).
@@ -23,8 +23,9 @@ rint:r_hook(pi_A).
 rint:r_hook(pi_B).
 rint:r_hook(or).
 
-render(item(Odds_A, Pi_B, OR), Form) -->
-	{ option(resp(R), Form, '#.##') },
+render
+--> {start(item(Odds_A, Pi_B, OR)) }, 
+	
 	html(
 		[ div(class(card), div(class('card-body'),
 		    [ h1(class('card-title'), "Clinical Study"),
@@ -33,29 +34,20 @@ render(item(Odds_A, Pi_B, OR), Form) -->
 			 \mmlm([r(Odds_A), ","]), " treatment B has a probability of success of ",
 			 \mmlm([r(Pi_B), ","]), " and the Odds Ratio between both treatments is ",
 		         \mmlm([r(OR), "."])
-		       ])
-		    ])),
-	          div(class(card), div(class('card-body'),
-		     [ h4(class('card-title'), [a(id(question), []), "Question"]),
-		       p(class('card-text'),
-		        [ "What is the probability of sucess with treatment A?"
-		        ]),
-		       form([class(form), method('POST'), action('#easyodds-reverse')],
-		        [ div(class("input-group mb-3"),
-		           [ div(class("input-group-prepend"), 
-		               span(class("input-group-text"), "Response")),
-		             input([class("form-control"), type(text), name(resp), value(R)]),
-		                div(class("input-group-append"),
-		                   button([class('btn btn-primary'), type(submit)], "Submit"))
-		        ])])
-		     ]))
-		]).
+		       ])]))]).
+
+task(oratio, Form)
+	--> {start(item(_Odds_A, _Pi_B, _OR)),
+	option(resp(Resp), Form, '#.##')
+	}, 
+	html(\htmlform(["What is the probability of sucess with treatment A?"], "oratio", 
+	Resp)).
 
 % Odds ratio with two probabilities. 
-intermediate(item).
+intermediate(oratio, item).
 start(item(odds_A, pi_B, or)).
 
-expert(stage(2), From, To, [step(expert, odd, [])]) :-
+expert(oratio, stage(2), From, To, [step(expert, odd, [])]) :-
     From = item(Odds_A, _Pi_B, _OR),
     To = { '<-'(pi_A, dfrac(Odds_A, 1 + Odds_A)) ;
 	   pi_A
@@ -70,7 +62,7 @@ hint(odd, [], Col, FB) =>
 
 % 1) Tried conversion from odds to odds, as if starting with 
 %    a probability.
-buggy(stage(2), From, To, [step(buggy, sub, [Odds_A])]) :-
+buggy(oratio, stage(2), From, To, [step(buggy, sub, [Odds_A])]) :-
     From = 1 + Odds_A,
     To = instead(sub, 1 - Odds_A, 1 + Odds_A).
 
@@ -82,7 +74,7 @@ hint(sub, [Odds_A], Col, FB) =>
     FB = [ "Do not try to further convert ", \mmlm(Col, color(sub, Odds_A)), " to odds." ].
 
 % 2) Used pi_B rather than odds_A.
-buggy(stage(1), From, To, [step(buggy, pi, [])]) :-
+buggy(oratio, stage(1), From, To, [step(buggy, pi, [])]) :-
     From = odds_A,
     To = instead(pi, pi_B, odds_A).
 
@@ -93,7 +85,7 @@ hint(pi, [], Col, FB) =>
     FB = [ "Do not execute your calculations using ", \mmlm(Col, color(pi,  pi_B)) ].
 
 % 3) Used or rather than odds_A.
-buggy(stage(1), From, To, [step(buggy, ratio, [])]) :-
+buggy(oratio, stage(1), From, To, [step(buggy, ratio, [])]) :-
     From = odds_A,
     To = instead(ratio, or, odds_A).
 
