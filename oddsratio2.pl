@@ -9,8 +9,9 @@
 
 :- use_module(navbar).
 navbar:page(oddsratio2, "OR (2)").
+task(oratio).
 
-:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
 mathml_hook(pi_A, sub(pi, "A")).
@@ -26,8 +27,9 @@ rint:r_hook(pi_B).
 rint:r_hook(or).
 rint:r_hook(odds_B).
 
-render(item(Pi_A, Pi_B), Form) -->
-    { option(resp(R), Form, '#.##') },
+render
+--> { start(item(Pi_A, Pi_B)) },
+    
     html(
       [ div(class(card),
           div(class('card-body'),
@@ -36,16 +38,20 @@ render(item(Pi_A, Pi_B), Form) -->
                 [ "The success probability of Therapy A ",
                   "is ", \mmlm([r(Pi_A), "."]), " Therapy B has a success ",
                   "probability of ", \mmlm([r(Pi_B), "."])
-                ])
-            ])),
-        \htmlform("What is the odds ratio relative to Therapy A?", "#oddsratio", R)
-      ]).
+                ])]))]).
+     task(oratio, Form)
+	--> {start(item(_Pi_A, _Pi_B)),
+	     option(resp(Resp), Form, '#.##') 
+	    }, 
+        html(\htmlform(["What is the odds ratio relative to Therapy A?"], "oratio",
+ Resp)).
+
 
 % Odds ratio with two probabilities
-intermediate(item).
+intermediate(oratio, item).
 start(item(pi_A, pi_B)).
 
-expert(stage(1), From, To, [step(expert, problem, [])]) :-
+expert(oratio, stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(Pi_A, Pi_B),
     To = 
       { '<-'(odds_A, odds(Pi_A)) ;
@@ -60,8 +66,8 @@ hint(problem, [], _Col, FB)
  => FB = "This is an odds ratio.".
 
 % Determine the odds for A and B
-intermediate(odds).
-expert(stage(1), From, To, [step(expert, odds, [Pi, Odds])]) :-
+intermediate(oratio, odds).
+expert(oratio, stage(1), From, To, [step(expert, odds, [Pi, Odds])]) :-
     From = '<-'(Odds, odds(Pi)),
     To = '<-'(Odds, dfrac(Pi, 1 - Pi)).
 
@@ -74,8 +80,8 @@ hint(odds, [Pi, Odds], Col, FB)
          ].
 
 % Calculate OR
-intermediate(odds_ratio).
-expert(stage(2), From, To, [step(expert, odds_ratio, [Odds_B, Odds_A])]) :-
+intermediate(oratio, odds_ratio).
+expert(oratio, stage(2), From, To, [step(expert, odds_ratio, [Odds_B, Odds_A])]) :-
     From = odds_ratio(Odds_B, Odds_A),
     To = Odds_B / Odds_A.
 
@@ -88,7 +94,7 @@ hint(odds_ratio, [Odds_B, Odds_A], Col, FB)
          ].
 
 % Forgot conversion of pi to odds
-buggy(stage(1), From, To, [step(buggy, forget_odds, [Pi, Odds])]) :-
+buggy(oratio, stage(1), From, To, [step(buggy, forget_odds, [Pi, Odds])]) :-
     From = '<-'(Odds, odds(Pi)),
     To = '<-'(Odds, omit_right(forget_odds, dfrac(Pi, 1 - Pi))).
 
@@ -105,7 +111,7 @@ hint(forget_odds, [Pi, _Odds], Col, FB)
          ].
 
 % Confuse odds_A and odds_B
-buggy(stage(2), From, To, [step(buggy, inverse, [Odds_B, Odds_A])]) :-
+buggy(oratio, stage(2), From, To, [step(buggy, inverse, [Odds_B, Odds_A])]) :-
     From = odds_ratio(Odds_B, Odds_A),
     To = instead(inverse, odds_A / odds_B, odds_B / odds_A).
 
@@ -120,7 +126,7 @@ hint(inverse, [_Odds_B, _Odds_A], _Col, FB)
  => FB = "Make sure to put the correct odds into the denominator.".
 
 % Product instead of ratio
-buggy(stage(2), From, To, [step(buggy, product, [Odds_B, Odds_A])]) :-
+buggy(oratio, stage(2), From, To, [step(buggy, product, [Odds_B, Odds_A])]) :-
     From = odds_ratio(Odds_B, Odds_A),
     To = instead(product, odds_A * odds_B, odds_B / odds_A).
 
