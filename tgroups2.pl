@@ -9,8 +9,9 @@
 
 :- use_module(navbar).
 navbar:page(tgroups2, ["Independent ", i(t), "-test (2)"]).
+task(s2p).
 
-:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
 mathml_hook(n_vr, sub(n, "VR")).
@@ -31,8 +32,8 @@ rint:r_hook(s_box).
 rint:r_hook(s2p).
 rint:r_hook(t).
 
-render(item(VR, S_VR, N_VR, Box, S_Box, N_Box), Form) -->
-    { option(resp(R), Form, '#.##') },
+render
+--> {start(item(VR, S_VR, N_VR, Box, S_Box, N_Box)) },
 	html(
 	  [ div(class(card), div(class('card-body'),
 	    [ h1(class('card-title'), "Training of surgical skills"),
@@ -81,30 +82,21 @@ render(item(VR, S_VR, N_VR, Box, S_Box, N_Box), Form) -->
 		    "assisting in laparoscopic surgery. The efficiency of the training ",
 		    "was judged higher by the VR group than by the Box group."
 		  ]), 
-		p(class('card-text'),
-		  [ "Compare the OSATS-Scores of both Groups, assuming homogeneity of variance."
- 		  ]), 
-		 form(method('POST'),
-		    button([ class('btn btn-secondary'), name(download), value(tgroups2) ], "Download data"))
-	      ])),
-	    div(class(card), div(class('card-body'),
-	    [ h4(class('card-title'), [a(id(question), []), "Question"]),
-	      p(class('card-text'),
-		[ "Calculate the the pooled Variance ", \mmlm(s2p)
-		]),
-	      form([class(form), method('POST'), action('#tgroups2-indep')],
-		[ div(class("input-group mb-3"),
-		    [ div(class("input-group-prepend"), 
-			span(class("input-group-text"), "Response")),
-		      input([class("form-control"), type(text), name(resp), value(R)]),
-			div(class("input-group-append"),
-			  button([class('btn btn-primary'), type(submit)], "Submit"))
-	        ])])
-	      ]))
-	]).
+        \download(tgroups2)
+      ]))]).
+
+task(s2p, Form)
+--> { start(item(_VR, _S_VR, _N_VR, _Box, _S_Box, _N_Box)),
+      option(resp(R), Form, '#.##') 
+    },
+    html(\htmlform(
+      [ "Compare the OSATS-Scores of both Groups, assuming homogeneity",
+        " of variance and calculate the the pooled variance ", \mmlm(s2p), "."
+      ], s2p, R)).
+
 
 % t-test for independent groups
-intermediate(item).
+intermediate(s2p, item).
 start(item(vr, s_vr, n_vr, box, s_box, n_box)).
 
 %
@@ -112,10 +104,10 @@ start(item(vr, s_vr, n_vr, box, s_box, n_box)).
 % half of the necessarry calculations to solve a full t-test.
 %
 % Correctly calculated the pooled variance.
-expert(stage(2), From, To, [step(expert, indep, [])]) :-
-    From = item(_VR, S_VR, N_VR, _BOX, S_BOX, N_BOX),
-    To = { '<-'(s2p, dfrac((N_VR - 1) * S_VR ^ 2 + (N_BOX - 1) * S_BOX ^ 2, 
-			   N_VR + N_BOX - 2)) ;
+expert(s2p, stage(2), From, To, [step(expert, indep, [])]) :-
+    From = item(_VR, S_VR, N_VR, _Box, S_Box, N_Box),
+    To = { '<-'(s2p, dfrac((N_VR - 1) * S_VR ^ 2 + (N_Box - 1) * S_Box ^ 2, 
+			   N_VR + N_Box - 2)) ;
 	   s2p
 	 }.
 
@@ -126,52 +118,52 @@ hint(indep, [], _Col, FB) =>
     FB = [ "Try to do everthing correctly." ].
 
 % 1) Used standard deviation instead of variance.
-buggy(stage(2), From, To, [step(buggy, sd, [S_VR, S_BOX])]) :-
-    From = dfrac(A * S_VR ^ 2 + B * S_BOX ^ 2, C),
-    To = dfrac(A * instead(sd, S_VR, S_VR ^ 2) + B * instead(sd, S_BOX, S_BOX ^ 2), C).
+buggy(s2p, stage(2), From, To, [step(buggy, sd, [S_VR, S_Box])]) :-
+    From = dfrac(A * S_VR ^ 2 + B * S_Box ^ 2, C),
+    To = dfrac(A * instead(sd, S_VR, S_VR ^ 2) + B * instead(sd, S_Box, S_Box ^ 2), C).
 
-feedback(sd, [S_VR, S_BOX], Col, FB) =>
+feedback(sd, [S_VR, S_Box], Col, FB) =>
     FB = [ "Please remember to use the squares of ", 
 	   \mmlm(Col, color(sd, S_VR)), " and ", 
-	   \mmlm(Col, color(sd, S_BOX)), " in the pooled variance." ].
+	   \mmlm(Col, color(sd, S_Box)), " in the pooled variance." ].
 
-hint(sd, [_S_VR, _S_BOX], _Col, FB) =>
+hint(sd, [_S_VR, _S_Box], _Col, FB) =>
     FB = [ "Try using the variance rather than the standard deviation ",
 	   "when calculating the pooled variance." ].
 
 % 2) Forgot parentheses around numerator and denominator.
-buggy(stage(2), From, To, [step(buggy, bug1, [N_VR, N_BOX, S_VR, S_BOX])]) :-
-    From = dfrac((N_VR - 1) * S_VR ^ 2 + (N_BOX - 1) * S_BOX ^ 2, 
-		 N_VR + N_BOX - 2),
-    To = invent_right(bug1, invent_left(bug1, color(bug1, N_VR - 1 * S_VR ^ 2 + N_BOX) - 
-	 invent_left(bug1, 1 * dfrac(S_BOX ^ 2, N_VR))) + (N_BOX - 2)).
+buggy(s2p, stage(2), From, To, [step(buggy, bug1, [N_VR, N_Box, S_VR, S_Box])]) :-
+    From = dfrac((N_VR - 1) * S_VR ^ 2 + (N_Box - 1) * S_Box ^ 2, 
+		 N_VR + N_Box - 2),
+    To = invent_right(bug1, invent_left(bug1, color(bug1, N_VR - 1 * S_VR ^ 2 + N_Box) - 
+	 invent_left(bug1, 1 * dfrac(S_Box ^ 2, N_VR))) + (N_Box - 2)).
 
-feedback(bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) =>
+feedback(bug1, [N_VR, N_Box, S_VR, S_Box], Col, FB) =>
     FB = [ "Please do not forget the parentheses around the numerator and ",
 	   "the denominator of a fraction, ", 
 	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", 
 	   color(bug1, paren(color("#000000", N_VR - 1))) * S_VR ^ 2 + 
-	   color(bug1, paren(color("#000000", N_BOX - 1))) * S_BOX ^ 2))),
-	   color(bug1, paren(color("#000000", N_VR + N_BOX - 2)))))
+	   color(bug1, paren(color("#000000", N_Box - 1))) * S_Box ^ 2))),
+	   color(bug1, paren(color("#000000", N_VR + N_Box - 2)))))
 	 ].
 
-hint(bug1, [N_VR, N_BOX, S_VR, S_BOX], Col, FB) =>
+hint(bug1, [N_VR, N_Box, S_VR, S_Box], Col, FB) =>
     FB = [ "Do not forget the parentheses! The correct formula is ",
 	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", 
 	   color(bug1, paren(color("#000000", N_VR - 1))) * S_VR ^ 2 + 
-	   color(bug1, paren(color("#000000", N_BOX - 1))) * S_BOX ^ 2))),
-	   color(bug1, paren(color("#000000", N_VR + N_BOX - 2)))))
+	   color(bug1, paren(color("#000000", N_Box - 1))) * S_Box ^ 2))),
+	   color(bug1, paren(color("#000000", N_VR + N_Box - 2)))))
 	 ].
 
 % 3) Swapped N_VR and N_Box.
-buggy(stage(1), From, To, [step(buggy, nswap, [])]) :-
-    From = item(vr, s_vr, n_vr, box, s_box, n_box),
-    To = item(vr, s_vr, color(nswap, n_box), box, s_box, color(nswap, n_vr)).
+buggy(s2p, stage(1), From, To, [step(buggy, nswap, [n_vr, n_box])]) :-
+    From = item(VR, S_VR, n_vr, Box, S_Box, n_box),
+    To = item(VR, S_VR, color(nswap, n_box), Box, S_Box, color(nswap, n_vr)).
 
-feedback(nswap, [], Col, FB) =>
-    FB = [ "Please double check the sample sizes ", \mmlm(Col, color(nswap, n_vr)), 
-	   " and ", \mmlm(Col, color(nswap, n_box)), " of both groups." ].
+feedback(nswap, [N_VR, N_Box], Col, FB) =>
+    FB = [ "Please double check the sample sizes ", \mmlm(Col, color(nswap, N_VR)), 
+	   " and ", \mmlm(Col, color(nswap, N_Box)), " of both groups." ].
 
-hint(nswap, [], Col, FB) =>
+hint(nswap, [_N_VR, _N_Box], Col, FB) =>
     FB = [ "Do not swap the sample sizes in ", \mmlm(Col, color(nswap, s2p)) ].
 
