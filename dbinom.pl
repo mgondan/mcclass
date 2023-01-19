@@ -11,8 +11,9 @@
 
 :- use_module(navbar).
 navbar:page(dbinom, "Binomial probability").
+task(exactprob).
 
-:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 mathml_hook(n, 'N').
 mathml_hook(p0, pi).
@@ -22,8 +23,8 @@ rint:r_hook(k).
 rint:r_hook(p0).
 rint:r_hook(factorial(_N)).
 
-render(item(K, N, P0), Form) -->
-    { option(resp(R), Form, '#.##') },
+render
+--> {start(item(_K, N, P0)) },
     html(
       [ div(class(card), div(class("card-body"),
           [ h1(class("card-title"), "Binary outcomes"),
@@ -32,18 +33,27 @@ render(item(K, N, P0), Form) -->
                 "We assume that the success probability ",
                 "is ", \mmlm(r(P0)), " in all patients, and that the ",
                 "successes occur independently."
-              ])
-          ])),
-        \htmlform([ "What is the probability for exactly ", \mmlm(r(K)), " ",
-                    "successes?" ], "#dbinom", R)
-      ]).
+              ])]))]).
+        
 
-intermediate(item).
+task(exactprob, Form)
+--> { start(item(K, _N, _P0)), 
+      (   option(task(exactprob), Form)
+      ->  option(resp(Resp), Form, '#.##'),
+          session_retractall(resp(dbinom, exactprob, _)),
+          session_assert(resp(dbinom, exactprob, Resp))
+      ;   session_data(resp(dbinom, exactprob, Resp), resp(dbinom, exactprob, '#.##'))
+      )
+    },
+    html(\htmlform([ "What is the probability for exactly ", \mmlm(r(K)), " ",
+        "successes?" ], exactprob, Resp)).
+
+intermediate(exactprob, item).
 start(item(k, n, p0)).
 
 % Recognise as a binomial density
-intermediate(dbinom).
-expert(stage(2), From, To, [step(expert, dens, [])]) :-
+intermediate(exactprob, dbinom).
+expert(exactprob, stage(2), From, To, [step(expert, dens, [])]) :-
     From = item(K, N, P0),
     To   = dbinom(K, N, P0).
 
@@ -54,8 +64,8 @@ hint(dens, [], _Col, Hint) =>
     Hint = [ "This is a binomial probability." ].
 
 % Convert to product
-intermediate(bernoulli).
-expert(stage(2), From, To, [step(expert, prod, [K, N, P0])]) :-
+intermediate(exactprob, bernoulli).
+expert(exactprob, stage(2), From, To, [step(expert, prod, [K, N, P0])]) :-
     From = dbinom(K, N, P0),
     To   = choose(N, K) * bernoulli(K, N, P0).
 
@@ -68,9 +78,9 @@ hint(prod, [K, N, P0], Col, Hint) =>
            ].
 
 % Successes and failures
-intermediate(successes).
-intermediate(failures).
-expert(stage(2), From, To, [step(expert, bern, [K, N, P0])]) :-
+intermediate(exactprob, successes).
+intermediate(exactprob, failures).
+expert(exactprob, stage(2), From, To, [step(expert, bern, [K, N, P0])]) :-
     From = bernoulli(K, N, P0),
     To   = successes(K, P0) * failures(N - K, 1 - P0).
 
@@ -87,7 +97,7 @@ hint(bern, [K, N, _P0], Col, Hint) =>
            ].
 
 % Successes
-expert(stage(2), From, To, [step(expert, success, [K, P0])]) :-
+expert(exactprob, stage(2), From, To, [step(expert, success, [K, P0])]) :-
     From = successes(K, P0),
     To   = P0^K.
 
@@ -102,7 +112,7 @@ hint(success, [K, _P0], Col, Hint) =>
            ].
 
 % Failures - same as successes (this may change)
-expert(stage(2), From, To, [step(expert, failure, [K, P0])]) :-
+expert(exactprob, stage(2), From, To, [step(expert, failure, [K, P0])]) :-
     From = failures(K, P0),
     To   = P0^K.
 
@@ -117,7 +127,7 @@ hint(failure, [K, _P0], Col, Hint) =>
            ].
 
 % Forget binomial coefficient
-buggy(stage(2), From, To, [step(buggy, nochoose, [K, N])]) :-
+buggy(exactprob, stage(2), From, To, [step(buggy, nochoose, [K, N])]) :-
     From = dbinom(K, N, P0),
     To   = omit_left(nochoose, choose(N, K) * bernoulli(K, N, P0)).
 
@@ -131,7 +141,7 @@ hint(nochoose, [K, N], Col, Hint) =>
            ].
 
 % Treat binomial coefficient like a fraction
-buggy(stage(2), From, To, [step(buggy, choosefrac, [K, N])]) :-
+buggy(exactprob, stage(2), From, To, [step(buggy, choosefrac, [K, N])]) :-
     From = choose(N, K),
     To   = instead(choosefrac, dfrac(N, K), choose(N, K)).
 
@@ -147,7 +157,7 @@ hint(choosefrac, [K, N], Col, Hint) =>
            ].
 
 % Omit (N-k)! in the denominator of the binomial coefficient
-buggy(stage(2), From, To, [step(buggy, choosefail, [K, N])]) :-
+buggy(exactprob, stage(2), From, To, [step(buggy, choosefail, [K, N])]) :-
     From = choose(N, K),
     To   = instead(choosefail, dfrac(factorial(N), factorial(K)), choose(N, K)).
 
@@ -164,7 +174,7 @@ hint(choosefail, [K, N], Col, Hint) =>
            ].
 
 % Confuse successes and failures
-buggy(stage(2), From, To, [step(buggy, succfail, [K, N, P0])]) :-
+buggy(exactprob, stage(2), From, To, [step(buggy, succfail, [K, N, P0])]) :-
     From = bernoulli(K, N, P0),
     To   = instead(succfail, successes(K, 1 - P0), successes(K, P0)) * 
            instead(succfail, failures(N - K, P0), failures(N - K, 1 - P0)).
@@ -182,7 +192,7 @@ hint(succfail, [_K, _N, P0], Col, Hint) =>
            ]. 
 
 % Forget failures
-buggy(stage(2), From, To, [step(buggy, nofail, [K, N, P0])]) :-
+buggy(exactprob, stage(2), From, To, [step(buggy, nofail, [K, N, P0])]) :-
     From = bernoulli(K, N, P0),
     To   = omit_right(nofail, successes(K, P0) * failures(N - K, 1 - P0)).
 
