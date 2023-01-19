@@ -87,12 +87,17 @@ render
 
 task(s2p, Form)
 --> { start(item(_VR, _S_VR, _N_VR, _Box, _S_Box, _N_Box)),
-      option(resp(R), Form, '#.##') 
+      (   option(task(s2p), Form)
+      ->  option(resp(Resp), Form, '#.##'),
+          session_retractall(resp(tgroups2, s2p, _)),
+          session_assert(resp(tgroups2, s2p, Resp))
+      ;   session_data(resp(tgroups2, s2p, Resp), resp(tgroups2, s2p, '#.##'))
+      )
     },
     html(\htmlform(
       [ "Compare the OSATS-Scores of both Groups, assuming homogeneity",
         " of variance and calculate the the pooled variance ", \mmlm(s2p), "."
-      ], s2p, R)).
+      ], s2p, Resp)).
 
 
 % t-test for independent groups
