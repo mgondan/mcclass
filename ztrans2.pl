@@ -9,8 +9,9 @@
 
 :- use_module(navbar).
 navbar:page(ztrans2, [i(z), "-transform (2)"]).
+task(ztrans).
 
-:- multifile intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+:- multifile intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 mathml_hook(x, 'X').
 
@@ -20,8 +21,8 @@ rint:r_hook(z).
 rint:r_hook(qnorm(_P)).
 rint:r_hook(p).
 
-render(item(P, Mu, Sigma), Form) -->
-    { option(resp(R), Form, '#.##') },
+render
+--> {start(item(_P, Mu, Sigma)) },
     html(
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
@@ -31,30 +32,24 @@ render(item(P, Mu, Sigma), Form) -->
               "standard deviation ", \mmlm([digits(0)], [Sigma = r(sigma), "."]),
               "A table of the standard ",
               "Normal distribution is found below."
-            ])
-        ])),
-        div(class(card), div(class('card-body'),
-          [ h4(class('card-title'), [a(id(question), []), "Question"]),
-            p(class('card-text'),
-              [ "In which area do the upper ", \mmlm([digits(0)], [r(P), "% fall?"])
-              ]),
-            form([class(form), method('POST'), action('#ztrans2-response')],
-              [ div(class("input-group mb-3"),
-                  [ div(class("input-group-prepend"), 
-                      span(class("input-group-text"), "Response")),
-                    input([class("form-control"), type(text), name(resp), value(R)]),
-                      div(class("input-group-append"),
-                        button([class('btn btn-primary'), type(submit)], "Submit"))
-                  ])
-              ])
-          ]))
-      ]).
+            ])]))]).
 
-intermediate(item).
+task(ztrans, Form)
+--> { start(item(P, _Mu, _Sigma)),
+     (   option(task(ztrans), Form)
+      ->  option(resp(Resp), Form, '##.#'),
+          session_retractall(resp(ztransi2, ztrans, _)),
+          session_assert(resp(ztrans2, ztrans, Resp))
+      ;   session_data(resp(ztrans2, ztrans, Resp), resp(ztrans2, ztrans, '##.#'))
+      )
+	},
+	html(\htmlform([ "In which area do the upper ", \mmlm([digits(0)], [r(P), "% fall?"])], ztrans, Resp)).
+
+intermediate(ztrans, item).
 start(item(p, mu, sigma)).
 
-intermediate(qnorm_).
-expert(stage(2), From, To, [step(expert, steps, [])]) :-
+intermediate(ztrans, qnorm_).
+expert(ztrans, stage(2), From, To, [step(expert, steps, [])]) :-
     From = item(P, Mu, Sigma),
     To = { '<-'( z, qnorm_(1 - dfrac(P, 100))) ;
            '<-'(x, z * Sigma + Mu) ;
@@ -70,7 +65,7 @@ hint(steps, [], Col, FB) =>
            "it to the original scale." ].
 
 % Expert rule (correct tail)
-expert(stage(2), From, To, [step(expert, correct_tail, [])]) :-
+expert(ztrans, stage(2), From, To, [step(expert, correct_tail, [])]) :-
     From = qnorm_(P),
     To = qnorm(P).
 
@@ -85,7 +80,7 @@ hint(correct_tail, [], _Col, FB) =>
 %
 % The wrong tail of the Normal distribution was selected.
 %
-buggy(stage(2), From, To, [step(buggy, wrong_tail, [])]) :-
+buggy(ztrans, stage(2), From, To, [step(buggy, wrong_tail, [])]) :-
     From = qnorm_(1 - P),
     To = qnorm(instead(wrong_tail, P, 1 - P)).
 
@@ -98,7 +93,7 @@ hint(wrong_tail, [], _Col, FB) =>
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % Buggy Rule (swap) Mu and Sigma were swapped.
-buggy(stage(2), From, To, [step(buggy, swap, [mu, Sigma])]) :-
+buggy(ztrans, stage(2), From, To, [step(buggy, swap, [mu, Sigma])]) :-
     From = z * Sigma + mu,
     To = instead(swap, z * mu + Sigma, From).
 
@@ -112,7 +107,7 @@ hint(swap, [Mu, Sigma], Col, FB) =>
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % Buggy Rule (vardev swap) standard deviation was mistaken with variance.
-buggy(stage(2), From, To, [step(buggy, vardev_swap, [sigma])]) :-
+buggy(ztrans, stage(2), From, To, [step(buggy, vardev_swap, [sigma])]) :-
     From = Z * sigma + Mu,
     To = Z * invent_right(vardev_swap, sigma^2) + Mu.
 
@@ -129,7 +124,7 @@ hint(vardev_swap, [_Sigma], _Col, FB) =>
 % students divide by 1000 instead of 100 when translating percentages to
 % proportions.
 %
-buggy(stage(2), From, To, [step(buggy, perc1000, [1000])]) :-
+buggy(ztrans, stage(2), From, To, [step(buggy, perc1000, [1000])]) :-
     From = dfrac(P, 100),
     To = dfrac(P, instead(perc1000, 1000, 100)).
 
@@ -144,7 +139,7 @@ hint(perc1000, [_P], _Col, FB) =>
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % Buggy Rule (pdecimal2) p was taken to be ten times its true value (5% -/-> 0,05. 5% --> 0,5).
-buggy(stage(2), From, To, [step(buggy, pdecimal2, [P])]) :-
+buggy(ztrans, stage(2), From, To, [step(buggy, pdecimal2, [P])]) :-
     From = dfrac( P , 100 ),
     To = instead(pdecimal2, dfrac( P , 10 ), From).
 
@@ -156,7 +151,7 @@ hint(pdecimal2, [P], Col, FB) =>
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % Buggy Rule (zx) The z value was calculated but taken to be the endresult.
-buggy(stage(2), From, To, [step(buggy, zx, [z, sigma, mu])]) :-
+buggy(ztrans, stage(2), From, To, [step(buggy, zx, [z, sigma, mu])]) :-
     From = z * sigma + mu,
     To = instead(zx, z , From).
 
