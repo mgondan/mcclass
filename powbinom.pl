@@ -10,10 +10,12 @@
 :- http_handler(mcclass(powbinom), handler(powbinom), []).
 
 :- use_module(navbar).
-navbar:page(powbinom, "Power test").
+navbar:page(powbinom, "Power of binomial test").
+task(powbinom).
 
-:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
+% Prettier symbols for mathematical rendering
 mathml_hook(p0, sub(pi, 0)).
 mathml_hook(p1, sub(pi, 1)).
 mathml_hook(crit, c).
@@ -22,6 +24,7 @@ mathml_hook(n, 'N').
 mathml_hook(tail1(Tail, K), tail(Tail, K)).
 mathml_hook(tail2(Tail, K), tail(Tail, K)).
 
+% R definitions
 rint:r_hook(alpha).
 rint:r_hook(n).
 rint:r_hook(p0).
@@ -38,12 +41,13 @@ rint:r_hook(pwbinom(_Crit, _Size, _Prob, _Tail)).
 rint:r_hook(pbinom(_Q, _Size, _Prob)).
 rint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
-render(item(Alpha, N, P0, P1), Form) -->
-    { option(resp(R), Form, '#'),
+% Task description
+render
+--> { start(item(_Alpha, N, P0, P1)),
       binomtable(N, P0, P1, Caption, Rows, Cols, Cells)
     },
     html(
-      [ div(class(card), div(class('card-body'),
+       div(class(card), div(class('card-body'),
           [ h1(class('card-title'), "Binary outcomes"),
             p(class('card-text'),
               [ "Consider a clinical study with ", \mmlm(n = r(N)), " ",
@@ -59,33 +63,30 @@ render(item(Alpha, N, P0, P1), Form) -->
 	          div(class("row justify-content-md-center"),
 	            div(class("col-6"),
 	              \htmltable(Caption, Rows, Cols, Cells))))
-	      ])),
-        div(class(card), div(class('card-body'),
-          [ h4(class('card-title'), [a(id(question), []),
-              "Question"]),
-            p(class('card-text'),
-              [ "What is the power of the test at the one-tailed ",
-                "significance level of ", \mmlm([alpha = r(Alpha), "?"])
-              ]),
-            form([class(form), method('POST'), action('#dbinom-dbinom')],
-              [ div(class("input-group mb-3"),
-                  [ div(class("input-group-prepend"),
-                      span(class("input-group-text"), "Response")),
-                    input([class("form-control"), type(text), name(resp), value(R)]),
-                      div(class("input-group-append"),
-                        button([class('btn btn-primary'), type(submit)], "Submit"))
-                  ])
-              ])
-          ]))
-      ]).
+	      ]))).
 
-intermediate(item).
+task(powbinom, Form)
+-->  { start(item(Alpha, _N, _P0, _P1)),
+      (   option(task(powbinom), Form)
+      ->  option(resp(Resp), Form, '#.##'),
+          session_retractall(resp(powbinom, powbinom, _)),
+          session_assert(resp(powbinom, powbinom, Resp))
+      ;   session_data(resp(powbinom, powbinom, Resp), resp(powbinom, powbinom, '#.##'))
+      )
+    },
+    html(\htmlform([ "What is the power of the test at the one-tailed ",
+        "significance level of ", \mmlm([alpha = r(Alpha), "?"])],
+        powbinom, Resp)).
+
+% Power-test
+intermediate(powbinom, item).
 start(item(alpha, n, p0, p1)).
 
-% This is a problem that involves two steps, critical value and binomial probability
-intermediate(crit).
-intermediate(power).
-expert(stage(1), From, To, [step(expert, problem, [])]) :-
+% First Step: Extract the correct information for the critical value and the 
+% binomial probability.
+intermediate(powbinom, crit).
+intermediate(powbinom, power).
+expert(powbinom, stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(Alpha, N, P0, P1),
     To = { '<-'(crit, crit(Alpha, N, P0)) ;
            '<-'(power, power(crit, N, P1))
@@ -100,8 +101,9 @@ hint(problem, [], _Col, Hint) =>
              "calculated."
            ].
 
-% Upper tail of the binomial distribution
-expert(stage(2), From, To, [step(expert, upper1, [])]) :-
+% Second Step: Determine the critical value from the upper tail of the 
+% binomial distribution.
+expert(powbinom, stage(2), From, To, [step(expert, upper1, [])]) :-
     From = crit(Alpha, N, P0),
     To   = crit(Alpha, N, P0, tail1("upper", k), arg("min", k > N*P0)).
 
@@ -115,24 +117,8 @@ hint(upper1, [], _Col, Hint)
              "binomial distribution." 
            ].
 
-%Lower tail of the binomial distribution
-buggy(stage(2), From, To, [step(buggy, lower1, [])]) :-
-    From = crit(Alpha, N, P0),
-    To   = crit(Alpha, N, P0, instead(lower1, tail1("lower", k), tail1("upper", k)),
-                instead(lower1, arg("max", k < N*P0), arg("min", k > N*P0))).
-
-feedback(lower1, [], _Col, Feed)
- => Feed = [ "The result appears to be obtained from the lower critical ",
-             "value of the binomial distribution." 
-           ].
-
-hint(lower1, [], _Col, Hint)
- => Hint = [ "Make sure to determine the critical value from the upper tail ",
-             "of the binomial distribution."
-           ].
-
-% Critical value based on cumulative distribution
-expert(stage(2), From, To, [step(expert, dist1, [])]) :-
+% Third Step: Determine the critical value based on the cumulative distribution
+expert(powbinom, stage(2), From, To, [step(expert, dist1, [])]) :-
     From = crit(Alpha, N, P0, Tail, Arg),
     To   = cbinom(Alpha, N, P0, Tail, Arg).
 
@@ -146,8 +132,59 @@ hint(dist1, [], _Col, Hint)
              "distribution."
            ].
 
-% Critical value based on density = not cumulated
-buggy(stage(2), From, To, [step(buggy, dens1, [K])]) :-
+% Fourth step: Determine the power based on upper tail
+expert(powbinom, stage(2), From, To, [step(expert, upper2, [])]) :-
+    From = power(Crit, N, P1),
+    To   = power(Crit, N, P1, tail2("upper", Crit)).
+
+feedback(upper2, [], _Col, Feed)
+ => Feed = [ "Correctly selected the upper tail of cumulative distribution ",
+             "for the Power."
+           ].
+
+hint(upper2, [], _Col, Hint)
+ => Hint = [ "The Power is determined from the upper tail of the binomial ",
+             "distribution."
+           ].
+
+% Fifth step: Power based on cumulative distribution
+expert(powbinom, stage(2), From, To, [step(expert, dist2, [])]) :-
+    From = power(Crit, N, P1, Tail),
+    To   = pwbinom(Crit, N, P1, Tail).
+
+feedback(dist2, [], _Col, Feed)
+ => Feed = [ "Correctly calculated the Power using the cumulative ",
+             "distribution."
+           ].
+
+hint(dist2, [], _Col, Hint)
+ => Hint = [ "The Power should be determined using the cumulative ",
+             "distribution."
+           ].
+
+
+
+
+% Buggy-Rule: Determine the critical value from the lower tail of the 
+% binomial distribution.
+buggy(powbinom, stage(2), From, To, [step(buggy, lower1, [])]) :-
+    From = crit(Alpha, N, P0),
+    To   = crit(Alpha, N, P0, instead(lower1, tail1("lower", k), tail1("upper", k)),
+                instead(lower1, arg("max", k < N*P0), arg("min", k > N*P0))).
+
+feedback(lower1, [], _Col, Feed)
+ => Feed = [ "The result matches the Power obtained from the lower critical ",
+             "value of the binomial distribution. Please use the upper critical ",
+	     "value to determine the Power."
+           ].
+
+hint(lower1, [], _Col, Hint)
+ => Hint = [ "Make sure to determine the critical value from the upper tail ",
+             "of the binomial distribution."
+           ].
+
+% Buggy- Rule: Critical value based on density = not cumulated
+buggy(powbinom, stage(2), From, To, [step(buggy, dens1, [K])]) :-
     From = tail1(Tail, K),
     member(Tail, ["upper", "lower"]),
     To = instead(dens1, tail1("equal", K), tail1("upper", K)).
@@ -164,42 +201,30 @@ hint(dens1, [_K], _Col, Hint)
              "determine the critical value."
            ].
 
-% Power based on upper tail
-expert(stage(2), From, To, [step(expert, upper2, [])]) :-
-    From = power(Crit, N, P1),
-    To   = power(Crit, N, P1, tail2("upper", Crit)).
-
-feedback(upper2, [], _Col, Feed)
- => Feed = [ "Correctly selected the upper tail of cumulative distribution ",
-             "for the power."
-           ].
-
-hint(upper2, [], _Col, Hint)
- => Hint = [ "The power is determined from the upper tail of the binomial ",
-             "distribution."
-           ].
-
-% Power based on lower tail (wrong tail for power)
-buggy(stage(2), From, To, [step(buggy, lower2, [])]) :-
+% Buggy-Rule: Power based on lower tail (wrong tail for power)
+buggy(powbinom, stage(2), From, To, [step(buggy, lower2, [])]) :-
     From = power(Crit, N, P1),
     To   = power(Crit, N, P1, instead(lower2, tail2("lower", k), tail2("upper", k))).
 
 feedback(lower2, [], _Col, Feed)
- => Feed = "The power matches the lower tail of the binomial distribution.".
+ => Feed = ["The result matches the Power based on the lower critical ",
+            "value of the binomial distribution. Please use the upper critical ",
+	    "value to determine the Power."
+	   ].
 
 hint(lower2, [], _Col, Hint)
  => Hint = [ "The power is determined from the upper tail of the binomial ",
              "distribution. Don't select the lower tail of the binomial distribution."
            ].
 
-% Critical value based on density
-buggy(stage(2), From, To, [step(buggy, dens2, [C])]) :-
+% Buggy- Rule: Critical value based on density
+buggy(powbinom, stage(2), From, To, [step(buggy, dens2, [C])]) :-
     From = tail2(Tail, C),
     member(Tail, ["upper", "lower"]),
     To = instead(dens2, tail2("equal", C), tail2("upper", C)).
 
 feedback(dens2, [C], Col, Feed)
- => Feed = [ "The power matches the binomial probability, ",
+ => Feed = [ "The result matches the Power based on the binomial probability, ",
              \mmlm(Col, [fn(sub('P', "Bi"), [color(dens2, tail2("equal", C))]), "."]),
              "Please report the power based on the cumulative ",
              "distribution, ", \mmlm(Col, [fn(sub('P', "Bi"), [tail2("upper", C)]), "."])
@@ -210,20 +235,8 @@ hint(dens2, [_C], _Col, Hint)
              "determine the power."
            ].
 
-% Power based on cumulative distribution
-expert(stage(2), From, To, [step(expert, dist2, [])]) :-
-    From = power(Crit, N, P1, Tail),
-    To   = pwbinom(Crit, N, P1, Tail).
 
-feedback(dist2, [], _Col, Feed)
- => Feed = [ "Correctly calculated the power using the cumulative ",
-             "distribution."
-           ].
 
-hint(dist2, [], _Col, Hint)
- => Hint = [ "The power should be determined using the cumulative ",
-             "distribution."
-           ].
 
 % Helper function(s)
 binomtable(N, P0, P1, Caption, Rows, Cols, Cells) :-
