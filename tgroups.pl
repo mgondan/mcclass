@@ -9,7 +9,7 @@
 :- use_module(navbar).
 
 navbar:page(tgroups, ["Independent ", i(t), "-test (1)"]).
-task(tgroups).
+task(tratio).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
@@ -32,10 +32,11 @@ rint:r_hook(s_box).
 rint:r_hook(s2p).
 rint:r_hook(t).
 
+% Task description
 render 
 --> {start(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX)) },
     html(
-      [ div(class(card), div(class('card-body'),
+       div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Training of surgical skills"),
           p(class('card-text'),
             [ "Surgeons need special motor skills, especially for ",
@@ -84,32 +85,41 @@ render
                   "assisting in laparoscopic surgery. The efficiency of the training ",
                   "was judged higher by the VR group than by the Box group."
                 ]))),
-            \download(tgroups)]))]).
+            \download(tgroups)]))).
 
 task(tratio, Form)
 --> { start(item(_VR, _S_VR, _N_VR, _BOX, _S_BOX, _N_BOX)),
-      option(resp(R), Form, '#.##') 
+      (   option(task(tratio), Form)
+      ->  option(resp(Resp), Form, '#.##'),
+          session_retractall(resp(tgroups, tratio, _)),
+          session_assert(resp(tgroups, tratio, Resp))
+      ;   session_data(resp(tgroups, tratio, Resp), resp(tgroups, tratio, '#.##'))
+      )
     },
     html(\htmlform(
       [ "Is VR training superior to traditional Box training? ",
         "Please report the ", \mmlm(hyph(t, "ratio,")), " using Box ",
         "as the control intervention." 
-      ], tratio, R)).
+      ], tratio, Resp)).
 
-intermediate(tgroups, item).
+
+
+% t-test for independent samples
+intermediate(tratio, item).
 start(item(vr, s_vr, n_vr, box, s_box, n_box)).
 
-% t-test for independent groups.
-intermediate(tratio).
-expert(tgrous, stage(1), From, To, [step(expert, problem, [])]) :-
+% First step: Extract the correct information for a t-test for independent 
+% samples from the task description.
+intermediate(tratio, tratio).
+expert(tratio, stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(VR, S_VR, N_VR, BOX, S_BOX, N_BOX),
     To = { '<-'(s2p, var_pool(S_VR^2, N_VR, S_BOX^2, N_BOX)) ;
            '<-'(t, tratio(VR, BOX, s2p, N_VR, N_BOX))
          }.
 
 feedback(problem, [], Col, FB)
- => FB = [ "Correctly identified the problem as ",
-           "a ", \mmlm(Col, hyph(t, "test")), " for independent samples."
+ => FB = [ "Correctly identified the problem as a ",
+           \mmlm(Col, hyph(t, "test")), " for independent samples."
          ].
 
 hint(problem, [], Col, FB)
@@ -117,9 +127,10 @@ hint(problem, [], Col, FB)
            "samples." 
          ].
 
-% Pooled variance.
-intermediate(tgroups, var_pool).
-expert(tgroups, stage(1), From, To, [step(expert, pooled, [S2P])]) :-
+% Second step: To calculate the t-ratio for independent samples, the pooled 
+% variance has to be calculated first. Apply the formula for the pooled variance.
+intermediate(tratio, var_pool).
+expert(tratio, stage(1), From, To, [step(expert, pooled, [S2P])]) :-
     From = '<-'(S2P, var_pool(S_A^2, N_A, S_B^2, N_B)),
     To = '<-'(S2P, dfrac((N_A-1) * S_A^2 + (N_B-1) * S_B^2, N_A + N_B - 2)).
 
@@ -131,8 +142,8 @@ hint(pooled, [S2P], Col, FB)
            "calculated." 
          ].
 
-% t-statistic
-expert(tgroups, stage(2), From, Fmt, [step(expert, tratio, [To])]) :-
+% Third step: Apply the formula for the t-ratio for independent samples.
+expert(tratio, stage(2), From, Fmt, [step(expert, tratio, [To])]) :-
     From = tratio(VR, BOX, S2P, N_VR, N_BOX),
     To = dfrac(VR - BOX, sqrt(S2P * (frac(1, N_VR) + frac(1, N_BOX)))),
     Fmt = tstat(To).
@@ -145,8 +156,10 @@ hint(tratio, [T], Col, FB) =>
            \mmlm(Col, T) 
          ].
 
-% Wrong control group
-buggy(tgroups, stage(1), From, To, [step(buggy, control, [vr, box])]) :-
+
+
+% Buggy-Rule: Using the wrong control group
+buggy(tratio, stage(1), From, To, [step(buggy, control, [vr, box])]) :-
     From = item(vr, s_vr, n_vr, box, s_box, n_box),
     To = item(instead(control, box, vr), s_vr, n_vr, instead(control, vr, box), s_box, n_box).
 
@@ -154,24 +167,27 @@ feedback(control, [VR, Box], Col, FB)
  => FB = [ "The sign of the result matches the ",
            "negative ", \mmlm(Col, hyph(t, "ratio,")), " ",
            "with ", \mmlm(Col, color(control, VR)), " subtracted ",
-           "from ", \mmlm(Col, [color(control, Box), "."])
+           "from ", \mmlm(Col, [color(control, Box)]), ". Please keep in mind ",
+	   "that the control intervention must be subtracted from the tested ",
+	   "intervention."
          ].
 
-hint(control, [VR, Box], Col, FB)
- => FB = [ \mmlm(Col, color(control, VR)), " ",
-           "and ", \mmlm(Col, color(control, Box)), " should not be switched ",
-           "in the numerator of the ", \mmlm(Col, hyph(t, "ratio."))
+hint(control, [_VR, _Box], Col, FB)
+ => FB = [ "The control intervention must be subtracted from the tested ",
+	   "intervention in the numerator of the ", \mmlm(Col, hyph(t, "ratio."))
          ].
 
-% Forgot to use square of standard deviation in pooled variance
-buggy(tgroups, stage(1), From, To, [step(buggy, square, [S_A, S_B])]) :-
+% Buggy-Rule: Forgot to use square of standard deviation in pooled variance
+buggy(tratio, stage(1), From, To, [step(buggy, square, [S_A, S_B])]) :-
     From = var_pool(S_A^2, N_A, S_B^2, N_B),
     To = dfrac((N_A-1) * omit_right(square, S_A^2) + (N_B-1) * omit_right(square, S_B^2), N_A + N_B - 2).
 
 feedback(square, [S_A, S_B], Col, FB)
- => FB = [ "The expression for the pooled variance does not seem to include ",
-           "the square of ", \mmlm(Col, color(square, S_A)), " ",
-           "and ", \mmlm(Col, color(square, S_B)) 
+ => FB = [ "The result matches the expression for the pooled variance without ",
+	   "the square of ", \mmlm(Col, color(square, S_A)), " and ", 
+	   \mmlm(Col, color(square, S_B)), ". Please do not forget the square of ",
+	   \mmlm(Col, color(square, S_A)), " and ", \mmlm(Col, color(square, S_B)),
+	   "when calculating the pooled variance."
          ].
 
 hint(square, [_S_A, _S_B], _Col, FB)
@@ -179,48 +195,57 @@ hint(square, [_S_A, _S_B], _Col, FB)
            "when calculating the pooled variance." 
          ].
 
-% Forgot school math
-buggy(tgroups, stage(2), From, To, [step(buggy, school, [N_A, N_B])]) :-
+% Buggy-Rule: Forgot school math [1/N1 + 1/N2 is not 1/(N1 + N2)]
+buggy(tratio, stage(2), From, To, [step(buggy, school, [N_A, N_B])]) :-
     From = frac(1, N_A) + frac(1, N_B),
     To = color(school, frac(1, N_A + N_B)).
 
 feedback(school, [A, B], Col, FB)
- => FB = [ "Please keep in mind ",
-           "that ", \mmlm(Col, color(school, color("black", frac(1, A)) + color("black", frac(1, B))) =\= frac(1, color(school, color("black", A) + color("black", B))))
+ => FB = [ "The result matches the expression for the ", 
+	   \mmlm(Col, hyph(t, "ratio")), " for independent samples with ",
+	   \mmlm(Col, frac(1, color(school, color("black", A) + color("black", B)))),
+	   ". Please keep in mind that ", \mmlm(Col, color(school, 
+		color("black", frac(1, A)) + color("black", frac(1, B)))
+		=\= frac(1, color(school, color("black", A) + color("black", B)))), "."
          ].
 
 hint(school, [A, B], Col, FB)
  => FB = [ "Do not forget that ",
-           \mmlm(Col, color(school, color("black", frac(1, A)) + color("black", frac(1, B))) =\= frac(1, color(school, color("black", A) + color("black", B)))) 
+           \mmlm(Col, color(school, color("black", frac(1, A)) + color("black", frac(1, B))) =\= frac(1, color(school, color("black", A) + color("black", B)))), 
+           "."
          ].
 
-%% 4) Forgot paranthesis around numerator in t-statistic.
-%buggy(stage(2), From, To, [step(buggy, bug1, [VR, BOX, S2P, N_VR, N_BOX])]) :-
+%% Buggy-Rule: Forgot paranthesis around numerator in t-statistic.
+%buggy(tratio, stage(2), From, To, [step(buggy, bug1, [VR, BOX, S2P, N_VR, N_BOX])]) :-
 %    From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
 %    To = invent_left(bug1, VR - dfrac(BOX, sqrt(S2P * (1/N_VR + 1/N_BOX)))).
 %%VR - dfrac(BOX, sqrt(s2p * (1/N_VR + 1/N_BOX))).
 %
 %feedback(bug1, [_VR, _BOX, S2P, N_VR, N_BOX], Col, FB) =>
-%    FB = [ "You forgot the parentheses around the numerator of ",
-%	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", overline("VR") - overline("BOX")))), 
-%	   sqrt(S2P * (1/N_VR + 1/N_BOX) ) ) )
+%    FB = [ "The result matches the expression for the ", 
+%	    \mmlm(Col, hyph(t, "ratio")), " for independent samples without the ",
+%	    "parentheses around the numerator of ", 
+%	    \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", overline("VR") - overline("BOX")))), sqrt(S2P * (1/N_VR + 1/N_BOX)))), 
+%	    ". Please do not forget the parenthesis",
+%	    " around the numerator."
 %	 ].
 %
 %hint(bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) =>
-%    FB = [ "Remember to use parenthesis around numerator. ",
-%	   "The correct formula for the ", \mmlm(Col, hyph(t, "ratio")), "is ", 
-%	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", VR - BOX))), 
-%	   sqrt(S2P * (1/N_VR + 1/N_BOX) ) ) )
+%    FB = [ "Remember to use parenthesis around the numerator. ",
+%	    "The correct formula for the ", \mmlm(Col, hyph(t, "ratio")), "is ", 
+%	    \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", VR - BOX))), sqrt(S2P * (1/N_VR + 1/N_BOX)))), "."
 %	 ].
 
-% Forgot square root around the denominator
-buggy(tgroups, stage(2), From, To, [step(buggy, sqrt1, [S2P * Ns])]) :-
+% Buggy-Rule: Forget square root around the denominator	
+buggy(tratio, stage(2), From, To, [step(buggy, sqrt1, [S2P * Ns])]) :-
     From = sqrt(S2P * Ns),
     To = instead(sqrt1, S2P * Ns, sqrt(S2P * Ns)).
 
 feedback(sqrt1, [S2P_Ns], Col, FB)
- => FB = [ "The square root around ", \mmlm(Col, color(sqrt1, S2P_Ns)), " ",
-           "seems to have been omitted."
+ => FB = [ "The result matches the expression for the ", 
+	   \mmlm(Col, hyph(t, "ratio")), "for independent samples without the square",
+	   " root around ", \mmlm(Col, color(sqrt1, S2P_Ns)), ". Please do not forget",
+	   " the square root around the denominator."
          ].
 
 hint(sqrt1, [_], Col, FB)
@@ -228,16 +253,22 @@ hint(sqrt1, [_], Col, FB)
            "the ", \mmlm(Col, hyph(t, "ratio."))
          ].
 
-% Forget square root around sample size
-buggy(tgroups, stage(2), From, To, [step(buggy, sqrt2, [Ns])]) :-
+% Buggy-Rule: Forget square root around sample size
+buggy(tratio, stage(2), From, To, [step(buggy, sqrt2, [Ns])]) :-
     Ns = frac(1, _N_VR) + frac(1, _N_Box),
     From = sqrt(S2P * Ns),
     To = invent_right(sqrt2, sqrt(omit_right(sqrt2, S2P * Ns)) * Ns).
 
 feedback(sqrt2, [Ns], Col, FB)
- => FB = [ "The square root seems to stop ",
-           "before ", \mmlm(Col, [paren(color(sqrt2, Ns)), "."])
+ => FB = [ "The result matches the expression for the ", 
+	   \mmlm(Col, hyph(t, "ratio")), " with the square root stopping before ",
+	   \mmlm(Col, paren(color(sqrt2, Ns))), ". Please do not forget to take the ",
+	   "square root of the whole denominator."
          ].
+% Alternative Rückmeldung (hierfür müsste die Variable in der eckigen Klammer geändert werden): 
+% "The result matches the expression for the ", \mmlm(Col, hyph(t, "ratio")),
+% " with the square root only around ", \mmlm(Col, [paren(color(sqrt2, S2P)),
+% ". Please do not forget to take the square root of the whole denominator."
 
 hint(sqrt2, [_Ns], _Col, FB)
  => FB = [ "The square root of the whole denomiator should be taken." ].
