@@ -43,7 +43,7 @@ rint:r_hook(qt(_P, _DF)).
 render
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha)) },
     html(
-      [ div(class(card), div(class('card-body'),
+       div(class(card), div(class('card-body'),
           [ h1(class('card-title'), "Efficiency of self-confidence training"),
             p(class('card-text'),
             [ "You organize a self-confidence training and want to know ",
@@ -68,7 +68,7 @@ render
                         \mmlm([digits(1)], r(s_eot)),
                         \mmlm([digits(1)], r(s1_d)) ]
                     ])))),
-            \download(cipaired)]))]).
+            \download(cipaired)]))).
 
 task(cipaired, Form)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, _Mu, _Alpha)),
@@ -119,7 +119,7 @@ feedback(ci_lower, [_D, _S_D, _N, _Alpha], _Col, F)
 hint(ci_lower, [D, S_D, N, Alpha], Col, H)
  => H = [ "The formula to calculate the lower and upper bound of the ",
           "confidence interval is ",
-	  \mmlm(Col, pm(D, qt(1 - Alpha/2, N-1) * S_D / sqrt(N)))
+	  \mmlm(Col, pm(D, qt(1 - Alpha/2, N-1) * S_D / sqrt(N))), "."
         ].
 
 % Third step: Choose the correct quantile of the t-distribution
@@ -129,12 +129,12 @@ expert(cipaired, stage(2), X, Y, [step(expert, tquant, [N, Alpha])]) :-
 
 feedback(tquant, [_N, Alpha], Col, F)
  => F = [ "Correctly used the ", \mmlm(Col, hyph(1 - Alpha/2, "quantile")),
-          "of the ", \mmlm(Col, hyph(t, "distribution"))
+          "of the ", \mmlm(Col, hyph(t, "distribution."))
         ].
 
 hint(tquant, [_N, Alpha], Col, H)
  => H = [ "Make sure to use the ", \mmlm(Col, hyph(1 - Alpha/2, "quantile")),
-          "of the ", \mmlm(Col, hyph(t, "distribution"))
+          "of the ", \mmlm(Col, hyph(t, "distribution."))
         ].
 
 % Buggy-Rule: Use t-statistic instead of t-quantile
@@ -206,7 +206,7 @@ feedback(sqrt1, [N], Col, F)
 
 hint(sqrt1, [N], Col, F)
  => F = [ "Do not forget the square root around ",
-          \mmlm(Col, color(sqrt1, N))
+          \mmlm(Col, color(sqrt1, N)), "."
         ].
 
 % Buggy-Rule: Use of N instead of sqrt(N) in the t-ratio
@@ -215,11 +215,13 @@ buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt2, [N])]) :-
     Y = dfrac(D - Mu, S_D / omit_right(sqrt2, (3*N)^(1/2))).
 
 feedback(sqrt2, [N], Col, FB)
- => FB = [ "Please do not forget the square root around ",
-           \mmlm(Col, color(sqrt2, N))
+ => FB = [ "The result matches the confidence interval based on the observed ",
+	   \mmlm(Col, hyph(t, "statistic.")), " without square root around ",
+	   \mmlm(Col, color(sqrt2, N)), " Please do not forget the square root around ",
+           \mmlm(Col, color(sqrt2, N)), "."
          ].
 
 hint(sqrt2, [N], Col, FB)
  => FB = [ "Do not forget the square root around ",
-           \mmlm(Col, color(sqrt2, N))
+           \mmlm(Col, color(sqrt2, N)), "."
          ]. 
