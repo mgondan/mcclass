@@ -4,8 +4,9 @@
 :- use_module(table).
 :- use_module(navbar).
 navbar:page(chisq, "chi-square").
+task(chisq).
 
-:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
 mathml_hook(p_VR, sub(p, "VR")).
@@ -28,10 +29,11 @@ rint:r_hook(z).
 rint:r_hook(chi2).
 rint:r_hook(p_pool).
 
-render(item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box), Form) -->
-    { option(resp(R), Form, "#.##") },
-    html(
-      [ div(class(card), div(class("card-body"),
+% Task description
+render
+-->  {start(item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box)) },
+      html(
+         div(class(card), div(class("card-body"),
           [ h1(class("card-title"), "Training of surgical skills"),
             p(class("card-text"),
               [ "Surgeons need special motor skills, especially for ",
@@ -67,19 +69,31 @@ render(item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box), Form) -->
                   "(out of ", \mmlm([r(N_Box), ")"]), " in the Box ",
                   "group.”"
               ])))
-	      ])),
-        \htmlform([ "Does VR training lead to faster surgery times than ",
-            "traditional Box training? Please ",
-            "determine the ", \mmlm(hyph(chi^2, "statistic.")) ], "#chisq", R)
-      ]).
+	      ]))).
 
-intermediate(item).
+task(chisq, Form)
+--> { start(item(_P_VR, _S_VR, _N_VR, _P_Box, _S_Box, _N_Box)),
+      (   option(task(chisq), Form)
+      ->  option(resp(Resp), Form, '#.##'),
+          session_retractall(resp(chisq, chisq, _)),
+          session_assert(resp(chisq, chisq, Resp))
+      ;   session_data(resp(chisq, chisq, Resp), resp(chisq, chisq, '#.##'))
+      )
+    },
+    html(\htmlform([ "Does VR training lead to faster surgery times than ",
+        "traditional Box training? Please ",
+        "determine the ", \mmlm(hyph(chi^2, "statistic.")) ], chisq, Resp)).
+
+
+% Chi-square Test
+intermediate(chisq, item).
 start(item(p_VR, s_VR, n_VR, p_Box, s_Box, n_Box)).
 
-% Correct solution
-intermediate(ppool).
-intermediate(zstat).
-expert(stage(1), From, To, [step(expert, steps, [])]) :-
+% First step: Extract the correct information for the pooled proportion of 
+% successes and the z-statistic. Calculation of chi-square, by squaring z.
+intermediate(chisq, ppool).
+intermediate(chisq, zstat).
+expert(chisq, stage(1), From, To, [step(expert, steps, [])]) :-
     From = item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box),
     To = { '<-'(p_pool, ppool(S_VR, S_Box, N_VR, N_Box)) ;
            '<-'(z, zstat(P_VR, P_Box, p_pool, N_VR, N_Box)) ;
@@ -96,42 +110,21 @@ hint(steps, [], Col, FB) =>
            "it to obtain ", \mmlm(Col, chi^2)
          ].
 
-% Pooled proportion of successes
-expert(stage(1), From, To, [step(expert, ppool, [S_VR, S_Box, N_VR, N_Box])]) :-
+% Second Step: Calculate the pooled proportion of successes
+expert(chisq, stage(1), From, To, [step(expert, ppool, [S_VR, S_Box, N_VR, N_Box])]) :-
     From = ppool(S_VR, S_Box, N_VR, N_Box),
     To = dfrac(S_VR + S_Box, N_VR + N_Box).
 
 feedback(ppool, [_S_VR, _S_Box, _N_VR, _N_Box], _Col, FB) =>
-    FB = "Correctly determined the pooled success proportion.".
+    FB = "Correctly determined the pooled proportion of successes.".
 
 hint(ppool, [S_VR, S_Box, N_VR, N_Box], Col, FB) =>
     FB = [ "The pooled proportion of successes ",
            "is ", \mmlm(Col, dfrac(S_VR + S_Box, N_VR + N_Box))
          ].
 
-% 1) - instead of + for both parts of p_pool.
-% Appeared 1-2 times in the 2018 exams.
-%
-% Matthias, todo: unclear why abs is needed. Mistake in interval?
-% Vincent: Feedback doesn't show, no version with only this bug.
-%buggy(stage(1), From, To, [step(buggy, pdiff, [])]) :-
-%    From = ppool(S_VR, S_Box, N_VR, N_Box),
-%    To = dfrac(instead(pdiff, S_VR - S_Box, S_VR + S_Box),
-%               instead(pdiff, N_VR - N_Box, N_VR + N_Box)).
-
-feedback(pdiff, [], Col, FB) =>
-    FB = [ "Please add up the numbers in both the numerator and the ",
-           "denominator of ", \mmlm(Col, color(pdiff, p_pool))
-         ].
-
-hint(pdiff, [], Col, FB) =>
-    FB = [ "Remember to add up the numbers in both the numerator and the ",
-           "denominator when calculating the pooled success proportion ", 
-	   \mmlm(Col, color(pdiff, p_pool))
-         ].
-
-% Determine z-statistic
-expert(stage(2), From, To, [step(expert, zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box])]) :-
+% Third Step: Determine the z-statistic
+expert(chisq, stage(2), From, To, [step(expert, zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box])]) :-
     From = zstat(P_VR, P_Box, P_Pool, N_VR, N_Box),
     To = dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box))).
 
@@ -143,18 +136,45 @@ hint(zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box], Col, FB) =>
            \mmlm(Col, dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box)))) 
          ].
 
-% 2) Forget to square z. 
+
+
+% Buggy-Rule: - instead of + for both parts of p_pool.
+% Appeared 1-2 times in the 2018 exams.
+%
+% Matthias, todo: unclear why abs is needed. Mistake in interval?
+% Vincent: Feedback doesn't show, no version with only this bug.
+%buggy(chisq, stage(1), From, To, [step(buggy, pdiff, [])]) :-
+%    From = ppool(S_VR, S_Box, N_VR, N_Box),
+%    To = dfrac(instead(pdiff, S_VR - S_Box, S_VR + S_Box),
+%               instead(pdiff, N_VR - N_Box, N_VR + N_Box)).
+
+feedback(pdiff, [], Col, FB) =>
+    FB = [ "The result matches the pooled proportion of successes with a ",
+	   "difference instead of a sum in both the numerator and the denominator of ",
+	   \mmlm(Col, color(pdiff, p_pool)), ". Please add the numbers in both the ",
+           "numerator and the denominator of ", \mmlm(Col, color(pdiff, p_pool))
+         ].
+
+hint(pdiff, [], Col, FB) =>
+    FB = [ "Remember to add the numbers in both the numerator and the ",
+           "denominator when calculating the pooled proportion of successes ", 
+	   \mmlm(Col, color(pdiff, p_pool))
+         ].
+
+
+% Buggy-Rule: Forget to square z. 
 % Appeared 41-49 times in the 2018 exams (upper end of interval represents results
 % that could be caused by the listed error but erroneously rounded, 
 % lower end is number of exact matches).
-buggy(stage(2), From, To, [step(buggy, square, [])]) :-
+buggy(chisq, stage(2), From, To, [step(buggy, square, [])]) :-
     From = ('<-'(chi2, chi2ratio(Z^2)) ; chi2),
     To = (omit(square, '<-'(chi2, Z^2)) ; tstat(Z)).
 
 feedback(square, [], Col, FB) =>
     FB = [ "The result matches ",
            "the ", \mmlm(Col, hyph(color(square, z), "statistic")), " instead ",
-           "of the ", \mmlm(Col, [color(square, chi2), "."])
+           "of ", \mmlm(Col, [color(square, chi2)]), ". Please do not forget to ",
+	   "square the ", \mmlm(Col, hyph(z, "statistic."))
          ].
 
 hint(square, [], Col, FB) =>
@@ -164,15 +184,19 @@ hint(square, [], Col, FB) =>
            "the ", \mmlm(Col, hyph(color(square, chi2), "statistic."))
          ].
 
-% 3) Add probabilities instead of subtracting them. 
+% Buggy-Rule: Add probabilities instead of subtracting them. 
 % Appeared 3-8 times in the 2018 exams.
-buggy(stage(2), From, To, [step(buggy, zadd, [P_VR, P_Box])]) :-
+buggy(chisq, stage(2), From, To, [step(buggy, zadd, [P_VR, P_Box])]) :-
     From = zstat(P_VR, P_Box, P_Pool, N_VR, N_Box),
     To = dfrac(instead(zadd, P_VR + P_Box, P_VR - P_Box), sqrt(P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box))).
 
 feedback(zadd, [P_VR, P_Box], Col, FB) =>
-    FB = [ \mmlm(Col, color(zadd, P_Box)), " was added to ", 
-           \mmlm(Col, color(zadd, P_VR)), ", rather than subtracted from it." 
+    FB = [ "The results matches the ", \mmlm(Col, hyph(z, "statistic")), " where ",
+	   \mmlm(Col, color(zadd, P_Box)), " was added to ", 
+           \mmlm(Col, color(zadd, P_VR)), ", rather than subtracted from it.",
+	   " Please use the difference of ", \mmlm(Col, color(zadd, P_Box)), " and ",
+	   \mmlm(Col, color(zadd, P_VR)), " in the numerator of the ",
+	   \mmlm(Col, hyph(z, "statistic."))
          ].
 
 hint(zadd, [P_VR, P_Box], Col, FB) =>
@@ -182,17 +206,19 @@ hint(zadd, [P_VR, P_Box], Col, FB) =>
            "and ", \mmlm(Col, color(zadd, P_Box))
          ].
 
-% 4) Forgot parentheses around (1/N_VR + 1/N_Box). 
+% Buggy-Rule_ Forgot parentheses around (1/N_VR + 1/N_Box). 
 % Appeared 3-7 times in the 2018 exams.
-buggy(stage(2), From, To, [step(buggy, paren2, [N_VR, N_Box])]) :-
+buggy(chisq, stage(2), From, To, [step(buggy, paren2, [N_VR, N_Box])]) :-
     From = A * B * (1 / N_VR + 1 / N_Box),
     To = A * B * color(paren2, 1) / color(paren2, N_VR) + color(paren2, 1) / color(paren2, N_Box).
 
 feedback(paren2, [N_VR, N_Box], Col, FB) =>
-    FB = [ "The parenthesis around ", 
-           \mmlm(Col, color(paren2, 
-             paren(color("#000000", 1 / N_VR + 1 / N_Box)))), " has been ",
-           "omitted." 
+    FB = [ "The results matches the ", \mmlm(Col, hyph(z, "statistic")), " without ",
+	   "the parenthesis around ", 
+	   \mmlm(Col, color(paren2, paren(color("#000000", 1 / N_VR + 1 / N_Box)))),
+	   ". Please do not forget the paranthesis around ",
+	   \mmlm(Col, color(paren2, paren(color("#000000", 1 / N_VR + 1 / N_Box)))),
+           "." 
          ].
 
 hint(paren2, [N_VR, N_Box], Col, FB) =>
@@ -201,29 +227,33 @@ hint(paren2, [N_VR, N_Box], Col, FB) =>
              paren(color("#000000", 1 / N_VR + 1 / N_Box))))
          ].
 
-% 5) Forgot parentheses around denominator in main formula. 
+% Buggy-Rule: Forgot parentheses around denominator in main formula. 
 % Appeared 1-4 times in the 2018 exams.
-buggy(stage(2), From, To, [step(buggy, paren3, [From])]) :-
+buggy(chisq, stage(2), From, To, [step(buggy, paren3, [From])]) :-
     From = P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box),
     To = instead(paren3, P_Pool * 1 - P_Pool * 1 / N_VR + 1 / N_Box, From).
 
 feedback(paren3, [From], Col, FB) =>
-    FB = [ "Please remember the parentheses around the different ",
-	   " elements in ", \mmlm(Col, color(paren3, From)) ].
+    FB = [ "The results matches the ", \mmlm(Col, hyph(z, "statistic")), " without ",
+	   "the parenthesis around the different elements in ", 
+	   \mmlm(Col, color(paren3, From)), ". Please do not forget the paranthesis ",
+	   " in the denominator of ", \mmlm(Col, color(paren3, From))
+	 ].
 
 hint(paren3, [From], Col, FB) =>
-    FB = [ "Remember the parentheses around he different ",
+    FB = [ "Remember the parentheses around the different ",
 	   " elements in ", \mmlm(Col, color(paren3, From)) ].
 
-% 6) flipped nominator and denominator in main equation. 
+% Buggy-Rule: flipped nominator and denominator in main equation. 
 % Appeared 3-5 times in the 2018 exams.
-buggy(stage(2), From, To, [step(buggy, flip, [])]) :-
+buggy(chisq, stage(2), From, To, [step(buggy, flip, [])]) :-
     From = '<-'(z, zstat(P_VR, P_Box, P_pool, N_VR, N_Box)),
     To = '<-'(z, invent_left(flip, 1/zstat(P_VR, P_Box, P_pool, N_VR, N_Box))).
 
 feedback(flip, [], Col, FB) =>
     FB = ["The result matches the reciprocal of the test statistic ", 
-	 \mmlm(Col, ["(", color(flip, 1 / (color("#000000", z))), ")"])
+	  \mmlm(Col, ["(", color(flip, 1 / (color("#000000", z))), ")"]),
+	  ". Please double check the nominator and denominator of the test statistic." 
 	 ].
 
 hint(flip, [], _Col, FB) =>
