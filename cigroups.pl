@@ -72,11 +72,17 @@ render
           ]))).
 
 task(cigroups, Form)
--->     { start(item(_RC, _S_RC, _N_RC, _MC, _S_MC, _N_MC, Alpha)),
-	  option(resp(R), Form, '#.##')
-	},
-	html(\htmlform(["Determine the confidence interval for the difference between the two group means. The alpha level is ", \mmlm([], alpha = perc(Alpha))
-                ], "cigroups", R)).
+--> { start(item(_RC, _S_RC, _N_RC, _MC, _S_MC, _N_MC, Alpha)),
+      (   option(task(cigroups), Form)
+      ->  option(resp(Resp), Form, '#.# to #.#'),
+          session_retractall(resp(cigroups, cigroups, _)),
+          session_assert(resp(cigroups, cigroups, Resp))
+      ;   session_data(resp(cigroups, cigroups, Resp), resp(cigroups, cigroups, '#.# to #.#'))
+      )
+    },
+    html(\htmlform(["Determine the confidence interval for the difference ",
+        "between the two group means. The alpha level ",
+        "is ", \mmlm([], alpha = perc(Alpha))], cigroups, Resp)).
 
 % t-test and confidence intervall for independent samples 
 intermediate(cigroups, item).
