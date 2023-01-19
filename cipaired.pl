@@ -10,7 +10,9 @@
 :- use_module(navbar).
 navbar:page(cipaired, ["Confidence interval for paired samples"]).
 
-:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+task(cipaired).
+
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
 mathml_hook(d, overline('D')).
@@ -38,8 +40,8 @@ rint:r_hook(s_eot).
 rint:r_hook(qt(_P, _DF)).
 
 % Task description
-render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha), Form) -->
-    { option(resp(R), Form, '#.##') },
+render
+--> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha)) },
     html(
       [ div(class(card), div(class('card-body'),
           [ h1(class('card-title'), "Efficiency of self-confidence training"),
@@ -66,21 +68,23 @@ render(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha), Form) -->
                         \mmlm([digits(1)], r(s_eot)),
                         \mmlm([digits(1)], r(s1_d)) ]
                     ])))),
-            \download(cipaired)
-          ])),
-        \htmlform(["Determine the confidence interval for the change in participants' self-confidence. The alpha level is ", \mmlm(alpha = perc(0.05))
-                ], '#cipaired', R)
-    ]).
+            \download(cipaired)]))]).
 
+task(cipaired, Form)
+--> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, _Mu, _Alpha)),
+      option(resp(R), Form, '#.##') 
+    },
+    html(\htmlform(["Determine the confidence interval for the change in participants' self-confidence. The alpha level is ", \mmlm(alpha = perc(0.05))
+           ], "cipaired", R)).
 
 % t-test and confidence intervall for paired samples 
-intermediate(item).
+intermediate(cipaired, item).
 start(item(t0, s_t0, eot, s_eot, d, s_d, n, mu, alpha)).
 
 % First step: Extract the correct information for a paired t-test and 
 % the associated confidence interval from the task description
-intermediate(paired).
-expert(stage(2), X, Y, [step(expert, paired, [])]) :-
+intermediate(cipaired, paired).
+expert(cipaired, stage(2), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu, Alpha),
     Y = paired(D, Mu, S_D, N, Alpha).
 
@@ -96,8 +100,8 @@ hint(paired, [], Col, H)
         ].
 
 % Second step: Apply the formula for the confidence interval for a mean value.
-intermediate(quant).
-expert(stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N, Alpha])]) :-
+intermediate(cipaired, quant).
+expert(cipaired, stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N, Alpha])]) :-
     X = paired(D, Mu, S_D, N, Alpha),
     Y = hdrs(pm(D, dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
 
@@ -113,7 +117,7 @@ hint(ci_lower, [D, S_D, N, Alpha], Col, H)
         ].
 
 % Third step: Choose the correct quantile of the t-distribution
-expert(stage(2), X, Y, [step(expert, tquant, [N, Alpha])]) :-
+expert(cipaired, stage(2), X, Y, [step(expert, tquant, [N, Alpha])]) :-
     X = quant(_D, _Mu, _S_D, N, Alpha),
     Y = qt(1 - Alpha/2, N-1).
 
@@ -128,7 +132,7 @@ hint(tquant, [_N, Alpha], Col, H)
         ].
 
 % Buggy-Rule: Use t-statistic instead of t-quantile
-buggy(stage(2), X, Y, [step(buggy, tstat, [D, S_D, N, Mu, Alpha])]) :-
+buggy(cipaired, stage(2), X, Y, [step(buggy, tstat, [D, S_D, N, Mu, Alpha])]) :-
     X = quant(D, Mu, S_D, N, Alpha),
     P = abbrev(t, dfrac(D - Mu, S_D / sqrt(N)), ["the observed", space, t, "-statistic."]),
     Y = P. 
@@ -147,7 +151,7 @@ hint(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, H)
 
 % Buggy-Rule: Use z-quantile instead of t-quantile. 
 % This rule may be dropped because we might not be able to distinguish the results.
-buggy(stage(2), X, Y, [step(buggy, qnorm, [N, Alpha])]) :-
+buggy(cipaired, stage(2), X, Y, [step(buggy, qnorm, [N, Alpha])]) :-
     X = quant(_D, _Mu, _S_D, N, Alpha),
     Y = instead(qt, qnorm(1 - Alpha/2) , qt(1 - Alpha/2, N - 1)).
 
@@ -165,10 +169,9 @@ hint(qnorm, [_N, _Alpha], Col, H)
 	  \mmlm(Col, hyph(t, "distribution")), "instead."
         ].
 
-
 % Buggy-Rule: Calculating the confidence intervall with SPSS
 % and forgetting to add Mu to the results of the bounds in the end.
-buggy(stage(2), X, Y, [step(buggy, spss, [Mu]), excludes(qnorm), excludes(tstat), excludes(sqrt1)]) :-
+buggy(cipaired, stage(2), X, Y, [step(buggy, spss, [Mu]), excludes(qnorm), excludes(tstat), excludes(sqrt1)]) :-
     X = paired(D, Mu, S_D, N, Alpha),
     Y = hdrs(pm(invent_right(spss, D - Mu), dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
 
@@ -185,7 +188,7 @@ hint(spss, [Mu], Col, H)
         ].
 
 % Buggy-Rule: Use of N instead of sqrt(N)				
-buggy(stage(2), X, Y, [step(buggy, sqrt1, [N])]) :-			
+buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt1, [N])]) :-			
     X = dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)),
     Y = dot(quant(D, Mu, S_D, N, Alpha), S_D / omit_right(sqrt1, (2*N)^(1/2))).
 
@@ -201,7 +204,7 @@ hint(sqrt1, [N], Col, F)
         ].
 
 % Buggy-Rule: Use of N instead of sqrt(N) in the t-ratio
-buggy(stage(2), X, Y, [step(buggy, sqrt2, [N])]) :-
+buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt2, [N])]) :-
     X = dfrac(D - Mu, S_D / sqrt(N)),
     Y = dfrac(D - Mu, S_D / omit_right(sqrt2, (3*N)^(1/2))).
 
