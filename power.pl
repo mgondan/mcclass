@@ -9,8 +9,9 @@
 
 :- use_module(navbar).
 navbar:page(power, "Power").
+task(power).
 
-:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
 mathml_hook(n_vr, sub(n, "VR")).
@@ -31,10 +32,11 @@ rint:r_hook(s_box).
 rint:r_hook(s2p).
 rint:r_hook(t).
 
-render(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
-    { option(resp(R), Form, '#.##') },
+% Task description
+render
+--> {start(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX)) },
 	html(
-	  [ div(class(card), div(class('card-body'),
+	   div(class(card), div(class('card-body'),
 	    [ h1(class('card-title'), "Training of surgical skills"),
 		p(class('card-text'),
 		  [ "Surgeons need special motor skills, especially for ",
@@ -83,30 +85,28 @@ render(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
 		  ]), 
 		 form(method('POST'),
 		    button([ class('btn btn-secondary'), name(download), value(power) ], "Download data"))
-	      ])),
-	    div(class(card), div(class('card-body'),
-	    [ h4(class('card-title'), [a(id(question), []), "Question"]),
-	      p(class('card-text'),
-		[ "Is VR training superior to traditional Box training?"
-		]),
-	      form([class(form), method('POST'), action('#power-pnorm')],
-		[ div(class("input-group mb-3"),
-		    [ div(class("input-group-prepend"), 
-			span(class("input-group-text"), "Response")),
-		      input([class("form-control"), type(text), name(resp), value(R)]),
-			div(class("input-group-append"),
-			  button([class('btn btn-primary'), type(submit)], "Submit"))
-	        ])])
-	      ]))
-	]).
+	      ]))).
+
+task(power, Form)
+--> { start(item(_VR, _S_VR, _N_VR, _BOX, _S_BOX, _N_BOX)),
+      (   option(task(power), Form)
+      ->  option(resp(Resp), Form, '#.##'),
+          session_retractall(resp(power, power, _)),
+          session_assert(resp(power, power, Resp))
+      ;   session_data(resp(power, power, Resp), resp(power, power, '#.##'))
+      )
+    },
+    html(\htmlform([ "Is VR training superior to traditional Box training?"], power, Resp)).
+	    
+	
 
 % t-test for independent groups
-intermediate(item).
+intermediate(power, item).
 start(item(vr, s_vr, n_vr, box, s_box, n_box)).
 
-% Correctly identified the problem as a t-test for independent groups.
-intermediate(indep).
-expert(stage(2), From, To, [step(expert, indep, [])]) :-
+% First Step: Correctly identified the problem as a t-test for independent samples.
+intermediate(power, indep).
+expert(power, stage(2), From, To, [step(expert, indep, [])]) :-
     From = item(VR, S_VR, N_VR, BOX, S_BOX, N_BOX),
     To = { '<-'(s2p, var_pool(S_VR ^ 2, N_VR, S_BOX ^ 2, N_BOX)) ;
 	   '<-'(t, dfrac(VR - BOX, sqrt(s2p * (1/N_VR + 1/N_BOX)))) ;
@@ -114,9 +114,10 @@ expert(stage(2), From, To, [step(expert, indep, [])]) :-
 	 }.
 
 feedback(indep, [], Col, FB) =>
-    FB = [ "You identified the problem as a ", \mmlm(Col, hyph(t, "test")),
+    FB = [ "Correctly identified the problem as a ", \mmlm(Col, hyph(t, "test")),
 	   " for independent samples and solved it correctly." ].
 
-hint(indep, [], _Col, FB) =>
-    FB = [ "Try to do everthing correctly." ].
+hint(indep, [], Col, FB) =>
+    FB = [ "This is a ", \mmlm(Col, hyph(t, "test")), " for independent ",
+           "samples." ].
 
