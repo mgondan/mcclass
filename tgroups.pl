@@ -9,8 +9,9 @@
 :- use_module(navbar).
 
 navbar:page(tgroups, ["Independent ", i(t), "-test (1)"]).
+task(tgroups).
 
-:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
 mathml_hook(n_vr, sub(n, "VR")).
@@ -31,8 +32,8 @@ rint:r_hook(s_box).
 rint:r_hook(s2p).
 rint:r_hook(t).
 
-render(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
-    { option(resp(R), Form, '#.##') },
+render 
+--> {start(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX)) },
     html(
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Training of surgical skills"),
@@ -83,21 +84,24 @@ render(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX), Form) -->
                   "assisting in laparoscopic surgery. The efficiency of the training ",
                   "was judged higher by the VR group than by the Box group."
                 ]))),
-            \download(tgroups)
-	      ])),
-            \htmlform(
-              [ "Is VR training superior to traditional Box training? ",
-                "Please report the ", \mmlm(hyph(t, "ratio,")), " using Box ",
-                "as the control intervention." 
-              ], "#tratio", R)
-          ]).
+            \download(tgroups)]))]).
 
-intermediate(item).
+task(tratio, Form)
+--> { start(item(_VR, _S_VR, _N_VR, _BOX, _S_BOX, _N_BOX)),
+      option(resp(R), Form, '#.##') 
+    },
+    html(\htmlform(
+      [ "Is VR training superior to traditional Box training? ",
+        "Please report the ", \mmlm(hyph(t, "ratio,")), " using Box ",
+        "as the control intervention." 
+      ], "#tratio", R)).
+
+intermediate(tgroups, item).
 start(item(vr, s_vr, n_vr, box, s_box, n_box)).
 
 % t-test for independent groups.
 intermediate(tratio).
-expert(stage(1), From, To, [step(expert, problem, [])]) :-
+expert(tgrous, stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(VR, S_VR, N_VR, BOX, S_BOX, N_BOX),
     To = { '<-'(s2p, var_pool(S_VR^2, N_VR, S_BOX^2, N_BOX)) ;
            '<-'(t, tratio(VR, BOX, s2p, N_VR, N_BOX))
@@ -114,8 +118,8 @@ hint(problem, [], Col, FB)
          ].
 
 % Pooled variance.
-intermediate(var_pool).
-expert(stage(1), From, To, [step(expert, pooled, [S2P])]) :-
+intermediate(tgroups, var_pool).
+expert(tgroups, stage(1), From, To, [step(expert, pooled, [S2P])]) :-
     From = '<-'(S2P, var_pool(S_A^2, N_A, S_B^2, N_B)),
     To = '<-'(S2P, dfrac((N_A-1) * S_A^2 + (N_B-1) * S_B^2, N_A + N_B - 2)).
 
@@ -128,7 +132,7 @@ hint(pooled, [S2P], Col, FB)
          ].
 
 % t-statistic
-expert(stage(2), From, Fmt, [step(expert, tratio, [To])]) :-
+expert(tgroups, stage(2), From, Fmt, [step(expert, tratio, [To])]) :-
     From = tratio(VR, BOX, S2P, N_VR, N_BOX),
     To = dfrac(VR - BOX, sqrt(S2P * (frac(1, N_VR) + frac(1, N_BOX)))),
     Fmt = tstat(To).
@@ -142,7 +146,7 @@ hint(tratio, [T], Col, FB) =>
          ].
 
 % Wrong control group
-buggy(stage(1), From, To, [step(buggy, control, [vr, box])]) :-
+buggy(tgroups, stage(1), From, To, [step(buggy, control, [vr, box])]) :-
     From = item(vr, s_vr, n_vr, box, s_box, n_box),
     To = item(instead(control, box, vr), s_vr, n_vr, instead(control, vr, box), s_box, n_box).
 
@@ -160,7 +164,7 @@ hint(control, [VR, Box], Col, FB)
          ].
 
 % Forgot to use square of standard deviation in pooled variance
-buggy(stage(1), From, To, [step(buggy, square, [S_A, S_B])]) :-
+buggy(tgroups, stage(1), From, To, [step(buggy, square, [S_A, S_B])]) :-
     From = var_pool(S_A^2, N_A, S_B^2, N_B),
     To = dfrac((N_A-1) * omit_right(square, S_A^2) + (N_B-1) * omit_right(square, S_B^2), N_A + N_B - 2).
 
@@ -176,7 +180,7 @@ hint(square, [_S_A, _S_B], _Col, FB)
          ].
 
 % Forgot school math
-buggy(stage(2), From, To, [step(buggy, school, [N_A, N_B])]) :-
+buggy(tgroups, stage(2), From, To, [step(buggy, school, [N_A, N_B])]) :-
     From = frac(1, N_A) + frac(1, N_B),
     To = color(school, frac(1, N_A + N_B)).
 
@@ -210,7 +214,7 @@ hint(school, [A, B], Col, FB)
 %	 ].
 
 % Forgot square root around the denominator
-buggy(stage(2), From, To, [step(buggy, sqrt1, [S2P * Ns])]) :-
+buggy(tgroups, stage(2), From, To, [step(buggy, sqrt1, [S2P * Ns])]) :-
     From = sqrt(S2P * Ns),
     To = instead(sqrt1, S2P * Ns, sqrt(S2P * Ns)).
 
@@ -225,7 +229,7 @@ hint(sqrt1, [_], Col, FB)
          ].
 
 % Forget square root around sample size
-buggy(stage(2), From, To, [step(buggy, sqrt2, [Ns])]) :-
+buggy(tgroups, stage(2), From, To, [step(buggy, sqrt2, [Ns])]) :-
     Ns = frac(1, _N_VR) + frac(1, _N_Box),
     From = sqrt(S2P * Ns),
     To = invent_right(sqrt2, sqrt(omit_right(sqrt2, S2P * Ns)) * Ns).
