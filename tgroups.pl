@@ -94,7 +94,7 @@ task(tratio, Form)
       [ "Is VR training superior to traditional Box training? ",
         "Please report the ", \mmlm(hyph(t, "ratio,")), " using Box ",
         "as the control intervention." 
-      ], "#tratio", R)).
+      ], tratio, R)).
 
 intermediate(tgroups, item).
 start(item(vr, s_vr, n_vr, box, s_box, n_box)).

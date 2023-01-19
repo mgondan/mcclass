@@ -75,7 +75,7 @@ task(cipaired, Form)
       option(resp(R), Form, '#.##') 
     },
     html(\htmlform(["Determine the confidence interval for the change in participants' self-confidence. The alpha level is ", \mmlm(alpha = perc(0.05))
-           ], "cipaired", R)).
+           ], cipaired, R)).
 
 % t-test and confidence intervall for paired samples 
 intermediate(cipaired, item).
