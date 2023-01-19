@@ -240,8 +240,8 @@ hint(dens2, [_C], _Col, Hint)
 
 % Helper function(s)
 binomtable(N, P0, P1, Caption, Rows, Cols, Cells) :-
-    r_task(lqbinom(0.05, N, P0), L),
-    r_task(uqbinom(0.05, N, P1), H),
+    r_topic(lqbinom(0.05, N, P0), L),
+    r_topic(uqbinom(0.05, N, P1), H),
     Caption = [em("Table 1. "), "Binomial probabilities"],
     Cols = [\mmlm(k), \mmlm(dbinom(k, N = r(N), p0 = r(P0))), \mmlm(dbinom(k, N = r(N), p1 = r(P1)))],
     % lower tail
