@@ -9,8 +9,9 @@
 
 :- use_module(navbar).
 navbar:page(ztrans, [i(z), "-transform (1)"]).
+task(ztrans).
 
-:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 mathml_hook(x, 'X').
 
@@ -20,8 +21,8 @@ rint:r_hook(z).
 rint:r_hook(pnorm(_Z)).
 rint:r_hook(p).
 
-render(item(X, Mu, Sigma), Form) -->
-    { option(resp(R), Form, '#.##') },
+render
+--> { start(item(X, Mu, Sigma)) },
     html(
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
@@ -31,33 +32,27 @@ render(item(X, Mu, Sigma), Form) -->
               "standard deviation ", \mmlm([digits(0)], [Sigma = r(sigma), "."]),
               "A table of the standard ",
               "normal distribution is found below."
-            ])
-        ])),
-        div(class(card), div(class('card-body'),
-          [ h4(class('card-title'), [a(id(question), []), "Question"]),
-            p(class('card-text'),
-              [ "How many realizations are ",
-                  "below ", \mmlm([digits(0)], [r(x), "?"])
-              ]),
-            form([class(form), method('POST'), action('#ztrans-response')],
-              [ div(class("input-group mb-3"),
-                  [ div(class("input-group-prepend"), 
-                      span(class("input-group-text"), "Response")),
-                    input([class("form-control"), type(text), name(resp), value(R)]),
-                      div(class("input-group-append"),
-                        button([class('btn btn-primary'), type(submit)], "Submit"))
-                  ])
-              ])
-          ]))
-      ]).
+            ])]))]).
 
+task(ztrans, Form)
+--> { start(item(_X, _Mu, _Sigma)),
+     (   option(task(ztrans), Form)
+      ->  option(resp(Resp), Form, '.##'),
+          session_retractall(resp(ztrans, ztrans, _)),
+          session_assert(resp(ztrans, ztrans, Resp))
+      ;   session_data(resp(ztrans, ztrans, Resp), resp(ztrans, ztrans, '.##'))
+      )
+	},
+	html(\htmlform([ "How many realizations are ",
+        "below ", \mmlm([digits(0)], [r(x), "?"])], ztrans, Resp)).
+      
 % z-transformation and normal distribution
-intermediate(item).
+intermediate(ztrans, item).
 start(item(x, mu, sigma)).
 
-intermediate(pnorm_).
-intermediate(zcalc).
-expert(stage(1), From, To, [step(expert, allinone, [])]) :-
+intermediate(ztrans, pnorm_).
+intermediate(ztrans, zcalc).
+expert(ztrans, stage(1), From, To, [step(expert, allinone, [])]) :-
     From = item(X, Mu, Sigma),
     To = { '<-'(z, zcalc(X, Mu, Sigma)) ;
            '<-'(p, pnorm_(z)) ; 
@@ -72,7 +67,7 @@ hint(allinone, [], Col, FB) =>
 
 
 % Expert rule (zcalc)
-expert(stage(1), From, To, [step(expert, zcalc, [X, Mu, Sigma])]) :-
+expert(ztrans, stage(1), From, To, [step(expert, zcalc, [X, Mu, Sigma])]) :-
     From = zcalc(X, Mu, Sigma),
     To = dfrac(X - Mu, Sigma).
 
@@ -83,7 +78,7 @@ hint(zcalc, [X, Mu, Sigma], Col, FB) =>
     FB = [ "To calculate the z-value, use " , \mmlm(Col, dfrac(X - Mu, Sigma)) ].
 
 % Expert rule (correct tail)
-expert(stage(2), From, To, [step(expert, correct_tail, [Z])]) :-
+expert(ztrans, stage(2), From, To, [step(expert, correct_tail, [Z])]) :-
     From = pnorm_(Z),
     To = pnorm(Z).
 
@@ -95,7 +90,7 @@ hint(correct_tail, [_Z], _Col, FB) =>
 
 
 % Buggy rule (wrong tail) The wrong tail of the normal distribution was selected.
-buggy(stage(2), From, To, [step(buggy, wrong_tail, [Z])]) :-
+buggy(ztrans, stage(2), From, To, [step(buggy, wrong_tail, [Z])]) :-
     From = pnorm_(Z),
     To = instead(wrong_tail, 1 - pnorm(Z), pnorm(Z)).
 
@@ -106,7 +101,7 @@ hint(wrong_tail, [_Z], _Col, FB) =>
     FB = [ "Do not use the upper tail of the normal distribution." ].
 
 % Buggy Rule (plus) Mu was added to X, not subtracted.
-buggy(stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
+buggy(ztrans, stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
     From = dfrac(X - Mu, Sigma),
     To = dfrac(instead(plus, X + Mu, X - Mu), Sigma).
 
@@ -119,7 +114,7 @@ hint(plus, [X, Mu], Col, FB) =>
            \mmlm(Col, color(plus, X + Mu)) ].
 
 % Buggy Rule (swap) Mu and Sigma were swapped.
-buggy(stage(1), From, To, [step(buggy, swap, [mu, sigma])]) :-
+buggy(ztrans, stage(1), From, To, [step(buggy, swap, [mu, sigma])]) :-
     From = item(x, mu, sigma),
     To = item(x, instead(swap, sigma, mu), instead(swap, mu, sigma));
     From = item(x, mu, sigma^2),
@@ -134,7 +129,7 @@ hint(swap, [Mu, Sigma], Col, FB) =>
 	   \mmlm(Col, color(swap, Sigma)), " in a different configuration." ].
 
 % Buggy Rule (vardev swap) standard deviation was mistaken with variance.
-buggy(stage(1), From, To, [step(buggy, vardev_swap, [sigma])]) :-
+buggy(ztrans, stage(1), From, To, [step(buggy, vardev_swap, [sigma])]) :-
     From = item(x, mu, sigma),
     To = item(x, mu, instead(vardev_swap, sigma^2, sigma)).
 
@@ -145,7 +140,7 @@ hint(vardev_swap, [sigma], Col, FB) =>
     FB = [ "Use ", \mmlm(Col, color(vardev_swap, sigma)), " instead of ", \mmlm(Col, color(vardev_swap, sigma^2)) ].
 
 % Buggy Rule (xp) (x - mu)/sigma was skipped.
-buggy(stage(2), From, To, [step(buggy, xp, []), depends(xp2)]) :-
+buggy(ztrans, stage(2), From, To, [step(buggy, xp, []), depends(xp2)]) :-
    From = dfrac(x - mu, sigma),
    To = omit_right(xp, dfrac(omit_right(xp, x - mu), sigma)).
 
@@ -156,7 +151,7 @@ hint(xp, [], _Col, FB) =>
     FB = [ "Remember to calculate the z-value." ].
 
 % Buggy Rule (xp2) x/100 was taken to be phi(z).
-buggy(stage(2), From, To, [step(buggy, xp2, []), depends(xp)]) :-
+buggy(ztrans, stage(2), From, To, [step(buggy, xp2, []), depends(xp)]) :-
     From = pnorm_(z),
     To = instead(xp2, z/100, pnorm(z)).
 
