@@ -79,26 +79,16 @@ handle(Topic, Form),
         mime_type(text/csv), headers(['Content-Disposition'(File)])
       ], Request).
 
-% Task sheet with feedback
-handle(Topic, Form)
- => r_initialize,
+% Response given
+handle(Topic, Form),
+    option(task(Task), Form),
+    option(resp(Resp), Form)
+ => session_retractall(resp(Topic, Task, _)),
+    session_assert(resp(Topic, Task, Resp)),
+    r_initialize,
     r_session_source(Topic),
     b_setval(topic, Topic),
     findall(T, Topic:task(T), [T1 | Tasks]),
-    option(task(Current), Form, T1),
-
-%    findall(Tab, 
-%      (   member(T, [T1 | Tasks]), 
-%          task(Topic, T, task(Topic, T, Data)),
-%          phrase(html(div([
-%              \(Topic:task(T, Form)),
-%              \feedback(Topic, T, Data, Form),
-%              \pp_solutions(Topic, T, Data),
-%              \pp_hints(Topic, T, Data),
-%              \pp_wrongs(Topic, T, Data),
-%              \pp_traps(Topic, T, Data)])), Tab)
-%      ), Tabs),
-
     reply_html_page(
       [ title('McClass'),
         link([rel(stylesheet), href('bootstrap.min.css')]),
@@ -114,13 +104,13 @@ handle(Topic, Form)
       ],
       [ \navbar,
         \(Topic:render),
-        \navtabs([T1 | Tasks], Current),
+        \navtabs([T1 | Tasks], Task),
         div([class('tab-content'), id('nav-tabContent')],
           \foreach((member(T, [T1 | Tasks]), task(Topic, T, task(Topic, T, Data))),
-            ( {T = Current}
-            ->  html(div([class('tab-pane fade show active'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)], 
+            ( {T = Task}
+            ->  html(div([class('tab-pane fade show active'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
                   div([
-                    \(Topic:task(T, Form)),
+                    \(Topic:task(T)),
                     \feedback(Topic, T, Data, Form),
                     \pp_solutions(Topic, T, Data),
                     \pp_hints(Topic, T, Data),
@@ -128,7 +118,52 @@ handle(Topic, Form)
                     \pp_traps(Topic, T, Data)])))
             ;   html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
                   div([
-                    \(Topic:task(T, Form)),
+                    \(Topic:task(T)),
+                    \feedback(Topic, T, Data, Form),
+                    \pp_solutions(Topic, T, Data),
+                    \pp_hints(Topic, T, Data),
+                    \pp_wrongs(Topic, T, Data),
+                    \pp_traps(Topic, T, Data)])))))),
+        script(src('bootstrap.bundle.min.js'), '')
+      ]).
+
+% No response
+handle(Topic, Form)
+ => findall(T, Topic:task(T), [T1 | Tasks]),
+    option(task(Task), Form, T1),
+    r_initialize,
+    r_session_source(Topic),
+    b_setval(topic, Topic),
+    reply_html_page(
+      [ title('McClass'),
+        link([rel(stylesheet), href('bootstrap.min.css')]),
+        link([rel(icon), href('favicon.ico'), type('image/x-icon')]),
+        meta([name(viewport), content('width=device-width, initial-scale=1')]),
+        style(
+          [ ".table thead tr th { padding-top: 0.1rem; padding-bottom: 0.1rem; }",
+            ".table thead tr:first-child { border-top: 2px solid black; border-bottom: 1px solid black; }",
+            ".table tbody tr td { border: none; padding-top: 0.1rem; padding-bottom: 0.1rem; }",
+            ".table tbody tr th { border: none; padding-top: 0.1rem; padding-bottom: 0.1rem; }",
+            ".table tbody tr:last-child { border-bottom: 2px solid black; }"
+          ])
+      ],
+      [ \navbar,
+        \(Topic:render),
+        \navtabs([T1 | Tasks], Task),
+        div([class('tab-content'), id('nav-tabContent')],
+          \foreach((member(T, [T1 | Tasks]), task(Topic, T, task(Topic, T, Data))),
+            ( {T = Task}
+            ->  html(div([class('tab-pane fade show active'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)], 
+                  div([
+                    \(Topic:task(T)),
+                    \feedback(Topic, T, Data, Form),
+                    \pp_solutions(Topic, T, Data),
+                    \pp_hints(Topic, T, Data),
+                    \pp_wrongs(Topic, T, Data),
+                    \pp_traps(Topic, T, Data)])))
+            ;   html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
+                  div([
+                    \(Topic:task(T)),
                     \feedback(Topic, T, Data, Form),
                     \pp_solutions(Topic, T, Data),
                     \pp_hints(Topic, T, Data),

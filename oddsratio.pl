@@ -40,12 +40,11 @@ render
                   "to Therapy A."
                 ])]))]).
 
-     task(oratio, Form)
-	--> {start(item(_Pi_A, _OR)),
-	 option(resp(Resp), Form, '#.##')
+task(oratio)
+--> { start(item(_Pi_A, _OR)),
+      session_data(resp(oddsratio, oratio, Resp), resp(oddsratio, oratio, '#.##'))
 	},
-	html(\htmlform(["What is the success probability of Therapy B?"], "oratio", 
-	Resp)).
+	html(\htmlform(["What is the success probability of Therapy B?"], oratio, Resp)).
       
 
 intermediate(oratio, item).

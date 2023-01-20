@@ -71,14 +71,9 @@ render
               ])))
 	      ]))).
 
-task(chisq, Form)
+task(chisq)
 --> { start(item(_P_VR, _S_VR, _N_VR, _P_Box, _S_Box, _N_Box)),
-      (   option(task(chisq), Form)
-      ->  option(resp(Resp), Form, '#.##'),
-          session_retractall(resp(chisq, chisq, _)),
-          session_assert(resp(chisq, chisq, Resp))
-      ;   session_data(resp(chisq, chisq, Resp), resp(chisq, chisq, '#.##'))
-      )
+      session_data(resp(chisq, chisq, Resp), resp(chisq, chisq, '#.##'))
     },
     html(\htmlform([ "Does VR training lead to faster surgery times than ",
         "traditional Box training? Please ",

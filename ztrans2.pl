@@ -34,14 +34,9 @@ render
               "Normal distribution is found below."
             ])]))]).
 
-task(ztrans, Form)
+task(ztrans)
 --> { start(item(P, _Mu, _Sigma)),
-     (   option(task(ztrans), Form)
-      ->  option(resp(Resp), Form, '##.#'),
-          session_retractall(resp(ztransi2, ztrans, _)),
-          session_assert(resp(ztrans2, ztrans, Resp))
-      ;   session_data(resp(ztrans2, ztrans, Resp), resp(ztrans2, ztrans, '##.#'))
-      )
+      session_data(resp(ztrans2, ztrans, Resp), resp(ztrans2, ztrans, '##.#'))
 	},
 	html(\htmlform([ "In which area do the upper ", \mmlm([digits(0)], [r(P), "% fall?"])], ztrans, Resp)).
 

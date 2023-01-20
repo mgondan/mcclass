@@ -34,14 +34,9 @@ render
               "normal distribution is found below."
             ])]))]).
 
-task(ztrans, Form)
+task(ztrans)
 --> { start(item(_X, _Mu, _Sigma)),
-     (   option(task(ztrans), Form)
-      ->  option(resp(Resp), Form, '.##'),
-          session_retractall(resp(ztrans, ztrans, _)),
-          session_assert(resp(ztrans, ztrans, Resp))
-      ;   session_data(resp(ztrans, ztrans, Resp), resp(ztrans, ztrans, '.##'))
-      )
+      session_data(resp(ztrans, ztrans, Resp), resp(ztrans, ztrans, '.##'))
 	},
 	html(\htmlform([ "How many realizations are ",
         "below ", \mmlm([digits(0)], [r(x), "?"])], ztrans, Resp)).

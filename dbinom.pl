@@ -36,14 +36,9 @@ render
               ])]))]).
         
 
-task(exactprob, Form)
+task(exactprob)
 --> { start(item(K, _N, _P0)), 
-      (   option(task(exactprob), Form)
-      ->  option(resp(Resp), Form, '#.##'),
-          session_retractall(resp(dbinom, exactprob, _)),
-          session_assert(resp(dbinom, exactprob, Resp))
-      ;   session_data(resp(dbinom, exactprob, Resp), resp(dbinom, exactprob, '#.##'))
-      )
+      session_data(resp(dbinom, exactprob, Resp), resp(dbinom, exactprob, '#.##'))
     },
     html(\htmlform([ "What is the probability for exactly ", \mmlm(r(K)), " ",
         "successes?" ], exactprob, Resp)).

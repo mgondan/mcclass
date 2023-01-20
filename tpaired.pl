@@ -72,28 +72,18 @@ render
           \download(tpaired)
         ]))).
 
-task(tratio, Form)
+task(tratio)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, Mu)),
-      (   option(task(tratio), Form)
-      ->  option(resp(Resp), Form, '#.##'),
-          session_retractall(resp(tpaired, tratio, _)),
-          session_assert(resp(tpaired, tratio, Resp))
-      ;   session_data(resp(tpaired, tratio, Resp), resp(tpaired, tratio, '#.##'))
-      )
+      session_data(resp(tpaired, tratio, Resp), resp(tpaired, tratio, '#.##'))
     },
     html(\htmlform([ "Does rfCBT lead to a relevant reduction (i.e., more ",
         "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean HDRS ",
         "scores between baseline (T0) and End of Treatment (EOT)? ",
         "Please report the ", \mmlm(hyph(t, "ratio.")) ], tratio, Resp)).
 
-task(pvalue, Form)
+task(pvalue)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, _Mu)),
-      (   option(task(pvalue), Form)
-      ->  option(resp(Resp), Form, '.###'),
-          session_retractall(resp(tpaired, pvalue, _)),
-          session_assert(resp(tpaired, pvalue, Resp))
-      ;   session_data(resp(tpaired, pvalue, Resp), resp(tpaired, pvalue, '.###'))
-      )
+      session_data(resp(tpaired, pvalue, Resp), resp(tpaired, pvalue, '.###'))
     },
     html(\htmlform([ "What is the the ", \mmlm(hyph(p, "value?")) ], pvalue,
         Resp)).

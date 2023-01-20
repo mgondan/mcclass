@@ -39,12 +39,12 @@ render
                   "is ", \mmlm([r(Pi_A), "."]), " Therapy B has a success ",
                   "probability of ", \mmlm([r(Pi_B), "."])
                 ])]))]).
-     task(oratio, Form)
-	--> {start(item(_Pi_A, _Pi_B)),
-	     option(resp(Resp), Form, '#.##') 
-	    }, 
-        html(\htmlform(["What is the odds ratio relative to Therapy A?"], "oratio",
- Resp)).
+
+task(oratio)
+--> { start(item(_Pi_A, _Pi_B)),
+      session_data(resp(oddsratio2, oratio, Resp), resp(oddsratio2, oratio, '#.##'))
+	}, 
+    html(\htmlform(["What is the odds ratio relative to Therapy A?"], oratio, Resp)).
 
 
 % Odds ratio with two probabilities

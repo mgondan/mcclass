@@ -86,14 +86,9 @@ render
         \download(tgroups2)
       ]))).
 
-task(s2p, Form)
+task(s2p)
 --> { start(item(_VR, _S_VR, _N_VR, _Box, _S_Box, _N_Box)),
-      (   option(task(s2p), Form)
-      ->  option(resp(Resp), Form, '#.##'),
-          session_retractall(resp(tgroups2, s2p, _)),
-          session_assert(resp(tgroups2, s2p, Resp))
-      ;   session_data(resp(tgroups2, s2p, Resp), resp(tgroups2, s2p, '#.##'))
-      )
+      session_data(resp(tgroups2, s2p, Resp), resp(tgroups2, s2p, '#.##'))
     },
     html(\htmlform(
       [ "Compare the OSATS-Scores of both Groups, assuming homogeneity",

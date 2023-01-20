@@ -70,14 +70,9 @@ render
                     ])))),
             \download(cipaired)]))).
 
-task(cipaired, Form)
+task(cipaired)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, _Mu, _Alpha)),
-      (   option(task(cipaired), Form)
-      ->  option(resp(Resp), Form, '#.# to #.#'),
-          session_retractall(resp(cipaired, cipaired, _)),
-          session_assert(resp(cipaired, cipaired, Resp))
-      ;   session_data(resp(cipaired, cipaired, Resp), resp(cipaired, cipaired, '#.# to #.#'))
-      )
+      session_data(resp(cipaired, cipaired, Resp), resp(cipaired, cipaired, '#.# to #.#'))
     },
     html(\htmlform(["Determine the confidence interval for the change in ",
         "the participants' self-confidence. The alpha level ",

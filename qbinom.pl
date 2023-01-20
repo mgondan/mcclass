@@ -50,14 +50,9 @@ render
         ]))
       ]).
 
-task(amountsuccess, Form)
+task(amountsuccess)
 --> { start(item(Alpha, _N, _P0)),
-     (   option(task(amountsuccess), Form)
-      ->  option(resp(Resp), Form, '#'),
-          session_retractall(resp(qbinom, amountsuccess, _)),
-          session_assert(resp(qbinom, amountsuccess, Resp))
-      ;   session_data(resp(qbinom, amountsuccess, Resp), resp(qbinom, amountsuccess, '#'))
-      )
+      session_data(resp(qbinom, amountsuccess, Resp), resp(qbinom, amountsuccess, '#'))
 	},
 	html(\htmlform([ "How many successes are needed to rule out the null ",
         "hypothesis at the one-tailed significance level ",

@@ -78,14 +78,14 @@ render
                 "randomization (secondary endpoint)"])]), 
           \download(baseline)
         ]))).
-task(fratio, Form)
+
+task(fratio)
 --> { start(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)),
-      option(resp(Resp), Form, '#.##') 
+      session_data(resp(baseline, fratio, Resp), resp(baseline, fratio, '#.##'))
     },
 	html(\htmlform([ "Does the Lidcombe therapy lead to a relevant reduction",
 	"im stutterd syllables compared to TAU? ",
-	"Please report the ", \mmlm(hyph('F', "ratio.")) ], "Fratio", 
-Resp)).
+	"Please report the ", \mmlm(hyph('F', "ratio.")) ], fratio, Resp)).
 
 
 % baseline adjusted ANCOVA

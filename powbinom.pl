@@ -65,14 +65,9 @@ render
 	              \htmltable(Caption, Rows, Cols, Cells))))
 	      ]))).
 
-task(powbinom, Form)
+task(powbinom)
 -->  { start(item(Alpha, _N, _P0, _P1)),
-      (   option(task(powbinom), Form)
-      ->  option(resp(Resp), Form, '#.##'),
-          session_retractall(resp(powbinom, powbinom, _)),
-          session_assert(resp(powbinom, powbinom, Resp))
-      ;   session_data(resp(powbinom, powbinom, Resp), resp(powbinom, powbinom, '#.##'))
-      )
+      session_data(resp(powbinom, powbinom, Resp), resp(powbinom, powbinom, '#.##'))
     },
     html(\htmlform([ "What is the power of the test at the one-tailed ",
         "significance level of ", \mmlm([alpha = r(Alpha), "?"])],

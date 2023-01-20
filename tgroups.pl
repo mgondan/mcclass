@@ -87,14 +87,9 @@ render
                 ]))),
             \download(tgroups)]))).
 
-task(tratio, Form)
+task(tratio)
 --> { start(item(_VR, _S_VR, _N_VR, _BOX, _S_BOX, _N_BOX)),
-      (   option(task(tratio), Form)
-      ->  option(resp(Resp), Form, '#.##'),
-          session_retractall(resp(tgroups, tratio, _)),
-          session_assert(resp(tgroups, tratio, Resp))
-      ;   session_data(resp(tgroups, tratio, Resp), resp(tgroups, tratio, '#.##'))
-      )
+      session_data(resp(tgroups, tratio, Resp), resp(tgroups, tratio, '#.##'))
     },
     html(\htmlform(
       [ "Is VR training superior to traditional Box training? ",

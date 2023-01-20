@@ -36,12 +36,11 @@ render
 		         \mmlm([r(OR), "."])
 		       ])]))]).
 
-task(oratio, Form)
-	--> {start(item(_Odds_A, _Pi_B, _OR)),
-	option(resp(Resp), Form, '#.##')
+task(oratio)
+--> { start(item(_Odds_A, _Pi_B, _OR)),
+      session_data(resp(easyodds, oratio, Resp), resp(easyodds, oratio, '#.##'))
 	}, 
-	html(\htmlform(["What is the probability of sucess with treatment A?"], "oratio", 
-	Resp)).
+	html(\htmlform(["What is the probability of sucess with treatment A?"], oratio, Resp)).
 
 % Odds ratio with two probabilities. 
 intermediate(oratio, item).
