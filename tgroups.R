@@ -7,7 +7,10 @@ AV <- round(B0 + B1 * (1 - N))
 data <- data.frame(Id, N, AV)
 
 vr <- mean(data[data$N==1, 1])
-s_vr <- sd(data[data$N==1, 1])
+
+s_vr1 <- sd(data[data$N==1, 1])
+s_vr <- call('...', floor(s_vr1*10)/10, ceiling(s_vr1*10)/10)
+
 box <- mean(data[data$N==0, 1])
 s_box <- sd(data[data$N==0, 1])
 n_vr <- nrow(subset(data, N==1))
