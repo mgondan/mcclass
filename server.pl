@@ -41,7 +41,6 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
 :- http_handler(mcclass(tpaired), handler(tpaired), []).
-:- http_handler(mcclass(cipaired), handler(cipaired), []).
 :- http_handler(mcclass(baseline), handler(baseline), []).
 :- http_handler(mcclass(oddsratio), handler(oddsratio), []).
 :- http_handler(mcclass(oddsratio2), handler(oddsratio2), []).
@@ -49,7 +48,6 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(ztrans), handler(ztrans), []).
 :- http_handler(mcclass(ztrans2), handler(ztrans2), []).
 :- http_handler(mcclass(tgroups), handler(tgroups), []).
-:- http_handler(mcclass(tgroups2), handler(tgroups2), []).
 :- http_handler(mcclass(tgroupsdf), handler(tgroupsdf), []).
 :- http_handler(mcclass(dbinom), handler(dbinom), []).
 :- http_handler(mcclass(qbinom), handler(qbinom), []).

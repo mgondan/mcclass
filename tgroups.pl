@@ -9,6 +9,7 @@
 :- use_module(navbar).
 
 navbar:page(tgroups, ["Independent ", i(t), "-test (1)"]).
+task(s2p).
 task(tratio).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
@@ -87,6 +88,17 @@ render
                 ]))),
             \download(tgroups)]))).
 
+% Question for pooled variance.
+task(s2p)
+--> { start(item(_VR, _S_VR, _N_VR, _Box, _S_Box, _N_Box)),
+      session_data(resp(tgroups2, s2p, Resp), resp(tgroups2, s2p, '#.##'))
+    },
+    html(\htmlform(
+      [ "Compare the OSATS-Scores of both Groups, assuming homogeneity",
+        " of variance and calculate the the pooled variance ", \mmlm(s2p), "."
+      ], s2p, Resp)).
+
+% Question for independent t-test.
 task(tratio)
 --> { start(item(_VR, _S_VR, _N_VR, _BOX, _S_BOX, _N_BOX)),
       session_data(resp(tgroups, tratio, Resp), resp(tgroups, tratio, '#.##'))
@@ -97,11 +109,108 @@ task(tratio)
         "as the control intervention." 
       ], tratio, Resp)).
 
+%
+%% Expert-Rules for pooled variance Task
+%
+% t-test for independent groups
+intermediate(s2p, item).
+start(item(vr, s_vr, n_vr, box, s_box, n_box)).
+
+%
+% This Task should be completed before tgroups.pl as it only covers the first 
+% half of the necessarry calculations to solve a full t-test.
+%
+% First step: Correctly calculate the pooled variance.
+expert(s2p, stage(2), From, To, [step(expert, indep, [])]) :-
+    From = item(_VR, S_VR, N_VR, _Box, S_Box, N_Box),
+    To = { '<-'(s2p, dfrac((N_VR - 1) * S_VR ^ 2 + (N_Box - 1) * S_Box ^ 2, 
+			   N_VR + N_Box - 2)) ;
+	   s2p
+	 }.
+
+feedback(indep, [], Col, FB) =>
+    FB = [ "Correctly determined the pooled variance ", \mmlm(Col, s2p), "."
+	 ].
+
+hint(indep, [], Col, FB) =>
+    FB = [ "The pooled variance ", \mmlm(Col, s2p), " needs to be ",
+           "calculated." 
+	 ].
+
+%
+%% Buggy-Rules for pooled variance Task
+%
+% Buggy-Rule: Used standard deviation instead of variance.
+buggy(s2p, stage(2), From, To, [step(buggy, sd, [S_VR, S_Box])]) :-
+    From = dfrac(A * S_VR ^ 2 + B * S_Box ^ 2, C),
+    To = dfrac(A * instead(sd, S_VR, S_VR ^ 2) + B * instead(sd, S_Box, S_Box ^ 2), C).
+
+feedback(sd, [S_VR, S_Box], Col, FB) =>
+    FB = [ "The result matches the expression for the pooled variance with the",
+	   " standard deviation instead of the standard variations ",
+	   \mmlm(Col, color(sd, S_VR)), " and ", \mmlm(Col, color(sd, S_Box)), ".",
+	   " Please remember to use the squares of ", \mmlm(Col, color(sd, S_VR)),
+	   " and ", \mmlm(Col, color(sd, S_Box)), " to calculate the pooled variance."
+	 ].
+
+hint(sd, [_S_VR, _S_Box], _Col, FB) =>
+    FB = [ "Do not forget to use the square of the standard variations ",
+           "when calculating the pooled variance."
+	 ].
+
+% Buggy-Rule: Forgot parentheses around numerator and denominator.
+buggy(s2p, stage(2), From, To, [step(buggy, bug1, [N_VR, N_Box, S_VR, S_Box])]) :-
+    From = dfrac((N_VR - 1) * S_VR ^ 2 + (N_Box - 1) * S_Box ^ 2, 
+		 N_VR + N_Box - 2),
+    To = invent_right(bug1, invent_left(bug1, color(bug1, N_VR - 1 * S_VR ^ 2 + N_Box) - 
+	 invent_left(bug1, 1 * dfrac(S_Box ^ 2, N_VR))) + (N_Box - 2)).
+
+feedback(bug1, [N_VR, N_Box, S_VR, S_Box], Col, FB) =>
+    FB = [ "The result matches the expression for the pooled variance without ",
+	   "parantheses around the numerator and the denominator. Please do not",
+	   " forget the parentheses around the numerator and the denominator of a ",
+	   "fraction, ", \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", 
+	   color(bug1, paren(color("#000000", N_VR - 1))) * S_VR ^ 2 + 
+	   color(bug1, paren(color("#000000", N_Box - 1))) * S_Box ^ 2))),
+	   color(bug1, paren(color("#000000", N_VR + N_Box - 2))))),
+	   "."
+	 ].
+
+hint(bug1, [N_VR, N_Box, S_VR, S_Box], Col, FB) =>
+    FB = [ "Do not forget the parentheses around the numerator and the denominator!",
+	   " The correct formula is ",
+	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", 
+	   color(bug1, paren(color("#000000", N_VR - 1))) * S_VR ^ 2 + 
+	   color(bug1, paren(color("#000000", N_Box - 1))) * S_Box ^ 2))),
+	   color(bug1, paren(color("#000000", N_VR + N_Box - 2))))),
+	   "."
+	 ].
+
+% Buggy-Rule: Swapped N_VR and N_Box.
+buggy(s2p, stage(1), From, To, [step(buggy, nswap, [n_vr, n_box])]) :-
+    From = item(VR, S_VR, n_vr, Box, S_Box, n_box),
+    To = item(VR, S_VR, color(nswap, n_box), Box, S_Box, color(nswap, n_vr)).
+
+feedback(nswap, [N_VR, N_Box], Col, FB) =>
+    FB = [ "The result matches the expression for the pooled variance with ",
+	   "swaped sample sizes. Please double check the sample sizes ", 
+	   \mmlm(Col, color(nswap, N_VR)), " and ", \mmlm(Col, color(nswap, N_Box)),
+	   " of both groups."
+	 ].
+
+hint(nswap, [_N_VR, _N_Box], Col, FB) =>
+    FB = [ "Do not swap the sample sizes in ", \mmlm(Col, color(nswap, s2p)),
+	   "."
+	 ].
 
 
+
+%
+%% Expert Rules for independent t-test task
+%
 % t-test for independent samples
 intermediate(tratio, item).
-start(item(vr, s_vr, n_vr, box, s_box, n_box)).
+
 
 % First step: Extract the correct information for a t-test for independent 
 % samples from the task description.
@@ -151,8 +260,9 @@ hint(tratio, [T], Col, FB) =>
            \mmlm(Col, T) 
          ].
 
-
-
+%
+%% Buggy-Rules for independent t-test task
+%
 % Buggy-Rule: Using the wrong control group
 buggy(tratio, stage(1), From, To, [step(buggy, control, [vr, box])]) :-
     From = item(vr, s_vr, n_vr, box, s_box, n_box),

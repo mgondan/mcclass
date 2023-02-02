@@ -77,7 +77,7 @@ task(cigroups)
     },
     html(\htmlform(["Determine the confidence interval for the difference ",
         "between the two group means. The alpha level ",
-        "is ", \mmlm([], alpha = perc(Alpha))], cigroups, Resp)).
+        "is ", \mmlm([], Alpha = perc(r(Alpha)))], cigroups, Resp)).
 
 % t-test and confidence intervall for independent samples 
 intermediate(cigroups, item).

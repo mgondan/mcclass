@@ -13,13 +13,11 @@
 :- use_module(library(quantity)).
 
 :- use_module(tpaired).
-:- use_module(cipaired).
 :- use_module(baseline).
 :- use_module(oddsratio).
 :- use_module(oddsratio2).
 :- use_module(easyodds).
 :- use_module(tgroups).
-:- use_module(tgroups2).
 :- use_module(tgroupsdf).
 :- use_module(ztrans).
 :- use_module(ztrans2).
