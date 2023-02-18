@@ -73,3 +73,11 @@ ancova_p = function(Prim, Cov, Strata, Other, Int, Ex, Main)
   m = lm(formula, data=data)
   anova(m)[Main, "Pr(>F)"]
 }
+
+ancova_ci = function(Prim, Cov, Strata, Other, Int, Ex, Main)
+{
+  lower = 1.5
+  upper = 2.5
+  return(call("ci", lower, upper))
+}
+

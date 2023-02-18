@@ -1358,6 +1358,10 @@ math(Flags, ancova_p(DV, Cov, Strata, Other, Int, Excl, Main), New, M)
     append([Cov, Strata, Other, Int, Excl, [Main]], Pred),
     M = fn(lm, [~(DV, list(+, Pred))]).
 
+math(Flags, ancova_ci(DV, Cov, Strata, Other, Int, Excl, Main), New, M)
+ => New = Flags,
+    append([Cov, Strata, Other, Int, Excl, [Main]], Pred),
+    M = fn(lm, [~(DV, list(+, Pred))]).
 
 %
 % Large font ("displaystyle")

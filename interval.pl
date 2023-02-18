@@ -90,6 +90,8 @@ interval(type-2) :-
 %
 % Confidence intervals
 %
+
+
 hook(A, Res, Flags) :-
     \+ member(ci(_), Flags),
     ci(Flags, A),
@@ -167,6 +169,8 @@ hook(A =@= B, Res, Flags) :-
     int(A, UA, Flags),
     int(B, UB, Flags),
     int(UA =@= UB, Res, New).
+  
+
 
 %
 % Hickey Figure 1
@@ -634,6 +638,13 @@ available(A ... B, Res)
  => available(A, A1),
     available(B, B1),
     eval(A1, B1, Res).
+
+available(ci(A, B), Res)
+=> available(A, A1),
+    available(B, B1),
+    eval(A1, B1, Res).
+
+
 
 %
 % Absolute value
