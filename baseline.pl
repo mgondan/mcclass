@@ -149,22 +149,22 @@ hint(covariates, [Cov], Col, H)
         ].
 
 % Omit relevant covariates (ex. forget to include baseline (T0))
-%buggy(fratio, stage(2), X, Y, [step(buggy, covariates, [Cov, [R | Removed]])]) :-
-%    X = baseline1(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
-%    my_subset(Subset, Cov, [R | Removed]),
-%    findall(omit(covariates , O), member(O, [R | Removed]), Omitted),
-%    append(Exclude0, Omitted, Exclude),
-%    Y = baseline2(Prim, Subset, Strata, Other, Int, Exclude, Therapy).
+buggy(fratio, stage(2), X, Y, [step(buggy, covariates, [Cov, [R | Removed]])]) :-
+    X = baseline1(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
+    my_subset(Subset, Cov, [R | Removed]),
+    findall(omit(covariates , O), member(O, [R | Removed]), Omitted),
+    append(Exclude0, Omitted, Exclude),
+    Y = baseline2(Prim, Subset, Strata, Other, Int, Exclude, Therapy).
 
-%feedback(covariates, [_Cov, Removed], Col, F)
-% => F = [ "The covariates ", \mmlm(Col, list(+, Removed)), " were forgotten ",
-%          "in the model."
-%        ].
-%
-%hint(covariates, [Cov, _Removed], Col, H)
-% => H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
-%          "in the statistical model."
-%        ].
+feedback(covariates, [_Cov, Removed], Col, F)
+ => F = [ "The covariates ", \mmlm(Col, list(+, Removed)), " were forgotten ",
+          "in the model."
+        ].
+
+hint(covariates, [Cov, _Removed], Col, H)
+ => H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
+          "in the statistical model."
+        ].
 
 % Step 3: Use the correct stratification variable(s)
 intermediate(fratio, baseline3).
@@ -183,21 +183,21 @@ hint(stratification, [Strata], Col, H)
         ].
 
 % Misconception: Exclude Strata variable(s)
-%buggy(fratio, stage(2), X, Y, [step(buggy, misstrata, [Strata, [R | Removed]])]) :-
-%    X = baseline2(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
-%    my_subset(Subset, Strata, [R | Removed]),
-%    findall(omit(misstrata, O), member(O, [R | Removed]), Omitted),
-%    append(Exclude0, Omitted, Exclude),
-%    Y = baseline3(Prim, Cov, Subset, Other, Int, Exclude, Therapy).
+buggy(fratio, stage(2), X, Y, [step(buggy, misstrata, [Strata, [R | Removed]])]) :-
+    X = baseline2(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
+    my_subset(Subset, Strata, [R | Removed]),
+    findall(omit(misstrata, O), member(O, [R | Removed]), Omitted),
+    append(Exclude0, Omitted, Exclude),
+    Y = baseline3(Prim, Cov, Subset, Other, Int, Exclude, Therapy).
 
-%feedback(misstrata, [_Strata, Removed], Col, F)
-% => F = [ "The relevant stratification variable(s) ", \mmlm(Col, list(+, Removed)), " were excluded ",
-%          "in the statistical model."].
-%
+feedback(misstrata, [_Strata, Removed], Col, F)
+ => F = [ "The relevant stratification variable(s) ", \mmlm(Col, list(+, Removed)), " were excluded ",
+          "in the statistical model."].
 
-%hint(misstrata, [Strata, _Removed], Col, H)
-% => H = [ "The stratification variable(s) ", \mmlm(Col, list(+, Strata)), " should be included ",
-%          "in the statistical model."].
+
+hint(misstrata, [Strata, _Removed], Col, H)
+ => H = [ "The stratification variable(s) ", \mmlm(Col, list(+, Strata)), " should be included ",
+          "in the statistical model."].
 
 % Step 4: Ignore distractors
 intermediate(fratio, baseline4).
@@ -216,22 +216,22 @@ hint(ignore, [Other], Col, H)
         ].
 
 % Step 4: Potential Misconception: add distractor variables to the model
-%buggy(fratio, stage(2), X, Y, [step(buggy, distractors, [Other, [S | Subset]])]) :-
- %   X = baseline3(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
-  %  my_subset([S | Subset], Other, Difference),
-   % findall(invent(distractors, D), member(D, [S | Subset]), Distractors),
-    %append(Exclude0, Distractors, Exclude),
-    %Y = baseline4(Prim, Cov, Strata, Difference, Int, Exclude, Therapy).
+buggy(fratio, stage(2), X, Y, [step(buggy, distractors, [Other, [S | Subset]])]) :-
+    X = baseline3(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
+    my_subset([S | Subset], Other, Difference),
+    findall(invent(distractors, D), member(D, [S | Subset]), Distractors),
+    append(Exclude0, Distractors, Exclude),
+    Y = baseline4(Prim, Cov, Strata, Difference, Int, Exclude, Therapy).
 
-%feedback(distractors, [_Other, Dist], Col, F)
-% => F = [ "The distractor variable(s) ", \mmlm(Col, list(+, Dist)), " were erroneously ",
-%          "included in the model."
-%        ].
-%
-%hint(distractors, [Other, _Dist], Col, H)
-% => H = [ "Do not include the distractor variable(s) ", \mmlm(Col, list(+, Other)),
-%          "in the statistical model."
-%        ].
+feedback(distractors, [_Other, Dist], Col, F)
+ => F = [ "The distractor variable(s) ", \mmlm(Col, list(+, Dist)), " were erroneously ",
+          "included in the model."
+        ].
+
+hint(distractors, [Other, _Dist], Col, H)
+ => H = [ "Do not include the distractor variable(s) ", \mmlm(Col, list(+, Other)),
+          "in the statistical model."
+        ].
 
 % Step 5: No treatment-by-covariate interactions
 intermediate(fratio, baseline5).
@@ -256,32 +256,32 @@ atomics_to_string_sep(Sep, List, String) :-
 atomics_to_string_sep(Sep, List, String) :-
   atomics_to_string(List, Sep, String).
 
-%buggy(fratio, stage(2), X, Y, [step(buggy, interactions, [Colon])]) :-
-%    X = baseline4(Prim, Cov, Strata, Other, Int0, Exclude, Therapy),
-%    % T0, Sex
-%    append(Strata, Cov, Covariates),
-%    % [[T0], [Sex], [T0, Sex]]
-%    findall([H | T], my_subset([H | T], Covariates, _), Subsets),
-%    reverse(Subsets, Rev),
-%    % [[T0], [T0, Sex]]
-%    my_subset([S | Subset], Rev, _),
-%    % [[Therapy, T0], [Therapy, T0, Sex]]
-%    maplist(append([Therapy]), [S | Subset], Interactions),
-%    % [Therapy:T0, Therapy:T0:Sex]
-%    maplist(atomics_to_string_sep(:), Interactions, Colon),
-%    findall(invent(interactions, C), member(C, Colon), Invented),
-%    append(Invented, Int0, Int),
-%    Y = baseline5(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
+buggy(fratio, stage(2), X, Y, [step(buggy, interactions, [Colon])]) :-
+    X = baseline4(Prim, Cov, Strata, Other, Int0, Exclude, Therapy),
+    % T0, Sex
+    append(Strata, Cov, Covariates),
+    % [[T0], [Sex], [T0, Sex]]
+    findall([H | T], my_subset([H | T], Covariates, _), Subsets),
+    reverse(Subsets, Rev),
+    % [[T0], [T0, Sex]]
+    my_subset([S | Subset], Rev, _),
+    % [[Therapy, T0], [Therapy, T0, Sex]]
+    maplist(append([Therapy]), [S | Subset], Interactions),
+    % [Therapy:T0, Therapy:T0:Sex]
+    maplist(atomics_to_string_sep(:), Interactions, Colon),
+    findall(invent(interactions, C), member(C, Colon), Invented),
+    append(Invented, Int0, Int),
+    Y = baseline5(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
-%feedback(interactions, [Int], Col, F)
-% => F = [ "The statistical model should not include the treatment-by-covariate ",
-%          "interactions", \mmlm(Col, [list(+, Int), "."])
- %       ].
+feedback(interactions, [Int], Col, F)
+ => F = [ "The statistical model should not include the treatment-by-covariate ",
+          "interactions", \mmlm(Col, [list(+, Int), "."])
+        ].
 
-%hint(interactions, [_Int], _Col, H)
-% => H = [ "The statistical model should not include any ",
-%          "treatment-by-covariate interactions."
-%        ].
+hint(interactions, [_Int], _Col, H)
+ => H = [ "The statistical model should not include any ",
+          "treatment-by-covariate interactions."
+        ].
 
 
 
@@ -528,22 +528,22 @@ hint(covariates, [Cov], Col, H)
         ].
 
 %% Omit relevant covariates (ex. forget to include baseline (T0))
-%buggy(cibase, stage(2), X, Y, [step(buggy, covariates, [Cov, [R | Removed]])]) :-
-%    X = baseline1(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
-%    my_subset(Subset, Cov, [R | Removed]),
-%    findall(omit(covariates , O), member(O, [R | Removed]), Omitted),
-%    append(Exclude0, Omitted, Exclude),
-%    Y = baseline2(Prim, Subset, Strata, Other, Int, Exclude, Therapy).
-%
-%feedback(covariates, [_Cov, Removed], Col, F)
-% => F = [ "The covariates ", \mmlm(Col, list(+, Removed)), " were forgotten ",
-%          "in the model."
-%        ].
-%
-%hint(covariates, [Cov, _Removed], Col, H)
-% => H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
-%          "in the statistical model."
-%        ].
+buggy(cibase, stage(2), X, Y, [step(buggy, covariates, [Cov, [R | Removed]])]) :-
+    X = baseline1(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
+    my_subset(Subset, Cov, [R | Removed]),
+    findall(omit(covariates , O), member(O, [R | Removed]), Omitted),
+    append(Exclude0, Omitted, Exclude),
+    Y = baseline2(Prim, Subset, Strata, Other, Int, Exclude, Therapy).
+
+feedback(covariates, [_Cov, Removed], Col, F)
+ => F = [ "The covariates ", \mmlm(Col, list(+, Removed)), " were forgotten ",
+          "in the model."
+        ].
+
+hint(covariates, [Cov, _Removed], Col, H)
+ => H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
+          "in the statistical model."
+        ].
 
 % Step 3: Use the correct stratification variable(s)
 intermediate(cibase, baseline3).
