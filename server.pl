@@ -54,6 +54,7 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(chisq), handler(chisq), []).
 :- http_handler(mcclass(power), handler(power), []).
 :- http_handler(mcclass(cigroups), handler(cigroups), []).
+:- http_handler(mcclass(subgroups), handler(subgroups), []).
 
 handler(Topic, Request) :-
     member(method(post), Request),

@@ -27,6 +27,7 @@
 :- use_module(chisq).
 :- use_module(power).
 :- use_module(cigroups).
+:- use_module(subgroups).
 
 % Render R result
 mathml:mathml_hook(Flags, r(Expr), Flags, Res) :-
