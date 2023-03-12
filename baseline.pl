@@ -61,7 +61,7 @@ render
             div(class("row justify-content-md-center"),
               p(class("col-6"),
                 \htmltable(
-                    [ em("Table 1. "), "Descriptive statistics" ],
+                    [ em("Table 1. "), "Mean (SD) percentage of stuttered syllables" ],
                     [ "T0", "EOT" ],
                     [ "", "Lidcombe", "TAU" ],
                     [ [ \mmlm(r('Lidcombe_T0')), \mmlm(r('TAU_T0')) ],
