@@ -198,7 +198,7 @@ hint(mu, [Mu], Col, F)
 % (both correct and incorrect solutions) from the task description
 intermediate(tratio, indep).
 buggy(tratio, stage(2), X, Y, [step(buggy, indep, [])]) :-
-    X = item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu),
+    X = item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu, _Alpha),
     Y = { '<-'(t, instead(indep, indep(T0, S_T0, N, EOT, S_EOT, N), 
             paired(D, Mu, S_D, N))) 
         }.
