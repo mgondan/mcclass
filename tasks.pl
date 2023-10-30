@@ -11,8 +11,8 @@
 :- use_module(session).
 :- use_module(interval).
 :- use_module(library(quantity)).
-
 :- use_module(tpaired).
+:- use_module(tpaired1t).
 :- use_module(baseline).
 :- use_module(oddsratio).
 :- use_module(oddsratio2).
