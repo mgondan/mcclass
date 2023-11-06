@@ -90,8 +90,6 @@ interval(type-2) :-
 %
 % Confidence intervals
 %
-
-
 hook(A, Res, Flags) :-
     \+ member(ci(_), Flags),
     ci(Flags, A),

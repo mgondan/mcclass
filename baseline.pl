@@ -27,10 +27,9 @@ rint:r_hook(ancova_f(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 rint:r_hook(ancova_p(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 rint:r_hook(ancova_ci(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 
-%r:pl2r_hook(add(_, P), R) :-
-%    maplist(r:pl2r, P, R).
-%
-%r:pl2r_hook(omit(_, _), 'NULL').
+interval:monotonical(ancova_f(/, /, /, /, /, /, /)).
+interval:monotonical(ancova_p(/, /, /, /, /, /, /)).
+interval:monotonical(ancova_ci(/, /, /, /, /, /, /)).
 
 % my_subset(+List, -Subset, -Difference)
 my_subset([], [], []).
@@ -39,12 +38,8 @@ my_subset([X | L], [X | S], D) :-
 my_subset(L, [H | S], [H | D]) :-
     my_subset(L, S, D).
 
-interval:monotonical(pt(+, /)).
-
 render
 --> { start(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)) },
- 
-
     html(
       div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Treatment of early stuttering"),
