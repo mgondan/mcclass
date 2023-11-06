@@ -8,7 +8,7 @@
 :- use_module(mathml).
 
 :- use_module(navbar).
-navbar:page(tpaired1t, ["paired ", i(t), "-test one-tailed"]).
+navbar:page(tpaired1t, ["paired ", i(t), "-test"]).
 
 task(tratio).
 task(pvalue).
@@ -27,6 +27,7 @@ mathml_hook(s_eot, sub(s, "EOT")).
 mathml_hook(s2p, sub(s, "pool")^2).
 mathml_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 mathml_hook(alpha, greek("alpha")).
+mathml_hook(t(DF), fn(t, [DF])).
 
 % R definitions
 rint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
@@ -40,15 +41,25 @@ rint:r_hook(s_t0).
 rint:r_hook(eot).
 rint:r_hook(s_eot).
 rint:r_hook(lo).
+rint:r_hool(incr).
 rint:r_hook(pt(_T, _DF)).
 rint:r_hook(qt(_P, _DF)).
  
 interval:monotonical(pt(+, /)).
 
+% The parameter 'incr' from R should determine whether an increment or a decrease of the values is good.
+% Now the question is, if there should be an additional task in the navigation bar 
+% with a different scale for the case that an increment is good, for example with 
+% some performance test, in which case the terms in the numerator of the t-formula have 
+% to be switched (Mu - D), or if it should be selected randomly.
+% Since the two tasks (one-tailed increment good-increment bad) share most of the components
+% one could also ask, if there is a more elegant solution than duplicating the source-code and making
+% small changes, as it is not best programming practice. 
+
 
 % Task description
 render
---> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha)) },
+--> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha)) },      % by adding the parameter _Incr, the task description won't appear anymore
     html(
       div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Evaluation study on writing skills"),
@@ -56,7 +67,7 @@ render
             [ "Consider an evaluation study on self-regulatory revising strategies training (SRT) with ",
               \mmlm(N = r(N)), " German-speaking sixth-graders. The primary outcome is the global score on the RANT (Rating for Narrative Texts, range
                from best = 1 to worst = 10). The significance level is set to ",
-              \mmlm(alpha = perc(0.05)), \mmlm([r(tails), "."])]),
+              \mmlm(alpha = perc(0.05)), \mmlm([ "."])]),     
           div(class(container),
             div(class("row justify-content-md-center"),
               div(class("col-6"),
@@ -103,6 +114,10 @@ task(cipaired)
     html(\htmlform([ "Determine the confidence interval for the change in ",
         "the students’ RANT scores." ], cipaired, Resp)).
 
+
+
+
+
 %
 %% Expert rules for the t-ratio task
 %
@@ -129,9 +144,9 @@ hint(paired, [], Col, F)
 
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal)
-expert(tratio, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
+expert(tratio, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N ])]) :-
     X = paired(D, Mu, S_D, N),
-    Y = tstat(dfrac(D - Mu, S_D / sqrt(N))).
+    Y = tstat(dfrac(Mu - D, S_D / sqrt(N))).
 
 feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
  => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
@@ -143,20 +158,13 @@ hint(tratio, [D, Mu, S_D, N], Col, F)
           "is ", \mmlm(Col, dfrac(D - Mu, S_D / sqrt(N))), "."
         ].
 
-% Another correct result
-expert(tratio, stage(2), X, Y, [step(expert, abs_tratio, [D, Mu, S_D, N])]) :-
-    X = paired(D, Mu, S_D, N),
-    Y = tstat(abs(dfrac(D - Mu, S_D / sqrt(N)))).
 
-feedback(abs_tratio, [_D, _Mu, _S_D, _N], Col, F)
- => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
-          "paired samples." 
-        ].
 
-hint(abs_tratio, [D, Mu, S_D, N], Col, F)
- => F = [ "The ", \mmlm(Col, hyph(t, "ratio")),
-          " is ", \mmlm(Col, abs(dfrac(D - Mu, S_D / sqrt(N)))), "."
-        ].
+
+
+
+
+
 
 %
 %% Buggy-Rules for the for the t-ratio task
@@ -481,7 +489,7 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
 % Third step: Determine the two-tailed p-value
 expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
     X = twotailed(T, DF),
-    Y = pval(pt(-abs(T), DF)).
+    Y = pval(pt(-T, DF)).
 
 feedback(pvalue, [], Col, F)
  => F = [ "Correctly determined the one-tailed ", \mmlm(Col, hyph(p, "value")) ].
@@ -494,9 +502,38 @@ hint(pvalue, [], Col, F)
 %% Buggy-Rules for the p-value task
 %
 
+% Buggy-Rule: report the left-tail instead of the right-tail. 
+buggy(pvalue, stage(2), X, Y, [step(buggy, wrongtail, [DF])]) :-
+     X = twotailed(T, DF),
+     Y = pval(pt(T, DF)).
+
+feedback(wrongtail, [DF], Col, F)
+ => F = [ "The result matches the left-sided ", \mmlm(Col, hyph(p, "value")), 
+          ". Please make sure to use the area of the ", \mmlm(Col, hyph(t(DF), "distribution")),
+          " on the right side of the calculated ", \mmlm(Col, hyph(t, "value")), "."
+        ].
+
+hint(wrongtail, [DF], Col, F)
+ => F = [ "Use the upper tail of the ", \mmlm(Col, hyph(t(DF), "distribution")), "."].
 
 
+% Buggy-Rule: used the wrong t-value and/or degrees of freedoms
+% TDOO: the matching values should include all the values from 0 to 1 except the ones for 
+% the correct t-value and degrees of freedom (both left- and right-sided). 
+buggy(pvalue, stage(2), X, Y, [step(buggy, wrong, [T, DF])]) :-
+     X = twotailed(T, DF),
+     Y = pval(pt(T, DF)).
 
+feedback(wrong, [T, DF], Col, F)
+ => F = [ "The result is not the ", \mmlm(Col, hyph(p, "value")), 
+	        " associated with the calculated ", \mmlm(Col, hyph(t, "value")), \mmlm(T = r(T)), 
+          " and degrees of freedom ", \mmlm(DF = r(DF)), ".", 
+          " Please make sure to look at the correct column and row on the table of the ", 
+          \mmlm(Col, hyph(t, "distribution")), "."].
+
+hint(wrong, [T, DF], Col, F)
+ => F = [ "Look at the correct column and row on the table of the ", 
+          \mmlm(Col, hyph(t, "distribution")), "."].
 
 
 
@@ -650,7 +687,6 @@ hint(sqrt2, [N], Col, FB)
  => FB = [ "Do not forget the square root around ",
            \mmlm(Col, color(sqrt2, N)), "."
          ]. 
-
 
 
 
