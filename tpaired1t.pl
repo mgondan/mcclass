@@ -41,7 +41,7 @@ rint:r_hook(s_t0).
 rint:r_hook(eot).
 rint:r_hook(s_eot).
 rint:r_hook(lo).
-rint:r_hool(incr).
+rint:r_hook(incr).
 rint:r_hook(pt(_T, _DF)).
 rint:r_hook(qt(_P, _DF)).
  
@@ -531,7 +531,7 @@ feedback(wrong, [T, DF], Col, F)
           " Please make sure to look at the correct column and row on the table of the ", 
           \mmlm(Col, hyph(t, "distribution")), "."].
 
-hint(wrong, [T, DF], Col, F)
+hint(wrong, [_T, _DF], Col, F)
  => F = [ "Look at the correct column and row on the table of the ", 
           \mmlm(Col, hyph(t, "distribution")), "."].
 
