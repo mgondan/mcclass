@@ -8,7 +8,7 @@
 :- use_module(mathml).
 
 :- use_module(navbar).
-navbar:page(tpaired1tlow, ["paired ", i(t), "-test"]).
+navbar:page(tpaired1tlow, ["paired ", i(t), "-test onetailed"]).
 
 task(tratio).
 task(pvalue).
@@ -47,28 +47,32 @@ rint:r_hook(qt(_P, _DF)).
  
 interval:monotonical(pt(+, /)).
 
-% Comment at the end of file, in order not to move all the code up and
-% down in future commits by changing or deleting the comment.
 
 % Task description
 render
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha)) },      % by adding the parameter _Incr, the task description won't appear anymore
     html(
       div(class(card), div(class('card-body'),
-        [ h1(class('card-title'), "Evaluation study on writing skills"),
+        [ h1(class('card-title'), "Evaluation study on working memory training"),
           p(class('card-text'),
-            [ "Consider an evaluation study on self-regulatory revising strategies training (SRT) with ",
-              \mmlm(N = r(N)), " German-speaking sixth-graders. The primary outcome is the global score on the RANT (Rating for Narrative Texts, range
-               from best = 10 to worst = 1). The significance level is set to ",
-              \mmlm(alpha = perc(0.05)), \mmlm([ "."])]),     
+            [ "In an evaluation study, ",
+              \mmlm(N = r(N)), " first-graders screened for low working memory 
+              (ie, under the 15th percentile in the Automated Working Memory Assessment)
+               received 25 sessions of the computerized Cogmed working memory training.
+               The primary outcome was the score on the Wide Range Achievement Test 
+               (WRAT, standard mean score = 100, SD = 15) with higher scores indicating 
+               higher performance. The significance level is set to ",
+              \mmlm(alpha = perc(0.05)), \mmlm([ "."]), 
+              "A performance increase should result in a positive ", 
+              \mmlm(hyph(t, "value."))]),     
           div(class(container),
             div(class("row justify-content-md-center"),
               div(class("col-6"),
                 \htmltable(
-                   [ em("Table 1. "), "Observed RANT scores at Pretest, Posttest, ",
-                    "and ", \mmlm('D' = "Pretest" - "Posttest") ],
+                   [ em("Table 1. "), "Observed WRAT scores at Pretest, Posttest, ",
+                    "and ", \mmlm('D' = "Posttest" - "Pretest") ],
                   [ "Average", "SD" ],
-                  [ "RANT", "Pretest", "Posttest", \mmlm(d) ],
+                  [ "WRAT", "Pretest", "Posttest", \mmlm(d) ],
                   [ [ \mmlm([digits(1)], r(t0)),
                       \mmlm([digits(1)], r(eot)),
                       \mmlm([digits(1)], r(d1)) ],
@@ -76,7 +80,7 @@ render
                       \mmlm([digits(1)], r(s_eot)),
                       \mmlm([digits(1)], r(s1_d)) ]
                   ])))),
-          \download(tpaired)
+          \download(tpaired1tlow)
         ]))).
 
 % Question for the t-ratio
@@ -84,8 +88,8 @@ task(tratio)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, Mu, _Alpha)),
       session_data(resp(tpaired, tratio, Resp), resp(tpaired, tratio, '#.##'))
     },
-    html(\htmlform([ "Does SRT lead to a relevant improvement (i.e., more ",
-        "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean RANT ",
+    html(\htmlform([ "Does the Cogmed training lead to a relevant improvement (i.e., more ",
+        "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean WRAT ",
         "scores between Pretest and Posttest? ",
         "Please report the ", \mmlm(hyph(t, "ratio.")) ], tratio, Resp)).
 
@@ -94,8 +98,8 @@ task(pvalue)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, Mu, _Alpha)),
       session_data(resp(tpaired, pvalue, Resp), resp(tpaired, pvalue, '.###'))
     },
-    html(\htmlform([ "Does SRT lead to a relevant improvement (i.e., more ",
-        "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean RANT ",
+    html(\htmlform([ "Does the Cogmed training lead to a relevant improvement (i.e., more ",
+        "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean WRAT ",
         "scores between Pretest and Posttest? ",
         "Please report the ", \mmlm(hyph(p, "value")) ], pvalue, Resp)).
 
@@ -105,7 +109,7 @@ task(cipaired)
       session_data(resp(tpaired, cipaired, Resp), resp(tpaired, cipaired, '#.# to #.#'))
     },
     html(\htmlform([ "Determine the confidence interval for the change in ",
-        "the students’ RANT scores." ], cipaired, Resp)).
+        "the children's WRAT scores." ], cipaired, Resp)).
 
 
 
@@ -139,7 +143,7 @@ hint(paired, [], Col, F)
 % "display" mode (a bit larger font than normal)
 expert(tratio, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N ])]) :-
     X = paired(D, Mu, S_D, N),
-    Y = tstat(dfrac(Mu - D, S_D / sqrt(N))).
+    Y = tstat(dfrac(D - Mu, S_D / sqrt(N))).
 
 feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
  => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
@@ -445,12 +449,14 @@ intermediate(pvalue, item).
 % First step: Extract the correct information for a paired t-test from the task
 % description
 intermediate(pvalue, paired).
-intermediate(pvalue, twotailed).
+intermediate(pvalue, onetailed).
 expert(pvalue, stage(2), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu, _Alpha),
     Y = { '<-'(t, paired(D, Mu, S_D, N)) ;
-          '<-'(p, twotailed(t, N-1))
+          '<-'(p, onetailed(t, N-1))
         }.
+
+
 
 % feedback(paired, [], Col, F)
 %  => F = [ "Correctly recognised the problem as ",
@@ -464,10 +470,15 @@ expert(pvalue, stage(2), X, Y, [step(expert, paired, [])]) :-
 
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal)
+
 intermediate(pvalue, tratio).
 expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
     X = paired(D, Mu, S_D, N),
     Y = dfrac(D - Mu, S_D / sqrt(N)).
+
+
+
+
 
 % feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
 %  => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
@@ -479,9 +490,9 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
 %           "is ", \mmlm(Col, dfrac(D - Mu, S_D / sqrt(N)))
 %         ].
 
-% Third step: Determine the two-tailed p-value
+% Third step: Determine the one-tailed p-value
 expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
-    X = twotailed(T, DF),
+    X = onetailed(T, DF),
     Y = pval(pt(-T, DF)).
 
 feedback(pvalue, [], Col, F)
@@ -497,7 +508,7 @@ hint(pvalue, [], Col, F)
 
 % Buggy-Rule: report the left-tail instead of the right-tail. 
 buggy(pvalue, stage(2), X, Y, [step(buggy, wrongtail, [DF])]) :-
-     X = twotailed(T, DF),
+     X = onetailed(T, DF),
      Y = pval(pt(T, DF)).
 
 feedback(wrongtail, [DF], Col, F)
@@ -511,10 +522,10 @@ hint(wrongtail, [DF], Col, F)
 
 
 % Buggy-Rule: used the wrong t-value and/or degrees of freedoms
-% TDOO: the matching values should include all the values from 0 to 1 except the ones for 
-% the correct t-value and degrees of freedom (both left- and right-sided). 
+% ToDo: the matching values should include all the values from 0 to 1 except the ones for 
+% the correct t-value and degrees of freedom (both left- and right-sided). So this should be a catch-all condition.
 buggy(pvalue, stage(2), X, Y, [step(buggy, wrong, [T, DF])]) :-
-     X = twotailed(T, DF),
+     X = onetailed(T, DF),
      Y = pval(pt(T, DF)).
 
 feedback(wrong, [T, DF], Col, F)
@@ -527,6 +538,8 @@ feedback(wrong, [T, DF], Col, F)
 hint(wrong, [_T, _DF], Col, F)
  => F = [ "Look at the correct column and row on the table of the ", 
           \mmlm(Col, hyph(t, "distribution")), "."].
+
+
 
 
 
@@ -683,29 +696,3 @@ hint(sqrt2, [N], Col, FB)
 
 
 
-/**
-Diese aufgabe sollte ja nach dem lower-tail fragen. 
-Wir hatten aber festgelegt, dass wir die Aufgaben so gestalten, 
-dass bei einer Veränderung in die gewünschte (hypothesenkonforme) 
-Richtung immer ein positiver t-Wert rauskommen soll, egal ob höhere 
-oder niedrigere Werte von Post im Vergleich zu Pre gut oder schlecht sind.
-In diesem Fall muss man einfach die Operanden für die Differenz vertauschen.
-Kann man in diesem Fall aber überhaupt nach einem lower also rechten Tail fragen?
-Ich glaube, dass geht nur, wenn ein negativer t-Wert ein erwünschtes Ergebnis ist,
-was wir aber nicht festgelegt haben. 
-Denn in unserem Fall (erwartete Veränderung --> positiver t-Wert) würde ein negativer
-t-Wert bedeuten, dass die Null-Hypothese beibehalten werden muss, und 
-dafür müssen wir dann trotzdem den upper-tail angeben. 
-Nach dem lower tail zu fragen, ist ja nur dann sinnvoll, wenn ein negativer 
-t-Wert erwartet wird...
-Also hatten Sie mit lower tails wohl gemeint, dass in dieser Aufgabe 
-eine Erhöhung der Werte gut ist, also den anderen Fall als
-in der vorigen Aufgabe (tpaired1t).
-Ich habe also vorerst beispielhaft die Skala vom RANT umgedreht
-und dann in tpaired1tlow.R die Differenz anders berechnet.
-Wie kann man jetzt aber R dazu bringen, die Variable 'incr'
-zu verwenden, um in der Formel vom gepaarten t-Test als Parameter 
-entweder 'greater' oder 'less' einzugeben? 
-
-
-*/

@@ -1,13 +1,13 @@
 # Raw data
-n     <- as.integer(round(runif(1, min=20, max=45)))
+n     <- as.integer(round(runif(1, min=30, max=50)))
 Id    <- 1:n
-T0    <- round(runif(n, min=1, max=10))
-EOT   <- round(T0 + runif(n, min=-4, max=1))
+T0    <- round(runif(n, min=76, max=83))
+EOT   <- round(T0 + runif(n, min=-1, max=6))
 EOT   <-ifelse(EOT < 0, 1, EOT)
 data  <- data.frame(Id, T0, EOT)
 
 # Summary statistics
-mu    <- round(runif(1, min=0.5, max=1.5), 1)
+mu    <- round(runif(1, min=2, max=3), 1)
 t0    <- mean(data$T0)
 s_t0  <- sd(data$T0)
 eot   <- mean(data$EOT)
