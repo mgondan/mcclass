@@ -8,7 +8,7 @@
 :- use_module(mathml).
 
 :- use_module(navbar).
-navbar:page(tpaired1t, ["paired ", i(t), "-test"]).
+navbar:page(tpaired1t, ["paired ", i(t), "-test onetailed"]).
 
 task(tratio).
 task(pvalue).
@@ -67,7 +67,8 @@ render
             [ "Consider an evaluation study on self-regulatory revising strategies training (SRT) with ",
               \mmlm(N = r(N)), " German-speaking sixth-graders. The primary outcome is the global score on the RANT (Rating for Narrative Texts, range
                from best = 1 to worst = 10). The significance level is set to ",
-              \mmlm(alpha = perc(0.05)), \mmlm([ "."])]),     
+              \mmlm([alpha = perc(0.05), "."]), " A decrease of the values (i.e., higher text quality)
+              should result in a positive ", \mmlm(hyph(t, "value."))]),     
           div(class(container),
             div(class("row justify-content-md-center"),
               div(class("col-6"),
@@ -104,7 +105,7 @@ task(pvalue)
     html(\htmlform([ "Does SRT lead to a relevant improvement (i.e., more ",
         "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean RANT ",
         "scores between Pretest and Posttest? ",
-        "Please report the ", \mmlm(hyph(p, "value")) ], pvalue, Resp)).
+        "Please report the ", \mmlm(hyph(p, "value.")) ], pvalue, Resp)).
 
 % Question for the confidence interval
 task(cipaired)
@@ -146,7 +147,7 @@ hint(paired, [], Col, F)
 % "display" mode (a bit larger font than normal)
 expert(tratio, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N ])]) :-
     X = paired(D, Mu, S_D, N),
-    Y = tstat(dfrac(Mu - D, S_D / sqrt(N))).
+    Y = tstat(dfrac(D - Mu, S_D / sqrt(N))).
 
 feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
  => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
