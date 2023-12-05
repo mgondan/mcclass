@@ -57,13 +57,13 @@ render
           p(class('card-text'),
             [ "In an evaluation study, ",
               \mmlm(N = r(N)), " first-graders screened for low working memory 
-              (ie, under the 15th percentile in the Automated Working Memory Assessment)
+              (i.e., under the 15th percentile in the Automated Working Memory Assessment)
                received 25 sessions of the computerized Cogmed working memory training.
                The primary outcome was the score on the Wide Range Achievement Test 
                (WRAT, standard mean score = 100, SD = 15) with higher scores indicating 
                higher performance. The significance level is set to ",
-              \mmlm(alpha = perc(0.05)), \mmlm([ "."]), 
-              "A performance increase should result in a positive ", 
+              \mmlm([alpha = perc(0.05), "."]), 
+              " A performance increase should result in a positive ", 
               \mmlm(hyph(t, "value."))]),     
           div(class(container),
             div(class("row justify-content-md-center"),
