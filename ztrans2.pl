@@ -27,11 +27,11 @@ render
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
           p(class('card-text'), 
-            [ "Let ", \mmlm(x), " follow a Normal distribution with ",
+            [ "Let ", \mmlm(x), " follow a normal distribution with ",
               "expectation ", \mmlm([digits(0)], Mu = r(mu)), " and ",
               "standard deviation ", \mmlm([digits(0)], [Sigma = r(sigma), "."]),
               "A table of the standard ",
-              "Normal distribution is found below."
+              "normal distribution is found below."
             ])]))]).
 
 task(ztrans)
@@ -47,8 +47,7 @@ intermediate(ztrans, qnorm_).
 expert(ztrans, stage(2), From, To, [step(expert, steps, [])]) :-
     From = item(P, Mu, Sigma),
     To = { '<-'( z, qnorm_(1 - dfrac(P, 100))) ;
-           '<-'(x, z * Sigma + Mu) ;
-           x
+           '<-'(x, z * Sigma + Mu)
          }.
 
 feedback(steps, [], Col, FB) =>
@@ -65,10 +64,10 @@ expert(ztrans, stage(2), From, To, [step(expert, correct_tail, [])]) :-
     To = qnorm(P).
 
 feedback(correct_tail, [], _Col, FB) =>
-    FB = [ "Your response matches the lower tail of the Normal distribution." ].
+    FB = [ "Your response matches the lower tail of the normal distribution." ].
 
 hint(correct_tail, [], _Col, FB) =>
-    FB = [ "Try using the upper tail of the Normal distribution." ].
+    FB = [ "Try using the upper tail of the normal distribution." ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % wrong_tail
@@ -80,11 +79,11 @@ buggy(ztrans, stage(2), From, To, [step(buggy, wrong_tail, [])]) :-
     To = qnorm(instead(wrong_tail, P, 1 - P)).
 
 feedback(wrong_tail, [], _Col, FB) =>
-    FB = [ "Your response matches the lower, not the upper tail of the Normal ",
+    FB = [ "Your response matches the lower insteada of the upper tail of the normal ",
            "distribution." ].
 
 hint(wrong_tail, [], _Col, FB) =>
-    FB = [ "Make sure to use the correct tail of the Normal distribution." ].
+    FB = [ "Make sure to use the correct tail of the normal distribution." ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % Buggy Rule (swap) Mu and Sigma were swapped.
@@ -94,7 +93,7 @@ buggy(ztrans, stage(2), From, To, [step(buggy, swap, [mu, Sigma])]) :-
 
 feedback(swap, [Mu, Sigma], Col, FB) =>
     FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ",
-	   \mmlm(Col, color(swap, Sigma)) ].
+	   \mmlm(Col, [color(swap, Sigma), "."]) ].
 
 hint(swap, [Mu, Sigma], Col, FB) =>
     FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
@@ -151,8 +150,8 @@ buggy(ztrans, stage(2), From, To, [step(buggy, zx, [z, sigma, mu])]) :-
     To = instead(zx, z , From).
 
 feedback(zx, [z, sigma, mu], _Col, FB) =>
-    FB = [ "To complete the exercise successfully you have to do the second calculation aswell." ].
+    FB = [ "To complete the exercise successfully, you have to perform the second calculation as well." ].
 
 hint(zx, [z, sigma, mu], Col, FB) =>
-    FB = [ \mmlm(Col, color(zx, z)), "is the correct answer of the first equation. To continue calculate ", \mmlm(Col, color(zx, z * sigma + mu)), "." ].
+    FB = [ \mmlm(Col, color(zx, z)), "is the correct answer of the first equation. To continue, you need to calculate ", \mmlm(Col, [color(zx, z * sigma + mu), "."]) ].
 
