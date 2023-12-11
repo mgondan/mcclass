@@ -55,9 +55,9 @@ render
               "mixture of online courses and classical training of motor ",
               "skill with the so-called Box-trainer (Box group). ",
               "The primary dependent variable is the result on the OSATS ",
-              "test (interval scaled, normally distributed, high scores = ",
+              "test (interval scale, normally distributed, high scores = ",
               "good performance). A few more dependent variables were ",
-              "assessed, including a knowledge test (interval scaled), ",
+              "assessed, including a knowledge test (interval scale), ",
               "operation time (dichotomized, above or below 80 min), and ",
               "efficiency ratings (ordinal scale, 1=bad ... 5=good)."
             ]),
@@ -71,7 +71,7 @@ render
                 [ "“Laparoscopy-naïve medical students were randomized into ",
                   "two groups. The Box ",
                   "group ", \mmlm(["(", N_BOX = r(n_box), ")"]), " used ",
-                  "E-learning for laparoscopic cholecystectomy and practiced ",
+                  "e-learning for laparoscopic cholecystectomy and practiced ",
                   "basic skills with Box trainers. The VR ",
                   "group ", \mmlm(["(", N_VR = r(n_vr), ")"]), " trained ",
                   "basic skills and laparoscopic cholecystectomy on ",
@@ -89,7 +89,7 @@ render
                   " vs. BOX: ", \mmlm([digits(1)], r(box)), " ± ", \mmlm([digits(1)], r(s_box)), 
                   ", p = 0.437). The significance level is set to ",
                   \mmlm(alpha = perc(r(Alpha))), " two-tailed. ",
-                  "Students generally liked training and felt well prepared for ", 
+                  "The medical students generally appreciated the training and felt well prepared for ", 
                   "assisting in laparoscopic surgery. The efficiency of the training ",
                   "was judged higher by the VR group than by the Box group."
                 ]))),
@@ -101,8 +101,8 @@ task(s2p)
       session_data(resp(tgroups2, s2p, Resp), resp(tgroups2, s2p, '#.##'))
     },
     html(\htmlform(
-      [ "Compare the OSATS-Scores of both Groups, assuming homogeneity",
-        " of variance and calculate the the pooled variance ", \mmlm(s2p), "."
+      [ "Compare the OSATS scores of both groups assuming homogeneity",
+        " of variance and calculate the pooled variance ", \mmlm([s2p, "."])
       ], s2p, Resp)).
 
 % Question for independent t-test.
@@ -112,7 +112,7 @@ task(tratio)
     },
     html(\htmlform(
       [ "Is VR training superior to traditional Box training? ",
-        "Please report the ", \mmlm(hyph(t, "ratio,")), " using Box ",
+        "Please report the ", \mmlm(hyph(t, "ratio")), " using the Box training",
         "as the control intervention." 
       ], tratio, Resp)).
 
@@ -122,7 +122,7 @@ task(cigroups)
       session_data(resp(cigroups, cigroups, Resp), resp(cigroups, cigroups, '#.# to #.#'))
     },
     html(\htmlform(["Determine the confidence interval for the difference ",
-        "between the two group means using Box as the control intervention."],
+        "between the two group means using the Box training as the control intervention."],
 	cigroups, Resp)).
 
 %
@@ -140,8 +140,7 @@ expert(s2p, stage(2), From, To, [step(expert, indep, [])]) :-
 	 }.
 
 feedback(indep, [], Col, FB) =>
-    FB = [ "Correctly determined the pooled variance ", \mmlm(Col, s2p), "."
-	 ].
+    FB = [ "Correctly determined the pooled variance ", \mmlm(Col, [s2p, "."]) ].
 
 hint(indep, [], Col, FB) =>
     FB = [ "The pooled variance ", \mmlm(Col, s2p), " needs to be ",
@@ -158,14 +157,13 @@ buggy(s2p, stage(2), From, To, [step(buggy, sd, [S_VR, S_Box])]) :-
 
 feedback(sd, [S_VR, S_Box], Col, FB) =>
     FB = [ "The result matches the expression for the pooled variance with the",
-	   " standard deviation instead of the standard variations ",
-	   \mmlm(Col, color(sd, S_VR)), " and ", \mmlm(Col, color(sd, S_Box)), ".",
-	   " Please remember to use the squares of ", \mmlm(Col, color(sd, S_VR)),
+	   " standard deviation instead of the standard variations.",
+	   " Please remember to use the squares of the standard deviations ", \mmlm(Col, color(sd, S_VR)),
 	   " and ", \mmlm(Col, color(sd, S_Box)), " to calculate the pooled variance."
 	 ].
 
 hint(sd, [_S_VR, _S_Box], _Col, FB) =>
-    FB = [ "Do not forget to use the square of the standard variations ",
+    FB = [ "Do not forget to use the square of the standard deviations ",
            "when calculating the pooled variance."
 	 ].
 
@@ -183,9 +181,7 @@ feedback(nswap, [N_VR, N_Box], Col, FB) =>
 	 ].
 
 hint(nswap, [_N_VR, _N_Box], Col, FB) =>
-    FB = [ "Do not swap the sample sizes in ", \mmlm(Col, color(nswap, s2p)),
-	   "."
-	 ].
+    FB = [ "Do not swap the sample sizes in the formula for the pooled variance ", \mmlm(Col, [color(nswap,s2p), "."]) ].
 
 %
 %% Expert Rules for independent t-test task
@@ -221,7 +217,7 @@ expert(tratio, stage(1), From, To, [step(expert, pooled, [S2P])]) :-
     To = '<-'(S2P, dfrac((N_A-1) * S_A^2 + (N_B-1) * S_B^2, N_A + N_B - 2)).
 
 feedback(pooled, [S2P], Col, FB)
- => FB = [ "Correctly determined the pooled variance ", \mmlm(Col, S2P) ].
+ => FB = [ "Correctly determined the pooled variance ", \mmlm(Col, [S2P, "."]) ].
 
 hint(pooled, [S2P], Col, FB)
  => FB = [ "The pooled variance ", \mmlm(Col, S2P), " needs to be ",
@@ -238,8 +234,8 @@ feedback(tratio, [_T], Col, FB) =>
     FB = [ "Correctly determined the ",  \mmlm(Col, hyph(t, "statistic.")) ].
 
 hint(tratio, [T], Col, FB) =>
-    FB = [ "The ", \mmlm(Col, hyph(t, "statistic")), " must be determined, ", 
-           \mmlm(Col, T) 
+    FB = [ "The ", \mmlm(Col, hyph(t, "statistic")), " must be determined: ", 
+           \mmlm(Col, [T, "."]) 
          ].
 
 %
@@ -254,7 +250,7 @@ feedback(control, [VR, Box], Col, FB)
  => FB = [ "The sign of the result matches the ",
            "negative ", \mmlm(Col, hyph(t, "ratio,")), " ",
            "with ", \mmlm(Col, color(control, VR)), " subtracted ",
-           "from ", \mmlm(Col, [color(control, Box)]), ". Please keep in mind ",
+           "from ", \mmlm(Col, [color(control, Box), "."]), " Please keep in mind ",
 	   "that the control intervention must be subtracted from the tested ",
 	   "intervention."
          ].
@@ -274,14 +270,14 @@ buggy(tratio, stage(1), From, To, [step(buggy, square, [S_A, S_B])]) :-
 feedback(square, [S_A, S_B], Col, FB)
  => FB = [ "The result matches the expression for the pooled variance without ",
 	   "the square of ", \mmlm(Col, color(square, S_A)), " and ", 
-	   \mmlm(Col, color(square, S_B)), ". Please do not forget the square of ",
+	   \mmlm(Col, [color(square, S_B), "."]), " Please do not forget the square of ",
 	   \mmlm(Col, color(square, S_A)), " and ", \mmlm(Col, color(square, S_B)),
 	   "when calculating the pooled variance."
          ].
 
 hint(square, [_S_A, _S_B], Col, FB)
  => FB = [ "Do not forget to use the square of the standard deviations ",
-           "when calculating the pooled variance ", \mmlm(Col, color(square, s2p)), "." 
+           "when calculating the pooled variance ", \mmlm(Col, color(square, [s2p, "."])) 
          ].
 
 % Buggy-Rule: Forgot school math [1/N1 + 1/N2 is not 1/(N1 + N2)]
@@ -292,16 +288,15 @@ buggy(tratio, stage(2), From, To, [step(buggy, school, [N_A, N_B])]) :-
 feedback(school, [A, B], Col, FB)
  => FB = [ "The result matches the expression for the ", 
 	   \mmlm(Col, hyph(t, "ratio")), " for independent samples with ",
-	   \mmlm(Col, frac(1, color(school, color("black", A) + color("black", B)))),
-	   ". Please keep in mind that ", \mmlm(Col, color(school, 
+	   \mmlm(Col, [frac(1, color(school, color("black", A) + color("black", B))), "."]),
+	   " Please keep in mind that ", \mmlm(Col, [color(school, 
 		color("black", frac(1, A)) + color("black", frac(1, B)))
-		=\= frac(1, color(school, color("black", A) + color("black", B)))), "."
+		=\= frac(1, color(school, color("black", A) + color("black", B))), "."])
          ].
 
 hint(school, [A, B], Col, FB)
  => FB = [ "Do not forget that ",
-           \mmlm(Col, color(school, color("black", frac(1, A)) + color("black", frac(1, B))) =\= frac(1, color(school, color("black", A) + color("black", B)))), 
-           "."
+           \mmlm(Col, [color(school, color("black", frac(1, A)) + color("black", frac(1, B))) =\= frac(1, color(school, color("black", A) + color("black", B))), "."])
          ].
 
 %% Buggy-Rule: Forgot paranthesis around numerator in t-statistic.
@@ -332,8 +327,8 @@ buggy(tratio, stage(2), From, To, [step(buggy, sqrt1, [S2P * Ns])]) :-
 
 feedback(sqrt1, [S2P_Ns], Col, FB)
  => FB = [ "The result matches the expression for the ", 
-	   \mmlm(Col, hyph(t, "ratio")), "for independent samples without the square",
-	   " root around ", \mmlm(Col, color(sqrt1, S2P_Ns)), ". Please do not forget",
+	   \mmlm(Col, hyph(t, "ratio")), " for independent samples without the square",
+	   " root around ", \mmlm(Col, [color(sqrt1, S2P_Ns), "."]), " Please do not forget",
 	   " the square root around the denominator."
          ].
 
@@ -351,7 +346,7 @@ buggy(tratio, stage(2), From, To, [step(buggy, sqrt2, [Ns])]) :-
 feedback(sqrt2, [Ns], Col, FB)
  => FB = [ "The result matches the expression for the ", 
 	   \mmlm(Col, hyph(t, "ratio")), " with the square root stopping before ",
-	   \mmlm(Col, paren(color(sqrt2, Ns))), ". Please do not forget to take the ",
+	   \mmlm(Col, [paren(color(sqrt2, Ns)), "."]), " Please do not forget to take the ",
 	   "square root of the whole denominator."
          ].
 % Alternative Rückmeldung (hierfür müsste die Variable in der eckigen Klammer geändert werden): 
@@ -360,8 +355,9 @@ feedback(sqrt2, [Ns], Col, FB)
 % ". Please do not forget to take the square root of the whole denominator."
 
 hint(sqrt2, [_Ns], Col, FB)
- => FB = [ "The square root of the whole denomiator of the ",
-            \mmlm(Col, hyph(t, "ratio")), " should be taken." ].
+ => FB = [ "You need to take the square root of the whole denomiator in the formula for the ",
+            \mmlm(Col, hyph(t, "ratio."))
+         ].
 
 
 
@@ -426,7 +422,7 @@ feedback(ci_bounds, [_VR, _Box, _S2P, _N_VR, _N_Box, _Alpha], _Col, F)
 hint(ci_bounds, [VR, Box, S2P, N_VR, N_Box, Alpha], Col, H)
  => H = [ "The formula to calculate the lower and upper bound of the ",
           "confidence interval for the difference of group means is ",
-	  \mmlm(Col, pm(VR - Box, qt(1 - Alpha/2, N_VR + N_Box - 2) * sqrt(dot(S2P, frac(1, N_VR) + frac(1, N_Box)))))
+	  \mmlm(Col, [pm(VR - Box, qt(1 - Alpha/2, N_VR + N_Box - 2) * sqrt(dot(S2P, frac(1, N_VR) + frac(1, N_Box)))), "."])
         ].
 
 % Fourth step: Choose the correct quantile of the t-distribution
@@ -436,12 +432,12 @@ expert(cigroups, stage(2), X, Y, [step(expert, tquant, [Alpha])]) :-
 
 feedback(tquant, [Alpha], Col, F)
  => F = [ "Correctly used the ", \mmlm(Col, hyph(1 - Alpha/2, "quantile")),
-          "of the ", \mmlm(Col, hyph(t, "distribution"))
+          "of the ", \mmlm(Col, hyph(t, "distribution."))
         ].
 
 hint(tquant, [Alpha], Col, H)
  => H = [ "Make sure to use the ", \mmlm(Col, hyph(1 - Alpha/2, "quantile")),
-          "of the ", \mmlm(Col, hyph(t, "distribution"))
+          "of the ", \mmlm(Col, hyph(t, "distribution."))
         ].
 
 %
@@ -476,7 +472,7 @@ feedback(control, [VR, Box], Col, FB)
  => FB = [ "The sign of the result matches the ",
            "negative ", \mmlm(Col, hyph(t, "ratio,")), " ",
            "with ", \mmlm(Col, color(control, VR)), " subtracted ",
-           "from ", \mmlm(Col, [color(control, Box)]), ". Please keep in mind ",
+           "from ", \mmlm(Col, [color(control, Box), "."]), " Please keep in mind ",
 	   "that the control intervention must be subtracted from the tested ",
 	   "intervention."
          ]. 
@@ -497,14 +493,14 @@ buggy(cigroups, stage(1), From, To, [step(buggy, square, [S_A, S_B])]) :-
 feedback(square, [S_A, S_B], Col, FB)
  => FB = [ "The result matches the expression for the pooled variance without ",
 	   "the square of ", \mmlm(Col, color(square, S_A)), " and ", 
-	   \mmlm(Col, color(square, S_B)), ". Please do not forget the square of ",
+	   \mmlm(Col, [color(square, S_B), "."]), " Please do not forget the square of ",
 	   \mmlm(Col, color(square, S_A)), " and ", \mmlm(Col, color(square, S_B)),
 	   "when calculating the pooled variance."
          ].
 
 hint(square, [_S_A, _S_B], Col, FB)
  => FB = [ "Do not forget to use the square of the standard deviations ",
-           "when calculating the pooled variance ", \mmlm(Col, color(square, s2p)), "." 
+           "when calculating the pooled variance ", \mmlm(Col, [color(square, s2p), "."]) 
          ].
 
 
@@ -515,16 +511,15 @@ buggy(cigroups, stage(2), From, To, [step(buggy, school_1, [N_A, N_B])]) :-
 
 feedback(school_1, [A, B], Col, FB)
  => FB = [ "The result matches the the confidence interval for independent samples with ",
-	   \mmlm(Col, frac(1, color(school_1, color("black", A) + color("black", B)))),
-	   ". Please keep in mind that ", \mmlm(Col, color(school_1, 
+	   \mmlm(Col, [frac(1, color(school_1, color("black", A) + color("black", B))), "."]),
+	   " Please keep in mind that ", \mmlm(Col, [color(school_1, 
 		color("black", frac(1, A)) + color("black", frac(1, B)))
-		=\= frac(1, color(school_1, color("black", A) + color("black", B)))), "."
+		=\= frac(1, color(school_1, color("black", A) + color("black", B))), "."])
          ].
 
 hint(school_1, [A, B], Col, FB)
  => FB = [ "Do not forget that ",
-           \mmlm(Col, color(school_1, color("black", frac(1, A)) + color("black", frac(1, B))) =\= frac(1, color(school_1, color("black", A) + color("black", B)))), 
-           "."
+           \mmlm(Col, [color(school_1, color("black", frac(1, A)) + color("black", frac(1, B))) =\= frac(1, color(school_1, color("black", A) + color("black", B))), "."]) 
          ].
 
 
@@ -536,16 +531,15 @@ buggy(cigroups, stage(2), From, To, [step(buggy, school_2, [N_A, N_B])]) :-
 feedback(school_2, [A, B], Col, FB)
  => FB = [ "The result matches the expression for the ", 
 	   \mmlm(Col, hyph(t, "ratio")), " for independent samples with ",
-	   \mmlm(Col, frac(1, color(school_2, color("black", A) + color("black", B)))),
-	   ". Please keep in mind that ", \mmlm(Col, color(school_2, 
+	   \mmlm(Col, [frac(1, color(school_2, color("black", A) + color("black", B))), "."]),
+	   " Please keep in mind that ", \mmlm(Col, [color(school_2, 
 		color("black", frac(1, A)) + color("black", frac(1, B)))
-		=\= frac(1, color(school_2, color("black", A) + color("black", B)))), "."
+		=\= frac(1, color(school_2, color("black", A) + color("black", B))), "."])
          ].
 
 hint(school_2, [A, B], Col, FB)
  => FB = [ "Do not forget that ",
-           \mmlm(Col, color(school_2, color("black", frac(1, A)) + color("black", frac(1, B))) =\= frac(1, color(school_2, color("black", A) + color("black", B)))), 
-           "."
+           \mmlm(Col, [color(school_2, color("black", frac(1, A)) + color("black", frac(1, B))) =\= frac(1, color(school_2, color("black", A) + color("black", B))), "."])
          ].
 
 
@@ -557,13 +551,13 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt1, [S2P, N_VR, N_Box])]) :-
 
 feedback(sqrt1, [S2P, N_VR, N_Box], Col, FB)
  => FB = [ "The result matches the confidence interval without square root around ", 
-           \mmlm(Col, color(sqrt1, dot(S2P, frac(1, N_VR) + frac(1, N_Box)))), ". Please do not forget the square root",
+           \mmlm(Col, [color(sqrt1, dot(S2P, frac(1, N_VR) + frac(1, N_Box))), "."]), " Please do not forget the square root",
            " around the denominator."
          ].
 
 hint(sqrt1, [S2P, N_VR, N_Box], Col, FB)
  => FB = [ "Do not forget the square root around ",
-           \mmlm(Col, color(sqrt1, dot(S2P, frac(1, N_VR) + frac(1, N_Box))))
+           \mmlm(Col, [color(sqrt1, dot(S2P, frac(1, N_VR) + frac(1, N_Box))), "."])
 	     ].
 
 
@@ -576,13 +570,13 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt2, [S2P, N_VR, N_Box])]) :-
 feedback(sqrt2, [S2P, N_VR, N_Box], Col, FB)
  => FB = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), " without ",
 	   "square root around ", 
-           \mmlm(Col, color(sqrt2, dot(S2P, frac(1, N_VR) + frac(1, N_Box)))), ". Please do not forget the square root",
+           \mmlm(Col, [color(sqrt2, dot(S2P, frac(1, N_VR) + frac(1, N_Box))), "."]), " Please do not forget the square root",
            " around the denominator."
          ].
 
 hint(sqrt2, [S2P, N_VR, N_Box], Col, FB)
  => FB = [ "Do not forget the square root around ",
-           \mmlm(Col, color(sqrt2, dot(S2P, frac(1, N_VR) + frac(1, N_Box))))
+           \mmlm(Col, [color(sqrt2, dot(S2P, frac(1, N_VR) + frac(1, N_Box))), "."])
 	     ].
 
 
@@ -594,8 +588,8 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt3, [Ns])]) :-
 
 feedback(sqrt3, [Ns], Col, FB)
  => FB = [ "The result matches the confidence interval with the square root ",
-	   "stopping before ", \mmlm(Col, paren(color(sqrt3, Ns))), 
-	   ". Please do not forget to take the square root of the whole denominator."
+	   "stopping before ", \mmlm(Col, [paren(color(sqrt3, Ns)), "."]), 
+	   " Please do not forget to take the square root of the whole denominator."
 	 ].
 % Alternative Rückmeldung (hierfür müsste die Variable in der eckigen Klammer geändert werden): 
 % "The result matches the confidence interval with the square root only around ",
@@ -603,8 +597,7 @@ feedback(sqrt3, [Ns], Col, FB)
 % "square root of the whole denominator."
 
 hint(sqrt3, [_Ns], _Col, FB)
- => FB = [ "The square root of the whole denomiator should be taken." 
-	].
+ => FB = [ "The square root of the whole denomiator should be taken." ].
 
 % Buggy-Rule: Forget square root around sample size when calculating the t-statistic
 buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt4, [Ns])]) :-
@@ -615,7 +608,7 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt4, [Ns])]) :-
 feedback(sqrt4, [Ns], Col, FB)
  => FB = [ "The result matches the expression for the ", 
 	   \mmlm(Col, hyph(t, "ratio")), " with the square root stopping before ",
-	   \mmlm(Col, paren(color(sqrt4, Ns))), ". Please do not forget to take the ",
+	   \mmlm(Col, [paren(color(sqrt4, Ns)), "."]), " Please do not forget to take the ",
 	   "square root of the whole denominator."
 	 ].
 % Alternative Rückmeldung (hierfür müsste die Variable in der eckigen Klammer geändert werden): 
@@ -624,5 +617,4 @@ feedback(sqrt4, [Ns], Col, FB)
 % ". Please do not forget to take the square root of the whole denominator."
 
 hint(sqrt4, [_Ns], _Col, FB)
- => FB = [ "The square root of the whole denomiator should be taken." 
-	].
+ => FB = [ "The square root of the whole denomiator should be taken."].

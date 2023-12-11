@@ -50,8 +50,7 @@ intermediate(ztrans, zcalc).
 expert(ztrans, stage(1), From, To, [step(expert, allinone, [])]) :-
     From = item(X, Mu, Sigma),
     To = { '<-'(z, zcalc(X, Mu, Sigma)) ;
-           '<-'(p, pnorm_(z)) ; 
-           p
+           '<-'(p, pnorm_(z)) 
          }.
 
 feedback(allinone, [], _Col, FB) =>
@@ -67,10 +66,10 @@ expert(ztrans, stage(1), From, To, [step(expert, zcalc, [X, Mu, Sigma])]) :-
     To = dfrac(X - Mu, Sigma).
 
 feedback(zcalc, [_X, _Mu, _Sigma], _Col, FB) =>
-    FB = [ "Good Job! You correctly calculated Z." ].
+    FB = [ "You correctly calculated Z." ].
 
 hint(zcalc, [X, Mu, Sigma], Col, FB) =>
-    FB = [ "To calculate the z-value, use " , \mmlm(Col, dfrac(X - Mu, Sigma)) ].
+    FB = [ "To calculate the z-value, use " , \mmlm(Col, [dfrac(X - Mu, Sigma), "."]) ].
 
 % Expert rule (correct tail)
 expert(ztrans, stage(2), From, To, [step(expert, correct_tail, [Z])]) :-
@@ -117,7 +116,7 @@ buggy(ztrans, stage(1), From, To, [step(buggy, swap, [mu, sigma])]) :-
 
 feedback(swap, [Mu, Sigma], Col, FB) =>
     FB = [ "You swapped ", \mmlm(Col, color(swap, Mu)), " and ", 
-	   \mmlm(Col, color(swap, Sigma)) ].
+	   \mmlm(Col, [color(swap, Sigma), "."]) ].
 
 hint(swap, [Mu, Sigma], Col, FB) =>
     FB = [ "Try using ", \mmlm(Col, color(swap, Mu)), " and ", 
@@ -140,7 +139,7 @@ buggy(ztrans, stage(2), From, To, [step(buggy, xp, []), depends(xp2)]) :-
    To = omit_right(xp, dfrac(omit_right(xp, x - mu), sigma)).
 
 feedback(xp, [], Col, FB) =>
-    FB = [ "The z-value is calculated by calculating ", \mmlm(Col, dfrac(x - mu, sigma)) ].
+    FB = [ "The z-value is calculated by using the formula ", \mmlm(Col, [dfrac(x - mu, sigma), "."]) ].
 
 hint(xp, [], _Col, FB) =>
     FB = [ "Remember to calculate the z-value." ].
@@ -151,8 +150,8 @@ buggy(ztrans, stage(2), From, To, [step(buggy, xp2, []), depends(xp)]) :-
     To = instead(xp2, z/100, pnorm(z)).
 
 feedback(xp2, [], _Col, FB) =>
-    FB = [ "von Matthias hinzugefuegt." ].
+    FB = [ "You mistakenly divided the z-value by 100 instead of retrieving the value from the normal distribution" ].
 
-hint(xp2, [], Col, FB) =>
-    FB = [ "von Matthias hinzugefuegt ", \mmlm(Col, dfrac(x - mu, sigma)) ].
+hint(xp2, [], _Col, FB) =>
+    FB = [ "Do not divide the z-value by 100, use the normal distribution instead" ].
 

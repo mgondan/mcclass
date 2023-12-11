@@ -47,6 +47,7 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(oddsratio), handler(oddsratio), []).
 :- http_handler(mcclass(oddsratio2), handler(oddsratio2), []).
 :- http_handler(mcclass(easyodds), handler(easyodds), []).
+:- http_handler(mcclass(subgroups), handler(subgroups), []).
 :- http_handler(mcclass(ztrans), handler(ztrans), []).
 :- http_handler(mcclass(ztrans2), handler(ztrans2), []).
 :- http_handler(mcclass(tgroups), handler(tgroups), []).
@@ -56,7 +57,7 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(chisq), handler(chisq), []).
 :- http_handler(mcclass(power), handler(power), []).
 :- http_handler(mcclass(cigroups), handler(cigroups), []).
-:- http_handler(mcclass(subgroups), handler(subgroups), []).
+
 
 handler(Topic, Request) :-
     member(method(post), Request),

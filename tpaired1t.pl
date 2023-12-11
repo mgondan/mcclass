@@ -8,7 +8,7 @@
 :- use_module(mathml).
 
 :- use_module(navbar).
-navbar:page(tpaired1t, ["paired ", i(t), "-test onetailed"]).
+navbar:page(tpaired1t, ["paired ", i(t), "-test onetailed (1)"]).
 
 task(tratio).
 task(pvalue).
@@ -46,15 +46,6 @@ rint:r_hook(pt(_T, _DF)).
 rint:r_hook(qt(_P, _DF)).
  
 interval:monotonical(pt(+, /)).
-
-% The parameter 'incr' from R should determine whether an increment or a decrease of the values is good.
-% Now the question is, if there should be an additional task in the navigation bar 
-% with a different scale for the case that an increment is good, for example with 
-% some performance test, in which case the terms in the numerator of the t-formula have 
-% to be switched (Mu - D), or if it should be selected randomly.
-% Since the two tasks (one-tailed increment good-increment bad) share most of the components
-% one could also ask, if there is a more elegant solution than duplicating the source-code and making
-% small changes, as it is not best programming practice. 
 
 
 % Task description
@@ -156,7 +147,7 @@ feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
 
 hint(tratio, [D, Mu, S_D, N], Col, F)
  => F = [ "The ", \mmlm(Col, hyph(t, "ratio")), " ",
-          "is ", \mmlm(Col, dfrac(D - Mu, S_D / sqrt(N))), "."
+          "is ", \mmlm(Col, [dfrac(D - Mu, S_D / sqrt(N)), "."])
         ].
 
 
@@ -237,7 +228,7 @@ feedback(tratio_indep, [_T0, _S_T0, _N, _EOT, _S_EOT], Col, F)
 hint(tratio_indep, [T0, S_T0, N, EOT, S_EOT], Col, F)
  => P = abbrev(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
     F = [ "The ", \mmlm(Col, hyph(t, "ratio")), " for independent samples ",
-          "would be ", \mmlm(Col, dfrac(T0 - EOT, sqrt(P * (1/N + 1/N)))), "."
+          "would be ", \mmlm(Col, [dfrac(T0 - EOT, sqrt(P * (1/N + 1/N))), "."])
         ].
 
 % The following mistake cannot occur in the paired t-test, but is again only
@@ -257,16 +248,16 @@ buggy(tratio, stage(2), X, Y, [step(buggy, school1, [N1, N2])]) :-
 feedback(school1, [A, B], Col, F)
  => F = [ "The result matches the expression for the ",
 	   \mmlm(Col, hyph(t, "ratio"))," for independent samples with ",
-	   \mmlm(Col, frac(1, color(school, color("black", A) + color("black", B)))), 
-	   ". Please keep in mind that ", 
-	   \mmlm(Col, color(school, color("black", frac(1, A)) + color("black", frac(1, B)))
-		 =\= frac(1, color(school, color("black", A) + color("black", B)))), "."
+	   \mmlm(Col, [frac(1, color(school, color("black", A) + color("black", B))), "."]), 
+	   " Please keep in mind that ", 
+	   \mmlm(Col, [color(school, color("black", frac(1, A)) + color("black", frac(1, B)))
+		 =\= frac(1, color(school, color("black", A) + color("black", B))), "."])
         ].
 
 hint(school1, [N1, N2], Col, F)
  => F = [ "Please do not forget school ",
-          "math, ", \mmlm(Col, frac(1, color(school1, N1)) +
-            frac(1, color(school1, N2)) =\= frac(1, color(school1, N1+N2))), "."
+          "math, ", \mmlm(Col, [frac(1, color(school1, N1)) +
+            frac(1, color(school1, N2)) =\= frac(1, color(school1, N1+N2)), "."])
         ].
 
 % Buggy-Rule: Forgot school math (Same for N1 = N2)
@@ -277,13 +268,13 @@ buggy(tratio, stage(2), X, Y, [step(buggy, school2, [N])]) :-
 feedback(school2, [N], Col, F)
  => F = [ "The result matches the expression for the ", 
 	   \mmlm(Col, hyph(t, "ratio")), " for independent samples with ",
-	   \mmlm(Col, frac(1, color(school2, 2*N))), ". Please keep in mind that ",
-	   \mmlm(Col, frac(1, color(school2, N)) + frac(1, color(school2, N)) =\= frac(1, color(school2, 2*N))), "."
+	   \mmlm(Col, [frac(1, color(school2, 2*N)), "."]), " Please keep in mind that ",
+	   \mmlm(Col, [frac(1, color(school2, N)) + frac(1, color(school2, N)) =\= frac(1, color(school2, 2*N)), "."])
         ].
 
 hint(school2, [N], Col, F)
  => F = [ "Please do not forget school math, ",
-          \mmlm(Col, frac(1, color(school2, N)) + frac(1, color(school2, N)) =\= frac(1, color(school2, 2*N))), "."
+          \mmlm(Col, [frac(1, color(school2, N)) + frac(1, color(school2, N)) =\= frac(1, color(school2, 2*N)), "."])
         ].
 
 % Buggy-Rule: Forgot parentheses
@@ -302,9 +293,9 @@ buggy(tratio, stage(2), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
 feedback(bug1, [D, Mu, S, SQRT_N], Col, F)
  => F = [ "The result matches the fraction without parentheses around the ", 
 	   "numerator and the denominator, ", \mmlm([error(correct) | Col], 
-	       dfrac(color(bug1, paren(color("#000000", D - Mu))), 
-	           color(bug1, paren(color("#000000", S / SQRT_N))))),
-	   ". Please do not forget the parentheses around the numerator and the ",
+	       [dfrac(color(bug1, paren(color("#000000", D - Mu))), 
+	           color(bug1, paren(color("#000000", S / SQRT_N)))), "."]),
+	   " Please do not forget the parentheses around the numerator and the ",
 	   "denominator of a fraction."
         ].
 
@@ -312,8 +303,8 @@ hint(bug1, [D, Mu, S, SQRT_N], Col, F)
  => F = [ "Do not forget the parentheses around the numerator and ",
           "the denominator of a fraction, ",
           \mmlm([error(correct) | Col],
-            dfrac(color(bug1, paren(color("#000000", D - Mu))), 
-              color(bug1, paren(color("#000000", S / SQRT_N))))), "."
+            [dfrac(color(bug1, paren(color("#000000", D - Mu))), 
+              color(bug1, paren(color("#000000", S / SQRT_N)))), "."])
         ].
 
 % One challenging aspect of word problems ("Textaufgaben") is that students
@@ -330,7 +321,7 @@ buggy(tratio, stage(1), X, Y,
 feedback(t0, [D, T0], Col, F)
  => F = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), " with the", 
 	   " T0 average ", \mmlm(Col, color(t0, T0)), " instead of the average", 
-	   " change score ", \mmlm(Col, color(t0, D)), ". Please insert the average",
+	   " change score ", \mmlm(Col, [color(t0, D), "."]), " Please insert the average",
 	   " change score ", \mmlm(Col, color(t0, D)), " into the ",
 	   \mmlm(Col, hyph(t, "ratio."))
 	].
@@ -351,7 +342,7 @@ feedback(s_t0, [S, S_T0], Col, F)
  => F = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), 
 	   " with the standard deviation for T0 ", \mmlm(Col, color(s_t0, S_T0)),
 	   " instead of the standard deviation of the change score ", 
-	   \mmlm(Col, color(s_t0, S)), ". Please insert the standard deviation of the", 
+	   \mmlm(Col, [color(s_t0, S), "."]), " Please insert the standard deviation of the", 
 	   " change score ", \mmlm(Col, color(s_t0, S)), " into the ", 
 	   \mmlm(Col, hyph(t, "ratio."))
 	].
@@ -372,7 +363,7 @@ buggy(tratio, stage(1), X, Y, [step(buggy, eot, [d, eot]),
 feedback(eot, [D, EOT], Col, F)
  => F = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), " with the",
            " EOT average ", \mmlm(Col, color(eot, EOT)), " instead of the ", 
-           "average change score ", \mmlm(Col, color(eot, D)), ". Please insert",
+           "average change score ", \mmlm(Col, [color(eot, D), "."]), " Please insert",
            " the average change score ",\mmlm(Col, color(eot, D)), " into the ",
 	   \mmlm(Col, hyph(t, "ratio."))
 	].
@@ -393,7 +384,7 @@ feedback(s_eot, [S, S_EOT], Col, F)
  => F = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), " with the",
 	   " standard deviation for EOT ", \mmlm(Col, color(s_eot, S_EOT)), 
 	   " instead of the standard deviation of the change score ", 
-	   \mmlm(Col, color(s_eot, S)), ". Please insert the standard deviation of the",
+	   \mmlm(Col, [color(s_eot, S), "."]), " Please insert the standard deviation of the",
 	   " change score ", \mmlm(Col, color(s_eot, S)), " into the ", 
 	   \mmlm(Col, hyph(t, "ratio."))
 	].
@@ -412,13 +403,13 @@ buggy(tratio, stage(2), X, Y, [step(buggy, sqrt1, [n])]) :-
 
 feedback(sqrt1, [N], Col, F)
  => F = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), " without", 
-	  " square root around ", \mmlm(Col, color(sqrt1, N)), ". Please do not",
-	  " forget the square root around ", \mmlm(Col, color(sqrt1, N)), "."
+	  " square root around ", \mmlm(Col, [color(sqrt1, N), "."]), " Please do not",
+	  " forget the square root around ", \mmlm(Col, [color(sqrt1, N), "."])
         ].
 
 hint(sqrt1, [N], Col, F)
  => F = [ "Do not forget the square root around ",
-          \mmlm(Col, color(sqrt1, N)), "."
+          \mmlm(Col, [color(sqrt1, N), "."])
         ].
 
 % Buggy-Rule: Use of N instead of sqrt(N)
@@ -429,13 +420,13 @@ buggy(tratio, stage(2), X, Y, [step(buggy, sqrt2, [N])]) :-
 
 feedback(sqrt2, [N], Col, F)
  => F = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), " without", 
-	   " square root around ", \mmlm(Col, color(sqrt2, N)), ". Please do not",
-	   " forget the square root around ", \mmlm(Col, color(sqrt2, N)), "."
+	   " square root around ", \mmlm(Col, [color(sqrt2, N), "."]), " Please do not",
+	   " forget the square root around ", \mmlm(Col, [color(sqrt2, N), "."])
         ].
 
 hint(sqrt2, [N], Col, F)
  => F = [ "Do not forget the square root around ",
-          \mmlm(Col, color(sqrt2, N)), "."
+          \mmlm(Col, [color(sqrt2, N), "."])
         ].
 
 
@@ -493,7 +484,7 @@ expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
     Y = pval(pt(-T, DF)).
 
 feedback(pvalue, [], Col, F)
- => F = [ "Correctly determined the one-tailed ", \mmlm(Col, hyph(p, "value")) ].
+ => F = [ "Correctly determined the one-tailed ", \mmlm(Col, hyph(p, "value.")) ].
 
 hint(pvalue, [], Col, F)
  => F = [ "The one-tailed ", \mmlm(Col, hyph(p, "value")), " must be determined." ].
@@ -509,13 +500,13 @@ buggy(pvalue, stage(2), X, Y, [step(buggy, wrongtail, [DF])]) :-
      Y = pval(pt(T, DF)).
 
 feedback(wrongtail, [DF], Col, F)
- => F = [ "The result matches the left-sided ", \mmlm(Col, hyph(p, "value")), 
-          ". Please make sure to use the area of the ", \mmlm(Col, hyph(t(DF), "distribution")),
-          " on the right side of the calculated ", \mmlm(Col, hyph(t, "value")), "."
+ => F = [ "The result matches the left-sided ", \mmlm(Col, hyph(p, "value.")), 
+          " Please make sure to use the area of the ", \mmlm(Col, hyph(t(DF), "distribution")),
+          " on the right side of the calculated ", \mmlm(Col, hyph(t, "value."))
         ].
 
 hint(wrongtail, [DF], Col, F)
- => F = [ "Use the upper tail of the ", \mmlm(Col, hyph(t(DF), "distribution")), "."].
+ => F = [ "Use the upper tail of the ", \mmlm(Col, hyph(t(DF), "distribution."))].
 
 
 % Buggy-Rule: used the wrong t-value and/or degrees of freedoms
@@ -528,13 +519,13 @@ buggy(pvalue, stage(2), X, Y, [step(buggy, wrong, [T, DF])]) :-
 feedback(wrong, [T, DF], Col, F)
  => F = [ "The result is not the ", \mmlm(Col, hyph(p, "value")), 
 	        " associated with the calculated ", \mmlm(Col, hyph(t, "value")), \mmlm(T = r(T)), 
-          " and degrees of freedom ", \mmlm(DF = r(DF)), ".", 
+          " and degrees of freedom ", \mmlm([DF = r(DF), "."]), 
           " Please make sure to look at the correct column and row on the table of the ", 
-          \mmlm(Col, hyph(t, "distribution")), "."].
+          \mmlm(Col, hyph(t, "distribution."))].
 
 hint(wrong, [_T, _DF], Col, F)
  => F = [ "Look at the correct column and row on the table of the ", 
-          \mmlm(Col, hyph(t, "distribution")), "."].
+          \mmlm(Col, hyph(t, "distribution."))].
 
 
 
@@ -568,17 +559,18 @@ hint(paired, [], Col, H)
 intermediate(cipaired, quant).
 expert(cipaired, stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N, Alpha])]) :-
     X = paired(D, Mu, S_D, N, Alpha),
-    Y = hdrs(pm(D, dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
+    Y = hdrs((D - dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
 
 feedback(ci_lower, [_D, _S_D, _N, _Alpha], _Col, F)					
- => F = [ "Correctly identified the formula for the upper and lower bound of ",
-           "the confidence interval for a mean value." 
+ => F = [ "Correctly identified the formula for the lower bound of ",
+           "the confidence interval for a mean value in a ",
+            \mmlm(hyph(t, "test."))
         ].
 
-hint(ci_lower, [D, S_D, N, Alpha], Col, H)
- => H = [ "The formula to calculate the lower and upper bound of the ",
+hint(ci_lower, [D, S_D, N, Alpha], _Col, H)
+ => H = [ "The formula to calculate the lower a bound of the ",
           "confidence interval is ",
-	  \mmlm(Col, pm(D, qt(1 - Alpha, N-1) * S_D / sqrt(N))), "."
+	  \mmlm([(D - qt(1 - Alpha, N-1) * S_D / sqrt(N)), "."])
         ].
 
 % Third step: Choose the correct quantile of the t-distribution
@@ -626,7 +618,7 @@ buggy(cipaired, stage(2), X, Y, [step(buggy, qnorm, [N, Alpha])]) :-
 
 feedback(qnorm, [N, Alpha], Col, F)
  => F = [ "The result matches the confidence interval based on the standard ",
-          "Normal distribution. ",
+          "normal distribution. ",
           "Please insert the quantile of the ", \mmlm(Col, hyph(t, "distribution")),
           \mmlm(Col, color(qnorm, qt(1 - Alpha, N - 1))), " into ",
           "the formula for the confidence interval."
@@ -651,7 +643,7 @@ feedback(spss, [Mu], Col, F)
         ].
 
 hint(spss, [Mu], Col, H)
- => H = [ "If you calculate the confindence intervall with SPSS keep in mind,",
+ => H = [ "If you calculate the confindence intervall with SPSS, keep in mind",
 	  " that SPSS subtracts ", \mmlm(Col, Mu), " from the two bounds of",
           " the CI (which must be undone)."
         ].
@@ -663,13 +655,13 @@ buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt1, [N])]) :-
 
 feedback(sqrt1, [N], Col, F)
  => F = [ "The result matches the confidence interval without square root around ", 
-          \mmlm(Col, color(sqrt1, N)), ". Please do not forget the square root",
-          " around ", \mmlm(Col, color(sqrt1, N)), "."
+          \mmlm(Col, [color(sqrt1, N), "."]), " Please do not forget the square root",
+          " around ", \mmlm(Col, [color(sqrt1, N), "."])
         ].
 
 hint(sqrt1, [N], Col, F)
  => F = [ "Do not forget the square root around ",
-          \mmlm(Col, color(sqrt1, N)), "."
+          \mmlm(Col, [color(sqrt1, N), "."])
         ].
 
 % Buggy-Rule: Use of N instead of sqrt(N) in the t-ratio
@@ -680,13 +672,13 @@ buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt2, [N])]) :-
 feedback(sqrt2, [N], Col, FB)
  => FB = [ "The result matches the confidence interval based on the observed ",
 	   \mmlm(Col, hyph(t, "statistic.")), " without square root around ",
-	   \mmlm(Col, color(sqrt2, N)), " Please do not forget the square root around ",
-           \mmlm(Col, color(sqrt2, N)), "."
+	   \mmlm(Col, [color(sqrt2, N), "."]), " Please do not forget the square root around ",
+           \mmlm(Col, [color(sqrt2, N), "."])
          ].
 
 hint(sqrt2, [N], Col, FB)
  => FB = [ "Do not forget the square root around ",
-           \mmlm(Col, color(sqrt2, N)), "."
+           \mmlm(Col, [color(sqrt2, N), "."])
          ]. 
 
 
