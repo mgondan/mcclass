@@ -117,6 +117,12 @@ ci(_Flags, pm(_, _)) :-
 ci(_Flags, ci(_, _)) :-
     !.
 
+ci(_Flags, neginf(_)) :-
+    !.
+
+ci(_Flags, ninfpos(_)) :-
+    !.
+
 ci(Flags, A) :-
     compound(A),
     compound_name_arguments(A, _, Args),
@@ -132,6 +138,38 @@ hook(pm(X, Y), Res, Flags) :-
     option(ci(upper), Flags),
     !,
     int(X + Y, Res, Flags).
+
+interval(ci1) :-
+    D = 2.0 ... 2.1,
+    S = 1.6 ... 1.7,
+    N = 20,
+    interval(D + pm(0.0, 1.96 * S / sqrt(N)), CI),
+    writeln(D + pm(0.0, 1.96 * S / sqrt(N)) --> CI).
+
+interval(ci2) :-
+    interval(ci(1 ... 2, 3 ... 4) =@= ci(1 ... 2, 3 ... 4), Res),
+    writeln(ci(1 ... 2, 3 ... 4) =@= ci(1 ... 2, 3 ... 4) --> Res).
+
+% Return a one-tailed confidence interval
+hook(neginf(X), Res, Flags) :-
+    option(ci(lower), Flags),
+    !,
+    int(X, Res, Flags).
+
+hook(neginf(_X), Res, Flags) :-
+    option(ci(upper), Flags),
+    !,
+    int(1.0Inf, Res, Flags).
+
+hook(ninfpos(_X), Res, Flags) :-
+    option(ci(lower), Flags),
+    !,
+    int(-1.0Inf, Res, Flags).
+
+hook(ninfpos(X), Res, Flags) :-
+    option(ci(upper), Flags),
+    !,
+    int(X, Res, Flags).
 
 interval(ci1) :-
     D = 2.0 ... 2.1,

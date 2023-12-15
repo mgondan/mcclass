@@ -1149,6 +1149,17 @@ paren(_Flags, braces(_), Paren)
 mathml :- mathml(paren(paren(paren(paren(i))))).
 
 %
+% Confidence intervals
+%
+math(Flags, ninfpos(A), New, M)
+ => Flags = New,
+    M = brackets(list(',', [-1.0Inf, A])).
+
+math(Flags, neginf(A), New, M)
+ => Flags = New,
+    M = brackets(list(',', [A, 1.0Inf])).
+
+%
 % Matrices
 %
 ml(Flags, ##(Rows), M)
