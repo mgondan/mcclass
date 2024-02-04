@@ -1710,40 +1710,40 @@ prec(Flags, add_left(_, Expr), Prec),
     option(error(highlight), Flags, fix)
  => prec(Flags, Expr, Prec).
 
-math(Flags, invent_right(_Bug, Expr), New, M),
+math(Flags, add_right(_Bug, Expr), New, M),
     option(error(correct), Flags, fix)
  => Expr =.. [_Op, L, _R],
     Flags = New,
     M = L.
 
-math(Flags, invent_right(_Bug, Expr), New, M),
+math(Flags, add_right(_Bug, Expr), New, M),
     option(error(show), Flags, fix)
  => M = Expr,
     Flags = New.
 
-prec(Flags, invent_right(_, Expr), Prec),
+prec(Flags, add_right(_, Expr), Prec),
     option(error(show), Flags, fix)
  => prec(Flags, Expr, Prec).
 
-math(Flags, invent_right(_Bug, Expr), New, M),
+math(Flags, add_right(_Bug, Expr), New, M),
     option(error(fix), Flags, fix)
  => Expr =.. [_Op, L, _R],
     Flags = New,
     M = L.
 
-math(Flags, invent_right(Bug, L^R), New, M),
+math(Flags, add_right(Bug, L^R), New, M),
     option(error(highlight), Flags, fix)
  => Flags = New,
     M = L^color(Bug, R).
 
-math(Flags, invent_right(Bug, Expr), New, M),
+math(Flags, add_right(Bug, Expr), New, M),
     option(error(highlight), Flags, fix)
  => Expr =.. [Op, L, R],
     Expr1 =.. [Op, " ", R],
     Flags = New,
     M = list(space, [L, color(Bug, Expr1)]).
 
-prec(Flags, invent_right(_, Expr), Prec),
+prec(Flags, add_right(_, Expr), Prec),
     option(error(highlight), Flags, fix)
  => prec(Flags, Expr, Prec).
 
@@ -2139,7 +2139,7 @@ bugs_(add_left(Bug, Expr), List)
  => bugs_(Expr, Bugs),
     List = [Bug | Bugs].
 
-bugs_(invent_right(Bug, Expr), List)
+bugs_(add_right(Bug, Expr), List)
  => bugs_(Expr, Bugs),
     List = [Bug | Bugs].
 

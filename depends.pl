@@ -103,7 +103,7 @@ expert(add_left(_, _)) :-
     !,
     fail.
 
-expert(invent_right(_, _)) :-
+expert(add_right(_, _)) :-
     !,
     fail.
 

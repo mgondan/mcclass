@@ -51,7 +51,7 @@ complete(Topic, Task, add_left(_Bug, Expr)) :-
     !,
     complete(Topic, Task, Expr).
 
-complete(Topic, Task, invent_right(_Bug, Expr)) :-
+complete(Topic, Task, add_right(_Bug, Expr)) :-
     !,
     complete(Topic, Task, Expr).
 

@@ -321,7 +321,7 @@ hint(sqrt2, [S2P, N_RC, N_MC], Col, FB)
 buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt3, [Ns])]) :-
     Ns = frac(1, _N_RC) + frac(1, _N_MC),
     X = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), sqrt(dot(S2P, Ns))),
-    Y = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), invent_right(sqrt3, sqrt(omit_right(sqrt3, dot(S2P, Ns))) * Ns)).
+    Y = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), add_right(sqrt3, sqrt(omit_right(sqrt3, dot(S2P, Ns))) * Ns)).
 
 feedback(sqrt3, [Ns], Col, FB)
  => FB = [ "The result matches the confidence interval with the square root ",
@@ -341,7 +341,7 @@ hint(sqrt3, [_Ns], _Col, FB)
 buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt4, [Ns])]) :-
     Ns = frac(1, _N_RC) + frac(1, _N_MC),
     X = dfrac(RC - MC, sqrt(S2P * Ns)),
-    Y = dfrac(RC - MC, invent_right(sqrt4, sqrt(omit_right(sqrt4, dot(S2P, Ns))) * Ns)).
+    Y = dfrac(RC - MC, add_right(sqrt4, sqrt(omit_right(sqrt4, dot(S2P, Ns))) * Ns)).
 
 feedback(sqrt4, [Ns], Col, FB)
  => FB = [ "The result matches the expression for the ", 

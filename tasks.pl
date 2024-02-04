@@ -66,7 +66,7 @@ interval:hook(drop_left(_Bug, Expr), Flags, Right, Flags) :-
 
 interval:hook(add_left(_Bug, Expr), Flags, Expr, Flags).
 
-interval:hook(invent_right(_Bug, Expr), Flags, Expr, Flags).
+interval:hook(add_right(_Bug, Expr), Flags, Expr, Flags).
 
 interval:hook('<-'(Var, Expr), Res, Flags) :-
     interval(Expr, Res, Flags),

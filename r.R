@@ -21,7 +21,7 @@ add_left <- function(bug, expr)
   return(expr)
 }
 
-invent_right <- function(bug, expr)
+add_right <- function(bug, expr)
 {
   return(expr)
 }

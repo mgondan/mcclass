@@ -293,7 +293,7 @@ buggy(tratio, stage(2), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
     M0 = drop_left(bug1, D - Mu),
     S0 = drop_right(bug1, S / SQRT_N),
     Y = add_left(bug1, 
-        D - invent_right(bug1, dfrac(M0, S0) / SQRT_N)).
+        D - add_right(bug1, dfrac(M0, S0) / SQRT_N)).
 
 feedback(bug1, [D, Mu, S, SQRT_N], Col, F)
  => F = [ "The result matches the fraction without parentheses around the ", 
@@ -648,7 +648,7 @@ hint(qnorm, [_N, _Alpha], Col, H)
 % and forgetting to add Mu to the results of the bounds in the end.
 buggy(cipaired, stage(2), X, Y, [step(buggy, spss, [Mu]), excludes(qnorm), excludes(tstat), excludes(sqrt1)]) :-
     X = paired(D, Mu, S_D, N, Alpha),
-    Y = hdrs(pm(invent_right(spss, D - Mu), dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
+    Y = hdrs(pm(add_right(spss, D - Mu), dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
 
 feedback(spss, [Mu], Col, F)
  => F = [ "The result matches the upper and lower bound calculated by SPSS. ",
