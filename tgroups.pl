@@ -446,7 +446,7 @@ hint(tquant, [Alpha], Col, H)
 % Buggy-Rule: Use t-statistic instead of t-quantile
 buggy(cigroups, stage(2), X, Y, [step(buggy, tstat, [N_VR, N_Box, Alpha])]) :-
     X = quant(VR, Box, S2P, N_VR, N_Box, Alpha),
-    P = abbrev(t, dfrac(VR - Box, sqrt(S2P * (frac(1, N_VR) + frac(1, N_Box)))), ["the observed", space, t, "-statistic."]),
+    P = denote(t, dfrac(VR - Box, sqrt(S2P * (frac(1, N_VR) + frac(1, N_Box)))), ["the observed", space, t, "-statistic."]),
     Y = P. 
 
 feedback(tstat, [N_VR, N_Box, Alpha], Col, F)

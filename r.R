@@ -31,7 +31,7 @@ instead <- function(bug, inst, of)
   return(inst)
 }
 
-abbrev <- function(s, expr, text)
+denote <- function(s, expr, text)
 {
   return(expr)
 }

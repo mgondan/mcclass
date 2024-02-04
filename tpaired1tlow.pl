@@ -222,7 +222,7 @@ hint(indep, [], Col, F)
 expert(tratio, stage(2), X, Y, 
         [step(expert, tratio_indep, [T0, S_T0, N, EOT, S_EOT])]) :-
     X = indep(T0, S_T0, N, EOT, S_EOT, N),
-    P = abbrev(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
+    P = denote(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
     Y = tstat(dfrac(T0 - EOT, sqrt(P * (1/N + 1/N)))).
 
 feedback(tratio_indep, [_T0, _S_T0, _N, _EOT, _S_EOT], Col, F)
@@ -231,7 +231,7 @@ feedback(tratio_indep, [_T0, _S_T0, _N, _EOT, _S_EOT], Col, F)
         ].
 
 hint(tratio_indep, [T0, S_T0, N, EOT, S_EOT], Col, F)
- => P = abbrev(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
+ => P = denote(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
     F = [ "The ", \mmlm(Col, hyph(t, "ratio")), " for independent samples ",
           "would be ", \mmlm(Col, [dfrac(T0 - EOT, sqrt(P * (1/N + 1/N))), "."])
         ].
@@ -609,7 +609,7 @@ hint(tquant, [_N, Alpha], Col, H)
 % Buggy-Rule: Use t-statistic instead of t-quantile
 buggy(cipaired, stage(2), X, Y, [step(buggy, tstat, [D, S_D, N, Mu, Alpha])]) :-
     X = quant(D, Mu, S_D, N, Alpha),
-    P = abbrev(t, dfrac(D - Mu, S_D / sqrt(N)), ["the observed", space, t, "-statistic."]),
+    P = denote(t, dfrac(D - Mu, S_D / sqrt(N)), ["the observed", space, t, "-statistic."]),
     Y = P. 
 
 feedback(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, F)

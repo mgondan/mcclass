@@ -800,7 +800,7 @@ pl_hook(skip(_, _, Expr), Res) :-
 pl_hook(denoting(_, Expr, _), Res) :-
     pl(Expr, Res).
 
-pl_hook(abbrev(_, Expr), Res) :-
+pl_hook(denote(_, Expr), Res) :-
     pl(Expr, Res).
 
 pl_hook(protect(Expr), Res) :-
@@ -1052,7 +1052,7 @@ r_init :-
             return(expr)
         }
 
-        abbrev <- function(sym, expr)
+        denote <- function(sym, expr)
         {
             return(expr)
         }
