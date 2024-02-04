@@ -214,7 +214,7 @@ hint(ignore, [Other], Col, H)
 buggy(fratio, stage(2), X, Y, [step(buggy, distractors, [Other, [S | Subset]])]) :-
     X = baseline3(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
     my_subset([S | Subset], Other, Difference),
-    findall(invent(distractors, D), member(D, [S | Subset]), Distractors),
+    findall(add(distractors, D), member(D, [S | Subset]), Distractors),
     append(Exclude0, Distractors, Exclude),
     Y = baseline4(Prim, Cov, Strata, Difference, Int, Exclude, Therapy).
 
@@ -264,7 +264,7 @@ buggy(fratio, stage(2), X, Y, [step(buggy, interactions, [Colon])]) :-
     maplist(append([Therapy]), [S | Subset], Interactions),
     % [Therapy:T0, Therapy:T0:Sex]
     maplist(atomics_to_string_sep(:), Interactions, Colon),
-    findall(invent(interactions, C), member(C, Colon), Invented),
+    findall(add(interactions, C), member(C, Colon), Invented),
     append(Invented, Int0, Int),
     Y = baseline5(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
@@ -402,7 +402,7 @@ hint(ignore, [Other], Col, H)
 buggy(pvalue, stage(2), X, Y, [step(buggy, distractors, [Other, [S | Subset]])]) :-
     X = baseline3(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
     my_subset([S | Subset], Other, Difference),
-    findall(invent(distractors, D), member(D, [S | Subset]), Distractors),
+    findall(add(distractors, D), member(D, [S | Subset]), Distractors),
     append(Exclude0, Distractors, Exclude),
     Y = baseline4(Prim, Cov, Strata, Difference, Int, Exclude, Therapy).
 
@@ -447,7 +447,7 @@ buggy(pvalue, stage(2), X, Y, [step(buggy, interactions, [Colon])]) :-
     maplist(append([Therapy]), [S | Subset], Interactions),
     % [Therapy:T0, Therapy:T0:Sex]
     maplist(atomics_to_string_sep(:), Interactions, Colon),
-    findall(invent(interactions, C), member(C, Colon), Invented),
+    findall(add(interactions, C), member(C, Colon), Invented),
     append(Invented, Int0, Int),
     Y = baseline5(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
@@ -592,7 +592,7 @@ hint(ignore, [Other], Col, H)
 %buggy(cibase, stage(2), X, Y, [step(buggy, distractors, [Other, [S | Subset]])]) :-
 %    X = baseline3(Prim, Cov, Strata, Other, Int, Exclude0, Therapy),
 %    my_subset([S | Subset], Other, Difference),
-%    findall(invent(distractors, D), member(D, [S | Subset]), Distractors),
+%    findall(add(distractors, D), member(D, [S | Subset]), Distractors),
 %    append(Exclude0, Distractors, Exclude),
 %    Y = baseline4(Prim, Cov, Strata, Difference, Int, Exclude, Therapy).
 %
@@ -635,7 +635,7 @@ hint(noint, [_Int], _Col, H)
 %    maplist(append([Therapy]), [S | Subset], Interactions),
 %    % [Therapy:T0, Therapy:T0:Sex]
 %    maplist(atomics_to_string_sep(:), Interactions, Colon),
-%    findall(invent(interactions, C), member(C, Colon), Invented),
+%    findall(add(interactions, C), member(C, Colon), Invented),
 %    append(Invented, Int0, Int),
 %    Y = baseline5(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 %
