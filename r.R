@@ -16,7 +16,7 @@ omit_right <- drop_right <- function(bug, expr)
   eval(substitute(expr)[[2]])
 }
 
-invent_left <- function(bug, expr)
+add_left <- function(bug, expr)
 {
   return(expr)
 }

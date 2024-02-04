@@ -302,7 +302,7 @@ hint(school, [A, B], Col, FB)
 %% Buggy-Rule: Forgot paranthesis around numerator in t-statistic.
 %buggy(tratio, stage(2), From, To, [step(buggy, bug1, [VR, BOX, S2P, N_VR, N_BOX])]) :-
 %    From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
-%    To = invent_left(bug1, VR - dfrac(BOX, sqrt(S2P * (1/N_VR + 1/N_BOX)))).
+%    To = add_left(bug1, VR - dfrac(BOX, sqrt(S2P * (1/N_VR + 1/N_BOX)))).
 %%VR - dfrac(BOX, sqrt(s2p * (1/N_VR + 1/N_BOX))).
 %
 %feedback(bug1, [_VR, _BOX, S2P, N_VR, N_BOX], Col, FB) =>

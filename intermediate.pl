@@ -47,7 +47,7 @@ complete(Topic, Task, drop_right(_Bug, Expr)) :-
     complete(Topic, Task, L).
 
 % The invented parts need to be complete
-complete(Topic, Task, invent_left(_Bug, Expr)) :-
+complete(Topic, Task, add_left(_Bug, Expr)) :-
     !,
     complete(Topic, Task, Expr).
 

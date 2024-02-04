@@ -99,7 +99,7 @@ expert(drop_right(_, _)) :-
     !,
     fail.
 
-expert(invent_left(_, _)) :-
+expert(add_left(_, _)) :-
     !,
     fail.
 

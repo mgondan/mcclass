@@ -292,7 +292,7 @@ buggy(tratio, stage(2), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
     X = dfrac(D - Mu, S / SQRT_N),
     M0 = drop_left(bug1, D - Mu),
     S0 = drop_right(bug1, S / SQRT_N),
-    Y = invent_left(bug1, 
+    Y = add_left(bug1, 
         D - invent_right(bug1, dfrac(M0, S0) / SQRT_N)).
 
 feedback(bug1, [D, Mu, S, SQRT_N], Col, F)

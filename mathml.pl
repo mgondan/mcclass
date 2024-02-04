@@ -1678,35 +1678,35 @@ math(Flags, instead(Bug, Wrong, Correct0, _Correct), New, M),
  => New = Flags,
     M = underbrace(list(space, ["instead of", correct(Correct0)]), color(Bug, show(Wrong))).
 
-math(Flags, invent_left(_Bug, Expr), New, M),
+math(Flags, add_left(_Bug, Expr), New, M),
     option(error(correct), Flags, fix)
  => Expr =.. [_Op, _L, R],
     Flags = New,
     M = R.
 
-math(Flags, invent_left(_Bug, Expr), New, M),
+math(Flags, add_left(_Bug, Expr), New, M),
     option(error(show), Flags, fix)
  => M = Expr,
     Flags = New.
 
-prec(Flags, invent_left(_, Expr), Prec),
+prec(Flags, add_left(_, Expr), Prec),
     option(error(show), Flags, fix)
  => prec(Flags, Expr, Prec).
 
-math(Flags, invent_left(_Bug, Expr), New, M),
+math(Flags, add_left(_Bug, Expr), New, M),
     option(error(fix), Flags, fix)
  => Expr =.. [_Op, _L, R],
     Flags = New,
     M = R.
 
-math(Flags, invent_left(Bug, Expr), New, M),
+math(Flags, add_left(Bug, Expr), New, M),
     option(error(highlight), Flags, fix)
  => Expr =.. [Op, L, R],
     Expr1 =.. [Op, L, " "],
     Flags = New,
     M = list(space, [color(Bug, Expr1), R]).
 
-prec(Flags, invent_left(_, Expr), Prec),
+prec(Flags, add_left(_, Expr), Prec),
     option(error(highlight), Flags, fix)
  => prec(Flags, Expr, Prec).
 
@@ -2135,7 +2135,7 @@ bugs_(drop_right(Bug, Expr), List)
     bugs_(L, Bugs),
     List = [Bug | Bugs].
 
-bugs_(invent_left(Bug, Expr), List)
+bugs_(add_left(Bug, Expr), List)
  => bugs_(Expr, Bugs),
     List = [Bug | Bugs].
 
