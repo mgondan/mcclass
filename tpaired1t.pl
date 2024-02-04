@@ -104,7 +104,7 @@ task(cipaired)
       session_data(resp(tpaired, cipaired, Resp), resp(tpaired, cipaired, '#.# to #.#'))
     },
     html(\htmlform([ "Determine the confidence interval for the change in ",
-        "the students’ RANT scores." ], cipaired, Resp)).
+        "the students\u0027 RANT scores." ], cipaired, Resp)).
 
 
 

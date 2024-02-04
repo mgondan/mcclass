@@ -46,7 +46,7 @@ render
             p(class('card-text'),
             [ "There are plans to introduce a new concept for teaching ",
               "mathematics nationwide. Prior to this, a school is testing ",
-              "whether the new concept improves the students' understanding ",
+              "whether the new concept improves the students\u0027 understanding ",
               "of the subject matter compared to the previous teaching concept. ", 
 	      "In this test phase, ", \mmlm([], N_MC = r(N_MC)),  " students from the model ",
               "class (MC) are taking part in lessons using the new concept and ",

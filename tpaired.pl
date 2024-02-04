@@ -104,7 +104,7 @@ task(cipaired)
       session_data(resp(tpaired, cipaired, Resp), resp(tpaired, cipaired, '#.# to #.#'))
     },
     html(\htmlform([ "Determine the confidence interval for the change in ",
-        "the patients' HDRS scores." ], cipaired, Resp)).
+        "the patients\u0027 HDRS scores." ], cipaired, Resp)).
 
 %
 %% Expert rules for the t-ratio task
