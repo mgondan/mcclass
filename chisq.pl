@@ -243,7 +243,7 @@ hint(paren3, [From], Col, FB) =>
 % Appeared 3-5 times in the 2018 exams.
 buggy(chisq, stage(2), From, To, [step(buggy, flip, [])]) :-
     From = '<-'(z, zstat(P_VR, P_Box, P_pool, N_VR, N_Box)),
-    To = '<-'(z, invent_left(flip, 1/zstat(P_VR, P_Box, P_pool, N_VR, N_Box))).
+    To = '<-'(z, add_left(flip, 1/zstat(P_VR, P_Box, P_pool, N_VR, N_Box))).
 
 feedback(flip, [], Col, FB) =>
     FB = ["The result matches the reciprocal of the test statistic ", 

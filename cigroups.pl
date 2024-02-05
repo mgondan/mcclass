@@ -46,7 +46,7 @@ render
             p(class('card-text'),
             [ "There are plans to introduce a new concept for teaching ",
               "mathematics nationwide. Prior to this, a school is testing ",
-              "whether the new concept improves the students' understanding ",
+              "whether the new concept improves the students\u0027 understanding ",
               "of the subject matter compared to the previous teaching concept. ", 
 	      "In this test phase, ", \mmlm([], N_MC = r(N_MC)),  " students from the model ",
               "class (MC) are taking part in lessons using the new concept and ",
@@ -161,7 +161,7 @@ hint(tquant, [Alpha], Col, H)
 % Buggy-Rule: Use t-statistic instead of t-quantile
 buggy(cigroups, stage(2), X, Y, [step(buggy, tstat, [N_RC, N_MC, Alpha])]) :-
     X = quant(RC, MC, S2P, N_RC, N_MC, Alpha),
-    P = abbrev(t, dfrac(RC - MC, sqrt(S2P * (frac(1, N_RC) + frac(1, N_MC)))), ["the observed", space, t, "-statistic."]),
+    P = denote(t, dfrac(RC - MC, sqrt(S2P * (frac(1, N_RC) + frac(1, N_MC)))), ["the observed", space, t, "-statistic."]),
     Y = P. 
 
 feedback(tstat, [N_RC, N_MC, Alpha], Col, F)
@@ -321,7 +321,7 @@ hint(sqrt2, [S2P, N_RC, N_MC], Col, FB)
 buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt3, [Ns])]) :-
     Ns = frac(1, _N_RC) + frac(1, _N_MC),
     X = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), sqrt(dot(S2P, Ns))),
-    Y = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), invent_right(sqrt3, sqrt(omit_right(sqrt3, dot(S2P, Ns))) * Ns)).
+    Y = dot(quant(RC, MC, S2P, N_RC, N_MC, Alpha), add_right(sqrt3, sqrt(omit_right(sqrt3, dot(S2P, Ns))) * Ns)).
 
 feedback(sqrt3, [Ns], Col, FB)
  => FB = [ "The result matches the confidence interval with the square root ",
@@ -341,7 +341,7 @@ hint(sqrt3, [_Ns], _Col, FB)
 buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt4, [Ns])]) :-
     Ns = frac(1, _N_RC) + frac(1, _N_MC),
     X = dfrac(RC - MC, sqrt(S2P * Ns)),
-    Y = dfrac(RC - MC, invent_right(sqrt4, sqrt(omit_right(sqrt4, dot(S2P, Ns))) * Ns)).
+    Y = dfrac(RC - MC, add_right(sqrt4, sqrt(omit_right(sqrt4, dot(S2P, Ns))) * Ns)).
 
 feedback(sqrt4, [Ns], Col, FB)
  => FB = [ "The result matches the expression for the ", 

@@ -69,7 +69,7 @@ mmlm(A) -->
 %    html(ol(type(a), Items)).
 
 mmlm(Flags, A) -->
-    { member(abbrev(false), Flags),
+    { member(denote(false), Flags),
       mathml(Flags, A, M, _With)
     },
     html(M).
@@ -1039,24 +1039,24 @@ mathml :- mathml(-2 * -2).
 %
 % with s^2_pool denoting the pooled variance
 %
-ml(Flags, abbrev(A, _, _), X)
+ml(Flags, denote(A, _, _), X)
  => ml(Flags, A, X).
 
-paren(Flags, abbrev(A, _, _), Paren)
+paren(Flags, denote(A, _, _), Paren)
  => paren(Flags, A, Paren).
 
-prec(Flags, abbrev(A, _, _), Prec)
+prec(Flags, denote(A, _, _), Prec)
  => prec(Flags, A, Prec).
 
-type(Flags, abbrev(A, _, _), Type)
+type(Flags, denote(A, _, _), Type)
  => type(Flags, A, Type).
 
-denoting(Flags, abbrev(A, Expr, Info), Den)
+denoting(Flags, denote(A, Expr, Info), Den)
  => denoting(Flags, Expr, T),
     Den = [denoting(A, Expr, Info) | T].
 
 mathml :-
-    S2P = abbrev(sub(s, "pool")^2,
+    S2P = denote(sub(s, "pool")^2,
                    frac((sub('N', "A") - 1) * sub(s, "A")^2 +
                         (sub('N', "B") - 1) * sub(s, "B")^2,
                         sub('N', "A") + sub('N', "B") - 2),
@@ -1208,8 +1208,8 @@ ml(Flags, cell(Cell), M)
 %
 omit(Flags, omit(_, _)) :-
     option(error(show), Flags, fix).
-%Kopie Invent
-invent(Flags, invent(_, _)) :-
+%Kopie add
+add(Flags, add(_, _)) :-
     option(error(fix), Flags, fix).
 
 math(Flags, [], New, M)
@@ -1226,7 +1226,7 @@ math(Flags, list(Sep, A), New, M)
     M = list1(Sep, Excluded).
 
 math(Flags, list(Sep, A), New, M)
- => exclude(invent(Flags), A, Excluded),
+ => exclude(add(Flags), A, Excluded),
     Flags = New,
     M = list1(Sep, Excluded).
 
@@ -1568,8 +1568,8 @@ math(Flags, omit(_Bug, Expr), New, M),
  => Flags = New,
     M = Expr.
 
-%Kopie Invent
-math(Flags, invent(_Bug, Expr), New, M),
+%Kopie add
+math(Flags, add(_Bug, Expr), New, M),
     option(error(correct), Flags, fix)
  => Flags = New,
     M = Expr.
@@ -1579,8 +1579,8 @@ math(Flags, omit(_Bug, _Expr), New, M),
  => Flags = New,
     M = "omitted".
 
-%Kopie Invent
-math(Flags, invent(_Bug, _Expr), New, M),
+%Kopie add
+math(Flags, add(_Bug, _Expr), New, M),
     option(error(show), Flags, fix)
  => Flags = New,
     M = "invented".
@@ -1591,7 +1591,7 @@ math(Flags, omit(Bug, Expr), New, M),
     M = color(Bug, box(color("#000000", Expr))).
 
 % Kopie!
-math(Flags, invent(Bug, Expr), New, M),
+math(Flags, add(Bug, Expr), New, M),
     option(error(highlight), Flags, fix)
  => Flags = New,
     M = color(Bug, box(color("#000000", Expr))).
@@ -1601,8 +1601,8 @@ math(Flags, omit(Bug, Expr), New, M),
  => Flags = New,
     M = color(Bug, cancel(color("#000000", Expr))).
 
-%Kopie Invent
-math(Flags, invent(Bug, Expr), New, M),
+%Kopie add
+math(Flags, add(Bug, Expr), New, M),
     option(error(fix), Flags, fix)
  => Flags = New,
     M = color(Bug, cancel(color("#000000", Expr))).
@@ -1678,72 +1678,72 @@ math(Flags, instead(Bug, Wrong, Correct0, _Correct), New, M),
  => New = Flags,
     M = underbrace(list(space, ["instead of", correct(Correct0)]), color(Bug, show(Wrong))).
 
-math(Flags, invent_left(_Bug, Expr), New, M),
+math(Flags, add_left(_Bug, Expr), New, M),
     option(error(correct), Flags, fix)
  => Expr =.. [_Op, _L, R],
     Flags = New,
     M = R.
 
-math(Flags, invent_left(_Bug, Expr), New, M),
+math(Flags, add_left(_Bug, Expr), New, M),
     option(error(show), Flags, fix)
  => M = Expr,
     Flags = New.
 
-prec(Flags, invent_left(_, Expr), Prec),
+prec(Flags, add_left(_, Expr), Prec),
     option(error(show), Flags, fix)
  => prec(Flags, Expr, Prec).
 
-math(Flags, invent_left(_Bug, Expr), New, M),
+math(Flags, add_left(_Bug, Expr), New, M),
     option(error(fix), Flags, fix)
  => Expr =.. [_Op, _L, R],
     Flags = New,
     M = R.
 
-math(Flags, invent_left(Bug, Expr), New, M),
+math(Flags, add_left(Bug, Expr), New, M),
     option(error(highlight), Flags, fix)
  => Expr =.. [Op, L, R],
     Expr1 =.. [Op, L, " "],
     Flags = New,
     M = list(space, [color(Bug, Expr1), R]).
 
-prec(Flags, invent_left(_, Expr), Prec),
+prec(Flags, add_left(_, Expr), Prec),
     option(error(highlight), Flags, fix)
  => prec(Flags, Expr, Prec).
 
-math(Flags, invent_right(_Bug, Expr), New, M),
+math(Flags, add_right(_Bug, Expr), New, M),
     option(error(correct), Flags, fix)
  => Expr =.. [_Op, L, _R],
     Flags = New,
     M = L.
 
-math(Flags, invent_right(_Bug, Expr), New, M),
+math(Flags, add_right(_Bug, Expr), New, M),
     option(error(show), Flags, fix)
  => M = Expr,
     Flags = New.
 
-prec(Flags, invent_right(_, Expr), Prec),
+prec(Flags, add_right(_, Expr), Prec),
     option(error(show), Flags, fix)
  => prec(Flags, Expr, Prec).
 
-math(Flags, invent_right(_Bug, Expr), New, M),
+math(Flags, add_right(_Bug, Expr), New, M),
     option(error(fix), Flags, fix)
  => Expr =.. [_Op, L, _R],
     Flags = New,
     M = L.
 
-math(Flags, invent_right(Bug, L^R), New, M),
+math(Flags, add_right(Bug, L^R), New, M),
     option(error(highlight), Flags, fix)
  => Flags = New,
     M = L^color(Bug, R).
 
-math(Flags, invent_right(Bug, Expr), New, M),
+math(Flags, add_right(Bug, Expr), New, M),
     option(error(highlight), Flags, fix)
  => Expr =.. [Op, L, R],
     Expr1 =.. [Op, " ", R],
     Flags = New,
     M = list(space, [L, color(Bug, Expr1)]).
 
-prec(Flags, invent_right(_, Expr), Prec),
+prec(Flags, add_right(_, Expr), Prec),
     option(error(highlight), Flags, fix)
  => prec(Flags, Expr, Prec).
 
@@ -2120,8 +2120,8 @@ bugs_(omit(Bug, Expr), List)
  => bugs_(Expr, Bugs),
     List = [Bug | Bugs].
 
-%Kopie Invent
-bugs_(invent(Bug, Expr), List)
+%Kopie add
+bugs_(add(Bug, Expr), List)
  => bugs_(Expr, Bugs),
     List = [Bug | Bugs].
 
@@ -2135,11 +2135,11 @@ bugs_(drop_right(Bug, Expr), List)
     bugs_(L, Bugs),
     List = [Bug | Bugs].
 
-bugs_(invent_left(Bug, Expr), List)
+bugs_(add_left(Bug, Expr), List)
  => bugs_(Expr, Bugs),
     List = [Bug | Bugs].
 
-bugs_(invent_right(Bug, Expr), List)
+bugs_(add_right(Bug, Expr), List)
  => bugs_(Expr, Bugs),
     List = [Bug | Bugs].
 

@@ -42,7 +42,7 @@ interval:hook(@(Expr, Options), Res, Flags) :-
     MEps is -Eps,
     interval(Expr + MEps...Eps, Res, New).
 
-interval:hook(abbrev(_Sym, Expr, _Text), Flags, Expr, Flags).
+interval:hook(denote(_Sym, Expr, _Text), Flags, Expr, Flags).
 
 interval:hook(color(_Col, Expr), Flags, Expr, Flags).
 
@@ -64,9 +64,9 @@ interval:hook(drop_right(_Bug, Expr), Flags, Left, Flags) :-
 interval:hook(drop_left(_Bug, Expr), Flags, Right, Flags) :-
     Expr =.. [_Op, _Left, Right].
 
-interval:hook(invent_left(_Bug, Expr), Flags, Expr, Flags).
+interval:hook(add_left(_Bug, Expr), Flags, Expr, Flags).
 
-interval:hook(invent_right(_Bug, Expr), Flags, Expr, Flags).
+interval:hook(add_right(_Bug, Expr), Flags, Expr, Flags).
 
 interval:hook('<-'(Var, Expr), Res, Flags) :-
     interval(Expr, Res, Flags),
@@ -165,7 +165,7 @@ feedback(Topic, Task, Data, _Form)
       findall(li(FB),
         ( member(step(buggy, Name, Args), Flags),
           memberchk(Name, Traps),
-          Topic:feedback(Name, Args, [topic(Topic), task(Task), abbrev(false) | Col], FB)
+          Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Col], FB)
         ), Wrong0),
       ( Wrong0 = []
         -> Wrong = p(class('card-text'), "")
@@ -178,7 +178,7 @@ feedback(Topic, Task, Data, _Form)
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
           \+ memberchk(Name, Hints),
-          Topic:feedback(Name, Args, [topic(Topic), task(Task), abbrev(false) | Col], FB)
+          Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Col], FB)
         ), Praise0),
       ( Praise0 = []
         -> Praise = p(class('card-text'), "")
@@ -190,7 +190,7 @@ feedback(Topic, Task, Data, _Form)
       findall(li(FB),
         ( member(step(buggy, Name, Args), Flags),
           \+ memberchk(Name, Traps),
-          Topic:feedback(Name, Args, [topic(Topic), task(Task), abbrev(false) | Col], FB)
+          Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Col], FB)
         ), Blame0),
       ( Blame0 = []
         -> Blame = p(class('card-text'), "")

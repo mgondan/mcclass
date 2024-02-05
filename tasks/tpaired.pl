@@ -31,7 +31,7 @@ r:pl_hook(alpha, r(alpha)).
 %
 :- multifile item/1.
 item(tpaired: paired_tratio(LU, [m_T0, m_EOT], s_D, [s_T0, s_EOT], 'N', mu)) :-
-    LU = abbrev(m_D, (m_T0 - m_EOT) ... m_D).
+    LU = denote(m_D, (m_T0 - m_EOT) ... m_D).
 
 :- multifile intermediate/1.
 intermediate(tpaired: paired_tratio/6).

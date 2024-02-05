@@ -302,7 +302,7 @@ hint(school, [A, B], Col, FB)
 %% Buggy-Rule: Forgot paranthesis around numerator in t-statistic.
 %buggy(tratio, stage(2), From, To, [step(buggy, bug1, [VR, BOX, S2P, N_VR, N_BOX])]) :-
 %    From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
-%    To = invent_left(bug1, VR - dfrac(BOX, sqrt(S2P * (1/N_VR + 1/N_BOX)))).
+%    To = add_left(bug1, VR - dfrac(BOX, sqrt(S2P * (1/N_VR + 1/N_BOX)))).
 %%VR - dfrac(BOX, sqrt(s2p * (1/N_VR + 1/N_BOX))).
 %
 %feedback(bug1, [_VR, _BOX, S2P, N_VR, N_BOX], Col, FB) =>
@@ -341,7 +341,7 @@ hint(sqrt1, [_], Col, FB)
 buggy(tratio, stage(2), From, To, [step(buggy, sqrt2, [Ns])]) :-
     Ns = frac(1, _N_VR) + frac(1, _N_Box),
     From = sqrt(S2P * Ns),
-    To = invent_right(sqrt2, sqrt(omit_right(sqrt2, S2P * Ns)) * Ns).
+    To = add_right(sqrt2, sqrt(omit_right(sqrt2, S2P * Ns)) * Ns).
 
 feedback(sqrt2, [Ns], Col, FB)
  => FB = [ "The result matches the expression for the ", 
@@ -446,7 +446,7 @@ hint(tquant, [Alpha], Col, H)
 % Buggy-Rule: Use t-statistic instead of t-quantile
 buggy(cigroups, stage(2), X, Y, [step(buggy, tstat, [N_VR, N_Box, Alpha])]) :-
     X = quant(VR, Box, S2P, N_VR, N_Box, Alpha),
-    P = abbrev(t, dfrac(VR - Box, sqrt(S2P * (frac(1, N_VR) + frac(1, N_Box)))), ["the observed", space, t, "-statistic."]),
+    P = denote(t, dfrac(VR - Box, sqrt(S2P * (frac(1, N_VR) + frac(1, N_Box)))), ["the observed", space, t, "-statistic."]),
     Y = P. 
 
 feedback(tstat, [N_VR, N_Box, Alpha], Col, F)
@@ -584,7 +584,7 @@ hint(sqrt2, [S2P, N_VR, N_Box], Col, FB)
 buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt3, [Ns])]) :-
     Ns = frac(1, _N_VR) + frac(1, _N_Box),
     X = dot(quant(VR, Box, S2P, N_VR, N_Box, Alpha), sqrt(dot(S2P, Ns))),
-    Y = dot(quant(VR, Box, S2P, N_VR, N_Box, Alpha), invent_right(sqrt3, sqrt(omit_right(sqrt3, dot(S2P, Ns))) * Ns)).
+    Y = dot(quant(VR, Box, S2P, N_VR, N_Box, Alpha), add_right(sqrt3, sqrt(omit_right(sqrt3, dot(S2P, Ns))) * Ns)).
 
 feedback(sqrt3, [Ns], Col, FB)
  => FB = [ "The result matches the confidence interval with the square root ",
@@ -603,7 +603,7 @@ hint(sqrt3, [_Ns], _Col, FB)
 buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt4, [Ns])]) :-
     Ns = frac(1, _N_VR) + frac(1, _N_Box),
     X = dfrac(VR - Box, sqrt(S2P * Ns)),
-    Y = dfrac(VR - Box, invent_right(sqrt4, sqrt(omit_right(sqrt4, dot(S2P, Ns))) * Ns)).
+    Y = dfrac(VR - Box, add_right(sqrt4, sqrt(omit_right(sqrt4, dot(S2P, Ns))) * Ns)).
 
 feedback(sqrt4, [Ns], Col, FB)
  => FB = [ "The result matches the expression for the ", 

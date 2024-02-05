@@ -104,7 +104,7 @@ task(cipaired)
       session_data(resp(tpaired, cipaired, Resp), resp(tpaired, cipaired, '#.# to #.#'))
     },
     html(\htmlform([ "Determine the confidence interval for the change in ",
-        "the students’ RANT scores." ], cipaired, Resp)).
+        "the students\u0027 RANT scores." ], cipaired, Resp)).
 
 
 
@@ -217,7 +217,7 @@ hint(indep, [], Col, F)
 expert(tratio, stage(2), X, Y, 
         [step(expert, tratio_indep, [T0, S_T0, N, EOT, S_EOT])]) :-
     X = indep(T0, S_T0, N, EOT, S_EOT, N),
-    P = abbrev(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
+    P = denote(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
     Y = tstat(dfrac(T0 - EOT, sqrt(P * (1/N + 1/N)))).
 
 feedback(tratio_indep, [_T0, _S_T0, _N, _EOT, _S_EOT], Col, F)
@@ -226,7 +226,7 @@ feedback(tratio_indep, [_T0, _S_T0, _N, _EOT, _S_EOT], Col, F)
         ].
 
 hint(tratio_indep, [T0, S_T0, N, EOT, S_EOT], Col, F)
- => P = abbrev(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
+ => P = denote(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
     F = [ "The ", \mmlm(Col, hyph(t, "ratio")), " for independent samples ",
           "would be ", \mmlm(Col, [dfrac(T0 - EOT, sqrt(P * (1/N + 1/N))), "."])
         ].
@@ -287,8 +287,8 @@ buggy(tratio, stage(2), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
     X = dfrac(D - Mu, S / SQRT_N),
     M0 = drop_left(bug1, D - Mu),
     S0 = drop_right(bug1, S / SQRT_N),
-    Y = invent_left(bug1, 
-        D - invent_right(bug1, dfrac(M0, S0) / SQRT_N)).
+    Y = add_left(bug1, 
+        D - add_right(bug1, dfrac(M0, S0) / SQRT_N)).
 
 feedback(bug1, [D, Mu, S, SQRT_N], Col, F)
  => F = [ "The result matches the fraction without parentheses around the ", 
@@ -595,7 +595,7 @@ hint(tquant, [_N, Alpha], Col, H)
 % Buggy-Rule: Use t-statistic instead of t-quantile
 buggy(cipaired, stage(2), X, Y, [step(buggy, tstat, [D, S_D, N, Mu, Alpha])]) :-
     X = quant(D, Mu, S_D, N, Alpha),
-    P = abbrev(t, dfrac(D - Mu, S_D / sqrt(N)), ["the observed", space, t, "-statistic."]),
+    P = denote(t, dfrac(D - Mu, S_D / sqrt(N)), ["the observed", space, t, "-statistic."]),
     Y = P. 
 
 feedback(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, F)
@@ -634,7 +634,7 @@ hint(qnorm, [_N, _Alpha], Col, H)
 % and forgetting to add Mu to the results of the bounds in the end.
 buggy(cipaired, stage(2), X, Y, [step(buggy, spss, [Mu]), excludes(qnorm), excludes(tstat), excludes(sqrt1)]) :-
     X = paired(D, Mu, S_D, N, Alpha),
-    Y = hdrs(pm(invent_right(spss, D - Mu), dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
+    Y = hdrs(pm(add_right(spss, D - Mu), dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
 
 feedback(spss, [Mu], Col, F)
  => F = [ "The result matches the upper and lower bound calculated by SPSS. ",

@@ -16,12 +16,12 @@ omit_right <- drop_right <- function(bug, expr)
   eval(substitute(expr)[[2]])
 }
 
-invent_left <- function(bug, expr)
+add_left <- function(bug, expr)
 {
   return(expr)
 }
 
-invent_right <- function(bug, expr)
+add_right <- function(bug, expr)
 {
   return(expr)
 }
@@ -31,7 +31,7 @@ instead <- function(bug, inst, of)
   return(inst)
 }
 
-abbrev <- function(s, expr, text)
+denote <- function(s, expr, text)
 {
   return(expr)
 }

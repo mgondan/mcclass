@@ -103,7 +103,7 @@ hint(swap, [Mu, Sigma], Col, FB) =>
 % Buggy Rule (vardev swap) standard deviation was mistaken with variance.
 buggy(ztrans, stage(2), From, To, [step(buggy, vardev_swap, [sigma])]) :-
     From = Z * sigma + Mu,
-    To = Z * invent_right(vardev_swap, sigma^2) + Mu.
+    To = Z * add_right(vardev_swap, sigma^2) + Mu.
 
 feedback(vardev_swap, [Sigma], Col, FB) =>
     FB = [ "You squared ", \mmlm(Col, color(vardev_swap, Sigma)), " by mistake." ].

@@ -60,10 +60,10 @@ step(Type, Topic, Task, Stage, drop_right(Bug, Expr), Z, Flags) :-
     Y =.. [Op, New, R],
     Z = drop_right(Bug, Y).
 
-step(Type, Topic, Task, Stage, abbrev(Abbrev, Expr, Text), Z, Flags) :-
+step(Type, Topic, Task, Stage, denote(denote, Expr, Text), Z, Flags) :-
     !,
     step(Type, Topic, Task, Stage, Expr, New, Flags),
-    Z = abbrev(Abbrev, New, Text).
+    Z = denote(denote, New, Text).
 
 % Enter term and apply rule to components. For example, enter 
 % dfrac(Numerator, Denominator) and check if a rule can be applied to the

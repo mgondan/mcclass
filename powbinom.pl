@@ -209,7 +209,7 @@ feedback(lower2, [], _Col, Feed)
 
 hint(lower2, [], _Col, Hint)
  => Hint = [ "The power is determined from the upper tail of the binomial ",
-             "distribution. Don't select the lower tail of the binomial distribution."
+             "distribution. Don\u0027t select the lower tail of the binomial distribution."
            ].
 
 % Buggy- Rule: Critical value based on density
