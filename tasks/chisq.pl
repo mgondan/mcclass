@@ -7,14 +7,14 @@
 :- consult(temp).
 :- use_module(r).
 
-mathml:math_hook(Flags, p_VR, Flags, sub(p, "VR")).
-mathml:math_hook(Flags, p_Box, Flags, sub(p, "Box")).
+mathml:math_hook(Flags, p_VR, Flags, subscript(p, "VR")).
+mathml:math_hook(Flags, p_Box, Flags, subscript(p, "Box")).
 
-mathml:math_hook(Flags, s_VR, Flags, sub(s, "VR")).
-mathml:math_hook(Flags, s_Box, Flags, sub(s, "Box")).
+mathml:math_hook(Flags, s_VR, Flags, subscript(s, "VR")).
+mathml:math_hook(Flags, s_Box, Flags, subscript(s, "Box")).
 
-mathml:math_hook(Flags, n_VR, Flags, sub(n, "VR")).
-mathml:math_hook(Flags, n_Box, Flags, sub(n, "Box")).
+mathml:math_hook(Flags, n_VR, Flags, subscript(n, "VR")).
+mathml:math_hook(Flags, n_Box, Flags, subscript(n, "Box")).
 
 % R constants
 r:pl_hook(p_VR, r(p_VR)).
@@ -107,7 +107,7 @@ intermediate(chisq: chisq_chi2/4).
 % Expression for two-group comparison
 expert(chisq: chisq_chi2, From >> To, Flags, Feed, Hint) :-
     From = chisq_chi2(S_A, N_A, S_B, N_B),
-    Pool = denoting(sub(p, "pool"), 
+    Pool = denoting(subscript(p, "pool"), 
                p_pool(S_A, N_A, S_B, N_B), 
                "the pooled success rate"),
     To   = chi2ratio(dfrac((dec(S_A/N_A, 2) - dec(S_B/N_B, 2))^2, dec(Pool, 2) * dec(1 - Pool, 2) * dec(frac(1, N_A) + frac(1, N_B), 2)), 1),
@@ -115,7 +115,7 @@ expert(chisq: chisq_chi2, From >> To, Flags, Feed, Hint) :-
              \nowrap([\mml(Flags, chi^2), "-ratio"]), " for rate comparisons."
            ],
     Hint = [ "Determine the ", \nowrap([\mml(Flags, chi^2), "-ratio:"]), " ",
-             \mml(Flags, dfrac((sub(p, "A") - sub(p, "B"))^2, Pool * (1-Pool) * (frac(1, sub(n, "A")) + frac(1, sub(n, "B")))))
+             \mml(Flags, dfrac((subscript(p, "A") - subscript(p, "B"))^2, Pool * (1-Pool) * (frac(1, subscript(n, "A")) + frac(1, subscript(n, "B")))))
            ].
 
 intermediate(chisq: p_pool/4).

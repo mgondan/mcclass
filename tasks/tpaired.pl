@@ -11,9 +11,9 @@ mathml:math_hook(Flags, m_D, Flags, overline('D')).
 mathml:math_hook(Flags, m_T0, Flags, overline("T0")).
 mathml:math_hook(Flags, m_EOT, Flags, overline("EOT")).
 
-mathml:math_hook(Flags, s_D, Flags, sub(s, 'D')).
-mathml:math_hook(Flags, s_T0, Flags, sub(s, "T0")).
-mathml:math_hook(Flags, s_EOT, Flags, sub(s, "EOT")).
+mathml:math_hook(Flags, s_D, Flags, subscript(s, 'D')).
+mathml:math_hook(Flags, s_T0, Flags, subscript(s, "T0")).
+mathml:math_hook(Flags, s_EOT, Flags, subscript(s, "EOT")).
 
 % R constants
 r:pl_hook(mu, r(mu)).

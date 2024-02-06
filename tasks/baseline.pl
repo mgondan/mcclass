@@ -9,8 +9,8 @@
 
 mathml:math_hook(Flags, m_T0, Flags, overline("T0")).
 mathml:math_hook(Flags, m_EOT, Flags, overline("EOT")).
-mathml:math_hook(Flags, s_T0, Flags, sub(s, "T0")).
-mathml:math_hook(Flags, s_EOT, Flags, sub(s, "EOT")).
+mathml:math_hook(Flags, s_T0, Flags, subscript(s, "T0")).
+mathml:math_hook(Flags, s_EOT, Flags, subscript(s, "EOT")).
 
 r:pl2r_hook(add(_, P), R) :-
     maplist(r:pl2r, P, R).

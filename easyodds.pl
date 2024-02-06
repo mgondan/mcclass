@@ -12,9 +12,9 @@ task(oratio).
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-mathml_hook(pi_A, sub(pi, "A")).
-mathml_hook(odds_A, sub(odds, "A")).
-mathml_hook(pi_B, sub(pi, "B")).
+mathml_hook(pi_A, subscript(pi, "A")).
+mathml_hook(odds_A, subscript(odds, "A")).
+mathml_hook(pi_B, subscript(pi, "B")).
 mathml_hook(or, 'OR').
 
 % R constants
@@ -60,15 +60,15 @@ hint(odd, [], _Col, FB) =>
 
 % 1) Tried conversion from odds to odds, as if starting with 
 %    a probability.
-buggy(oratio, stage(2), From, To, [step(buggy, sub, [Odds_A])]) :-
+buggy(oratio, stage(2), From, To, [step(buggy, subscript, [Odds_A])]) :-
     From = 1 + Odds_A,
-    To = instead(sub, 1 - Odds_A, 1 + Odds_A).
+    To = instead(subscript, 1 - Odds_A, 1 + Odds_A).
 
-feedback(sub, [Odds_A], Col, FB) =>
-    FB = [ "Please use the correct formula to convert ", \mmlm(Col, color(sub, Odds_A)), " to ", 
-	   \mmlm(Col, [color(sub, pi_A), "."]) ].
+feedback(subscript, [Odds_A], Col, FB) =>
+    FB = [ "Please use the correct formula to convert ", \mmlm(Col, color(subscript, Odds_A)), " to ", 
+	   \mmlm(Col, [color(subscript, pi_A), "."]) ].
 
-hint(sub, [_Odds_A], _Col, FB) =>
+hint(subscript, [_Odds_A], _Col, FB) =>
     FB = [ "Do not apply the formula to calculate the odds from the success probability." ].
 
 % 2) Used pi_B rather than odds_A.
