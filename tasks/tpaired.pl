@@ -200,7 +200,7 @@ intermediate(tpaired: groups_t/6).
 % Expression for two-groups t-test
 expert(tpaired: groups_t, From >> To, Flags, Feed, Hint) :-
     From = groups_t(M_A, S_A, N_A, M_B, S_B, N_B),
-    Pool = denoting(subsup(s, "pool", 2), 
+    Pool = denoting(subsupscript(s, "pool", 2), 
                var_pool2(S_A^2, N_A, S_B^2, N_B), 
                "the pooled variance"),
     To   = tratio(dfrac(M_A - M_B, sqrt(Pool * (1/N_A + 1/N_B))), N_A + N_B - 2),

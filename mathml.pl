@@ -200,11 +200,12 @@ mathml :- mathml(sum(sub(x, i)) + sum(sub(y, i))).
 % Sum over index
 %
 % This function may be replaced in the future
-math(Flags, sum(I, From, To, A), New, M)
+math(Flags, sum_over(Arg, From, To), New, M)
  => Flags = New,
-    M = underover(sum(A), I=From, To).
+    M = underover(sum(Arg), From, To).
 
-mathml :- mathml(sum(i, 1, 10, sub(x, i))).
+mathml :-
+    mathml(sum_over('['(x, i), i=1, n)).
 
 %
 % Absolute value
@@ -467,7 +468,7 @@ mathml :- mathml([](i, x)).
 %
 math(Flags, sub(A, Idx), New, X),
     type(Flags, A, sup(Bas, Pwr))
- => New = [replace(sup(Bas, Pwr), subsup(Bas, Idx, Pwr)) | Flags],
+ => New = [replace(sup(Bas, Pwr), subsupscript(Bas, Idx, Pwr)) | Flags],
     X = A.
 
 %
@@ -503,8 +504,8 @@ mathml :- mathml(sub(s^r, 'D')).
 % Check for sup(sub(A, Index), Power)
 %
 math(Flags, sup(A, Pwr), New, X),
-    type(Flags, A, sub(Bas, Idx))
- => New = [replace(sub(Bas, Idx), subsup(Bas, Idx, Pwr)) | Flags],
+    type(Flags, A, sub(Base, Idx))
+ => New = [replace(sub(Base, Idx), subsupscript(Base, Idx, Pwr)) | Flags],
     X = A.
 
 %
@@ -537,29 +538,29 @@ mathml :- mathml(sub(s^2, 'D')).
 %
 % Index and Exponent: s_D^2
 %
-math(Flags, subsup(A, Idx, Pwr), New, X),
-    prec(Flags, subsup(A, Idx, Pwr), Outer),
-    prec(Flags, A, Inner),
+math(Flags, subsupscript(Base, Idx, Pwr), New, X),
+    prec(Flags, subsupscript(Base, Idx, Pwr), Outer),
+    prec(Flags, Base, Inner),
     Outer < Inner
  => New = Flags,
-    X = subsup(paren(A), Idx, Pwr).
+    X = subsupscript(paren(Base), Idx, Pwr).
 
-ml(Flags, subsup(A, B, C), M)
- => ml(Flags, A, X),
-    ml(Flags, B, Y),
-    ml(Flags, C, Z),
+ml(Flags, subsupscript(Base, Idx, Pwr), M)
+ => ml(Flags, Base, X),
+    ml(Flags, Idx, Y),
+    ml(Flags, Pwr, Z),
     M = msubsup([X, Y, Z]).
 
-paren(Flags, subsup(A, _, _), Paren)
- => paren(Flags, A, Paren).
+paren(Flags, subsupscript(Base, _, _), Paren)
+ => paren(Flags, Base, Paren).
 
-prec(Flags, subsup(A, _, C), Prec)
- => prec(Flags, sup(A, C), Prec).
+prec(Flags, subsupscript(Base, _, Pwr), Prec)
+ => prec(Flags, sup(Base, Pwr), Prec).
 
-type(_Flags, subsup(A, B, C), Type)
- => Type = subsup(A, B, C).
+type(_Flags, subsupscript(Base, Idx, Pwr), Type)
+ => Type = subsupscript(Base, Idx, Pwr).
 
-mathml :- mathml(subsup(s, 'D', r)).
+mathml :- mathml(subsupscript(s, 'D', r)).
 
 %
 % Indices like s_D
