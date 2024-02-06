@@ -207,6 +207,37 @@ math(Flags, sum_over(Arg, From, To), New, M)
 mathml :-
     mathml(sum_over('['(x, i), i=1, n)).
 
+
+%
+% Product sign
+%
+math(Flags, prod(Arg), New, X),
+    prec(Flags, prod(Arg), Outer),
+    prec(Flags, Arg, Inner),
+    Outer =< Inner 
+ => Flags = New,
+    X = prod(paren(Arg)).
+
+ml(Flags, prod(Arg), M)
+ => ml(Flags, Arg, X),
+    M = mrow([mo(&(prod)), X]).
+
+prec(_Flags, prod(_), Prec)
+ => current(P, yfx, +),
+    Prec is P - 1.
+ 
+
+%
+% Product over index
+%
+math(Flags, prod_over(Arg, From, To), New, M)
+ => Flags = New,
+    M = underover(prod(Arg), From, To).
+
+mathml :-
+    mathml(prod_over('['(x, i), i=1, n)).
+
+
 %
 % Absolute value
 %
