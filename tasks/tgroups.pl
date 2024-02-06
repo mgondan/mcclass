@@ -7,14 +7,14 @@
 :- consult(temp).
 :- use_module(r).
 
-mathml:math_hook(Flags, osats_VR, Flags, sub(overline("OSATS"), "VR")).
-mathml:math_hook(Flags, osats_Box, Flags, sub(overline("OSATS"), "Box")).
+mathml:math_hook(Flags, osats_VR, Flags, subscript(overline("OSATS"), "VR")).
+mathml:math_hook(Flags, osats_Box, Flags, subscript(overline("OSATS"), "Box")).
 
-mathml:math_hook(Flags, s_VR, Flags, sub(s, "VR")).
-mathml:math_hook(Flags, s_Box, Flags, sub(s, "Box")).
+mathml:math_hook(Flags, s_VR, Flags, subscript(s, "VR")).
+mathml:math_hook(Flags, s_Box, Flags, subscript(s, "Box")).
 
-mathml:math_hook(Flags, n_VR, Flags, sub(n, "VR")).
-mathml:math_hook(Flags, n_Box, Flags, sub(n, "Box")).
+mathml:math_hook(Flags, n_VR, Flags, subscript(n, "VR")).
+mathml:math_hook(Flags, n_Box, Flags, subscript(n, "Box")).
 
 % R constants
 r:pl_hook(osats_VR, r(osats_VR)).

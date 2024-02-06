@@ -13,7 +13,7 @@ task(amountsuccess).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
-mathml_hook(p0, sub(pi, 0)).
+mathml_hook(p0, subscript(pi, 0)).
 mathml_hook(n, 'N').
 
 rint:r_hook(alpha).
@@ -118,9 +118,9 @@ buggy(amountsuccess, stage(3), From, To, [step(buggy, dens, [K])]) :-
 
 feedback(dens, [K], Col, Feed)
  => Feed = [ "The result matches the critical value based on the binomial ",
-             "probability, ", \mmlm(Col, [fn(sub('P', "Bi"), [color(dens, tail("equal", K))]), "."]),
+             "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens, tail("equal", K))]), "."]),
              "Please report the critical value based on the cumulative ",
-             "distribution, ", \mmlm(Col, [fn(sub('P', "Bi"), [tail("upper", K)]), "."])
+             "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [tail("upper", K)]), "."])
            ].
 
 hint(dens, [_K], _Col, Hint)

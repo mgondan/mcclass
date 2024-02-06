@@ -67,7 +67,7 @@ compatible(Term) :-
     Term =.. [_ | Args],
     maplist(compatible, Args).
 
-% Check for bugs in (sub)expressions
+% Check for bugs in (subscript)expressions
 expert(Term) :-
     atomic(Term).
 

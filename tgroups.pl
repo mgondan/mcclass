@@ -17,13 +17,13 @@ task(cigroups).
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-mathml_hook(n_vr, sub(n, "VR")).
-mathml_hook(n_box, sub(n, "BOX")).
+mathml_hook(n_vr, subscript(n, "VR")).
+mathml_hook(n_box, subscript(n, "BOX")).
 mathml_hook(vr, overline("VR")).
-mathml_hook(s_vr, sub(s, "VR")).
+mathml_hook(s_vr, subscript(s, "VR")).
 mathml_hook(box, overline("BOX")).
-mathml_hook(s_box, sub(s, "BOX")).
-mathml_hook(s2p, sub(s, "pool")^2).
+mathml_hook(s_box, subscript(s, "BOX")).
+mathml_hook(s2p, subscript(s, "pool")^2).
 mathml_hook(alpha, greek("alpha")).
 
 % Obtain information from R

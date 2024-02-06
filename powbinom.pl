@@ -16,8 +16,8 @@ task(powbinom).
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-mathml_hook(p0, sub(pi, 0)).
-mathml_hook(p1, sub(pi, 1)).
+mathml_hook(p0, subscript(pi, 0)).
+mathml_hook(p1, subscript(pi, 1)).
 mathml_hook(crit, c).
 mathml_hook(power, 'Pwr').
 mathml_hook(n, 'N').
@@ -186,9 +186,9 @@ buggy(powbinom, stage(2), From, To, [step(buggy, dens1, [K])]) :-
 
 feedback(dens1, [K], Col, Feed)
  => Feed = [ "The result matches the critical value based on the binomial ",
-             "probability, ", \mmlm(Col, [fn(sub('P', "Bi"), [color(dens1, tail1("equal", K))]), "."]),
+             "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens1, tail1("equal", K))]), "."]),
              "Please calculate the critical value based on the cumulative ",
-             "distribution, ", \mmlm(Col, [fn(sub('P', "Bi"), [tail1("upper", K)]), "."])
+             "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [tail1("upper", K)]), "."])
            ].
 
 hint(dens1, [_K], _Col, Hint)
@@ -220,9 +220,9 @@ buggy(powbinom, stage(2), From, To, [step(buggy, dens2, [C])]) :-
 
 feedback(dens2, [C], Col, Feed)
  => Feed = [ "The result matches the Power based on the binomial probability, ",
-             \mmlm(Col, [fn(sub('P', "Bi"), [color(dens2, tail2("equal", C))]), "."]),
+             \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens2, tail2("equal", C))]), "."]),
              "Please report the power based on the cumulative ",
-             "distribution, ", \mmlm(Col, [fn(sub('P', "Bi"), [tail2("upper", C)]), "."])
+             "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [tail2("upper", C)]), "."])
            ].
 
 hint(dens2, [_C], _Col, Hint)

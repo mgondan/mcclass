@@ -9,14 +9,14 @@ task(chisq).
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-mathml_hook(p_VR, sub(p, "VR")).
-mathml_hook(p_Box, sub(p, "Box")).
-mathml_hook(s_VR, sub(s, "VR")).
-mathml_hook(s_Box, sub(s, "Box")).
-mathml_hook(n_VR, sub(n, "VR")).
-mathml_hook(n_Box, sub(n, "Box")).
+mathml_hook(p_VR, subscript(p, "VR")).
+mathml_hook(p_Box, subscript(p, "Box")).
+mathml_hook(s_VR, subscript(s, "VR")).
+mathml_hook(s_Box, subscript(s, "Box")).
+mathml_hook(n_VR, subscript(n, "VR")).
+mathml_hook(n_Box, subscript(n, "Box")).
 mathml_hook(chi2, chi^2).
-mathml_hook(p_pool, sub(p, "pool")).
+mathml_hook(p_pool, subscript(p, "pool")).
 
 % R constants
 rint:r_hook(p_VR).

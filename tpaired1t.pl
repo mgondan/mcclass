@@ -18,13 +18,13 @@ task(cipaired).
 
 % Prettier symbols for mathematical rendering
 mathml_hook(d, overline('D')).
-mathml_hook(s_d, sub(s, 'D')).
+mathml_hook(s_d, subscript(s, 'D')).
 mathml_hook(n, 'N').
 mathml_hook(t0, overline("T0")).
-mathml_hook(s_t0, sub(s, "T0")).
+mathml_hook(s_t0, subscript(s, "T0")).
 mathml_hook(eot, overline("EOT")).
-mathml_hook(s_eot, sub(s, "EOT")).
-mathml_hook(s2p, sub(s, "pool")^2).
+mathml_hook(s_eot, subscript(s, "EOT")).
+mathml_hook(s2p, subscript(s, "pool")^2).
 mathml_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 mathml_hook(alpha, greek("alpha")).
 mathml_hook(t(DF), fn(t, [DF])).

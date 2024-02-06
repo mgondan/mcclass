@@ -193,8 +193,8 @@ prec(_Flags, sum(_), Prec)
  => current(P, yfx, +),
     Prec is P - 1.
 
-mathml :- mathml(sum(sub(x, i) + sub(y, i))).
-mathml :- mathml(sum(sub(x, i)) + sum(sub(y, i))).
+mathml :- mathml(sum(subscript(x, i) + subscript(y, i))).
+mathml :- mathml(sum(subscript(x, i)) + sum(subscript(y, i))).
 
 %
 % Sum over index
@@ -490,14 +490,14 @@ mathml :- mathml(sign(dot)).
 % Indices like s_D: needs operator []/2 for pretty printing
 %
 math(Flags, [](Idx, A), New, X)
- => math(Flags, sub(A, Idx), New, X).
+ => math(Flags, subscript(A, Idx), New, X).
 
 mathml :- mathml([](i, x)).
 
 %
-% Check for sub(sup(A, Power), Index)
+% Check for subscript(sup(A, Power), Index)
 %
-math(Flags, sub(A, Idx), New, X),
+math(Flags, subscript(A, Idx), New, X),
     type(Flags, A, sup(Bas, Pwr))
  => New = [replace(sup(Bas, Pwr), subsupscript(Bas, Idx, Pwr)) | Flags],
     X = A.
@@ -505,38 +505,38 @@ math(Flags, sub(A, Idx), New, X),
 %
 % Render
 %
-math(Flags, sub(A, Idx), New, X),
-    prec(Flags, sub(A, Idx), Outer),
+math(Flags, subscript(A, Idx), New, X),
+    prec(Flags, subscript(A, Idx), Outer),
     prec(Flags, A, Inner),
     Outer < Inner
  => New = Flags,
-    X = sub(paren(A), Idx).
+    X = subscript(paren(A), Idx).
 
-ml(Flags, sub(A, B), M)
+ml(Flags, subscript(A, B), M)
  => ml(Flags, A, X),
     ml(Flags, B, Y),
     M = msub([X, Y]).
 
-paren(Flags, sub(A, _), Paren)
+paren(Flags, subscript(A, _), Paren)
  => paren(Flags, A, Paren).
 
-prec(Flags, sub(A, _), Prec)
+prec(Flags, subscript(A, _), Prec)
  => prec(Flags, A, Prec).
 
-type(_Flags, sub(A, B), Type)
- => Type = sub(A, B).
+type(_Flags, subscript(A, B), Type)
+ => Type = subscript(A, B).
 
-mathml :- mathml(sub(s, 'D')).
-mathml :- mathml(sub(s^r, 'D')).
+mathml :- mathml(subscript(s, 'D')).
+mathml :- mathml(subscript(s^r, 'D')).
 
 %
 % Powers like s^D
 %
-% Check for sup(sub(A, Index), Power)
+% Check for sup(subscript(A, Index), Power)
 %
 math(Flags, sup(A, Pwr), New, X),
-    type(Flags, A, sub(Base, Idx))
- => New = [replace(sub(Base, Idx), subsupscript(Base, Idx, Pwr)) | Flags],
+    type(Flags, A, subscript(Base, Idx))
+ => New = [replace(subscript(Base, Idx), subsupscript(Base, Idx, Pwr)) | Flags],
     X = A.
 
 %
@@ -563,8 +563,8 @@ prec(_Flags, sup(_, _), Prec)
 type(_Flags, sup(A, B), Type)
  => Type = sup(A, B).
 
-mathml :- mathml(sub(s, 'D')).
-mathml :- mathml(sub(s^2, 'D')).
+mathml :- mathml(subscript(s, 'D')).
+mathml :- mathml(subscript(s^2, 'D')).
 
 %
 % Index and Exponent: s_D^2
@@ -597,7 +597,7 @@ mathml :- mathml(subsupscript(s, 'D', r)).
 % Indices like s_D
 %
 math(Flags, '['(A, Idx), New, X)
- => math(Flags, sub(A, Idx), New, X).
+ => math(Flags, subscript(A, Idx), New, X).
 
 %
 % Check for under(over(A, Power), Index)
@@ -828,9 +828,9 @@ math(Flags, A - B, New, X)
 % Use dot or no dot instead of asterisk
 math(Flags, A * B, New, X),
     type(Flags, A, TypeA),
-    member(TypeA, [atomic, sub(_, _)]),
+    member(TypeA, [atomic, subscript(_, _)]),
     type(Flags, B, TypeB),
-    member(TypeB, [atomic, sub(_, _)])
+    member(TypeB, [atomic, subscript(_, _)])
  => New = Flags,
     X = nodot(A, B).
 
@@ -1088,13 +1088,13 @@ denoting(Flags, denote(A, Expr, Info), Den)
     Den = [denoting(A, Expr, Info) | T].
 
 mathml :-
-    S2P = denote(sub(s, "pool")^2,
-                   frac((sub('N', "A") - 1) * sub(s, "A")^2 +
-                        (sub('N', "B") - 1) * sub(s, "B")^2,
-                        sub('N', "A") + sub('N', "B") - 2),
+    S2P = denote(subscript(s, "pool")^2,
+                   frac((subscript('N', "A") - 1) * subscript(s, "A")^2 +
+                        (subscript('N', "B") - 1) * subscript(s, "B")^2,
+                        subscript('N', "A") + subscript('N', "B") - 2),
                    "the pooled variance"),
-    mathml(frac(sub(overline('X'), "A") - sub(overline('X'), "B"),
-                  sqrt(nodot(S2P, 1/sub('N', "A") + 1/sub('N', "B"))))).
+    mathml(frac(subscript(overline('X'), "A") - subscript(overline('X'), "B"),
+                  sqrt(nodot(S2P, 1/subscript('N', "A") + 1/subscript('N', "B"))))).
 
 %
 % Expand abbreviations
@@ -1780,38 +1780,38 @@ prec(Flags, add_right(_, Expr), Prec),
  => prec(Flags, Expr, Prec).
 
 mathml :- mathml(dfrac(omit_right(bug, overline('D') - mu),
-                   sub(s, 'D') / sqrt('N'))).
+                   subscript(s, 'D') / sqrt('N'))).
 
 mathml :- writeln("Same with Flags = error(fix)"),
     mathml([error(fix)], 
-           dfrac(omit_right(bug, overline('D') - mu), sub(s, 'D') / sqrt('N'))).
+           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
 
 mathml :- writeln("Same with Flags = error(highlight)"),
     mathml([error(highlight)], 
-           dfrac(omit_right(bug, overline('D') - mu), sub(s, 'D') / sqrt('N'))).
+           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
     
 mathml :- writeln("Same with Flags = error(show)"),
     mathml([error(show)], 
-           dfrac(omit_right(bug, overline('D') - mu), sub(s, 'D') / sqrt('N'))).
+           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
 
 mathml :- writeln("Same with Flags = error(correct)"),
     mathml([error(correct)],
-           dfrac(omit_right(bug, overline('D') - mu), sub(s, 'D') / sqrt('N'))).
+           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
     
 mathml :- mathml(dfrac(overline('D') - mu,
-                   sub(s, 'D') / instead(bug, 'N', sqrt('N')))).
+                   subscript(s, 'D') / instead(bug, 'N', sqrt('N')))).
 
 mathml :- writeln("Same with Flags = error(fix)"),
     mathml([error(fix)], 
-           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug, 'N', sqrt('N')))).
+           dfrac(overline('D') - mu, subscript(s, 'D') / instead(bug, 'N', sqrt('N')))).
 
 mathml :- writeln("Same with Flags = error(highlight)"),
     mathml([error(highlight)], 
-           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug, 'N', sqrt('N')))).
+           dfrac(overline('D') - mu, subscript(s, 'D') / instead(bug, 'N', sqrt('N')))).
 
 mathml :- writeln("Same with Flags = error(show)"),
     mathml([error(show)], 
-           dfrac(overline('D') - mu, sub(s, 'D') / instead(bug, 'N', sqrt('N')))).
+           dfrac(overline('D') - mu, subscript(s, 'D') / instead(bug, 'N', sqrt('N')))).
 
 %
 % Expert and buggy rules
@@ -1882,35 +1882,35 @@ math(Flags, failures(K, Pi), New, M)
 % Density, distribution etc.
 math(Flags, dbinom(K, N, Pi), New, X)
  => New = Flags,
-    X = fn(sub('P', "Bi"), (['X' = K] ; [N, Pi])).
+    X = fn(subscript('P', "Bi"), (['X' = K] ; [N, Pi])).
 
 math(Flags, pbinom(K, N, Pi), New, X)
  => New = Flags,
-    X = fn(sub('P', "Bi"), (['X' =< K] ; [N, Pi])).
+    X = fn(subscript('P', "Bi"), (['X' =< K] ; [N, Pi])).
 
 % upper tail
 math(Flags, pwbinom(_K, N, Pi, Tail), New, X)
  => New = Flags,
-    X = fn(sub('P', "Bi"), ([Tail] ; [N, Pi])).
+    X = fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])).
 
 % upper critical value
 math(Flags, uqbinom(Alpha, N, Pi), New, X)
  => New = Flags,
-    X = fn(under("argmin", k), [fn(sub('P', "Bi"), ([('X' >= k)] ; [N, Pi])) =< Alpha]).
+    X = fn(under("argmin", k), [fn(subscript('P', "Bi"), ([('X' >= k)] ; [N, Pi])) =< Alpha]).
 
 % lower critical value
 math(Flags, lqbinom(Alpha, N, Pi), New, X)
  => New = Flags,
-    X = fn(under("argmax", k), [fn(sub('P', "Bi"), ([('X' =< k)] ; [N, Pi])) =< Alpha]).
+    X = fn(under("argmax", k), [fn(subscript('P', "Bi"), ([('X' =< k)] ; [N, Pi])) =< Alpha]).
 
 math(Flags, qbinom(Alpha, N, Pi), New, X)
  => New = Flags,
-    X = fn(under("argmax", k), [fn(sub('P', "Bi"), ([('X' =< k)] ; [N, Pi])) =< Alpha]).
+    X = fn(under("argmax", k), [fn(subscript('P', "Bi"), ([('X' =< k)] ; [N, Pi])) =< Alpha]).
 
 % critical value
 math(Flags, cbinom(Alpha, N, Pi, Tail, Arg), New, X)
  => New = Flags,
-    X = fn(Arg, [fn(sub('P', "Bi"), ([Tail] ; [N, Pi])) =< Alpha]).
+    X = fn(Arg, [fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])) =< Alpha]).
 
 math(Flags, tail("upper", K), New, X)
  => New = Flags,
@@ -1926,11 +1926,11 @@ math(Flags, tail("equal", K), New, X)
 
 math(Flags, arg("min", K), New, X)
  => New = Flags,
-    X = sub(argmin, K).
+    X = subscript(argmin, K).
 
 math(Flags, arg("max", K), New, X)
  => New = Flags,
-    X = sub(argmax, K).
+    X = subscript(argmax, K).
 
 mathml :- mathml(dbinom(k, 'N', pi)).
 mathml :- mathml(pbinom(k, 'N', pi)).
@@ -1966,15 +1966,15 @@ math(Flags, pnorm(Z), New, X)
     
 math(Flags, qnorm(P), New, X)
  => New = Flags,
-    X = sub(z, P).
+    X = subscript(z, P).
 
 math(Flags, pt(T, DF), New, X)
  => New = Flags,
-    X = fn(sub('P', DF), ['T' =< T]).
+    X = fn(subscript('P', DF), ['T' =< T]).
 
 math(Flags, qt(P, DF), New, X)
  => New = Flags,
-    X = fn(sub('T', P), [DF]).
+    X = fn(subscript('T', P), [DF]).
 
 %
 % Intervals

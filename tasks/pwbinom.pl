@@ -7,8 +7,8 @@
 :- consult(temp).
 :- use_module(r).
 
-mathml:math_hook(Flags, pi_0, Flags, sub(pi, 0)).
-mathml:math_hook(Flags, pi_1, Flags, sub(pi, 1)).
+mathml:math_hook(Flags, pi_0, Flags, subscript(pi, 0)).
+mathml:math_hook(Flags, pi_1, Flags, subscript(pi, 1)).
 
 r:pl_hook(pi_0, r(pi_0)).
 r:pl_hook(pi_1, r(pi_1)).
