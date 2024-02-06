@@ -495,11 +495,11 @@ math(Flags, [](Idx, A), New, X)
 mathml :- mathml([](i, x)).
 
 %
-% Check for subscript(sup(A, Power), Index)
+% Check for subscript(supscript(A, Power), Index)
 %
 math(Flags, subscript(A, Idx), New, X),
-    type(Flags, A, sup(Bas, Pwr))
- => New = [replace(sup(Bas, Pwr), subsupscript(Bas, Idx, Pwr)) | Flags],
+    type(Flags, A, supscript(Base, Pwr))
+ => New = [replace(supscript(Base, Pwr), subsupscript(Base, Idx, Pwr)) | Flags],
     X = A.
 
 %
@@ -532,9 +532,9 @@ mathml :- mathml(subscript(s^r, 'D')).
 %
 % Powers like s^D
 %
-% Check for sup(subscript(A, Index), Power)
+% Check for supscript(subscript(A, Index), Power)
 %
-math(Flags, sup(A, Pwr), New, X),
+math(Flags, supscript(A, Pwr), New, X),
     type(Flags, A, subscript(Base, Idx))
  => New = [replace(subscript(Base, Idx), subsupscript(Base, Idx, Pwr)) | Flags],
     X = A.
@@ -542,26 +542,26 @@ math(Flags, sup(A, Pwr), New, X),
 %
 % Render
 %
-math(Flags, sup(A, Pwr), New, X),
-    prec(Flags, sup(A, Pwr), Outer),
+math(Flags, supscript(A, Pwr), New, X),
+    prec(Flags, supscript(A, Pwr), Outer),
     prec(Flags, A, Inner),
     Outer < Inner
  => New = Flags,
-    X = sup(paren(A), Pwr).
+    X = supscript(paren(A), Pwr).
 
-ml(Flags, sup(A, B), M)
+ml(Flags, supscript(A, B), M)
  => ml(Flags, A, X),
     ml(Flags, B, Y),
     M = msup([X, Y]).
 
-paren(Flags, sup(A, _), Paren)
+paren(Flags, supscript(A, _), Paren)
  => paren(Flags, A, Paren).
 
-prec(_Flags, sup(_, _), Prec)
+prec(_Flags, supscript(_, _), Prec)
  => current(Prec, xfy, ^).
 
-type(_Flags, sup(A, B), Type)
- => Type = sup(A, B).
+type(_Flags, supscript(A, B), Type)
+ => Type = supscript(A, B).
 
 mathml :- mathml(subscript(s, 'D')).
 mathml :- mathml(subscript(s^2, 'D')).
@@ -586,7 +586,7 @@ paren(Flags, subsupscript(Base, _, _), Paren)
  => paren(Flags, Base, Paren).
 
 prec(Flags, subsupscript(Base, _, Pwr), Prec)
- => prec(Flags, sup(Base, Pwr), Prec).
+ => prec(Flags, supscript(Base, Pwr), Prec).
 
 type(_Flags, subsupscript(Base, Idx, Pwr), Type)
  => Type = subsupscript(Base, Idx, Pwr).
@@ -881,7 +881,7 @@ math(Flags, omit_right(Bug, Base^Pwr), New, M),
 
 math(Flags, A^B, New, X)
  => New = Flags,
-    X = sup(A, B).
+    X = supscript(A, B).
 
 % General case
 math(Flags, Binary, New, X),
