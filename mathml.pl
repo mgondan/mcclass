@@ -200,11 +200,12 @@ mathml :- mathml(sum(sub(x, i)) + sum(sub(y, i))).
 % Sum over index
 %
 % This function may be replaced in the future
-math(Flags, sum(I, From, To, A), New, M)
+math(Flags, sum_over(Arg, From, To), New, M)
  => Flags = New,
-    M = underover(sum(A), I=From, To).
+    M = underover(sum(Arg), From, To).
 
-mathml :- mathml(sum(i, 1, 10, sub(x, i))).
+mathml :-
+    mathml(sum_over('['(x, i), i=1, n)).
 
 %
 % Absolute value
