@@ -13,8 +13,8 @@ task(amountsuccess).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
-mathml_hook(p0, subscript(pi, 0)).
-mathml_hook(n, 'N').
+math_hook(p0, subscript(pi, 0)).
+math_hook(n, 'N').
 
 rint:r_hook(alpha).
 rint:r_hook(n).

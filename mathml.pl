@@ -1,2129 +1,80 @@
-% Translate mathematical expressions to MathML
-:- module(mathml, [mml//1, mml//2, mmlm//1, mmlm//2, colors/2]).
+:- module(mathml, [mathml/4, mmlm//1, mmlm//2, colors/2]).
 
-:- multifile mathml_hook/2, mathml_hook/4.
+:- discontiguous mathml/0, math/2, math/3, math/4, current/3, paren/3, prec/3.
+:- discontiguous type/3, denoting/3, ml/3, jax/3.
 
-:- discontiguous mathml/0, current/3, paren/3, prec/3, type/3, denoting/3, ml/3, math/4.
 :- use_module(library(http/html_write)).
-:- use_module(library(lists)).
 
+% Hook to defined own macros
 %
-% mathml/0: Show the examples
-% math/4: Translate complex expression to its components
-% paren/3: Count level of parentheses
-% prec/3: Determine operator precedence (e.g., addition after multiplication)
+% Example
+% assert(math_hook(t0, subscript(t, 0))).
 %
-
-:- op(400, yfx, user:dot).
-
+% From R, the hook is installed by
+% mathml::hook(t0, subscript(t, 0))
 %
-% Interface
+:- dynamic math_hook/2.
+:- multifile math_hook/2.
+
+% Low-level functions (see, e.g. nthroot.pl)
 %
-% 1. Render as MathML
-mml(A) -->
-    mml([], A).
+% Example
+% see nthroot.pl
+%
+:- multifile mlx/3.    % translate term to mathml
+:- multifile jaxx/3.   % translate to LaTeX
+:- multifile precx/3.  % operator precedence
+:- multifile parenx/3. % count parentheses
+:- multifile typex/3.  % some type information
 
-mml(Flags, A) -->
-    { colors(A, Colors),
-      append(Flags, Colors, List),
-      mathml(List, A, M, _) 
-    },
-    html(M).
+% R interface: Translate R expression to MathML string
+%
+% Example
+% r2mathml(sin(pi/2), M).
+%
+r2mathml(R, S)
+=> r2mathml(R, S, []).
 
+% The flags allow for context-dependent translation
+%
+% Examples
+% see vignette of R package mathml
+%
+r2mathml(R, S, Flags)
+ => mathml(R, M, Flags),
+    html(M, H, []),
+    maplist(atom_string, H, S).
+
+% R interface: Translate R expression to MathJax string
+r2mathjax(R, S)
+ => r2mathjax(R, S, []).
+
+r2mathjax(R, S, Flags)
+ => mathjax(R, S, Flags).
+
+% Legacy code from mcclass
 mmlm(A) -->
     mmlm([], A).
 
-%mmlm(Flags, {}(Args)) -->
-%    { colors({}(Args), Colors),
-%      append(Flags, Colors, List),
-%      semi(Args, [Arg1, _Arg2]),
-%      mathml(List, Arg1, M, W)
-%    },
-%    !,
-%    html([M, W]).
-%
-%mmlm(Flags, {}(Args)) -->
-%    { colors({}(Args), Colors),
-%      append(Flags, Colors, List),
-%      semi(Args, ArgList0),
-%      reverse(ArgList0, [_ | Reversed]),
-%      reverse(Reversed, ArgList),
-%      maplist(mathml(List), ArgList, MList, WList),
-%      pairs_keys_values(Pairs, MList, WList),
-%      findall(li([M, W]), member(M-W, Pairs), Items)
-%    },
-%    !,
-%    html(ol(type(a), Items)).
-%
-%mmlm(Flags, {}(Args) = Res) -->
-%    { colors({}(Args), Colors),
-%      append(Flags, Colors, List),
-%      semi(Args, ArgList0),
-%      reverse(ArgList0, [H | Reversed]),
-%      reverse([H = Res | Reversed], ArgList),
-%      maplist(mathml(List), ArgList, MList, WList),
-%      pairs_keys_values(Pairs, MList, WList),
-%      findall(li([M, W]), member(M-W, Pairs), Items)
-%    },
-%    !,
-%    html(ol(type(a), Items)).
-
 mmlm(Flags, A) -->
     { member(denote(false), Flags),
-      mathml(Flags, A, M, _With)
+      mathml(A, M, _With, Flags)
     },
     html(M).
 
 mmlm(Flags, A) -->
     { colors(A, Colors),
-      append(Flags, Colors, List),
-      mathml(List, A, M, With) 
+      append(Flags, Colors, Flags1),
+      mathml(A, M, With, Flags1) 
     },
     html([M, With]).
 
-% 2. Show example
-mathml :-
-    writeln("Mathml examples").
-
-mathml(A) :-
-    mathml([], A).
-
-mathml(Flags, A) :-
-    mathml(Flags, A, M, With),
-    format("A = ~w\n", A),
-    format("M = ~w\n", M),
-    format("W = ~w\n", With).
-
-%
-% Main function
-%
-mathml(Flags, A, X, With) :-
-    ml(Flags, A, M),
-    !,
-    X = math(M),
-    denoting(Flags, A, Denoting),
-    ml(Flags, denoting(Denoting), With).
-
-mathml(Flags, A, X, _) :-
-    ml(Flags, "Conversion failed: ~w"-A, X).
-
-%
-% Try if expression matches with math/4 macro
-%
-ml(Flags, A, X),
-    math(Flags, A, New, M),
-    dif(Flags-A, New-M)
- => ml(New, M, X).
-
-%
-% Check if expression should be replaced by something else
-%
-math(Flags, A, New, X),
-    member(replace(A, _), Flags)
- => select(replace(A, X), Flags, New).
-
-%
-% Check if a macro has been defined in an external module
-%
-math(Flags, A, New, X),
-    b_getval(topic, Topic),
-    Topic:mathml_hook(A, X0)
- => New = Flags,
-    X = X0.
-
-math(Flags, A, New, X),
-    mathml_hook(Flags, A, New0, X0)
- => New = New0,
-    X = X0.
-
-%
-% Greek letters
-%
-math(Flags, A, New, X),
-    atom(A),
-    memberchk(A, [alpha, beta, gamma, delta, epsilon, varepsilon, zeta,
-        eta, theta, vartheta, iota, kappa, lambda, mu, nu, xi, pi, rho,
-        sigma, tau, upsilon, phi, varphi, chi, psi, omega, 'Gamma',
-        'Delta', 'Theta', 'Lambda', 'Xi', 'Pi', 'Sigma', 'Upsilon',
-        'Phi', 'Psi', 'Omega'])
- => New = Flags,
-    X = greek(A).
-
-ml(_Flags, greek(A), X) =>
-    X = mi(&(A)).
-
-type(_Flags, greek(_), Type)
- => Type = atomic.
-
-denoting(_Flags, greek(_), Den)
- => Den = [].
-
-mathml :- mathml(epsilon).
-
-%
-% Verbatim output
-%
-ml(_Flags, &(A), M),
-    atom(A)
- => M = &(A).
-
-type(_Flags, &(A), Type),
-    atom(A)
- => Type = atomic.
-
-denoting(_Flags, &(A), Den),
-    atom(A)
- => Den = [].
-
-%
-% Summation sign
-%
-math(Flags, sum(A), New, X),
-    prec(Flags, sum(A), Outer),
-    prec(Flags, A, Inner),
-    Outer =< Inner
- => Flags = New,
-    X = sum(paren(A)).
-
-ml(Flags, sum(A), M)
- => ml(Flags, A, X),
-    M = mrow([mo(&(sum)), X]).
-
-prec(_Flags, sum(_), Prec)
- => current(P, yfx, +),
-    Prec is P - 1.
-
-mathml :- mathml(sum(subscript(x, i) + subscript(y, i))).
-mathml :- mathml(sum(subscript(x, i)) + sum(subscript(y, i))).
-
-%
-% Sum over index
-%
-% This function may be replaced in the future
-math(Flags, sum_over(Arg, From, To), New, M)
- => Flags = New,
-    M = underover(sum(Arg), From, To).
-
-mathml :-
-    mathml(sum_over('['(x, i), i=1, n)).
-
-
-%
-% Product sign
-%
-math(Flags, prod(Arg), New, X),
-    prec(Flags, prod(Arg), Outer),
-    prec(Flags, Arg, Inner),
-    Outer =< Inner 
- => Flags = New,
-    X = prod(paren(Arg)).
-
-ml(Flags, prod(Arg), M)
- => ml(Flags, Arg, X),
-    M = mrow([mo(&(prod)), X]).
-
-prec(_Flags, prod(_), Prec)
- => current(P, yfx, +),
-    Prec is P - 1.
- 
-
-%
-% Product over index
-%
-math(Flags, prod_over(Arg, From, To), New, M)
- => Flags = New,
-    M = underover(prod(Arg), From, To).
-
-mathml :-
-    mathml(prod_over('['(x, i), i=1, n)).
-
-
-%
-% Absolute value
-%
-ml(Flags, abs(A), M)
- => ml(Flags, A, X),
-    M = mrow([mo(&(vert)), X, mo(&(vert))]).
-
-paren(Flags, abs(A), Paren)
- => paren(Flags, A, Paren).
-
-%
-% Integral
-%
-math(Flags, integrate(F), New, X),
-    compound(F)
- => Flags = New,
-    F =.. [_, D | _],
-    X = integrate(F, D).
-
-math(Flags, integrate(A, D), New, X),
-    prec(Flags, integrate(A, D), Outer),
-    prec(Flags, A, Inner),
-    Outer < Inner
- => Flags = New,
-    X = integrate(paren(A), D).
-
-ml(Flags, integrate(A, D), M)
- => ml(Flags, A, X),
-    ml(Flags, space, Space),
-    ml(Flags, D, DX),
-    M = mrow([mo(&(int)), X, Space, mi(d), DX]).
-
-prec(_Flags, integrate(_, _), Prec)
- => current(Prec, yfx, *).
-
-paren(Flags, integrate(A, _), Paren)
- => paren(Flags, A, Paren).
-
-mathml :- mathml(integrate(sin(x))).
-mathml :- mathml(integrate(sin(x)) * integrate(cos(x))).
-mathml :- mathml(integrate(sin(x) * cos(x), x)).
-
-% Hide
-math(Flags, invisible(_), New, X)
- => Flags = New,
-    X = ''.
-
-%
-% Integrate over range
-%
-% This function may be replaced in the future
-math(Flags, integrate(From, To, F, D), New, X),
-    prec(Flags, integrate(F, D), Outer),
-    prec(Flags, F, Inner),
-    Outer < Inner
- => Flags = New,
-    X = integrate(From, To, paren(F), D).
-
-ml(Flags, integrate(From, To, F, D), M)
- => ml(Flags, From, FromX),
-    ml(Flags, To, ToX),
-    ml(Flags, F, FX),
-    ml(Flags, space, Space),
-    ml(Flags, D, DX),
-    M = mrow([munderover([mo(&(int)), FromX, ToX]), FX, Space, mi(d), DX]).
-
-prec(_Flags, integrate(_, _, _, _), Prec)
- => current(Prec, yfx, *).
-
-paren(Flags, integrate(_, _, F, _), Paren)
- => paren(Flags, F, Paren).
-
-mathml :- mathml(integrate(-1.0Inf, 1.0Inf, sin(x), x)).
-
-% hats
-ml(Flags, hat(A), M)
- => ml(Flags, A, X),
-    M = mover(accent(true), [X, mo(&('Hat'))]).
-
-paren(Flags, hat(A), Paren)
- => paren(Flags, A, Paren).
-
-prec(Flags, hat(A), Prec)
- => prec(Flags, A, Prec).
-
-type(Flags, hat(A), Type)
- => type(Flags, A, Type).
-
-mathml :- mathml(hat('K')).
-mathml :- mathml(hat('K'^2)).
-mathml :- mathml(hat('K')^2).
-mathml :- mathml(hat('sigma')^2).
-
-% tilde
-ml(Flags, tilde(A), M)
- => ml(Flags, A, X),
-    M = mover(accent(true), [X, mo(&(tilde))]).
-
-paren(Flags, tilde(A), Paren)
- => paren(Flags, A, Paren).
-
-prec(Flags, tilde(A), Prec)
- => prec(Flags, A, Prec).
-
-type(Flags, tilde(A), Type)
- => type(Flags, A, Type).
-
-mathml :- mathml(tilde('D')).
-mathml :- mathml(tilde('X')^2).
-
-%
-% Booleans
-%
-math(Flags, A, New, X),
-    atom(A),
-    memberchk(A, ['TRUE', 'FALSE'])
- => New = Flags,
-    X = boolean(A).
-
-denoting(_Flags, boolean(_), Den)
- => Den = [].
-
-%
-% Space
-%
-math(Flags, space, New, X)
- => New = Flags,
-    X = space('0.3em').
-
-ml(_Flags, space(Width), M)
- => M = mspace(width(Width), []).
-
-denoting(_Flags, space(_), Den)
- => Den = [].
-
-mathml :- mathml(space).
-
-%
-% No space
-%
-ml(_Flags, nospace, M)
- => M = &('#8288').
-
-denoting(_Flags, nospace, Den)
- => Den = [].
-
-mathml :- mathml(nospace).
-
-%
-% Hyphen
-%
-math(Flags, hyph(L, R), New, X)
- => New = Flags,
-    X = list(&('#8209'), [L, R]).
-
-mathml :- mathml(hyph(t, "test")).
-
-%
-% Symbols/Identifiers
-%
-math(Flags, A, New, X),
-    atom(A)
- => New = Flags,
-    X = ident(A).
-
-ml(_Flags, ident(A), X)
- => X = mi(A).
-
-type(_Flags, ident(_), Type)
- => Type = atomic.
-
-denoting(_Flags, ident(_), Den)
- => Den = [].
-
-mathml :- mathml(i).
-
-%
-% Upright text
-%
-math(Flags, A, New, X),
-    string(A)
- => New = Flags,
-    X = text(A).
-
-ml(_Flags, text(A), X)
- => X = mtext(A).
-
-type(_Flags, text(_), Type)
- => Type = atomic.
-
-denoting(_Flags, text(_), Den)
- => Den = [].
-
-mathml :- mathml("Text").
-
-%
-% Mathematical signs
-%
-ml(_Flags, sign(=:=), X)
- => X = mo(=).
-
-ml(_Flags, sign(=\=), X)
- => X = mo(&(ne)).
-
-ml(_Flags, sign(dot), X)
- => X = mo(&(sdot)).
-
-ml(_Flags, sign(=<), X)
- => X = mo(&(le)).
-
-ml(_Flags, sign(>=), X)
- => X = mo(&(ge)).
-
-ml(_Flags, sign(':='), X)
- => X = mo(&('Assign')).
-
-ml(_Flags, sign(;), X)
- => X = mo(&(semi)).
-
-ml(_Flags, sign(~), X)
- => X = mo(&('Tilde')).
-
-ml(_Flags, sign(sum), X)
- => X = mo(&(sum)).
-
-current(Prec, fy, sum)
- => current_op(Prec, yfx, +).
-
-ml(_Flags, sign(!), X)
- => X = mo(!).
-
-current(Prec, yf, !)
- => current_op(P, yfx, *),
-    Prec is P - 1.
-
-% default
-ml(_Flags, sign(A), X)
- => X = mo(A).
-
-% prec(_Flags, sign(A), Prec),
-%     current(P, _Fix, A)
-%  => Prec = P.
-
-denoting(_Flags, sign(_), Den)
- => Den = [].
-
-mathml :- mathml(sign(dot)).
-
-%
-% Indices like s_D: needs operator []/2 for pretty printing
-%
-math(Flags, [](Idx, A), New, X)
- => math(Flags, subscript(A, Idx), New, X).
-
-mathml :- mathml([](i, x)).
-
-%
-% Check for subscript(supscript(A, Power), Index)
-%
-math(Flags, subscript(A, Idx), New, X),
-    type(Flags, A, supscript(Base, Pwr))
- => New = [replace(supscript(Base, Pwr), subsupscript(Base, Idx, Pwr)) | Flags],
-    X = A.
-
-%
-% Render
-%
-math(Flags, subscript(A, Idx), New, X),
-    prec(Flags, subscript(A, Idx), Outer),
-    prec(Flags, A, Inner),
-    Outer < Inner
- => New = Flags,
-    X = subscript(paren(A), Idx).
-
-ml(Flags, subscript(A, B), M)
- => ml(Flags, A, X),
-    ml(Flags, B, Y),
-    M = msub([X, Y]).
-
-paren(Flags, subscript(A, _), Paren)
- => paren(Flags, A, Paren).
-
-prec(Flags, subscript(A, _), Prec)
- => prec(Flags, A, Prec).
-
-type(_Flags, subscript(A, B), Type)
- => Type = subscript(A, B).
-
-mathml :- mathml(subscript(s, 'D')).
-mathml :- mathml(subscript(s^r, 'D')).
-
-%
-% Powers like s^D
-%
-% Check for supscript(subscript(A, Index), Power)
-%
-math(Flags, supscript(A, Pwr), New, X),
-    type(Flags, A, subscript(Base, Idx))
- => New = [replace(subscript(Base, Idx), subsupscript(Base, Idx, Pwr)) | Flags],
-    X = A.
-
-%
-% Render
-%
-math(Flags, supscript(A, Pwr), New, X),
-    prec(Flags, supscript(A, Pwr), Outer),
-    prec(Flags, A, Inner),
-    Outer < Inner
- => New = Flags,
-    X = supscript(paren(A), Pwr).
-
-ml(Flags, supscript(A, B), M)
- => ml(Flags, A, X),
-    ml(Flags, B, Y),
-    M = msup([X, Y]).
-
-paren(Flags, supscript(A, _), Paren)
- => paren(Flags, A, Paren).
-
-prec(_Flags, supscript(_, _), Prec)
- => current(Prec, xfy, ^).
-
-type(_Flags, supscript(A, B), Type)
- => Type = supscript(A, B).
-
-mathml :- mathml(subscript(s, 'D')).
-mathml :- mathml(subscript(s^2, 'D')).
-
-%
-% Index and Exponent: s_D^2
-%
-math(Flags, subsupscript(Base, Idx, Pwr), New, X),
-    prec(Flags, subsupscript(Base, Idx, Pwr), Outer),
-    prec(Flags, Base, Inner),
-    Outer < Inner
- => New = Flags,
-    X = subsupscript(paren(Base), Idx, Pwr).
-
-ml(Flags, subsupscript(Base, Idx, Pwr), M)
- => ml(Flags, Base, X),
-    ml(Flags, Idx, Y),
-    ml(Flags, Pwr, Z),
-    M = msubsup([X, Y, Z]).
-
-paren(Flags, subsupscript(Base, _, _), Paren)
- => paren(Flags, Base, Paren).
-
-prec(Flags, subsupscript(Base, _, Pwr), Prec)
- => prec(Flags, supscript(Base, Pwr), Prec).
-
-type(_Flags, subsupscript(Base, Idx, Pwr), Type)
- => Type = subsupscript(Base, Idx, Pwr).
-
-mathml :- mathml(subsupscript(s, 'D', r)).
-
-%
-% Indices like s_D
-%
-math(Flags, '['(A, Idx), New, X)
- => math(Flags, subscript(A, Idx), New, X).
-
-%
-% Check for under(over(A, Power), Index)
-%
-math(Flags, under(A, Idx), New, X),
-    type(Flags, A, over(Bas, Pwr))
- => New = [replace(over(Bas, Pwr), underover(Bas, Idx, Pwr)) | Flags],
-    X = A.
-
-%
-% Render
-%
-ml(Flags, under(A, B), M)
- => ml(Flags, A, X),
-    ml(Flags, B, Y),
-    M = munder([X, Y]).
-
-paren(Flags, under(A, _), Paren)
- => paren(Flags, A, Paren).
-
-prec(Flags, under(A, _), Prec)
- => prec(Flags, A, Prec).
-
-type(_Flags, under(A, B), Type)
- => Type = under(A, B).
-
-mathml :- mathml(under(sign(&(sum)), i)).
-mathml :- mathml(under(over(sign(&(sum)), 'N'), i=1)).
-
-%
-% Check for over(under(A, Index), Power)
-%
-math(Flags, over(A, Pwr), New, X),
-    type(Flags, A, under(Bas, Idx))
- => New = [replace(under(Bas, Idx), underover(Bas, Idx, Pwr)) | Flags],
-    X = A.
-
-%
-% Render
-%
-ml(Flags, over(A, B), M)
- => ml(Flags, A, X),
-    ml(Flags, B, Y),
-    M = mover([X, Y]).
-
-paren(Flags, over(A, _), Paren)
- => paren(Flags, A, Paren).
-
-prec(_Flags, over(_, _), Prec)
- => current(Prec, xfy, ^).
-
-type(_Flags, over(A, B), Type)
- => Type = over(A, B).
-
-mathml :- mathml(over(under(sign(&(sum)), i=1), 'N')).
-
-%
-% Under and Over
-%
-ml(Flags, underover(A, B, C), M)
- => ml(Flags, A, X),
-    ml(Flags, B, Y),
-    ml(Flags, C, Z),
-    M = munderover([X, Y, Z]).
-
-paren(Flags, underover(A, _, _), Paren)
- => paren(Flags, A, Paren).
-
-prec(Flags, underover(A, _, C), Prec)
- => prec(Flags, over(A, C), Prec).
-
-type(_Flags, underover(A, B, C), Type)
- => Type = underover(A, B, C).
-
-mathml :- mathml(underover(sign(&(sum)), i=1, 'N')).
-
-%
-% Formatting numbers
-%
-math(Flags, tstat(A), New, X)
- => New = [digits(2) | Flags],
-    A = X.
-
-math(Flags, hdrs(A), New, X)
- => New = [digits(1) | Flags],
-    A = X.
-
-math(Flags, chi2ratio(A), New, X)
- => New = [digits(2) | Flags],
-    A = X.
-
-math(Flags, perc(A), New, X)
- => option(digits(D0), Flags, 2),
-    D is D0 - 2,
-    New = [digits(D), mult(100) | Flags],
-    X = [A, '%'].
-
-math(Flags, pval(A), New, X)
- => New = [digits(3) | Flags],
-    A = X.
-
-%
-% Numbers
-%
-math(Flags, A, New, X),
-    number(A),
-    A < 0
- => New = Flags,
-    Abs is abs(A),
-    X = -number(Abs).
-
-math(Flags, A, New, X),
-    number(A)
- => New = Flags,
-    X = number(A).
-
-math(Flags, number(A), New, X),
-    option(mult(M), Flags)
- => select_option(mult(M), Flags, New),
-    N is M*A,
-    X = number(N).
-
-math(Flags, number(A), New, X),
-    integer(A)
- => New = Flags,
-    X = integer(A).
-
-ml(_Flags, integer(A), X)
- => X = mn(A).
-
-denoting(_Flags, integer(_), D)
- => D = [].
-
-ml(_Flags, number(1.0Inf), M)
- => M = mi(&('#x221E')).
-
-ml(_Flags, number(1.5NaN), M)
- => M = mtext("?").
-
-ml(Flags, number(A), M),
-    option(floor(D), Flags)
- => format(string(Mask), '~~~df', [D]),
-    format(string(R), Mask, [A - 0.5*10^(-D)]),
-    M = mn(R).
-
-ml(Flags, number(A), M),
-    option(ceiling(D), Flags)
- => format(string(Mask), '~~~df', [D]),
-    format(string(R), Mask, [A + 0.5*10^(-D)]),
-    M = mn(R).
-
-ml(Flags, number(A), M),
-    option(digits(D), Flags, 2)
- => format(string(Mask), '~~~df', [D]),
-    format(string(R), Mask, [A]),
-    M = mn(R).
-
-denoting(_Flags, number(_), D)
- => D = [].
-
-mathml :- mathml(3).
-mathml :- mathml(-3).
-mathml :- mathml(1.0Inf).
-mathml :- mathml(-1.0Inf).
-mathml :- mathml(3.444).
-mathml :- mathml(3.555).
-mathml :- mathml(-3.444).
-mathml :- mathml(-3.555).
-
-%
-% Operators
-%
-math(Flags, pm(A, B), New, X)
- => New = Flags,
-    current_op(Prec, yfx, -),
-    X = yfx(Prec, &(pm), A, B).
-
-math(Flags, A = B, New, X)
- => New = Flags,
-    current_op(Prec, xfx, =),
-    X = yfy(Prec, =, A, B).
-
-math(Flags, A < B, New, X)
- => New = Flags,
-    current_op(Prec, xfx, <),
-    X = yfy(Prec, <, A, B).
-
-math(Flags, A =< B, New, X)
- => New = Flags,
-    current_op(Prec, xfx, =<),
-    X = yfy(Prec, =<, A, B).
-
-math(Flags, ~(A, B), New, X)
- => New = Flags,
-    current_op(Prec, xfx, =),
-    X = yfy(Prec, ~, A, B).
-
-math(Flags, A > B, New, X)
- => New = Flags,
-    current_op(Prec, xfx, >),
-    X = yfy(Prec, >, A, B).
-
-math(Flags, A >= B, New, X)
- => New = Flags,
-    current_op(Prec, xfx, >=),
-    X = yfy(Prec, >=, A, B).
-
-math(Flags, +A, New, X)
- => New = Flags,
-    current_op(Prec, yfx, +),
-    X = fy(Prec, +, A).
-
-math(Flags, A + B, New, X)
- => New = Flags,
-    current_op(Prec, yfx, +),
-    X = yfy(Prec, +, A, B).
-
-math(Flags, -A, New, X)
- => New = Flags,
-    current_op(Prec, yfx, -),
-    X = fx(Prec, -, A).
-
-math(Flags, A - B, New, X)
- => New = Flags,
-    current_op(Prec, yfx, -),
-    X = yfx(Prec, -, A, B).
-
-% Use dot or no dot instead of asterisk
-math(Flags, A * B, New, X),
-    type(Flags, A, TypeA),
-    member(TypeA, [atomic, subscript(_, _)]),
-    type(Flags, B, TypeB),
-    member(TypeB, [atomic, subscript(_, _)])
- => New = Flags,
-    X = nodot(A, B).
-
-math(Flags, A * B, New, X)
- => New = Flags,
-    X = dot(A, B).
-
-math(Flags, dot(A, B), New, X)
- => New = Flags,
-    current_op(Prec, yfx, dot),
-    X = yfy(Prec, dot, A, B).
-
-math(Flags, nodot(A, B), New, X)
- => New = Flags,
-    current_op(Prec, yfx, *),
-    X = yfy(Prec, &('#x2062'), A, B).
-
-math(Flags, A / B, New, X)
- => New = Flags,
-    current_op(Prec, yfx, /),
-    X = yfx(Prec, /, A, B).
-
-math(Flags, (A ; B), New, X)
- => New = Flags,
-    current_op(Prec, xfy, ;),
-    X = xfy(Prec, ;, A, B).
-
-% Powers
-math(Flags, omit_right(_Bug, Base^Pwr), New, M),
-    option(error(correct), Flags, fix)
- => Flags = New,
-    M = Base^Pwr.
-
-math(Flags, omit_right(_Bug, Base^_Pwr), New, M),
-    option(error(show), Flags, fix)
- => Flags = New,
-    M = Base.
-
-math(Flags, omit_right(Bug, Base^Pwr), New, M),
-    option(error(fix), Flags, fix)
- => Flags = New,
-    M = Base^color(Bug, box(color("#000000", Pwr))).
-
-math(Flags, omit_right(Bug, Base^Pwr), New, M),
-    option(error(highlight), Flags, fix)
- => Flags = New,
-    M = Base^color(Bug, cancel(color("#000000", Pwr))).
-
-math(Flags, A^B, New, X)
- => New = Flags,
-    X = supscript(A, B).
-
-% General case
-math(Flags, Binary, New, X),
-    compound(Binary),
-    compound_name_arguments(Binary, Op, [A, B]),
-    current(Prec, Fix, Op),
-    Fix = yfx
- => New = Flags,
-    X = yfx(Prec, Op, A, B).
-
-math(Flags, Binary, New, X),
-    compound(Binary),
-    compound_name_arguments(Binary, Op, [A, B]),
-    current(Prec, Fix, Op),
-    Fix = xfy
- => New = Flags,
-    X = xfy(Prec, Op, A, B).
-
-math(Flags, Binary, New, X),
-    compound(Binary),
-    compound_name_arguments(Binary, Op, [A, B]),
-    current(Prec, Fix, Op),
-    Fix = xfx
- => New = Flags,
-    X = xfx(Prec, Op, A, B).
-
-mathml :- mathml(a * b).
-mathml :- mathml(a * (b * c)).
-mathml :- mathml((a * b) * c).
-mathml :- mathml((2 * b) * c).
-mathml :- writeln("Unsure if this can be convinced to omit the parenthesis"), 
-          mathml((-2 * b) * c).
-mathml :- mathml((-2 * 2) * c).
-mathml :- mathml((-2 * -2) * c).
-
-%
-% Render
-%
-ml(Flags, yf(Prec, Op, A), M)
- => ml(Flags, sign(Op), S),
-    ml(Flags, left(Prec, A), X),
-    M = mrow([X, S]).
-
-ml(Flags, fy(Prec, Op, A), M)
- => ml(Flags, sign(Op), S),
-    ml(Flags, right(Prec, A), X),
-    M = mrow([S, X]).
-
-ml(Flags, fx(Prec, Op, A), M)
- => ml(Flags, sign(Op), S),
-    Prec1 is Prec - 1,
-    ml(Flags, right(Prec1, A), X),
-    M = mrow([S, X]).
-
-ml(Flags, xfx(Prec, Op, A, B), M)
- => Prec1 is Prec - 1,
-    ml(Flags, left(Prec1, A), X),
-    ml(Flags, sign(Op), S),
-    ml(Flags, right(Prec-1, B), Y),
-    M = mrow([X, S, Y]).
-
-ml(Flags, yfx(Prec, Op, A, B), M)
- => ml(Flags, left(Prec, A), X),
-    ml(Flags, sign(Op), S),
-    Prec1 is Prec - 1,
-    ml(Flags, right(Prec1, B), Y),
-    M = mrow([X, S, Y]).
-
-ml(Flags, xfy(Prec, Op, A, B), M)
- => Prec1 is Prec - 1,
-    ml(Flags, left(Prec1, A), X),
-    ml(Flags, sign(Op), S),
-    ml(Flags, right(Prec, B), Y),
-    M = mrow([X, S, Y]).
-
-ml(Flags, yfy(Prec, Op, A, B), M)
- => ml(Flags, left(Prec, A), X),
-    ml(Flags, sign(Op), S),
-    ml(Flags, right(Prec, B), Y),
-    M = mrow([X, S, Y]).
-
-paren(Flags, fy(_Prec, _Op, A), P)
- => paren(Flags, A, P).
-
-paren(Flags, fx(_Prec, _Op, A), P)
- => paren(Flags, A, P).
-
-paren(Flags, xf(_Prec, _Op, A), P)
- => paren(Flags, A, P).
-
-paren(Flags, yf(_Prec, _Op, A), P)
- => paren(Flags, A, P).
-
-paren(Flags, xfx(Prec, _Op, A, B), P)
- => paren(Flags, left(Prec, A), P1),
-    paren(Flags, right(Prec, B), P2),
-    P is max(P1, P2).
-
-paren(Flags, xfy(Prec, _Op, A, B), P)
- => paren(Flags, left(Prec, A), P1),
-    paren(Flags, right(Prec, B), P2),
-    P is max(P1, P2).
-
-paren(Flags, yfx(Prec, _Op, A, B), P)
- => paren(Flags, left(Prec, A), P1),
-    paren(Flags, right(Prec, B), P2),
-    P is max(P1, P2).
-
-paren(Flags, yfy(Prec, _Op, A, B), P)
- => paren(Flags, left(Prec, A), P1),
-    paren(Flags, right(Prec, B), P2),
-    P is max(P1, P2).
-
-denoting(Flags, fy(_, A, B), Den)
- => denoting(Flags, A, DenA),
-    denoting(Flags, B, DenB),
-    append(DenA, DenB, Den).
-
-denoting(Flags, xfx(_, _, A, B), Den)
- => denoting(Flags, A, DenA),
-    denoting(Flags, B, DenB),
-    append(DenA, DenB, Den).
-
-denoting(Flags, xfy(_, _, A, B), Den)
- => denoting(Flags, A, DenA),
-    denoting(Flags, B, DenB),
-    append(DenA, DenB, Den).
-
-denoting(Flags, yfx(_, _, A, B), Den)
- => denoting(Flags, A, DenA),
-    denoting(Flags, B, DenB),
-    append(DenA, DenB, Den).
-
-denoting(Flags, yfy(_, _, A, B), Den)
- => denoting(Flags, A, DenA),
-    denoting(Flags, B, DenB),
-    append(DenA, DenB, Den).
-
-prec(_Flags, fy(P, _, _), Prec)
- => Prec = P.
-
-prec(_Flags, fx(P, _, _), Prec)
- => Prec = P.
-
-prec(_Flags, xfx(P, _, _, _), Prec)
- => Prec = P.
-
-prec(_Flags, yfx(P, _, _, _), Prec)
- => Prec = P.
-
-prec(_Flags, xfy(P, _, _, _), Prec)
- => Prec = P.
-
-prec(_Flags, yfy(P, _, _, _), Prec)
- => Prec = P.
-
-math(Flags, left(Prec, A), New, X),
-    prec(Flags, A, P),
-    P > Prec
- => New = Flags,
-    X = paren(A).
-
-math(Flags, left(_, A), New, X)
- => New = Flags,
-    X = A.
-
-math(Flags, right(Prec, A), New, X)
- => New = Flags,
-    X = left(Prec, A).
-
-denoting(Flags, left(_, A), Den)
- => denoting(Flags, A, Den).
-
-denoting(Flags, right(_, A), Den)
- => denoting(Flags, A, Den).
-
-mathml :- mathml(a * b).
-mathml :- mathml((a + b) * (c + d)).
-mathml :- mathml(a * b + c * d).
-mathml :- mathml(a + b + c + d).
-mathml :- mathml((a - b) - (c + d)).
-mathml :- mathml(dot((a - b), (c + d))).
-mathml :- mathml(-2 * -2).
-
-%
-% Abbreviations
-%
-% with s^2_pool denoting the pooled variance
-%
-ml(Flags, denote(A, _, _), X)
- => ml(Flags, A, X).
-
-paren(Flags, denote(A, _, _), Paren)
- => paren(Flags, A, Paren).
-
-prec(Flags, denote(A, _, _), Prec)
- => prec(Flags, A, Prec).
-
-type(Flags, denote(A, _, _), Type)
- => type(Flags, A, Type).
-
-denoting(Flags, denote(A, Expr, Info), Den)
- => denoting(Flags, Expr, T),
-    Den = [denoting(A, Expr, Info) | T].
-
-mathml :-
-    S2P = denote(subscript(s, "pool")^2,
-                   frac((subscript('N', "A") - 1) * subscript(s, "A")^2 +
-                        (subscript('N', "B") - 1) * subscript(s, "B")^2,
-                        subscript('N', "A") + subscript('N', "B") - 2),
-                   "the pooled variance"),
-    mathml(frac(subscript(overline('X'), "A") - subscript(overline('X'), "B"),
-                  sqrt(nodot(S2P, 1/subscript('N', "A") + 1/subscript('N', "B"))))).
-
-%
-% Expand abbreviations
-%
-ml(Flags, denoting(A, Expr, Info), X)
- => ml(Flags, list(space, [A = Expr, "denoting", Info]), X).
-
-type(Flags, denoting(A, _, _), Type)
- => type(Flags, A, Type).
-
-denoting(_Flags, denoting(_, _, _), Den)
- => Den = [].
-
-%
-% Collect abbreviations
-%
-ml(Flags, denoting(Abbreviations), X)
- => sort(Abbreviations, Sorted), % remove duplicates
-    ml(Flags, denoting_(Sorted), X).
-
-ml(_Flags, denoting_([]), W)
- => W = " ".
-
-ml(Flags, denoting_([A]), W)
- => ml(Flags, A, X),
-    W = span([", with", &(nbsp), math(X)]).
-
-ml(Flags, denoting_([A, B | T]), W)
- => ml(Flags, A, X),
-    ml(Flags, and([B | T]), Y),
-    W = span([", with", &(nbsp), math(X) | Y]).
-
-ml(_Flags, and([]), W)
- => W = ".".
-
-ml(Flags, and([A | T]), W)
- => ml(Flags, A, X),
-    ml(Flags, and(T), Y),
-    W = span([", and", &(nbsp), math(X) | Y]).
-
-%
-% Parentheses
-%
-ml(Flags, paren(A), X),
-    paren(Flags, A, P),
-    0 is P mod 3
- => ml(Flags, parentheses(A), X).
-
-ml(Flags, paren(A), X),
-    paren(Flags, A, P),
-    1 is P mod 3
- => ml(Flags, brackets(A), X).
-
-ml(Flags, paren(A), X),
-    paren(Flags, A, P),
-    2 is P mod 3
- => ml(Flags, braces(A), X).
-
-paren(Flags, paren(A), Paren)
- => paren(Flags, A, P),
-    Paren is P + 1.
-
-ml(Flags, parentheses(A), M)
- => ml(Flags, A, X),
-    M = mrow([mo('('), X, mo(')')]).
-
-paren(_Flags, parentheses(_), Paren)
- => Paren is 1.
-
-ml(Flags, brackets(A), M)
- => ml(Flags, A, X),
-    M = mrow([mo('['), X, mo(']')]).
-
-paren(_Flags, brackets(_), Paren)
- => Paren is 2.
-
-ml(Flags, braces(A), M)
- => ml(Flags, A, X),
-    M = mrow([mo('{'), X, mo('}')]).
-
-paren(_Flags, braces(_), Paren)
- => Paren is 3.
-
-mathml :- mathml(paren(paren(paren(paren(i))))).
-
-%
-% Confidence intervals
-%
-math(Flags, ninfpos(A), New, M)
- => Flags = New,
-    M = brackets(list(',', [-1.0Inf, A])).
-
-math(Flags, neginf(A), New, M)
- => Flags = New,
-    M = brackets(list(',', [A, 1.0Inf])).
-
-%
-% Matrices
-%
-ml(Flags, ##(Rows), M)
- => maplist(ml(Flags), Rows, X),
-    M = mtable(X).
-
-paren(Flags, ##([Row1]), Paren)
- => paren(Flags, Row1, Paren).
-
-paren(_Flags, ##(_), Paren)
- => Paren is 0.
-
-mathml :- mathml(##([#([1, 0, 0]), #([0, 1, 0]), #([0, 0, 1])])).
-
-%
-% Row vectors
-%
-ml(Flags, #(Cells), M)
- => findall(cell(C), member(C, Cells), CCells),
-    maplist(ml(Flags), CCells, X),
-    M = mtr(X).
-
-paren(Flags, #(Cells), Paren)
- => mapargs(paren(Flags), Cells, Ps),
-    max_list(Ps, Paren).
-
-% with attributes (e.g., mathbackground(blue))
-ml(Flags, #(Options, Cells), M)
- => findall(cell(C), member(C, Cells), CCells),
-    maplist(ml(Flags), CCells, X), 
-    M = mtr(Options, X).
-
-paren(Flags, #(_Options, Cells), Paren)
- => mapargs(paren(Flags), Cells, Ps),
-    max_list(Ps, Paren).
-
-%
-% Table cell
-%
-ml(Flags, cell(Cell), M)
- => ml(Flags, Cell, X),
-    M = mtd(X).
-
-%
-% Lists of things
-%
-omit(Flags, omit(_, _)) :-
-    option(error(show), Flags, fix).
-%Kopie add
-add(Flags, add(_, _)) :-
-    option(error(fix), Flags, fix).
-
-math(Flags, [], New, M)
- => Flags = New,
-    M = list(&('#8288'), []).
-
-math(Flags, [H | T], New, M)
- => Flags = New, 
-    M = list(&('#8288'), [H | T]).
-
-math(Flags, list(Sep, A), New, M)
- => exclude(omit(Flags), A, Excluded),
-    Flags = New,
-    M = list1(Sep, Excluded).
-
-math(Flags, list(Sep, A), New, M)
- => exclude(add(Flags), A, Excluded),
-    Flags = New,
-    M = list1(Sep, Excluded).
-
-ml(_Flags, list1(_, []), M)
- => M = mo(&(empty)).
-
-ml(Flags, list1(_, [A]), M)
- => ml(Flags, A, M).
-
-ml(Flags, list1(Sep, [A, B | T]), M)
- => ml(Flags, A, X),
-    ml(Flags, tailx(Sep, [B | T]), Y),
-    M = mrow([X | Y]).
-
-ml(Flags, tailx(Sep, [A]), M)
- => ml(Flags, Sep, S),
-    ml(Flags, A, X),
-    M = [S, X].
-
-ml(Flags, tailx(Sep, [A, B | T]), M)
- => ml(Flags, Sep, S),
-    ml(Flags, A, X),
-    ml(Flags, tailx(Sep, [B | T]), Y),
-    M = [S, X | Y].
-
-paren(Flags, list1(_, List), Paren)
- => maplist(paren(Flags), List, Parens),
-    max_list(Parens, Paren).
-
-prec(Flags, list1(_, [A]), Prec)
- => prec(Flags, A, Prec).
-
-prec(Flags, list1(Sep, [_, _ | _]), Prec)
- => prec(Flags, Sep, Prec).
-
-denoting(Flags, list1(_, L), Den)
- => maplist(denoting(Flags), L, List),
-    append(List, Den).
-
-mathml :- mathml(list(space, [i, j, k])).
-
-%
-% Steps in an R calculation
-%
-math(Flags, {}(Args), New, M)
- => Flags = New,
-    semi(Args, L),
-    M = steps(L).
-
-mathml :- mathml({odds_a = frac(p_a, 1-p_a); odds_b = odds_a*2; p_b = frac(odds_b, 1 + odds_b)}).
-
-% Translate a;b;c to list
-semi(A ; B, X)
- => semi(B, T),
-    X = [A | T].
-
-semi(A, X)
- => X = [A].
-
-ml(Flags, steps(Steps), M)
- => maplist(ml(Flags), Steps, Lines0),
-    findall(mtr(mtd(L)), member(L, Lines0), Lines),
-    M = mtable([align(bottom), columnalign(left), displaystyle(true)], Lines).
-
-%
-% Fractions
-%
-ml(Flags, frac(N, D), M)
- => ml(Flags, N, X),
-    ml(Flags, D, Y),
-    M = mfrac([X, Y]).
-
-paren(_Flags, frac(_, _), Paren)
- => Paren = 0.
-
-prec(_Flags, frac(_, _), Prec)
- => current(P, yfx, /),
-    Prec is P - 1.
-
-math(Flags, omit_right(_Bug, Expr), New, M),
-    option(error(correct), Flags, fix),
-    Expr =.. [Op, Num, Den],
-    member(Op, [frac, dfrac])
- => Flags = New,
-    M =.. [Op, Num, Den].
-
-math(Flags, omit_right(_Bug, Expr), New, M),
-    option(error(show), Flags, fix),
-    Expr =.. [Op, Num, _Den],
-    member(Op, [frac, dfrac])
- => Flags = New,
-    M = Num.
-
-math(Flags, omit_right(Bug, Expr), New, M),
-    option(error(fix), Flags, fix),
-    Expr =.. [Op, Num, Den],
-    member(Op, [frac, dfrac])
- => Flags = New,
-    M =.. [Op, Num, color(Bug, box(color("#000000", Den)))].
-
-math(Flags, omit_right(Bug, Expr), New, M),
-    option(error(highlight), Flags, fix),
-    Expr =.. [Op, Num, Den],
-    member(Op, [frac, dfrac])
- => M =.. [Op, Num, color(Bug, cancel(color("#000000", Den)))],
-    Flags = New.
-
-mathml :- mathml(frac(1, pi)).
-
-%
-% Large fraction
-%
-math(Flags, dfrac(N, D), New, X)
- => New = Flags,
-    X = display(frac(N, D)).
-
-mathml :- mathml(dfrac(1, pi)).
-
-%
-% Square root
-%
-ml(Flags, sqrt(A), M)
- => ml(Flags, A, X),
-    M = msqrt(X).
-
-prec(_Flags, sqrt(_), Prec)
- => current(P, xfy, ^),
-    Prec is P + 1.
-
-mathml :- mathml(sqrt(2)).
-mathml :- mathml(sqrt(2)^2).
-
-math(Flags, ancova_f(DV, Cov, Strata, Other, Int, Excl, Main), New, M)
- => New = Flags,
-    append([Cov, Strata, Other, Int, Excl, [Main]], Pred),
-    M = fn(lm, [~(DV, list(+, Pred))]).
-
-math(Flags, ancova_p(DV, Cov, Strata, Other, Int, Excl, Main), New, M)
- => New = Flags,
-    append([Cov, Strata, Other, Int, Excl, [Main]], Pred),
-    M = fn(lm, [~(DV, list(+, Pred))]).
-
-math(Flags, ancova_ci(DV, Cov, Strata, Other, Int, Excl, Main), New, M)
- => New = Flags,
-    append([Cov, Strata, Other, Int, Excl, [Main]], Pred),
-    M = fn(lm, [~(DV, list(+, Pred))]).
-
-%
-% Large font ("displaystyle")
-%
-ml(Flags, display(A), M)
- => ml(Flags, A, X),
-    M = mstyle(displaystyle(true), X).
-
-type(Flags, display(A), Type)
- => type(Flags, A, Type).
-
-%
-% Decorations
-%
-ml(Flags, overline(A), M)
- => ml(Flags, A, X),
-    M = mover(accent(true), [X, mo(&(macr))]).
-
-paren(Flags, overline(A), Paren)
- => paren(Flags, A, Paren).
-
-% Put overline(x)^2 in parentheses
-prec(_Flags, overline(_), Prec)
- => current(Prec, yfx, *).
-
-type(Flags, overline(A), Type)
- => type(Flags, A, Type).
-
-mathml :- mathml(overline('D')).
-
-%
-% Cancel out
-%
-ml(Flags, cancel(A), M)
- => ml(Flags, A, X),
-    M = menclose(notation(updiagonalstrike), X).
-
-paren(Flags, cancel(A), Paren)
- => paren(Flags, A, Paren).
-
-prec(Flags, cancel(A), Prec)
- => prec(Flags, A, Prec).
-
-type(Flags, cancel(A), Type)
- => type(Flags, A, Type).
-
-mathml :- mathml(cancel('D')).
-
-%
-% Box
-%
-math(Flags, boxes([], A), New, M)
- => Flags = New,
-    A = M.
-
-math(Flags, boxes([Col | Boxes], A), New, M)
- => Flags = New,
-    M = color(Col, box(color("#000000", boxes(Boxes, A)))).
-
-ml(Flags, box(A), M)
- => ml(Flags, A, X),
-    M = menclose(notation(roundedbox), X).
-
-paren(Flags, box(A), Paren)
- => paren(Flags, A, Paren).
-
-prec(Flags, box(A), Prec)
- => prec(Flags, A, Prec).
-
-type(Flags, box(A), Type)
- => type(Flags, A, Type).
-
-test :- test(box('D')).
-
-%
-% Underbrace
-%
-ml(Flags, underbrace(A, U), M)
- => ml(Flags, A, X),
-    ml(Flags, U, Y),
-    M = munder([munder(accentunder(true),
-                  [Y, mo(stretchy(true), &('UnderBrace'))]), X]).
-
-paren(Flags, underbrace(A, _), Paren)
- => paren(Flags, A, Paren).
-
-prec(Flags, underbrace(A, _), Prec)
- => prec(Flags, A, Prec).
-
-type(Flags, underbrace(A, _), Type)
- => type(Flags, A, Type).
-
-mathml :- mathml(underbrace('D', u)).
-
-%
-% Color palette from Bootstrap CSS
-%
-color("dark").
-color("$blue").   % #0d6efd
-color("$indigo"). % #6610f2
-color("$purple"). % #6f42c1
-color("$pink").   % #d63384
-color("$red").    % #dc3545
-color("$orange"). % #fd7e14
-color("$yellow"). % #ffc107
-color("$green").  % #198754
-color("$teal").   % #20c997
-color("$cyan").   % #0dcaf0
-
-ml(Flags, color(C, A), M),
-    atom(C)
- => member(color(C, S), Flags),
-    ml(Flags, color(S, A), M).
-
-ml(Flags, color(C, A), M),
-    string(C)
- => ml(Flags, A, X),
-    M = mstyle(mathcolor(C), X).
-
-%
-% Mistakes
-%
-% Show correct alternative
-math(Flags, correct(Expr), New, M)
- => New = [error(correct) | Flags],
-    M = Expr.
-
-% Show error
-math(Flags, show(Expr), New, M)
- => New = [error(show) | Flags],
-    M = Expr.
-
-% Fix error (with color)
-math(Flags, fix(Expr), New, M)
- => New = [error(fix) | Flags],
-    M = Expr.
-
-% Show error (with color)
-math(Flags, highlight(Expr), New, M)
- => New = [error(highlight) | Flags],
-    M = Expr.
-
-math(Flags, omit_left(_Bug, Expr), New, M),
-    option(error(correct), Flags, fix)
- => Flags = New,
-    M = Expr.
-
-math(Flags, omit_left(_Bug, Expr), New, M),
-    option(error(show), Flags, fix)
- => Flags = New,
-    Expr =.. [_Op, _L, M].
-
-math(Flags, omit_left(Bug, Expr), New, M),
-    option(error(fix), Flags, fix)
- => Expr =.. [Op, L, R],
-    Expr1 =.. [Op, L, " "],
-    Flags = New,
-    M = list(space, [color(Bug, box(color("#000000", Expr1))), R]).
-
-math(Flags, omit_left(Bug, Expr), New, M),
-    option(error(highlight), Flags, fix)
- => Expr =.. [Op, L, R],
-    Expr1 =.. [Op, L, " "],
-    Flags = New,
-    M = list(space, [color(Bug, cancel(color("#000000", Expr1))), R]).
-
-math(Flags, omit_right(_Bug, Expr), New, M),
-    option(error(correct), Flags, fix)
- => Flags = New,
-    M = Expr.
-
-math(Flags, omit_right(_Bug, Expr), New, M),
-    option(error(show), Flags, fix)
- => Flags = New,
-    Expr =.. [_Op, M, _R].
-
-math(Flags, omit_right(Bug, Expr), New, M),
-    option(error(fix), Flags, fix)
- => Expr =.. [Op, L, R],
-    Expr1 =.. [Op, " ", R],
-    Flags = New,
-    M = list(space, [L, color(Bug, box(color("#000000", Expr1)))]).
-
-math(Flags, omit_right(Bug, Expr), New, M),
-    option(error(highlight), Flags, fix)
- => Expr =.. [Op, L, R],
-    Expr1 =.. [Op, " ", R],
-    Flags = New,
-    M = list(space, [L, color(Bug, cancel(color("#000000", Expr1)))]).
-
-math(Flags, omit(_Bug, Expr), New, M),
-    option(error(correct), Flags, fix)
- => Flags = New,
-    M = Expr.
-
-%Kopie add
-math(Flags, add(_Bug, Expr), New, M),
-    option(error(correct), Flags, fix)
- => Flags = New,
-    M = Expr.
-
-math(Flags, omit(_Bug, _Expr), New, M),
-    option(error(show), Flags, fix)
- => Flags = New,
-    M = "omitted".
-
-%Kopie add
-math(Flags, add(_Bug, _Expr), New, M),
-    option(error(show), Flags, fix)
- => Flags = New,
-    M = "invented".
-
-math(Flags, omit(Bug, Expr), New, M),
-    option(error(fix), Flags, fix)
- => Flags = New,
-    M = color(Bug, box(color("#000000", Expr))).
-
-% Kopie!
-math(Flags, add(Bug, Expr), New, M),
-    option(error(highlight), Flags, fix)
- => Flags = New,
-    M = color(Bug, box(color("#000000", Expr))).
-
-math(Flags, omit(Bug, Expr), New, M),
-    option(error(highlight), Flags, fix)
- => Flags = New,
-    M = color(Bug, cancel(color("#000000", Expr))).
-
-%Kopie add
-math(Flags, add(Bug, Expr), New, M),
-    option(error(fix), Flags, fix)
- => Flags = New,
-    M = color(Bug, cancel(color("#000000", Expr))).
-
-math(Flags, drop_left(_Bug, Expr), New, M),
-    option(error(correct), Flags, fix)
- => Flags = New,
-    M = Expr.
-
-math(Flags, drop_left(_Bug, Expr), New, M),
-    option(error(show), Flags, fix)
- => Flags = New,
-    Expr =.. [_Op, _L, M].
-
-math(Flags, drop_left(Bug, Expr), New, M),
-    option(error(fix), Flags, fix)
- => Expr =.. [Op, L, R],
-    Expr1 =.. [Op, L, " "],
-    Flags = New,
-    M = list(space, [color(Bug, Expr1), R]).
-
-math(Flags, drop_left(_Bug, Expr), New, M),
-    option(error(highlight), Flags, fix)
- => Expr =.. [_Op, _L, R],
-    Flags = New,
-    M = R.
-
-math(Flags, drop_right(_Bug, Expr), New, M),
-    option(error(correct), Flags, fix)
- => Flags = New,
-    M = Expr.
-
-math(Flags, drop_right(_Bug, Expr), New, M),
-    option(error(show), Flags, fix)
- => Flags = New,
-    Expr =.. [_Op, M, _R].
-
-math(Flags, drop_right(Bug, Expr), New, M),
-    option(error(fix), Flags, fix)
- => Expr =.. [Op, L, R],
-    Expr1 =.. [Op, " ", R],
-    Flags = New,
-    M = list(space, [L, color(Bug, Expr1)]).
-
-math(Flags, drop_right(_Bug, Expr), New, M),
-    option(error(highlight), Flags, fix)
- => Expr =.. [_Op, L, _R],
-    Flags = New,
-    M = L.
-
-math(Flags, instead(Bug, Wrong, Correct), New, M)
- => Flags = New,
-    M = instead(Bug, Wrong, Correct, Correct).
-
-math(Flags, instead(_Bug, _Wrong, _Correct0, Correct), New, M),
-    option(error(correct), Flags, fix)
- => Flags = New,
-    M = Correct.
-
-math(Flags, instead(Bug, Wrong, _Correct0, _Correct), New, M),
-    option(error(show), Flags, fix)
- => Flags = New,
-    M = color(Bug, Wrong).
-
-math(Flags, instead(Bug, Wrong, _Correct0, Correct), New, M),
-    option(error(fix), Flags, fix)
- => bugs(Wrong, Bugs),
-    Flags = New,
-    M = boxes([Bug | Bugs], Correct).
-
-math(Flags, instead(Bug, Wrong, Correct0, _Correct), New, M),
-    option(error(highlight), Flags, fix)
- => New = Flags,
-    M = underbrace(list(space, ["instead of", correct(Correct0)]), color(Bug, show(Wrong))).
-
-math(Flags, add_left(_Bug, Expr), New, M),
-    option(error(correct), Flags, fix)
- => Expr =.. [_Op, _L, R],
-    Flags = New,
-    M = R.
-
-math(Flags, add_left(_Bug, Expr), New, M),
-    option(error(show), Flags, fix)
- => M = Expr,
-    Flags = New.
-
-prec(Flags, add_left(_, Expr), Prec),
-    option(error(show), Flags, fix)
- => prec(Flags, Expr, Prec).
-
-math(Flags, add_left(_Bug, Expr), New, M),
-    option(error(fix), Flags, fix)
- => Expr =.. [_Op, _L, R],
-    Flags = New,
-    M = R.
-
-math(Flags, add_left(Bug, Expr), New, M),
-    option(error(highlight), Flags, fix)
- => Expr =.. [Op, L, R],
-    Expr1 =.. [Op, L, " "],
-    Flags = New,
-    M = list(space, [color(Bug, Expr1), R]).
-
-prec(Flags, add_left(_, Expr), Prec),
-    option(error(highlight), Flags, fix)
- => prec(Flags, Expr, Prec).
-
-math(Flags, add_right(_Bug, Expr), New, M),
-    option(error(correct), Flags, fix)
- => Expr =.. [_Op, L, _R],
-    Flags = New,
-    M = L.
-
-math(Flags, add_right(_Bug, Expr), New, M),
-    option(error(show), Flags, fix)
- => M = Expr,
-    Flags = New.
-
-prec(Flags, add_right(_, Expr), Prec),
-    option(error(show), Flags, fix)
- => prec(Flags, Expr, Prec).
-
-math(Flags, add_right(_Bug, Expr), New, M),
-    option(error(fix), Flags, fix)
- => Expr =.. [_Op, L, _R],
-    Flags = New,
-    M = L.
-
-math(Flags, add_right(Bug, L^R), New, M),
-    option(error(highlight), Flags, fix)
- => Flags = New,
-    M = L^color(Bug, R).
-
-math(Flags, add_right(Bug, Expr), New, M),
-    option(error(highlight), Flags, fix)
- => Expr =.. [Op, L, R],
-    Expr1 =.. [Op, " ", R],
-    Flags = New,
-    M = list(space, [L, color(Bug, Expr1)]).
-
-prec(Flags, add_right(_, Expr), Prec),
-    option(error(highlight), Flags, fix)
- => prec(Flags, Expr, Prec).
-
-mathml :- mathml(dfrac(omit_right(bug, overline('D') - mu),
-                   subscript(s, 'D') / sqrt('N'))).
-
-mathml :- writeln("Same with Flags = error(fix)"),
-    mathml([error(fix)], 
-           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
-
-mathml :- writeln("Same with Flags = error(highlight)"),
-    mathml([error(highlight)], 
-           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
-    
-mathml :- writeln("Same with Flags = error(show)"),
-    mathml([error(show)], 
-           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
-
-mathml :- writeln("Same with Flags = error(correct)"),
-    mathml([error(correct)],
-           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
-    
-mathml :- mathml(dfrac(overline('D') - mu,
-                   subscript(s, 'D') / instead(bug, 'N', sqrt('N')))).
-
-mathml :- writeln("Same with Flags = error(fix)"),
-    mathml([error(fix)], 
-           dfrac(overline('D') - mu, subscript(s, 'D') / instead(bug, 'N', sqrt('N')))).
-
-mathml :- writeln("Same with Flags = error(highlight)"),
-    mathml([error(highlight)], 
-           dfrac(overline('D') - mu, subscript(s, 'D') / instead(bug, 'N', sqrt('N')))).
-
-mathml :- writeln("Same with Flags = error(show)"),
-    mathml([error(show)], 
-           dfrac(overline('D') - mu, subscript(s, 'D') / instead(bug, 'N', sqrt('N')))).
-
-%
-% Expert and buggy rules
-%
-math(Flags, expert(Flags, _, B), New, X)
- => New = Flags,
-    X = B.
-
-math(Flags, buggy(Flags, _, B), New, X)
- => New = Flags,
-    X = B.
-
-%
-% t-test
-%
-math(Flags, var_pool(V1, N1, V2, N2), New, X)
- => New = Flags,
-    X = dfrac((N1 - 1)*V1 + (N2 - 1)*V2, N1 + N2 - 2).
-    
-%
-% Binomial coefficient and distribution
-%
-ml(Flags, choose(N, K), M)
- => ml(Flags, N, X),
-    ml(Flags, K, Y),
-    M = mrow([mo('('), mfrac([linethickness(0)], [X, Y]), mo(')')]).
-
-paren(_Flags, choose(_, _), Paren)
- => Paren = 1.
-
-prec(_Flags, choose(_, _), Prec)
- => Prec = 0.
-
-type(_Flags, choose(_, _), Type)
- => Type = paren.
-
-mathml :- mathml(choose('N', k)).
-
-mathml :- mathml(choose('N', k) * pi^k * (1 - pi)^('N' - k)).
-
-math(Flags, factorial(N), New, M)
- => Flags = New,
-    current(Prec, yf, !),
-    M = yf(Prec, !, N).
-
-mathml :- mathml(factorial('N')).
-
-mathml :- mathml(factorial('N'-k)).
-
-mathml :- mathml(factorial('N'*k)).
-
-mathml :- mathml(factorial('N')^2).
-
-% The name is a bit unfortunate
-math(Flags, bernoulli(K, N, Pi), New, M)
- => Flags = New,
-    M = successes(K, Pi) * failures(N - K, 1 - Pi).
-
-math(Flags, successes(K, Pi), New, M)
- => Flags = New,
-    M = Pi^K.
-
-% This may change
-math(Flags, failures(K, Pi), New, M)
- => Flags = New,
-    M = Pi^K.
-
-% Density, distribution etc.
-math(Flags, dbinom(K, N, Pi), New, X)
- => New = Flags,
-    X = fn(subscript('P', "Bi"), (['X' = K] ; [N, Pi])).
-
-math(Flags, pbinom(K, N, Pi), New, X)
- => New = Flags,
-    X = fn(subscript('P', "Bi"), (['X' =< K] ; [N, Pi])).
-
-% upper tail
-math(Flags, pwbinom(_K, N, Pi, Tail), New, X)
- => New = Flags,
-    X = fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])).
-
-% upper critical value
-math(Flags, uqbinom(Alpha, N, Pi), New, X)
- => New = Flags,
-    X = fn(under("argmin", k), [fn(subscript('P', "Bi"), ([('X' >= k)] ; [N, Pi])) =< Alpha]).
-
-% lower critical value
-math(Flags, lqbinom(Alpha, N, Pi), New, X)
- => New = Flags,
-    X = fn(under("argmax", k), [fn(subscript('P', "Bi"), ([('X' =< k)] ; [N, Pi])) =< Alpha]).
-
-math(Flags, qbinom(Alpha, N, Pi), New, X)
- => New = Flags,
-    X = fn(under("argmax", k), [fn(subscript('P', "Bi"), ([('X' =< k)] ; [N, Pi])) =< Alpha]).
-
-% critical value
-math(Flags, cbinom(Alpha, N, Pi, Tail, Arg), New, X)
- => New = Flags,
-    X = fn(Arg, [fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])) =< Alpha]).
-
-math(Flags, tail("upper", K), New, X)
- => New = Flags,
-    X = ('X' >= K).
-
-math(Flags, tail("lower", K), New, X)
- => New = Flags,
-    X = ('X' =< K).
-
-math(Flags, tail("equal", K), New, X)
- => New = Flags,
-    X = ('X' = K).
-
-math(Flags, arg("min", K), New, X)
- => New = Flags,
-    X = subscript(argmin, K).
-
-math(Flags, arg("max", K), New, X)
- => New = Flags,
-    X = subscript(argmax, K).
-
-mathml :- mathml(dbinom(k, 'N', pi)).
-mathml :- mathml(pbinom(k, 'N', pi)).
-mathml :- mathml(upbinom(k, 'N', pi)).
-mathml :- mathml(cbinom(alpha, 'N', pi, tail("lower"), dist("lower"))).
-mathml :- mathml(cbinom(alpha, 'N', pi, tail("upper"), dist("upper"))).
-mathml :- 
-    writeln("This is silly, but reflects a frequent mistake by my students."),
-    mathml(cbinom(alpha, 'N', pi, tail("lowerdens"), dist("density"))).
-mathml :- mathml(cbinom(alpha, 'N', pi, tail("upperdens"), dist("density"))).
-
-%
-% Trigonometry
-%
-math(Flags, sin(Alpha), New, X)
- => New = Flags,
-    X = fn("sin", [Alpha]).
-
-math(Flags, cos(Alpha), New, X)
- => New = Flags,
-    X = fn("cos", [Alpha]).
-
-math(Flags, tan(Alpha), New, X)
- => New = Flags,
-    X = fn("tan", [Alpha]).
-
-%
-% Probability
-%
-math(Flags, pnorm(Z), New, X)
- => New = Flags,
-    X = fn('Phi', [Z]).
-    
-math(Flags, qnorm(P), New, X)
- => New = Flags,
-    X = subscript(z, P).
-
-math(Flags, pt(T, DF), New, X)
- => New = Flags,
-    X = fn(subscript('P', DF), ['T' =< T]).
-
-math(Flags, qt(P, DF), New, X)
- => New = Flags,
-    X = fn(subscript('T', P), [DF]).
-
-%
-% Intervals
-%
-math(Flags, ci(L, U), New, X)
- => New = Flags,
-    X = brackets(list(',', [L, U])).
-
-math(Flags, '...'(L, U), New, X)
- => New = Flags,
-    X = xfx(699, '...', floor(L), ceiling(U)).
-
-math(Flags, floor(A), New, X),
-    number(A),
-    A < 0
- => select_option(digits(D), Flags, New0, 2),
-    New = [ceiling(D) | New0],
-    X = A.
-
-math(Flags, floor(A), New, X)
- => select_option(digits(D), Flags, New0, 2),
-    New = [floor(D) | New0],
-    X = A.
-
-math(Flags, ceiling(A), New, X),
-    number(A),
-    A < 0
- => select_option(digits(D), Flags, New0, 2),
-    New = [floor(D) | New0],
-    X = A.
- 
-math(Flags, ceiling(A), New, X)
- => select_option(digits(D), Flags, N, 2),
-    New = [ceiling(D) | N],
-    X = A.
-
-mathml :-
-    mathml('...'(-1.655, -1.555)).
-
-mathml :-
-    mathml('...'(1.555, 1.655)).
-
-mathml :-
-    mathml('...'(-1.655, 1.555)).
-
-%
-% R assignment
-%
-math(Flags, '<-'(L, R), New, X)
- => New = Flags,
-    X = xfx(700, ':=', L, R).
-
-%
-% Functions like f(x) and f(x; a, b)
-%
-ml(Flags, fn(Name, (Args ; Params)), M)
- => ml(Flags, Name, F),
-    ml(Flags, paren(list(sign(';'), [list(sign(','), Args), list(sign(','), Params)])), X),
-    M = mrow([F, mo(&(af)), X]).
-
-paren(Flags, fn(_Name, (Args ; Params)), Paren)
- => paren(Flags, paren(list(sign(','), Args)), X),
-    paren(Flags, paren(list(sign(','), Params)), Y),
-    Paren is max(X, Y).
-
-prec(Flags, fn(_Name, (_Args ; _Params)), Prec)
- => prec(Flags, a * b, Prec).
-
-type(_Flags, fn(_Name, (_Args ; _Params)), Type)
- => Type = paren.
-
-ml(Flags, fn(Name, [Arg]), M),
-    member(Name, ["sin", "cos", "tan"]),
-    prec(Flags, Arg, P),
-    P = 0
- => ml(Flags, Name, F),
-    ml(Flags, Arg, X),
-    M = mrow([F, mo(&(af)), X]).
-
-ml(Flags, fn(Name, [Arg]), M)
- => ml(Flags, Name, F),
-    ml(Flags, paren(list(sign(','), [Arg])), X),
-    M = mrow([F, mo(&(af)), X]).
-
-ml(Flags, fn(Name, Args), M)
- => ml(Flags, Name, F),
-    ml(Flags, paren(list(sign(','), Args)), X),
-    M = mrow([F, mo(&(af)), X]).
-
-paren(Flags, fn(_Name, Args), Paren)
- => paren(Flags, paren(list(sign(','), Args)), Paren).
-
-prec(_Flags, fn(_Name, _Args), Prec)
- => current(Prec, yfx, *).
-
-type(_Flags, fn(_Name, _Args), Type)
- => Type = paren.
-
-%
-% Defaults
-%
-math(Flags, A, New, X)
- => A = X,
-    New = Flags.
-
-paren(Flags, A, Den),
-    math(Flags, A, New, M),
-    dif(Flags-A, New-M)
- => paren(New, M, Den).
-
-paren(_, _, P) =>
-    P = 0.
-
-prec(Flags, A, Den),
-    math(Flags, A, New, M),
-    dif(Flags-A, New-M)
- => prec(New, M, Den).
-
-prec(_, _, P) =>
-    P = 0.
-
-type(Flags, A, Type),
-    math(Flags, A, New, M),
-    dif(Flags-A, New-M)
- => type(New, M, Type).
-
-type(_Flags, A, Type),
-    compound(A)
- => Type = compound.
-
-denoting(Flags, A, Den),
-    math(Flags, A, New, M),
-    dif(Flags-A, New-M)
- => denoting(New, M, Den).
-
-denoting(Flags, Expression, Den),
-    compound(Expression)
- => compound_name_arguments(Expression, _, Arguments),
-    maplist(denoting(Flags), Arguments, List),
-    append(List, Den).
-
-% If everything fails, there is no abbreviation
-denoting(_Flags, _, Den)
- => Den = [].
-
-% Precedence
-current(Prec, Fix, Op),
-    atom(Op)
- => current_op(Prec, Fix, Op).
+colors(Expr, Flags) :-
+    bugs(Expr, Bugs),
+    findall(C, color(C), Colors),
+    findall(color(B, C), (nth0(N, Bugs, B), N10 is N mod 10, nth0(N10, Colors, C)), Flags0),
+    fmt(Flags0, Expr, Res),
+    sort(Res, Flags).
 
 % Bugs
 bugs(Expr, Bugs) :-
@@ -2152,7 +103,6 @@ bugs_(omit(Bug, Expr), List)
  => bugs_(Expr, Bugs),
     List = [Bug | Bugs].
 
-%Kopie add
 bugs_(add(Bug, Expr), List)
  => bugs_(Expr, Bugs),
     List = [Bug | Bugs].
@@ -2190,12 +140,27 @@ bugs_(X, List),
     maplist(bugs_, Args, Bugs),
     append(Bugs, List).
 
-colors(Expr, Flags) :-
-    bugs(Expr, Bugs),
-    findall(C, color(C), Colors),
-    findall(color(B, C), (nth0(N, Bugs, B), N10 is N mod 10, nth0(N10, Colors, C)), Flags0),
-    fmt(Flags0, Expr, Res),
-    sort(Res, Flags).
+color("dark").
+color("$blue").   % #0d6efd
+color("$indigo"). % #6610f2
+color("$purple"). % #6f42c1
+color("$pink").   % #d63384
+color("$red").    % #dc3545
+color("$orange"). % #fd7e14
+color("$yellow"). % #ffc107
+color("$green").  % #198754
+color("$teal").   % #20c997
+color("$cyan").   % #0dcaf0
+
+ml(color(C, A), M, Flags),
+    atom(C)
+ => member(color(C, S), Flags),
+    ml(color(S, A), M, Flags).
+
+ml(color(C, A), M, Flags),
+    string(C)
+ => ml(A, X, Flags),
+    M = mstyle(mathcolor(C), X).
 
 fmt(Flags, Expr, F),
     atomic(Expr)
@@ -2222,3 +187,2700 @@ fmt(Flags, Expr, F),
     maplist(fmt(Flags), Args, Res),
     append(Res, F).
 
+mathml(A, X, With, Flags) :-
+    ml(A, M, Flags),
+    !,
+    X = math(M),
+    denoting(A, Denoting, Flags),
+    ml(with(Denoting), With, Flags).
+
+mathml(A, X, _, Flags) :-
+    ml("Conversion failed: ~w"-A, X, Flags).
+
+%
+% Formatting numbers
+%
+math(tstat(A), X, Flags, Flags1)
+ => Flags1 = [digits(2) | Flags],
+    A = X.
+
+math(hdrs(A), X, Flags, Flags1)
+ => Flags1 = [digits(1) | Flags],
+    A = X.
+
+math(chi2ratio(A), X, Flags, Flags1)
+ => Flags1 = [digits(2) | Flags],
+    A = X.
+
+math(perc(A), X, Flags, Flags1)
+ => option(digits(D0), Flags, 2),
+    D is D0 - 2,
+    Flags1 = [digits(D), mult(100) | Flags],
+    X = list("", [A, '%']).
+
+math(pval(A), X, Flags, Flags1)
+ => Flags1 = [digits(3) | Flags],
+    A = X.
+
+% Hyphen
+math(hyph(L, R), X)
+ => X = list(&('#8209'), [L, R]).
+
+% End legacy code
+
+% Translate R expression to HTML/MathJax term
+% mathml(R, M, Flags)
+%  => ml(R, M0, Flags),
+%     denoting(R, Denoting, Flags),
+%     ml(with(Denoting), With, Flags),
+%     !, M = [math(M0), With].
+%
+% mathjax(R, M, Flags)
+%  => jax(R, M0, Flags),
+%     denoting(R, Denoting, Flags),
+%     jax(with(Denoting), With, Flags),
+%     !, format(string(M), "$~w$~w", [M0, With]).
+
+% Check if a macro has been defined in an external module
+macro(A, M, Flags, Flags1) :-
+    nb_current(topic, _),
+    b_getval(topic, Topic),
+    Topic:math_hook(A, M0), 
+    !, Flags1 = Flags,
+    M = M0.
+
+% Translates the R expression to another R expression M, checking for Flags
+% and eventually changing Flags to Flags1
+%
+macro(R, M, Flags, Flags1) :-
+    math_hook(R, M0),            % math hook from R
+    !, Flags1 = Flags,
+    M = M0.
+
+macro(R, M, Flags, Flags1) :-
+    math(R, M, Flags, Flags1),   % math/4 macro changing Flags
+    dif(Flags-R, Flags1-M).
+
+macro(R, M, Flags, Flags) :-
+    math(R, M, Flags),           % math/3 only reading Flags
+    dif(R, M).
+
+macro(R, M, Flags, Flags) :-
+    math(R, M),                  % math/2 ignoring the flags
+    dif(R, M).
+
+% Main MathML translation
+%
+% R: R expression
+% M: HTML term
+% Flags: to control some aspects of the output
+%
+% This predicate only checks if a macro can be applied. Add ml/3 predicates for
+% R expressions with their translation below.
+%
+ml(R, M, Flags),
+    macro(R, R1, Flags, Flags1)
+ => ml(R1, M, Flags1).
+
+ml(R, M, Flags),
+    mlx(R, R1, Flags)            % R hook into ml/3
+ => M = R1.
+
+% Same for MathJax/LaTeX
+jax(R, M, Flags),
+    macro(R, R1, Flags, Flags1)
+ => jax(R1, M, Flags1).
+
+jax(R, M, Flags),
+    jaxx(R, R1, Flags)           % R hook
+ => M = R1.
+
+% Return precedence of an R expression, to decide if parentheses are
+% needed. Uses the usual Prolog precendence.
+prec(R, Prec, Flags),
+    macro(R, R1, Flags, Flags1)
+ => prec(R1, Prec, Flags1).
+
+prec(R, Prec, Flags),
+    precx(R, Prec1, Flags)
+ => Prec = Prec1.
+
+% Return parentheses counter of an R expression. Needed to decide
+% which shape is chosen (), [], {}, and restarting again with ().
+paren(R, Paren, Flags),
+    macro(R, R1, Flags, Flags1)
+ => paren(R1, Paren, Flags1).
+
+paren(R, Paren, Flags),
+    parenx(R, Paren1, Flags)
+ => Paren = Paren1.
+
+% Return some extra type information as a list.
+type(R, Type, Flags),
+    macro(R, R1, Flags, Flags1)
+ => type(R1, Type, Flags1).
+
+type(R, Type, Flags),
+    typex(R, Type1, Flags)
+ => Type = Type1.
+
+% Suppress the names of function arguments from R
+%
+% For instance, the R expression dbinom(x=5, size=20, prob=0.6) is
+% handed over to mathml as dbinom(name(x) = 5, name(size) = ...). This
+% macro removes the name of the arguments.
+math(name(_) = R, M)
+ => M = R.
+
+% These two predicate are only used for ad hoc testing from within
+% Prolog.
+%
+% Examples
+% mathml(sin(x)).
+% mathjax(sin(x)).
+%
+% mathml :-
+%     mathml(sin(x)).
+%
+mathml(R) :-
+    r2mathml(R, M),
+    atomic_list_concat(M, S),
+    writeln(R-S).
+
+mathjax(R) :-
+    r2mathjax(R, M),
+    atomic_list_concat(M, S),
+    writeln(R-S).
+
+% Performance can be a bit improved by putting Flags at the end of the
+% list of arguments and having the R term as the first argument.
+% However, some rules below use maplist. There it is convenient to have
+% Flags in the beginning.
+ml_(Flags, R, M)
+ => ml(R, M, Flags).
+
+jax_(Flags, R, M)
+ => jax(R, M, Flags).
+
+paren_(Flags, R, Paren)
+ => paren(R, Paren, Flags).
+
+denoting_(Flags, R, Den)
+ => denoting(R, Den, Flags).
+
+% Summation sign, product sign
+%
+% Sigma_range Arg
+% Sigma_from^to Arg
+%
+% Same for product and Pi
+%
+math(sum_over(Arg, Range), M)
+ => M = fn(subscript(sum, Range), [Arg]).
+
+math(sum_over(Arg, From, To), M)
+ => M = fn(subsupscript(sum, From, To), [Arg]).
+
+mathml :-
+    mathml(sum_over('['(x, i), i)).
+
+mathml :-
+    mathml(sum_over('['(x, i), i=1, n)).
+
+math(prod_over(Arg, Range), M)
+ => M = fn(subscript(prod, Range), [Arg]).
+
+math(prod_over(Arg, From, To), M)
+ => M = fn(subsupscript(prod, From, To), [Arg]).
+
+mathml :-
+    mathml(prod_over('['(x, i), i)).
+
+mathml :-
+    mathml(prod_over('['(x, i), i=1, n)).
+
+% Subscripts like x[i]
+%
+% Terms like x[i] are first translated to subscript(x, i). Then, it is
+% tested if the base is actually a power, and cases with simultaneous
+% index and power are translated to subsubscript(x, index, power). This
+% is necessary to avoid extra space in terms like x_i^2.
+%
+base(A, Base, Flags) :-
+    type(A, Type, Flags),
+    member(base(Base), Type).
+
+index(A, Idx, Flags) :-
+    type(A, Type, Flags),
+    member(index(Idx), Type).
+
+power(A, Pwr, Flags) :-
+    type(A, Type, Flags),
+    member(power(Pwr), Type).
+
+math(A, M, _Flags),
+    compound(A),
+    compound_name_arguments(A, '[', [Base | Idx])
+ => M = subscript(Base, list("", Idx)).
+
+math(subscript(A, Idx), M, Flags),
+    power(A, Pwr, Flags),
+    base(A, Base, Flags)
+ => M = subsupscript(Base, Idx, Pwr).
+
+ml(subscript(Base, Idx), M, Flags)
+ => ml(Base, X, Flags),
+    ml(Idx, Y, Flags),
+    M = msub([X, Y]).
+
+jax(subscript(Base, Idx), M, Flags)
+ => jax(Base, X, Flags),
+    jax(Idx, Y, Flags),
+    format(string(M), "{~w}_{~w}", [X, Y]).
+
+prec(subscript(Base, _Idx), P, Flags)
+ => prec(Base, P, Flags).
+
+type(subscript(Base, Idx), Type, Flags)
+ => type(Base, T, Flags),
+    Type = [base(Base), index(Idx) | T].
+
+mathml :-
+    mathml(subscript(x, i)).
+
+mathml :-
+    mathml('['(x, i)).
+
+mathml :-
+    mathml('['(x, i, 2)).
+
+% Superscripts like s^2
+%
+% See above for terms that have an index and a power at the same time.
+%
+math(Base^Pwr, M, _Flags)
+ => M = superscript(Base, Pwr).
+
+math(superscript(A, Pwr), M, Flags),
+    index(A, Idx, Flags),
+    base(A, Base, Flags)
+ => M = subsupscript(Base, Idx, Pwr).
+
+% Avoid parenthesis in sin^2 x
+math(superscript(Base, Pwr), M, Flags),
+    type(Base, Type, Flags),
+    \+ member(special, Type),
+    prec(Base, P, Flags),
+    current_op(Hat, xfy, ^),
+    P >= Hat
+ => M = superscript(paren(Base), Pwr).
+
+ml(superscript(Base, Pwr), M, Flags)
+ => ml(Base, X, Flags),
+    ml(Pwr, Y, Flags),
+    M = msup([X, Y]).
+
+jax(superscript(Base, Pwr), M, Flags)
+ => jax(Base, X, Flags),
+    jax(Pwr, Y, Flags),
+    format(string(M), "{~w}^{~w}", [X, Y]).
+
+prec(superscript(_Base, _Pwr), P, _Flags)
+ => current_op(P, xfy, ^).
+
+type(superscript(Base, Pwr), Type, Flags)
+ => type(Base, T, Flags),
+    Type = [base(Base), power(Pwr) | T].
+
+mathml :-
+    mathml(superscript(x, 2)).
+
+mathml :-
+    mathml(x^2).
+
+mathml :-
+    mathml(-1 ^ 2).
+
+% Subscripts and superscripts
+%
+math(subsupscript(Base, Idx, Pwr), M, Flags),
+    type(Base, Type, Flags),
+    \+ member(special, Type),
+    prec(Base, P, Flags),
+    current_op(Hat, xfy, ^),
+    P >= Hat
+ => M = subsupscript(paren(Base), Idx, Pwr).
+
+ml(subsupscript(Base, Idx, Pwr), M, Flags)
+ => ml(Base, X, Flags),
+    ml(Idx, Y, Flags),
+    ml(Pwr, Z, Flags),
+    M = msubsup([X, Y, Z]).
+
+jax(subsupscript(Base, Idx, Pwr), M, Flags)
+ => jax(Base, X, Flags),
+    jax(Idx, Y, Flags),
+    jax(Pwr, Z, Flags),
+    format(string(M), "{~w}_{~w}^{~w}", [X, Y, Z]).
+
+prec(subsupscript(Base, _Idx, Pwr), P, Flags)
+ => prec(subscript(Base, Pwr), P, Flags).
+
+type(subsupscript(Base, Idx, Pwr), Type, Flags)
+ => type(Base, T, Flags),
+    Type = [base(Base), index(Idx), power(Pwr) | T].
+
+mathml :-
+    mathml(subsupscript(x, i, 2)).
+
+mathml :-
+    mathml(subsupscript(-1, i, 2)).
+
+mathml :-
+    mathml('['(x, i)^2).
+
+% Strings are translated to upright text
+math(R, M),
+    string(R)
+ => M = text(R).
+
+ml(text(R), M, _Flags)
+ => M = mtext(R).
+
+jax(text(R), M, _Flags)
+ => format(string(M), "\\mathrm{~w}", [R]).
+
+type(text(_), T, _Flags)
+ => T = [atomic].
+
+mathml :-
+    mathml("text").
+
+mathjax :-
+    mathjax("text").
+
+% Atoms with the name of greek letters are shown in greek
+math(R, M),
+    atom(R),
+    memberchk(R, [alpha, beta, gamma, delta, epsilon, varepsilon, zeta, eta,
+        theta, vartheta, iota, kappa, lambda, mu, nu, xi, pi, rho, sigma,
+        varsigma, tau, upsilon, phi, varphi, chi, psi, omega, 'Gamma', 'Delta',
+        'Theta', 'Lambda', 'Xi', 'Pi', 'Sigma', 'Upsilon', 'Phi', 'Psi',
+        'Omega'])
+ => M = greek(R).
+
+ml(greek(R), M, _Flags)
+ => M = mi(&(R)).
+
+jax(greek(R), M, _Flags)
+ => format(string(M), "\\~w", [R]).
+
+type(greek(_), T, _Flags)
+ => T = [atomic].
+
+mathml :-
+    mathml(alpha).
+
+% Some special symbols that are rendered as is in MathML and MathJax
+%
+% As it is now, this is only the diamond.
+math(R, M),
+    atom(R),
+    memberchk(R, [diamond])
+ => M = symbol(R).
+
+ml(&(A), M, _Flags)
+ => M = &(A).
+
+ml(symbol(R), M, _Flags)
+ => M = mi(&(R)).
+
+jax(symbol(R), M, _Flags)
+ => format(string(M), "\\~w", [R]).
+
+type(symbol(_), T, _Flags)
+ => T = [atomic].
+
+% Booleans
+math(true, M)
+ => M = boolean("T").
+
+math(false, M)
+ => M = boolean("F").
+
+ml(boolean(R), M, _Flags)
+ => M = mi(R).
+
+jax(boolean(R), M, _Flags)
+ => format(string(M), "~w", [R]).
+
+type(boolean(_), T, _Flags)
+ => T = [atomic].
+
+mathml :-
+    mathml(true),
+    mathml(false).
+
+% Sets
+%
+% render is.null(A) as A = \emptyset
+math('is.null'(R), M)
+ => M = (R == null).
+
+math(null, M)
+ => M = set(empty).
+
+ml(set(empty), M, _Flags)
+ => M = mi(&(empty)).
+
+jax(set(empty), M, _Flags)
+ => M = "\\emptyset".
+
+type(set(empty), T, _Flags)
+ => T = [atomic].
+
+% Special functions with powers: sin^2(x)
+%
+% Note that powers are stored in the Flags.
+math(sin(A), M, Flags, Flags2),
+    select(superscript(Pwr), Flags, Flags1)
+ => Flags2 = Flags1,
+    M = fn(sin^Pwr, [A]).
+
+math(sinpi(A), M, Flags, Flags2),
+    select(superscript(Pwr), Flags, Flags1)
+ => Flags2 = Flags1,
+    M = fn(sinpi^Pwr, [A]).
+
+math(cos(A), M, Flags, Flags2),
+    select(superscript(Pwr), Flags, Flags1)
+ => Flags2 = Flags1,
+    M = fn(cos^Pwr, [A]).
+
+math(cospi(A), M, Flags, Flags2),
+    select(superscript(Pwr), Flags, Flags1)
+ => Flags2 = Flags1,
+    M = fn(cospi^Pwr, [A]).
+
+math(tan(A), M, Flags, Flags2),
+    select(superscript(Pwr), Flags, Flags1)
+ => Flags2 = Flags1,
+    M = fn(tan^Pwr, [A]).
+
+math(tanpi(A), M, Flags, Flags2),
+    select(superscript(Pwr), Flags, Flags1)
+ => Flags2 = Flags1,
+    M = fn(tanpi^Pwr, [A]).
+
+% Special functions
+%
+special(A, _Flags) :-
+    atom(A),
+    memberchk(A, [sgn, sin, cos, tan, asin, arcsin, acos, arccos, atan,
+        arctan, arctan2, sinh, cosh, tanh, arsinh, arcosh, artanh, log,
+        exp, sum, prod, min, max, argmin, argmax]).
+
+math(R, M, Flags),
+    special(R, Flags)
+ => M = special(R).
+
+% Summation sign is an operator
+ml(special(sum), M, _Flags)
+ => M = mo(&(sum)).
+
+prec(special(sum), Prec, _Flags)
+ => current(P, yfx, *),
+    Prec is P + 1.
+
+ml(special(prod), M, _Flags)
+ => M = mo(&(prod)).
+
+prec(special(prod), Prec, _Flags)
+ => current(P, yfx, *),
+    Prec is P.
+
+ml(special(R), M, _Flags)
+ => M = mi(R).
+
+jax(special(sgn), M, _Flags)
+ => M = "\\mathrm{sgn}\\,".
+
+jax(special(argmin), M, _Flags)
+ => M = "\\arg\\min".
+
+jax(special(argmax), M, _Flags)
+ => M = "{\\arg\\max}".
+
+jax(special(R), M, _Flags)
+ => format(string(M), "\\~w", [R]).
+
+type(special(_), T, _Flags)
+ => T = [special].
+
+prec(special(sin), Prec, _Flags)
+ => Prec = 0.
+
+prec(special(cos), Prec, _Flags)
+ => Prec = 0.
+
+prec(special(tan), Prec, _Flags)
+ => Prec = 0.
+
+prec(special(sinh), Prec, _Flags)
+ => Prec = 0.
+
+prec(special(cosh), Prec, _Flags)
+ => Prec = 0.
+
+prec(special(tanh), Prec, _Flags)
+ => Prec = 0.
+
+prec(special(exp), Prec, _Flags)
+ => Prec = 0.
+
+prec(special(_), Prec, _Flags)
+ => current(Prec, yfx, *).
+
+mathml :-
+    mathml(exp(x)),
+    mathml(exp(x + y)).
+
+% Space
+%
+math(space, M)
+ => M = space(thinmathspace).
+
+ml(space(W), M, _Flags)
+ => M = mspace(width(W), []).
+
+jax(space(thinmathspace), M, _Flags)
+ => M = "\\,".
+
+jax(space(_Width), M, _Flags)
+ => M = "\\ ".
+
+% Atoms (in R, "symbols" or "names") are rendered in the
+% usual italic font (MathML renders multiletter atoms in upright font).
+%
+% Possible decorations: plain, bold, italic, cal (= calligraphic)
+%
+math(R, M),
+    atom(R)
+ => M = ident(R).
+
+math(plain(R), M, Flags0, Flags1)
+ => M = R,
+    Flags1 = [mathvariant(plain) | Flags0].
+
+math(bold(R), M, Flags0, Flags1)
+ => M = R,
+    Flags1 = [mathvariant(bold) | Flags0].
+
+math(italic(R), M, Flags0, Flags1)
+ => M = R,
+    Flags1 = [mathvariant(italic) | Flags0].
+
+math(cal(A), M, Flags, New)
+ => New = [mathvariant(calligraphy) | Flags],
+    M = A.
+
+ml(ident(R), M, Flags),
+    member(mathvariant(calligraphy), Flags)
+ => M = mi(mathvariant(script), R).
+
+ml(ident(R), M, Flags),
+    member(mathvariant(plain), Flags)
+ => M = mi(mathvariant(normal), R).
+
+ml(ident(R), M, Flags),
+    member(mathvariant(italic), Flags)
+ => M = mi(mathvariant(italic), R).
+
+ml(ident(R), M, Flags),
+    member(mathvariant(bold), Flags)
+ => M = mi(mathvariant(bold), R).
+
+ml(ident(R), M, _Flags)
+ => M = mi(R).
+
+jax(ident(R), M, Flags),
+    member(mathvariant(calligraphy), Flags)
+ => format(string(M), "\\mathcal{~w}", [R]).
+
+jax(ident(R), M, Flags),
+    member(mathvariant(plain), Flags)
+ => format(string(M), "\\mathrm{~w}", [R]).
+
+jax(ident(R), M, Flags),
+    member(mathvariant(italic), Flags)
+ => format(string(M), "\\mathit{~w}", [R]).
+
+jax(ident(R), M, Flags),
+    member(mathvariant(bold), Flags)
+ => format(string(M), "\\mathbf{~w}", [R]).
+
+jax(ident(R), M, _Flags)
+ => format(string(M), "~w", [R]).
+
+type(ident(_), T, _Flags)
+ => T = [atomic].
+
+% Linear model (render the equation)
+math(lm(F, _Data), M)
+ => M = F.
+
+% Functions from the R package base
+%
+% ignore return
+math(return(X), M)
+ => M = X.
+
+% |x|
+math(length(R), M)
+ => M = abs(R).
+
+ml(abs(R), M, Flags)
+ => ml(R, X, Flags),
+    M = mrow([mo(&(vert)), X, mo(&(vert))]).
+
+jax(abs(R), M, Flags)
+ => jax(R, X, Flags),
+    format(string(M), "{\\left\\vert{~w}\\right\\vert}", [X]).
+
+paren(abs(_), P, _Flags)
+ => P = 0.
+
+prec(abs(R), P, Flags)
+ => prec(paren(R), P, Flags).
+
+math(sign(R), M)
+ => M = fn(sgn, [R]).
+
+ml(sqrt(R), M, Flags)
+ => ml(R, X, Flags),
+    M = msqrt(X).
+
+jax(sqrt(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\sqrt{~w}", [X]).
+
+paren(sqrt(_), P, _Flags)
+ => P = 0.
+
+prec(sqrt(_), P, _Flags)
+ => current_op(P0, xfy, ^),
+    P is P0 + 1.
+
+math(sin(A), M)
+ => M = fn(sin, [A]).
+
+math(cos(A), M)
+ => M = fn(cos, [A]).
+
+math(tan(A), M)
+ => M = fn(tan, [A]).
+
+math(asin(A), M)
+ => M = fn(superscript(sin, -1), [A]).
+
+math(arcsin(A), M)
+ => M = fn(superscript(sin, -1), [A]).
+
+math(acos(A), M)
+ => M = fn(superscript(cos, -1), [A]).
+
+math(arccos(A), M)
+ => M = fn(superscript(cos, -1), [A]).
+
+math(atan(A), M)
+ => M = fn(superscript(tan, -1), [A]).
+
+math(arctan(A), M)
+ => M = fn(superscript(tan, -1), [A]).
+
+math(atan2(A, B), M)
+ => M = fn(superscript(tan, -1), [A, B]).
+
+math(sinpi(A), M)
+ => M = fn(sin, [A*pi]).
+
+math(cospi(A), M)
+ => M = fn(cos, [A*pi]).
+
+math(tanpi(A), M)
+ => M = fn(tan, [A*pi]).
+
+math(sinh(A), M)
+ => M = fn(sinh, [A]).
+
+math(cosh(A), M)
+ => M = fn(cosh, [A]).
+
+math(tanh(A), M)
+ => M = fn(tanh, [A]).
+
+math(asinh(A), M)
+ => M = fn(superscript(sinh, -1), [A]).
+
+math(acosh(A), M)
+ => M = fn(superscript(cosh, -1), [A]).
+
+math(atanh(A), M)
+ => M = fn(superscript(tanh, -1), [A]).
+
+% Show all as forall
+math(all(A), M)
+ => M = forall(A).
+
+ml(forall(A), M, Flags)
+ => ml(A, X, Flags),
+    M = mrow([mo(&('ForAll')), mo(&(af)), X]).
+
+jax(forall(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\forall{~w}", [X]).
+
+paren(forall(A), P, Flags)
+ => paren(A, P, Flags).
+
+prec(forall(_), P, _Flags)
+ => current(P, yfx, *).
+
+% Show any as exists
+math(any(A), M)
+ => M = exists(A).
+
+ml(exists(A), M, Flags)
+ => ml(A, X, Flags),
+    M = mrow([mo(&('Exists')), mo(&(af)), X]).
+
+jax(exists(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\exists{~w}", [X]).
+
+paren(exists(A), P, Flags)
+ => paren(A, P, Flags).
+
+prec(exists(_), P, _Flags)
+ => current(P, yfx, *).
+
+math(besselI(X, Nu), M)
+ => M = fn(subscript('I', Nu), [paren(X)]).
+
+math(besselK(X, Nu), M)
+ => M = fn(subscript('K', Nu), [paren(X)]).
+
+math(besselJ(X, Nu), M)
+ => M = fn(subscript('J', Nu), [paren(X)]).
+
+math(besselY(X, Nu), M)
+ => M = fn(subscript('Y', Nu), [paren(X)]).
+
+math(beta(A, B), M)
+ => M = fn('B', [A, B]).
+
+math(lbeta(A, B), M)
+ => M = log(beta(A, B)).
+
+math(gamma(A), M)
+ => M = fn('Gamma', [paren(A)]).
+
+math(lgamma(A), M)
+ => M = log(gamma(A)).
+
+math(digamma(A), M)
+ => M = frac(d, d*A) * log(gamma(A)).
+
+math(trigamma(A), M)
+ => M = frac(d^2, (d*A)^2) * log(gamma(A)).
+
+math(psigamma(x=A, deriv=Deriv), M)
+ => M = psigamma(A, Deriv).
+
+math(psigamma(A, Deriv), M)
+ => M = frac(d^(Deriv+2), (d*A)^(Deriv+2)) * log(gamma(A)).
+
+ml(choose(N, K), M, Flags)
+ => ml(N, X, Flags),
+    ml(K, Y, Flags),
+    M = mrow([mo('('), mfrac([linethickness(0)], [X, Y]), mo(')')]).
+
+jax(choose(N, K), M, Flags)
+ => jax(N, X, Flags),
+    jax(K, Y, Flags),
+    format(string(M), "\\binom{~w}{~w}", [X, Y]).
+
+paren(choose(_, _), P, _Flags)
+ => P = 1.
+
+prec(choose(_, _), P, _Flags)
+ => P = 0.
+
+type(choose(_, _), T, _Flags)
+ => T = paren.
+
+math(lchoose(N, K), M)
+ => M = log(choose(N, K)).
+
+math(factorial(N), M)
+ => current(Prec, xfy, ^),
+    M = yf(Prec, !, N).
+
+math(lfactorial(N), M)
+ => M = log(factorial(N)).
+
+math(and(A, B), M)
+ => current(Prec, xfy, ','),
+    M = xfy(Prec, and, A, B).
+
+math(or(A, B), M)
+ => current(Prec, xfy, ';'),
+    M = xfy(Prec, or, A, B).
+
+math(!(A), M)
+ => current(Prec, xfy, ^),
+    M = fy(Prec, not, A).
+
+math(xor(x=A, y=B), M)
+ => M = xor(A, B).
+
+math(xor(A, B), M)
+ => current(Prec, xfy, ';'),
+    M = xfy(Prec, veebar, A, B).
+
+math(exp(A), M)
+ => M = fn(exp, [A]).
+
+math(expm1(A), M)
+ => M = exp(A) - 1.
+
+math(log(X), M)
+ => M = fn(log, [X]).
+
+math(log10(X), M)
+ => M = logb(X, 10).
+
+math(log2(X), M)
+ => M = logb(X, 2).
+
+math(logb(X, B), M)
+ => M = fn(subscript(log, B), [X]).
+
+math(log1p(A), M)
+ => M = log(1 + A).
+
+ml(ceiling(A), M, Flags)
+ => ml(A, X, Flags),
+    M = mrow([mo(&(lceil)), X, mo(&(rceil))]).
+
+jax(ceiling(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\lceil{~w}\\rceil", [X]).
+
+paren(ceiling(_), P, _Flags)
+ => P is 0.
+
+ml(floor(A), M, Flags)
+ => ml(A, X, Flags),
+    M = mrow([mo(&(lfloor)), X, mo(&(rfloor))]).
+
+jax(floor(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\lfloor{~w}\\rfloor", [X]).
+
+paren(floor(_), P, _Flags)
+ => P is 0.
+
+% Represent function bodies as :-/2, '<-'/2
+math((_F :- Body), M)
+ => M = Body.
+
+math('<-'(R, S), M)
+ => M = (R == S).
+
+% Do not show curly brace around code blocks
+math(Curly, M, Flags),
+    compound(Curly),
+    compound_name_arguments(Curly, '{', Args)
+ => exclude(invisible_(Flags), Args, Args1),
+    M = body(Args1).
+
+invisible_(_Flags, invisible(_)).
+
+ml(body([R]), M, Flags)
+ => ml(R, M, Flags).
+
+ml(body(Body), M, Flags)
+ => maplist(ml_(Flags), Body, R),
+    M = mrow([mo('{'), mtable(columnalign(left), R)]).
+
+jax(body([R]), M, Flags)
+ => jax(R, M, Flags).
+
+jax(body(Body), M, Flags)
+ => maplist(jax_(Flags), Body, Ls),
+    atomic_list_concat(Ls, "}\\\\\n{", Rs),
+    format(string(M), "\\left\\{\\begin{array}{l}{~w}\\end{array}\\right.", [Rs]).
+
+% Hide (this is not phantom, see elsewhere)
+math(invisible(_), M, _Flags)
+ => M = ''.
+
+% Vectors: '##'(1, 2, 3) or '$$' or '%%' or '!!' for different types
+math(Hash, M, Flags),
+    option_(sep(Sep), Flags),
+    compound(Hash),
+    compound_name_arguments(Hash, Name, Elements),
+    member(Name, ['##', '$$', '%%', '!!'])
+ => M = paren(list(Sep, Elements)).
+
+math(Hash, M, _Flags),
+    compound(Hash),
+    compound_name_arguments(Hash, Name, Elements),
+    member(Name, ['##', '$$', '%%', '!!'])
+ => M = paren(Elements).
+
+% Matrices
+ml(Matrix, M, Flags),
+    compound(Matrix),
+    compound_name_arguments(Matrix, Name, Rows),
+    member(Name, ['###', '$$$', '%%%', '!!!'])
+ => maplist(ml_row(Flags), Rows, R),
+    M = mrow([mo('('), mtable(columnalign(left), R), mo(')')]).
+
+ml_row(Flags, Row, M),
+    compound(Row),
+    compound_name_arguments(Row, Name, Cells),
+    member(Name, ['##', '$$', '%%', '!!'])
+ => maplist(ml_cell(Flags), Cells, C),
+    M = mtr(C).
+
+ml_cell(Flags, Cell, M)
+ => ml(Cell, C, Flags),
+    M = mtd(C).
+
+jax(Matrix, M, Flags),
+    compound(Matrix),
+    compound_name_arguments(Matrix, Name, [Row1 | Rows]),
+    member(Name, ['###', '$$$', '%%%', '!!!'])
+ => findall(c, arg(_, Row1, _), Ls),
+    atomic_list_concat(Ls, LLL),
+    maplist(jax_row(Flags), [Row1 | Rows], R),
+    atomic_list_concat(R, Lines),
+    format(string(M), "\\left(\\begin{array}{~w}~w\\end{array}\\right)", [LLL, Lines]).
+
+jax_row(Flags, Row, M),
+    compound(Row),
+    compound_name_arguments(Row, Name, Cells),
+    member(Name, ['##', '$$', '%%', '!!'])
+ => maplist(jax_cell(Flags), Cells, C),
+    atomic_list_concat(C, ' & ', R),
+    format(string(M), "~w\\\\\n", [R]).
+
+jax_cell(Flags, C, M)
+ => jax(C, X, Flags),
+    format(string(M), "~w", [X]).
+
+math(Identical, M),
+    compound(Identical),
+    compound_name_arguments(Identical, identical, [X, Y])
+ => M = (X == Y).
+
+% Distinguish cases
+ml(ifelse(T, Y, N), M, Flags)
+ => ml(T, Test, Flags),
+    ml(Y, Yes, Flags),
+    ml(N, No, Flags),
+    ml(space, S, Flags),
+    M = mrow([mo('{'),
+      mtable(columnalign(left),
+      [ mtr([Yes, mrow([mtext("if"), S, Test])]),
+        mtr([No, mtext("otherwise")])
+      ])]).
+
+jax(ifelse(T, Y, N), M, Flags)
+ => jax(T, Test, Flags),
+    jax(Y, Yes, Flags),
+    jax(N, No, Flags),
+    format(string(M),
+      "\\left\\{\\begin{array}{ll} {~w} & \\mathrm{if}~~{~w}\\\\ {~w} & \\mathrm{otherwise}\\end{array}\\right.",
+      [Yes, Test, No]).
+
+paren(ifelse(_, _, _), P, _Flags)
+ => P is 0.
+
+ml(if(T, Y), M, Flags)
+ => ml(T, Test, Flags),
+    ml(Y, Yes, Flags),
+    ml(space, S, Flags),
+    M = mrow([Yes, mtext(","), S, mtext("if"), S, Test]).
+
+jax(if(T, Y), M, Flags)
+ => jax(T, Test, Flags),
+    jax(Y, Yes, Flags),
+    format(string(M), "{~w},\\ \\mathrm{if}\\ {~w}", [Yes, Test]).
+
+paren(if(_, _), P, _Flags)
+ => P is 0.
+
+math('%in%'(X, Y), M)
+ => M = isin(X, Y).
+
+math(setdiff(X, Y), M)
+ => M = X - Y.
+
+math('%x%'(X, Y), M)
+ => M = kronecker(X, Y).
+
+math('&'(A, B), M)
+ => M = and(A, B).
+
+math('|'(A, B), M)
+ => M = or(A, B).
+
+ml(Prod, M, Flags),
+    compound(Prod),
+    compound_name_arguments(Prod, prod, Args)
+ => maplist(ml_(Flags), Args, MX),
+    M = mrow([mo(&(prod)), mrow(MX)]).
+
+jax(prod(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\prod{~w}", [X]).
+
+jax(Prod, M, Flags),
+    compound(Prod),
+    compound_name_arguments(Prod, prod, Args)
+ => maplist(jax_(Flags), Args, X),
+    format(string(M), "\\prod{~w}", [X]).
+
+paren(Prod, P, Flags),
+    compound(Prod),
+    compound_name_arguments(Prod, prod, Args)
+ => maplist(paren_(Flags), Args, PX),
+    max_list(PX, P).
+
+prec(Prod, P, _Flags),
+    compound(Prod),
+    compound_name_arity(Prod, prod, _)
+ => current(P, yfx, *).
+
+math(Min, M),
+    compound(Min),
+    compound_name_arguments(Min, min, Args)
+ => M = fn(min, Args).
+
+math(Max, M),
+    compound(Max),
+    compound_name_arguments(Max, max, Args)
+ => M = fn(max, Args).
+
+math(t(A), M)
+ => M = A^"T".
+
+math(Which, M),
+    compound(Which),
+    compound_name_arguments(Which, which, Args)
+ => M = subscript("I", Args).
+
+math('which.max'(A), M)
+ => M = argmax(A).
+
+math('which.min'(A), M)
+ => M = argmin(A).
+
+% Extract value from a result (e.g., integrate)
+math($(Fn, "value"), M)
+ => M = Fn.
+
+% Integrate over range
+%
+% Case A: Fn is a function
+math(integrate(Fn, Lower, Upper), M, Flags),
+    Fn = (Head :- _Body),
+    compound(Head),
+    compound_name_arguments(Head, function, [DX | _]),
+    member(name-Name, Flags)
+ => M = integrate(fn(Name, [DX]), Lower, Upper, DX).
+
+math(integrate(Fn, Lower, Upper), M, _Flags),
+    Fn = (Head :- _Body),
+    compound(Head),
+    compound_name_arguments(Head, function, [DX | _])
+ => M = integrate(fn(lambda, [DX]), Lower, Upper, DX).
+
+% Case B: Fn is an atom (inquire R for argument names)
+math(integrate(Fn, Lower, Upper), M, _Flags),
+    atom(Fn)
+ => r_eval('['(formalArgs(args(Fn)), 1), Arg1),
+    atom_string(DX, Arg1),
+    M = integrate(fn(Fn, [DX]), Lower, Upper, DX).
+
+% Internal
+ml(integrate(Fn, From, To, DX), M, Flags)
+ => ml(Fn, XFn, Flags),
+    ml(From, XFrom, Flags),
+    ml(To, XTo, Flags),
+    ml(DX, XDX, Flags),
+    ml(space, Space, Flags),
+    M = mrow([munderover([mo(&(int)), XFrom, XTo]), XFn, Space, mi(d), XDX]).
+
+jax(integrate(Fn, From, To, DX), M, Flags)
+ => jax(Fn, XFn, Flags),
+    jax(From, XFrom, Flags),
+    jax(To, XTo, Flags),
+    jax(DX, XDX, Flags),
+    format(string(M), "\\int_{~w}^{~w}{~w}\\,{d{~w}}", [XFrom, XTo, XFn, XDX]).
+
+paren(integrate(_, _, _, A), Paren, Flags)
+ => paren(A, Paren, Flags).
+
+prec(integrate(_, _, _, _), Prec, _Flags)
+ => current(Prec, yfx, *).
+
+% Decorations
+math(roof(A), M)
+ => M = hat(A).
+
+ml(hat(A), M, Flags)
+ => ml(A, X, Flags),
+    M = mover(accent(true), [X, mo(&('Hat'))]).
+
+jax(hat(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\hat{~w}", [X]).
+
+paren(hat(A), Paren, Flags)
+ => paren(A, Paren, Flags).
+
+prec(hat(A), Prec, Flags)
+ => prec(A, Prec, Flags).
+
+type(hat(A), Type, Flags)
+ => type(A, Type, Flags).
+
+ml(tilde(A), M, Flags)
+ => ml(A, X, Flags),
+    M = mover(accent(true), [X, mo(&(tilde))]).
+
+jax(tilde(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\tilde{~w}", [X]).
+
+paren(tilde(A), Paren, Flags)
+ => paren(A, Paren, Flags).
+
+prec(tilde(A), Prec, Flags)
+ => prec(A, Prec, Flags).
+
+type(tilde(A), Type, Flags)
+ => type(A, Type, Flags).
+
+math(mean(A), M)
+ => M = overline(A).
+
+ml(overline(A), M, Flags)
+ => ml(A, X, Flags),
+    M = mover(accent(true), [X, mo(&(macr))]).
+
+jax(overline(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\overline{~w}", [X]).
+
+paren(overline(A), Paren, Flags)
+ => paren(A, Paren, Flags).
+
+% Put overline(x)^2 in parentheses
+prec(overline(_), Prec, _Flags)
+ => current(P, yfx, *),
+    Prec = P.
+
+type(overline(A), Type, Flags)
+ => type(A, Type, Flags).
+
+ml(cancel(A), M, Flags)
+ => ml(A, X, Flags),
+    M = menclose(notation(updiagonalstrike), X).
+
+jax(cancel(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\cancel{~w}", [X]).
+
+paren(cancel(A), Paren, Flags)
+ => paren(A, Paren, Flags).
+
+prec(cancel(A), Prec, Flags)
+ => prec(A, Prec, Flags).
+
+type(cancel(A), Type, Flags)
+ => type(A, Type, Flags).
+
+math(boxed(A), M)
+ => M = box(A).
+
+ml(box(A), M, Flags)
+ => ml(A, X, Flags),
+    M = menclose(notation(roundedbox), X).
+
+jax(box(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\boxed{~w}", [X]).
+
+paren(box(A), Paren, Flags)
+ => paren(A, Paren, Flags).
+
+prec(box(A), Prec, Flags)
+ => prec(A, Prec, Flags).
+
+type(box(A), Type, Flags)
+ => type(A, Type, Flags).
+
+ml(phantom(A), M, Flags)
+ => ml(A, X, Flags),
+    M = mphantom(X).
+
+jax(phantom(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\phantom{~w}", [X]).
+
+paren(phantom(A), Paren, Flags)
+ => paren(A, Paren, Flags).
+
+prec(phantom(A), Prec, Flags)
+ => prec(A, Prec, Flags).
+
+type(phantom(A), Type, Flags)
+ => type(A, Type, Flags).
+
+ml(prime(A), M, Flags)
+ => ml(A, X, Flags),
+    M = msup([X, mo(&('#x2032'))]).
+
+jax(prime(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "{~w^\\prime}", [X]).
+
+paren(prime(A), Paren, Flags)
+ => paren(A, Paren, Flags).
+
+% Put prime(x)^2 in parentheses
+prec(prime(_), Prec, _Flags)
+ => current(P, yfx, *),
+    Prec = P.
+
+type(prime(A), Type, Flags)
+ => type(A, Type, Flags).
+
+%
+% Mathematical operators/signs
+%
+ml(op(le), M, _Flags)
+ => M = mo(&(le)).
+
+jax(op(le), M, _Flags)
+ => M = "\\le".
+
+ml(op(ge), M, _Flags)
+ => M = mo(&(ge)).
+
+jax(op(ge), M, _Flags)
+ => M = "\\ge".
+
+ml(op(ne), M, _Flags)
+ => M = mo(&(ne)).
+
+jax(op(ne), M, _Flags)
+ => M = "\\ne".
+
+ml(op('%.%'), M, _Flags)
+ => M = mo(&(sdot)).
+
+jax(op('%.%'), M, _Flags)
+ => M = "\\cdot".
+
+ml(op('%+-%'), M, _Flags)
+ => M = mo(&(pm)).
+
+jax(op('%+-%'), M, _Flags)
+ => M = "\\pm".
+
+ml(op('%*%'), M, _Flags)
+ => M = mo(&(times)).
+
+jax(op('%*%'), M, _Flags)
+ => M = "\\times".
+
+ml(op(sum), M, _Flags)
+ => M = mo(&(sum)).
+
+jax(op(sum), M, _Flags)
+ => M = "\\sum".
+
+ml(op(prod), M, _Flags)
+ => M = mo(&(prod)).
+
+jax(op(prod), M, _Flags)
+ => M = "\\prod".
+
+ml(op('#58'), M, _Flags)
+ => M = mo(&('#58')).
+
+jax(op('#58'), M, _Flags)
+ => M = ":".
+
+ml(op(','), M, _Flags)
+ => M = mo(',').
+
+jax(op(','), M, _Flags)
+ => M = ",".
+
+ml(op('CircleTimes'), M, _Flags)
+ => M = mo(&('CircleTimes')).
+
+jax(op('CircleTimes'), M, _Flags)
+ => M = "\\otimes".
+
+ml(op('#x2062'), M, _Flags)
+ => M = mo(&('#x2062')).
+
+jax(op('#x2062'), M, _Flags)
+ => M = "{}".
+
+ml(op('Tilde'), M, _Flags)
+ => M = mo(&('Tilde')).
+
+jax(op('Tilde'), M, _Flags)
+ => M = "\\sim".
+
+ml(op('%<->%'), M, _Flags)
+ => M = mo(&(leftrightarrow)).
+
+jax(op('%<->%'), M, _Flags)
+ => M = "\\leftrightarrow".
+
+ml(op('%<=>%'), M, _Flags)
+ => M = mo(&(iff)).
+
+jax(op('%<=>%'), M, _Flags)
+ => M = "\\iff".
+
+ml(op('%->%'), M, _Flags)
+ => M = mo(&(rightarrow)).
+
+jax(op('%->%'), M, _Flags)
+ => M = "\\rightarrow".
+
+ml(op('%=>%'), M, _Flags)
+ => M = mo(&(rArr)).
+
+jax(op('%=>%'), M, _Flags)
+ => M = "\\Rightarrow".
+
+ml(op('%<-%'), M, _Flags)
+ => M = mo(&(leftarrow)).
+
+jax(op('%<-%'), M, _Flags)
+ => M = "\\leftarrow".
+
+ml(op('%<=%'), M, _Flags)
+ => M = mo(&(lArr)).
+
+jax(op('%<=%'), M, _Flags)
+ => M = "\\Leftarrow".
+
+ml(op('%up%'), M, _Flags)
+ => M = mo(&(uparrow)).
+
+jax(op('%up%'), M, _Flags)
+ => M = "\\uparrow".
+
+ml(op('%dblup%'), M, _Flags)
+ => M = mo(&(uArr)).
+
+jax(op('%dblup%'), M, _Flags)
+ => M = "\\Uparrow".
+
+ml(op('%down%'), M, _Flags)
+ => M = mo(&(downarrow)).
+
+jax(op('%down%'), M, _Flags)
+ => M = "\\downarrow".
+
+ml(op('%dbldown%'), M, _Flags)
+ => M = mo(&(dArr)).
+
+jax(op('%dbldown%'), M, _Flags)
+ => M = "\\Downarrow".
+
+ml(op('%~~%'), M, _Flags)
+ => M = mo(&(approx)).
+
+jax(op('%~~%'), M, _Flags)
+ => M = "\\approx".
+
+ml(op('%==%'), M, _Flags)
+ => M = mo(&(equiv)).
+
+jax(op('%==%'), M, _Flags)
+ => M = "\\equiv".
+
+ml(op('%=~%'), M, _Flags)
+ => M = mo(&(cong)).
+
+jax(op('%=~%'), M, _Flags)
+ => M = "\\cong".
+
+ml(op('%prop%'), M, _Flags)
+ => M = mo(&(prop)).
+
+jax(op('%prop%'), M, _Flags)
+ => M = "\\propto".
+
+ml(op(and), M, _Flags)
+ => M = mo(&(and)).
+
+jax(op(and), M, _Flags)
+ => M = "\\land".
+
+ml(op(or), M, _Flags)
+ => M = mo(&(or)).
+
+jax(op(or), M, _Flags)
+ => M = "\\lor".
+
+ml(op(not), M, _Flags)
+ => M = mo(&(not)).
+
+jax(op(not), M, _Flags)
+ => M = "\\lnot".
+
+ml(op(veebar), M, _Flags)
+ => M = mo(&(veebar)).
+
+jax(op(veebar), M, _Flags)
+ => M = "\\veebar".
+
+ml(op(isin), M, _Flags)
+ => M = mo(&(isin)).
+
+jax(op(isin), M, _Flags)
+ => M = "\\in".
+
+ml(op(notin), M, _Flags)
+ => M = mo(&(notin)).
+
+jax(op(notin), M, _Flags)
+ => M = "\\notin".
+
+ml(op(cap), M, _Flags)
+ => M = mo(&(cap)).
+
+jax(op(cap), M, _Flags)
+ => M = "\\cap".
+
+ml(op(cup), M, _Flags)
+ => M = mo(&(cup)).
+
+jax(op(cup), M, _Flags)
+ => M = "\\cup".
+
+ml(op(A), M, _Flags)
+ => M = mo(A).
+
+jax(op(A), M, _Flags)
+ => format(string(M), "~w", [A]).
+
+prec(op(A), P, _Flags),
+    current(P0, _Fix, A)
+ => P = P0.
+
+current(0, fy, op(sum)).
+
+denoting(op(_), D, _Flags)
+ => D = [].
+
+% Numbers
+%
+% To avoid unnecessary decimals for integers, make it explicit in R: x^2L
+%
+math(A, M),
+    integer(A),
+    A >= 0
+ => M = posint(A).
+
+math(A, M),
+    integer(A)
+ => M = integer(A).
+
+math(integer(A), M),
+    A >= 0
+ => M = posint(A).
+
+math(integer(A), M)
+ => Abs is abs(A),
+    M = -posint(Abs).
+
+math(A, M),
+    number(A),
+    A >= 0
+ => M = pos(A).
+
+math(A, M),
+    number(A)
+ => M = number(A).
+
+% Needed for percent
+math(pos(A), X, Flags, Flags1),
+    option(mult(M), Flags)
+ => select_option(mult(M), Flags, Flags0),
+    Flags1 = [round(0) | Flags0],
+    N is M*A,
+    X = pos(N).
+
+ml(posint(A), M, _Flags)
+ => M = mn(A).
+
+ml(pos(1.0Inf), M, _Flags)
+ => M = mi(&('#x221E')).
+
+% Default number of decimals is 2, change it using Flags
+math(round(A, D), M, Flags0, Flags1)
+ => M = A,
+    Flags1 = [round(D) | Flags0].
+
+ml(pos(A), M, Flags)
+ => option(round(D), Flags, 2),
+    format(atom(Mask), '~~~wf', [D]),
+    format(string(X), Mask, [A]),
+    M = mn(X).
+
+jax(posint(A), M, _Flags)
+ => format(string(M), "~w", [A]).
+
+jax(pos(1.0Inf), M, _Flags)
+ => M = "\\infty".
+
+jax(pos(A), M, Flags)
+ => option(round(D), Flags, 2),
+    format(atom(Mask), '~~~wf', [D]),
+    format(string(M), Mask, [A]).
+
+type(pos(_), Type, _Flags)
+ => Type = [atomic].
+
+type(posint(_), Type, _Flags)
+ => Type = [atomic].
+
+math(number(A), M),
+    A < 0
+ => Abs is abs(A),
+    M = -pos(Abs).
+
+math(number(A), M)
+ => M = pos(A).
+
+% Operators
+math(isin(A, B), X)
+ => current_op(Prec, xfx, =),
+    X = yfx(Prec, isin, A, B).
+
+math(notin(A, B), X)
+ => current_op(Prec, xfx, =),
+    X = yfx(Prec, notin, A, B).
+
+math(intersect(A, B), X)
+ => current_op(Prec, yfx, *),
+    X = yfx(Prec, cap, A, B).
+
+math(union(A, B), X)
+ => current_op(Prec, yfx, *),
+    X = yfx(Prec, cup, A, B).
+
+math(':'(A, B), X)
+ => current_op(Prec, yfx, *),
+    X = yfx(Prec, '#58', A, B).
+
+math(kronecker(A, B), X)
+ => current_op(Prec, yfx, *),
+    X = yfx(Prec, 'CircleTimes', A, B).
+
+math('=='(A, B), X)
+ => X = '='(A, B).
+
+math(A = B, X)
+ => current_op(Prec, xfx, =),
+    X = yfy(Prec, =, A, B).
+
+math(A \= B, X)
+ => current_op(Prec, xfx, \=),
+    X = xfx(Prec, ne, A, B).
+
+math(A < B, X)
+ => current_op(Prec, xfx, <),
+    X = yfy(Prec, <, A, B).
+
+math(A =< B, X)
+ => current_op(Prec, xfx, =<),
+    X = yfy(Prec, le, A, B).
+
+math(~(A, B), X)
+ => current_op(Prec, xfx, =),
+    X = yfy(Prec, 'Tilde', A, B).
+
+math('%<->%'(A, B), X)
+ => current_op(Prec, xfy, ->),
+    X = yfy(Prec, '%<->%', A, B).
+
+math('%<=>%'(A, B), X)
+ => current_op(Prec, xfy, ->),
+    X = yfy(Prec, '%<=>%', A, B).
+
+math('%->%'(A, B), X)
+ => current_op(Prec, xfy, ->),
+    X = yfy(Prec, '%->%', A, B).
+
+math('%=>%'(A, B), X)
+ => current_op(Prec, xfy, ->),
+    X = yfy(Prec, '%=>%', A, B).
+
+math('%<-%'(A, B), X)
+ => current_op(Prec, xfy, ->),
+    X = yfy(Prec, '%<-%', A, B).
+
+math('%<=%'(A, B), X)
+ => current_op(Prec, xfy, ->),
+    X = yfy(Prec, '%<=%', A, B).
+
+math('%up%'(A, B), X)
+ => current_op(Prec, xfy, ->),
+    X = yfy(Prec, '%up%', A, B).
+
+math('%dblup%'(A, B), X)
+ => current_op(Prec, xfy, ->),
+    X = yfy(Prec, '%dblup%', A, B).
+
+math('%down%'(A, B), X)
+ => current_op(Prec, xfy, ->),
+    X = yfy(Prec, '%down%', A, B).
+
+math('%dbldown%'(A, B), X)
+ => current_op(Prec, xfy, ->),
+    X = yfy(Prec, '%dbldown%', A, B).
+
+math('%==%'(A, B), X)
+ => current_op(Prec, xfx, =),
+    X = yfy(Prec, '%==%', A, B).
+
+math('%=~%'(A, B), X)
+ => current_op(Prec, xfx, =),
+    X = yfy(Prec, '%=~%', A, B).
+
+math('%prop%'(A, B), X)
+ => current_op(Prec, xfx, =),
+    X = yfy(Prec, '%prop%', A, B).
+
+math(A > B, X)
+ => current_op(Prec, xfx, >),
+    X = yfy(Prec, >, A, B).
+
+math(A >= B, X)
+ => current_op(Prec, xfx, >=),
+    X = yfy(Prec, ge, A, B).
+
+math(+A, X)
+ => current_op(Prec, yfx, +),
+    X = fy(Prec, +, A).
+
+math(A + B, X)
+ => current_op(Prec, yfx, +),
+    X = yfy(Prec, +, A, B).
+
+math(-A, X)
+ => current_op(Prec, yfx, -),
+    X = fy(Prec, -, A).
+
+math(A - B, X)
+ => current_op(Prec, yfx, -),
+    X = yfy(Prec, -, A, B).
+
+% Suppress multiplication dot in simple expressions
+math(A * B, X, Flags),
+    type(A, TypeA, Flags),
+    member(atomic, TypeA),
+    type(B, TypeB, Flags),
+    member(atomic, TypeB)
+ => X = nodot(A, B).
+
+math(A * B, X, Flags),
+    current_op(Mult, yfx, *),
+    prec(A, Prec, Flags),
+    Prec =< Mult,
+    type(A, TypeA, Flags),
+    (member(atomic, TypeA) ; member(op, TypeA)),
+    type(B, TypeB, Flags),
+    member(atomic, TypeB)
+ => X = nodot(A, B).
+
+% Different multiplication signs
+math(A * B, M)
+ => M = '%.%'(A, B).
+
+math(times(A, B), M)
+  => M = '%*%'(A, B).
+
+math(crossprod(A, B), M)
+ => M = '%*%'(t(A), B).
+
+math(tcrossprod(A, B), M)
+ => M = '%*%'(A, t(B)).
+
+math('%~~%'(A, B), X)
+ => current_op(Prec, xfx, =),
+    X = yfy(Prec, '%~~%', A, B).
+
+math(~(A, B), X)
+ => current_op(Prec, xfx, =),
+    X = yfy(Prec, 'Tilde', A, B).
+
+math(dot(A, B), X)
+ => X = '%.%'(A, B).
+
+math('%.%'(A, B), X)
+ => current_op(Prec, yfx, *),
+    X = yfy(Prec, '%.%', A, B).
+
+math('%+-%'(A, B), X)
+ => current_op(Prec, yfx, +),
+    X = yfy(Prec, '%+-%', A, B).
+
+math(nodot(A, B), X)
+ => current_op(Prec, yfx, *),
+    X = yfy(Prec, '#x2062', A, B).
+
+math('%*%'(A, B), X)
+ => current_op(Prec, yfx, *),
+    X = yfy(Prec, '%*%', A, B).
+
+math(A / B, X)
+ => current_op(Prec, yfx, /),
+    X = yfx(Prec, /, A, B).
+
+math((A ; B), X)
+ => current_op(Prec, xfy, ;),
+    X = xfy(Prec, ;, A, B).
+
+math(A^B, X)
+ => X = superscript(A, B).
+
+% Render operators with the appropriate parentheses
+ml(fy(Prec, Op, A), M, Flags)
+ => ml(op(Op), S, Flags),
+    ml(right(Prec, A), X, Flags),
+    M = mrow([S, X]).
+
+ml(yf(Prec, Op, A), M, Flags)
+ => ml(op(Op), S, Flags),
+    ml(left(Prec, A), X, Flags),
+    M = mrow([X, S]).
+
+ml(xfx(Prec, Op, A, B), M, Flags)
+ => ml(left(Prec-1, A), X, Flags),
+    ml(op(Op), S, Flags),
+    ml(right(Prec-1, B), Y, Flags),
+    M = mrow([X, S, Y]).
+
+ml(yfx(Prec, Op, A, B), M, Flags)
+ => ml(left(Prec, A), X, Flags),
+    ml(op(Op), S, Flags),
+    ml(right(Prec-1, B), Y, Flags),
+    M = mrow([X, S, Y]).
+
+ml(xfy(Prec, Op, A, B), M, Flags)
+ => ml(left(Prec-1, A), X, Flags),
+    ml(op(Op), S, Flags),
+    ml(right(Prec, B), Y, Flags),
+    M = mrow([X, S, Y]).
+
+ml(yfy(Prec, Op, A, B), M, Flags)
+ => ml(left(Prec, A), X, Flags),
+    ml(op(Op), S, Flags),
+    ml(right(Prec, B), Y, Flags),
+    M = mrow([X, S, Y]).
+
+jax(fy(Prec, Op, A), M, Flags)
+ => jax(op(Op), S, Flags),
+    jax(right(Prec, A), X, Flags),
+    format(string(M), "{~w}{~w}", [S, X]).
+
+jax(yf(Prec, Op, A), M, Flags)
+ => jax(op(Op), S, Flags),
+    jax(left(Prec, A), X, Flags),
+    format(string(M), "{~w}{~w}", [X, S]).
+
+jax(xfx(Prec, Op, A, B), M, Flags)
+ => jax(left(Prec-1, A), X, Flags),
+    jax(op(Op), S, Flags),
+    jax(right(Prec-1, B), Y, Flags),
+    format(string(M), "{~w}{~w}{~w}", [X, S, Y]).
+
+jax(yfx(Prec, Op, A, B), M, Flags)
+ => jax(left(Prec, A), X, Flags),
+    jax(op(Op), S, Flags),
+    jax(right(Prec-1, B), Y, Flags),
+    format(string(M), "{~w}{~w}{~w}", [X, S, Y]).
+
+jax(xfy(Prec, Op, A, B), M, Flags)
+ => jax(left(Prec-1, A), X, Flags),
+    jax(op(Op), S, Flags),
+    jax(right(Prec, B), Y, Flags),
+    format(string(M), "{~w}{~w}{~w}", [X, S, Y]).
+
+jax(yfy(Prec, Op, A, B), M, Flags)
+ => jax(left(Prec, A), X, Flags),
+    jax(op(Op), S, Flags),
+    jax(right(Prec, B), Y, Flags),
+    format(string(M), "{~w}{~w}{~w}", [X, S, Y]).
+
+denoting(fy(_, _, A), D, Flags)
+ => denoting(A, D, Flags).
+
+denoting(yf(_, _, A), D, Flags)
+ => denoting(A, D, Flags).
+
+denoting(xfx(_, _, A, B), D, Flags)
+ => denoting(A, DenA, Flags),
+    denoting(B, DenB, Flags),
+    append(DenA, DenB, D).
+
+denoting(xfy(_, _, A, B), D, Flags)
+ => denoting(A, DA, Flags),
+    denoting(B, DB, Flags),
+    append(DA, DB, D).
+
+denoting(yfx(_, _, A, B), D, Flags)
+ => denoting(A, DA, Flags),
+    denoting(B, DB, Flags),
+    append(DA, DB, D).
+
+denoting(yfy(_, _, A, B), D, Flags)
+ => denoting(A, DA, Flags),
+    denoting(B, DB, Flags),
+    append(DA, DB, D).
+
+paren(fy(_, _, A), P, Flags)
+ => paren(A, P, Flags).
+
+paren(yf(_, _, A), P, Flags)
+ => paren(A, P, Flags).
+
+paren(xfx(_, _, A, B), P, Flags)
+ => paren(A, PA, Flags),
+    paren(B, PB, Flags),
+    P is max(PA, PB).
+
+paren(yfx(_, _, A, B), P, Flags)
+ => paren(A, PA, Flags),
+    paren(B, PB, Flags),
+    P is max(PA, PB).
+
+paren(xfy(_, _, A, B), P, Flags)
+ => paren(A, PA, Flags),
+    paren(B, PB, Flags),
+    P is max(PA, PB).
+
+paren(yfy(_, _, A, B), P, Flags)
+ => paren(A, PA, Flags),
+    paren(B, PB, Flags),
+    P is max(PA, PB).
+
+prec(fy(Prec, _, _), P, _Flags)
+ => P = Prec.
+
+prec(yf(Prec, _, _), P, _Flags)
+ => P = Prec.
+
+prec(xfx(Prec, _, _, _), P, _Flags)
+ => P = Prec.
+
+prec(yfx(Prec, _, _, _), P, _Flags)
+ => P = Prec.
+
+prec(xfy(Prec, _, _, _), P, _Flags)
+ => P = Prec.
+
+prec(yfy(Prec, _, _, _), P, _Flags)
+ => P = Prec.
+
+type(fy(_, _, _), Type, _Flags)
+ => Type = [op].
+
+type(yf(_, _, _), Type, _Flags)
+ => Type = [op].
+
+type(xfx(_, _, _, _), Type, _Flags)
+ => Type = [op].
+
+type(yfx(_, _, _, _), Type, _Flags)
+ => Type = [op].
+
+type(xfy(_, _, _, _), Type, _Flags)
+ => Type = [op].
+
+type(yfy(_, _, _, _), Type, _Flags)
+ => Type = [op].
+
+math(left(Prec, A), M, Flags),
+    prec(A, P, Flags),
+    P > Prec
+ => M = paren(A).
+
+math(left(_, A), M)
+ => M = A.
+
+math(right(Prec, A), M)
+ => P is Prec, % - 1,
+    M = left(P, A).
+
+denoting(left(_, A), D, Flags)
+ => denoting(A, D, Flags).
+
+denoting(right(_, A), D, Flags)
+ => denoting(A, D, Flags).
+
+% Add name to elements
+math(name(A, Name), M, Flags, New)
+ => New = [name(Name) | Flags],
+    M = A.
+
+% Suppress 'Vectorize'
+math('Vectorize'(A, _Args), M)
+ => M = A.
+
+% Abbreviations
+%
+% Example
+% t = .../..., with s^2_pool denoting the pooled variance
+%
+ml(denote(A, _, _), X, Flags)
+ => ml(A, X, Flags).
+
+jax(denote(A, _, _), X, Flags)
+ => jax(A, X, Flags).
+
+paren(denote(A, _, _), Paren, Flags)
+ => paren(A, Paren, Flags).
+
+prec(denote(A, _, _), Prec, Flags)
+ => prec(A, Prec, Flags).
+
+type(denote(A, _, _), Type, Flags)
+ => type(A, Type, Flags).
+
+denoting(denote(A, Expr, Info), Den, Flags)
+ => denoting(Expr, T, Flags),
+    Den = [denoting(A, Expr, Info) | T].
+
+% Render abbreviations
+%
+ml(denoting(A, Expr, Info), X, Flags)
+ => ml(A = Expr, AExpr, Flags),
+    X = span([math(AExpr), " denoting ", Info]).
+
+jax(denoting(A, Expr, Info), X, Flags)
+ => jax(A = Expr, AExpr, Flags),
+    format(string(X), "$~w$ denoting ~w", [AExpr, Info]).
+
+type(denoting(A, _, _), Type, Flags)
+ => type(A, Type, Flags).
+
+denoting(denoting(_, _, _), Den, _Flags)
+ => Den = [].
+
+% Collect abbreviations
+%
+ml(with(Abbreviations), X, Flags)
+ => sort(Abbreviations, Sorted), % remove duplicates
+    ml(with_(Sorted), X, Flags).
+
+ml(with_([]), W, _Flags)
+ => W = "".
+
+ml(with_([A]), W, Flags)
+ => ml(A, X, Flags),
+    W = span([", with", &(nbsp), X]).
+
+ml(with_([A, B | T]), W, Flags)
+ => ml(A, X, Flags),
+    ml(and([B | T]), Y, Flags),
+    W = span([", with", &(nbsp), X | Y]).
+
+ml(and([]), W, _Flags)
+ => W = ".".
+
+ml(and([A | T]), W, Flags)
+ => ml(A, X, Flags),
+    ml(and(T), Y, Flags),
+    W = span([", and", &(nbsp), X | Y]).
+
+jax(with(Abbreviations), X, Flags)
+ => sort(Abbreviations, Sorted), % remove duplicates
+    jax(with_(Sorted), X, Flags).
+
+jax(with_([]), W, _Flags)
+ => W = "".
+
+jax(with_([A]), W, Flags)
+ => jax(A, X, Flags),
+    format(string(W), ", with ~w", [X]).
+
+jax(with_([A, B | T]), W, Flags)
+ => jax(A, X, Flags),
+    jax(and([B | T]), Y, Flags),
+    format(string(W), ", with ~w~w", [X, Y]).
+
+jax(and([]), W, _Flags)
+ => W = ".".
+
+jax(and([A | T]), W, Flags)
+ => jax(A, X, Flags),
+    jax(and(T), Y, Flags),
+    format(string(W), ", and ~w~w", [X, Y]).
+
+% No parentheses
+math({}(A), M)
+ => M = A.
+
+% Parentheses
+%
+% parenthesis/1, bracket/1, curly/1 generate the respective parenthesis,
+% paren/1 is a generic parenthesis, cycling over (), [], {}
+math('('(A), M)
+ => M = paren(A).
+
+ml(paren(A), M, Flags),
+    paren(A, P, Flags),
+    2 is P mod 3
+ => ml(braces(A), M, Flags).
+
+ml(paren(A), M, Flags),
+    paren(A, P, Flags),
+    1 is P mod 3
+ => ml(brackets(A), M, Flags).
+
+ml(paren(A), M, Flags)
+ => ml(parentheses(A), M, Flags).
+
+jax(paren(A), M, Flags),
+    paren(A, P, Flags),
+    2 is P mod 3
+ => jax(braces(A), M, Flags).
+
+jax(paren(A), M, Flags),
+    paren(A, P, Flags),
+    1 is P mod 3
+ => jax(brackets(A), M, Flags).
+
+jax(paren(A), M, Flags)
+ => jax(parentheses(A), M, Flags).
+
+paren(paren(A), P, Flags)
+ => paren(A, P0, Flags),
+    succ(P0, P).
+
+type(paren(_), T, _Flags)
+ => T = paren.
+
+ml(parentheses(A), M, Flags)
+ => ml(A, X, Flags),
+    M = mrow([mo('('), X, mo(')')]).
+
+jax(parentheses(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\left(~w\\right)", [X]).
+
+paren(parentheses(_), P, _Flags)
+ => P = 1.
+
+type(parentheses(_), T, _Flags)
+ => T = paren.
+
+ml(brackets(A), M, Flags)
+ => ml(A, X, Flags),
+    M = mrow([mo('['), X, mo(']')]).
+
+jax(brackets(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\left[~w\\right]", [X]).
+
+paren(brackets(_), P, _Flags)
+ => P = 2.
+
+type(brackets(_), T, _Flags)
+ => T = paren.
+
+ml(braces(A), M, Flags)
+ => ml(A, X, Flags),
+    M = mrow([mo('{'), X, mo('}')]).
+
+jax(braces(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\left\\{~w\\right\\}", [X]).
+
+paren(braces(_), P, _Flags)
+ => P = 3.
+
+type(braces(_), T, _Flags)
+ => T = paren.
+
+% Lists of things
+math([H | T], M)
+ => M = list(space, [H | T]).
+
+ml(list(_, [A]), M, Flags)
+ => ml(A, M, Flags).
+
+ml(list(Sep, [A, B | T]), M, Flags)
+ => ml(A, X, Flags),
+    ml(tail(Sep, [B | T]), Y, Flags),
+    M = mrow([X | Y]).
+
+ml(tail(Sep, [A]), M, Flags)
+ => ml(Sep, S, Flags),
+    ml(A, X, Flags),
+    M = [S, X].
+
+ml(tail(Sep, [A, B | T]), M, Flags)
+ => ml(Sep, S, Flags),
+    ml(A, X, Flags),
+    ml(tail(Sep, [B | T]), Y, Flags),
+    M = [S, X | Y].
+
+jax(list(_, [A]), M, Flags)
+ => jax(A, M, Flags).
+
+jax(list(Sep, [A, B | T]), M, Flags)
+ => jax(A, X, Flags),
+    jax(tail(Sep, [B | T]), Y, Flags),
+    format(string(M), "{~w}{~w}", [X, Y]).
+
+jax(tail(Sep, [A]), M, Flags)
+ => jax(Sep, S, Flags),
+    jax(A, X, Flags),
+    format(string(M), "{~w}{~w}", [S, X]).
+
+jax(tail(Sep, [A, B | T]), M, Flags)
+ => jax(Sep, S, Flags),
+    jax(A, X, Flags),
+    jax(tail(Sep, [B | T]), Y, Flags),
+    format(string(M), "{~w}{~w}{~w}", [S, X, Y]).
+
+paren(list(_, List), P, Flags)
+ => maplist(paren_(Flags), List, P0),
+    max_list(P0, P).
+
+prec(list(_, [A]), P, Flags)
+ => prec(A, P, Flags).
+
+prec(list(Sep, [_, _ | _]), P, Flags)
+ => prec(Sep, P, Flags).
+
+denoting(list(_, L), D, Flags)
+ => maplist(denoting_(Flags), L, List),
+    append(List, D).
+
+% Fractions
+ml(frac(N, D), M, Flags)
+ => ml(N, X, Flags),
+    ml(D, Y, Flags),
+    M = mfrac([X, Y]).
+
+jax(frac(N, D), M, Flags)
+ => jax(N, X, Flags),
+    jax(D, Y, Flags),
+    format(string(M), "\\frac{~w}{~w}", [X, Y]).
+
+paren(frac(_, _), P, _Flags)
+ => P = 0.
+
+prec(frac(_, _), P, _Flags)
+ => current(P, yfx, /). % was P - 1
+
+type(frac(_, _), Type, _Flags)
+  => Type = [fraction].
+
+% Large fraction
+math(dfrac(Num, Den), M)
+ => M = display(frac(Num, Den)).
+
+math(over(Num, Den), M)
+ => M = frac(Num, Den).
+
+% Integer division
+math(div(Num, Den), M)
+ => M = floor(Num / Den).
+
+% Modulo
+math(rem(Num, Den), M)
+ => M = ceiling(Num / Den).
+
+
+% Large font ("displaystyle")
+ml(display(A), M, Flags)
+ => ml(A, X, Flags),
+    M = mstyle(displaystyle(true), X).
+
+jax(display(A), M, Flags)
+ => jax(A, X, Flags),
+    format(string(M), "\\displaystyle{~w}", [X]).
+
+prec(display(A), P, Flags)
+ => prec(A, P, Flags).
+
+type(display(A), T, Flags)
+ => type(A, T, Flags).
+
+% Underbrace
+ml(underbrace(A, U), M, Flags)
+ => ml(A, X, Flags),
+    ml(U, Y, Flags),
+    M = munder([munder(accentunder(true),
+                  [X, mo(stretchy(true), &('UnderBrace'))]), Y]).
+
+jax(underbrace(A, U), M, Flags)
+ => jax(A, X, Flags),
+    jax(U, Y, Flags),
+    format(string(M), "\\underbrace{~w}_{~w}", [X, Y]).
+
+paren(underbrace(A, _), Paren, Flags)
+ => paren(A, Paren, Flags).
+
+prec(underbrace(A, _), Prec, Flags)
+ => prec(A, Prec, Flags).
+
+type(underbrace(A, _), Type, Flags)
+ => type(A, Type, Flags).
+
+% Mistakes
+%
+% See vignette for examples
+%
+option_(NameOption, Flags) :-
+    option(NameOption, Flags).
+
+option_(NameOption, Flags) :-
+    compound_name_arguments(NameOption, Name, [Option]),
+    member(Name-String, Flags),
+    atom_string(Option, String).
+
+math(omit_left(Expr), M, Flags),
+    option_(error(ignore), Flags)
+ => M = Expr.
+
+math(omit_left(Expr), M, Flags),
+    option_(error(asis), Flags),
+    Expr =.. [_Op, _L, R]
+ => M = R.
+
+math(omit_left(Expr), M, Flags),
+    option_(error(fix), Flags),
+    Expr =.. [Op, L, R]
+ => M = list(space, [box(list(space, [L, op(Op)])), R]).
+
+math(omit_left(Expr), M, _Flags), % default
+    Expr =.. [Op, L, R]
+ => M = list(space, [cancel(list(space, [L, op(Op)])), R]).
+
+math(omit_right(Expr), M, Flags),
+    option_(error(ignore), Flags)
+ => M = Expr.
+
+math(omit_right(Expr), M, Flags),
+    option_(error(asis), Flags),
+    Expr =.. [_Op, L, _R]
+ => M = L.
+
+math(omit_right(Expr), M, Flags),
+    option_(error(fix), Flags),
+    Expr =.. [Op, L, R]
+ => M = list(space, [L, box(list(space, [op(Op), R]))]).
+
+math(omit_right(Expr), M, _Flags),
+    Expr =.. [Op, L, R]
+ => M = list(space, [L, cancel(list(space, [op(Op), R]))]).
+
+math(omit(_Expr), M, Flags),
+    option_(error(asis), Flags)
+ => M = "".
+
+math(omit(Expr), M, Flags),
+    option_(error(ignore), Flags)
+ => M = Expr.
+
+math(omit(Expr), M, Flags),
+    option_(error(fix), Flags)
+ => M = box(Expr).
+
+math(omit(Expr), M, _Flags)
+ => M = cancel(Expr).
+
+math(add_left(Expr), M, Flags),
+    option_(error(ignore), Flags),
+    Expr =.. [_Op, _L, R]
+ => M = R.
+
+math(add_left(Expr), M, Flags),
+    option_(error(asis), Flags)
+ => M = Expr.
+
+math(add_left(Expr), M, Flags),
+    option_(error(fix), Flags),
+    Expr =.. [Op, L, R]
+ => M = list(space, [cancel(list(space, [L, op(Op)])), R]).
+
+math(add_left(Expr), M, _Flags),
+    Expr =.. [Op, L, R]
+ => M = list(space, [box(list(space, [L, op(Op)])), R]).
+
+math(add_right(Expr), M, Flags),
+    option_(error(ignore), Flags),
+    Expr =.. [_Op, L, _R]
+ => M = L.
+
+math(add_right(Expr), M, Flags),
+    option_(error(asis), Flags)
+ => M = Expr.
+
+math(add_right(Expr), M, Flags),
+    option_(error(fix), Flags),
+    Expr =.. [Op, L, R]
+ => M = list(space, [L, cancel(list(space, [op(Op), R]))]).
+
+math(add_right(Expr), M, _Flags),
+    Expr =.. [Op, L, R]
+ => M = list(space, [L, box(list(space, [op(Op), R]))]).
+
+math(add(_Expr), M, Flags),
+    option_(error(ignore), Flags)
+ => M = "". % suppress at the next level, in the list
+
+math(add(Expr), M, Flags),
+    option_(error(asis), Flags)
+ => M = Expr.
+
+math(add(Expr), M, Flags),
+    option_(error(fix), Flags)
+ => M = cancel(Expr).
+
+math(add(Expr), M, _Flags)
+ => M = box(Expr).
+
+math(instead(_Wrong, Correct), M, Flags),
+    option_(error(ignore), Flags)
+ => M = Correct.
+
+math(instead(Wrong, _Correct), M, Flags),
+    option_(error(asis), Flags)
+ => M = Wrong.
+
+math(instead(_Wrong, Correct), M, Flags),
+    option_(error(fix), Flags)
+ => M = box(Correct).
+
+math(instead(Wrong, Correct), M, _Flags)
+ => M = underbrace(Wrong, list(space, ["instead", "of", Correct])).
+
+% Find minimum
+math(Optim, M),
+    compound(Optim),
+    compound_name_arguments(Optim, optim, [Par, Fn | _])
+ => M = argmin(fn(Fn, [Par])).
+
+% Probability distributions
+math(dbinom(K, N, Pi), M)
+ => M = fn(subscript('P', "Bi"), (['X' = K] ; [N, Pi])).
+
+math(pbinom(K, N, Pi), M)
+ => M = fn(subscript('P', "Bi"), (['X' =< K] ; [N, Pi])).
+
+math(qbinom(Alpha, N, Pi), M)
+ => M = fn(subscript(argmin, k),
+          [fn(subscript('P', "Bi"), (['X' =< k] ; [N, Pi])) > Alpha]).
+
+math(dpois(K, Rate), M)
+  => M = fn(subscript('P', "Po"), (['X' = K] ; [Rate])).
+
+math(ppois(K, Rate), M)
+  => M = fn(subscript('P', "Po"), (['X' =< K] ; [Rate])).
+
+math(qpois(Alpha, Rate), M)
+ => M = fn(subscript(argmax, k),
+          [fn(subscript('P', "Po"), (['X' =< k] ; [Rate])) > Alpha]).
+
+math(dexp(X, Rate), M)
+  => M = fn(subscript('f', "Exp"), ([X] ; [Rate])).
+
+math(pexp(X, Rate), M)
+  => M = fn(subscript('F', "Exp"), ([X] ; [Rate])).
+
+math(qexp(P, Rate), M)
+  => M = fn(subscript('F' ^ -1, "Exp"), ([P] ; [Rate])).
+
+math(dnorm(Z), M)
+ => M = fn(phi, [Z]).
+
+math(dnorm(X, Mu, Sigma2), M)
+ => M = fn(phi, ([X] ; [Mu, Sigma2])).
+
+math(pnorm(Z), M)
+ => M = fn('Phi', [Z]).
+
+math(pnorm(X, Mu, Sigma2), M)
+ => M = fn('Phi', ([X] ; [Mu, Sigma2])).
+
+math(qnorm(Alpha), M)
+ => M = fn('Phi' ^ -1, [Alpha]).
+
+math(qnorm(Alpha, Mu, Sigma2), M)
+ => M = fn('Phi' ^ -1, ([Alpha] ; [Mu, Sigma2])).
+
+math(pchisq(X, Df), M)
+ => M = fn(subscript('F', fn(chi^2, [list(space, [Df, "df"])])), [X]).
+
+math(qchisq(Alpha, Df), M)
+ => M = fn(subscript('F' ^ -1, fn(chi^2, [list(space, [Df, "df"])])), [Alpha]).
+
+math(pt(T, Df), M)
+ => M = fn('P', (['T' =< T] ; [list(space, [Df, "df"])])).
+
+math(qt(Alpha, Df), M)
+ => M = fn(subscript('T', Alpha), [list(space, [Df, "df"])]).
+
+% Functions like f(x) and f(x; a, b)
+ml(fn(Name, (Args ; Pars)), M, Flags)
+ => ml(Name, F, Flags),
+    ml(paren(list(op(;), [list(op(','), Args), list(op(','), Pars)])), X, Flags),
+    M = mrow([F, mo(&(af)), X]).
+
+jax(fn(Name, (Args ; Pars)), M, Flags),
+    string(Name)
+ => jax(Name, F, Flags),
+    jax(paren(list(op(';'), [list(op(','), Args), list(op(','), Pars)])), X, Flags),
+    format(string(M), "~w\\,{~w}", [F, X]).
+
+jax(fn(Name, (Args ; Pars)), M, Flags)
+ => jax(Name, F, Flags),
+    jax(paren(list(op(';'), [list(op(','), Args), list(op(','), Pars)])), X, Flags),
+    format(string(M), "~w{~w}", [F, X]).
+
+paren(fn(_Name, (Args ; Pars)), Paren, Flags)
+ => paren(list(op(','), Args), X, Flags),
+    paren(list(op(','), Pars), Y, Flags),
+    Paren is max(X, Y) + 1.
+
+prec(fn(_Name, (_Args ; _Pars)), Prec, Flags)
+ => prec(a * b, P0, Flags),
+    Prec is P0 - 1.
+
+type(fn(_Name, (_Args ; _Pars)), Type, _Flags)
+ => Type = [paren].
+
+ml(fn(Name, [Arg]), M, Flags),
+    type(Arg, paren, Flags)
+ => ml(Name, F, Flags),
+    ml(Arg, X, Flags),
+    M = mrow([F, mo(&(af)), X]).
+
+jax(fn(Name, [Arg]), M, Flags),
+    type(Arg, paren, Flags)
+ => jax(Name, F, Flags),
+    jax(Arg, X, Flags),
+    format(string(M), "~w{~w}", [F, X]).
+
+%
+% Omit parenthesis in special functions
+%
+% sum_i x_i              [prec: sum = 0 -> 401, x_i = 0]
+% sum_i (a_i + b_i)      [sum = 0 -> 401, + = 500]
+% sum_i a_i * b_i (!)    [sum = 0 -> 401, * = 400]
+% sum_i log p_i          [sum = 0 -> 401, log(x) = 400]
+%
+% prod_i x_i             [prod -> 400, x_i = 0]
+% prod_i (a_i + b_i)     [prod -> 400, + = 500]
+% prod_i (a_i * b_i) (!) [prod -> 400, * = 400]
+% prod_i log p_i         [prod -> 400, log(x) = 400]
+%
+ml(fn(Name, [Arg]), M, Flags),
+    type(Name, Type, Flags),
+    member(special, Type),
+    prec(Name, P, Flags),
+    prec(Arg, Prec, Flags),
+    P >= Prec
+ => ml(Name, F, Flags),
+    ml(Arg, X, Flags),
+    M = mrow([F, mo(&(af)), X]).
+
+jax(fn(Name, [Arg]), M, Flags),
+    type(Name, Type, Flags),
+    member(special, Type),
+    prec(Name, P, Flags),
+    prec(Arg, Prec, Flags),
+    P >= Prec
+ => jax(Name, F, Flags),
+    jax(Arg, X, Flags),
+    format(string(M), "~w{~w}", [F, X]).
+
+ml(fn(Name, [Arg]), M, Flags),
+    type(Name, Type, Flags),
+    member(Type, [special, subscript(_), superscript(_)]),
+    prec(Arg, 0, Flags)
+ => ml(Name, F, Flags),
+    ml(Arg, X, Flags),
+    M = mrow([F, mo(&(af)), X]).
+
+jax(fn(Name, [Arg]), M, Flags),
+    type(Name, Type, Flags),
+    member(Type, [special, subscript(_), superscript(_)]),
+    prec(Arg, 0, Flags)
+ => jax(Name, F, Flags),
+    jax(Arg, X, Flags),
+    format(string(M), "~w{~w}", [F, X]).
+
+ml(fn(Name, Args), M, Flags)
+ => ml(Name, F, Flags),
+    ml(paren(list(op(','), Args)), X, Flags),
+    M = mrow([F, mo(&(af)), X]).
+
+jax(fn(Name, Args), M, Flags)
+ => jax(Name, F, Flags),
+    jax(paren(list(op(','), Args)), X, Flags),
+    format(string(M), "~w{~w}", [F, X]).
+
+paren(fn(_Name, [Arg]), P, Flags),
+    type(Arg, paren, Flags)
+ => paren(Arg, P, Flags).
+
+paren(fn(_Name, [Arg]), P, Flags),
+    prec(Arg, P0, Flags),
+    P0 = 0
+ => paren(Arg, P, Flags).
+
+paren(fn(_Name, Args), P, Flags)
+ => paren(list(op(','), Args), P, Flags).
+
+prec(fn(Name, _Args), Prec, Flags),
+    prec(Name, P, Flags),
+    P = 0
+ => current(Prec0, yfx, *),
+    Prec is Prec0 - 1.
+
+prec(fn(Name, _Args), Prec, Flags)
+ => prec(Name, Prec, Flags).
+
+type(fn(_Name, _Args), Type, _Flags)
+ => Type = [function].
+
+% Comma-separated list
+math(R, M),
+    compound(R),
+    compound_name_arguments(R, ',', Args)
+ => M = list(',', Args).
+
+math(R, M),
+    compound(R),
+    compound_name_arguments(R, c, Args)
+ => M = paren(list(',', Args)).
+
+% Default compounds
+%
+% Can't use the macros here because of left recursion
+ml(A, M, Flags),
+    compound(A),
+    compound_name_arguments(A, N, Args)
+ => ml(fn(N, Args), M, Flags).
+
+jax(A, M, Flags),
+    compound(A),
+    compound_name_arguments(A, N, Args)
+ => jax(fn(N, Args), M, Flags).
+
+type(A, M, Flags),
+    compound(A),
+    compound_name_arguments(A, N, Args)
+ => type(fn(N, Args), M, Flags).
+
+% Defaults
+math(A, M)
+ => M = A.
+
+math(A, M, _Flags)
+ => M = A.
+
+math(A, M, Flags, New)
+ => New = Flags,
+    M = A.
+
+paren(A, P, Flags),
+    math(A, M),
+    dif(A, M)
+ => paren(M, P, Flags).
+
+paren(A, P, Flags),
+    math(A, M, Flags),
+    dif(A, M)
+ => paren(M, P, Flags).
+
+paren(A, P, Flags),
+    math(A, M, Flags, New),
+    dif(Flags-A, New-M)
+ => paren(M, P, New).
+
+paren(_A, P, _Flags)
+ => P = 0.
+
+prec(A, Den, Flags),
+    math(A, M, Flags, New),
+    dif(Flags-A, New-M)
+ => prec(M, Den, New).
+
+prec(_A, P, _Flags)
+ => P = 0.
+
+type(A, Type, Flags),
+    math(A, M),
+    dif(A, M)
+ => type(M, Type, Flags).
+
+type(A, Type, Flags),
+    math(A, M, Flags),
+    dif(A, M)
+ => type(M, Type, Flags).
+
+type(A, Type, Flags),
+    math(A, M, Flags, New),
+    dif(Flags-A, New-M)
+ => type(M, Type, New).
+
+type(A, Type, _Flags),
+    compound(A)
+ => Type = compound.
+
+denoting(A, Den, Flags),
+    math(A, M, Flags, New),
+    dif(Flags-A, New-M)
+ => denoting(M, Den, New).
+
+denoting(Expression, Den, Flags),
+    compound(Expression)
+ => compound_name_arguments(Expression, _, Arguments),
+    maplist(denoting_(Flags), Arguments, List),
+    append(List, Den).
+
+% If everything fails, there is no abbreviation
+denoting(_, Den, _Flags)
+ => Den = [].
+
+% Precedence
+current(Prec, Fix, Op) :-
+    atom(Op),
+    current_op(P, Fix, Op),
+    Prec = P.

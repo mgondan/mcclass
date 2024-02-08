@@ -15,8 +15,8 @@ task(exactprob).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
-mathml_hook(n, 'N').
-mathml_hook(p0, pi).
+math_hook(n, 'N').
+math_hook(p0, pi).
 
 rint:r_hook(n).
 rint:r_hook(k).

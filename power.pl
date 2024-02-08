@@ -14,13 +14,13 @@ task(power).
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-mathml_hook(n_vr, subscript(n, "VR")).
-mathml_hook(n_box, subscript(n, "Box")).
-mathml_hook(vr, overline("VR")).
-mathml_hook(s_vr, subscript(s, "VR")).
-mathml_hook(box, overline("Box")).
-mathml_hook(s_box, subscript(s, "Box")).
-mathml_hook(s2p, subscript(s, "pool")^2).
+math_hook(n_vr, subscript(n, "VR")).
+math_hook(n_box, subscript(n, "Box")).
+math_hook(vr, overline("VR")).
+math_hook(s_vr, subscript(s, "VR")).
+math_hook(box, overline("Box")).
+math_hook(s_box, subscript(s, "Box")).
+math_hook(s2p, subscript(s, "pool")^2).
 
 % Obtain information from R
 rint:r_hook(n_vr).

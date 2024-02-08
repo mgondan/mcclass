@@ -17,17 +17,17 @@ task(cipaired).
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-mathml_hook(d, overline('D')).
-mathml_hook(s_d, subscript(s, 'D')).
-mathml_hook(n, 'N').
-mathml_hook(t0, overline("T0")).
-mathml_hook(s_t0, subscript(s, "T0")).
-mathml_hook(eot, overline("EOT")).
-mathml_hook(s_eot, subscript(s, "EOT")).
-mathml_hook(s2p, subscript(s, "pool")^2).
-mathml_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
-mathml_hook(alpha, greek("alpha")).
-mathml_hook(t(DF), fn(t, [DF])).
+math_hook(d, overline('D')).
+math_hook(s_d, subscript(s, 'D')).
+math_hook(n, 'N').
+math_hook(t0, overline("T0")).
+math_hook(s_t0, subscript(s, "T0")).
+math_hook(eot, overline("EOT")).
+math_hook(s_eot, subscript(s, "EOT")).
+math_hook(s2p, subscript(s, "pool")^2).
+math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
+math_hook(alpha, greek("alpha")).
+math_hook(t(DF), fn(t, [DF])).
 
 % R definitions
 rint:r_hook(var_pool(_N1, _V1, _N2, _V2)).

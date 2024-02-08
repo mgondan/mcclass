@@ -31,7 +31,7 @@
 :- use_module(subgroups).
 
 % Render R result
-mathml:mathml_hook(Flags, r(Expr), Flags, Res) :-
+mathml:math_hook(r(Expr), Res) :-
     r_topic(Expr, Res).
 
 % read intervals from input

@@ -18,10 +18,10 @@ task(cibase).
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-mathml_hook(m_T0, overline("T0")).
-mathml_hook(m_EOT, overline("EOT")).
-mathml_hook(s_T0, subscript(s, "T0")).
-mathml_hook(s_EOT, subscript(s, "EOT")).
+math_hook(m_T0, overline("T0")).
+math_hook(m_EOT, overline("EOT")).
+math_hook(s_T0, subscript(s, "T0")).
+math_hook(s_EOT, subscript(s, "EOT")).
 
 rint:r_hook(ancova_f(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 rint:r_hook(ancova_p(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).

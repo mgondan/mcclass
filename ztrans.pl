@@ -13,7 +13,7 @@ task(ztrans).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
-mathml_hook(x, 'X').
+math_hook(x, 'X').
 
 rint:r_hook(x).
 rint:r_hook(sigma).
