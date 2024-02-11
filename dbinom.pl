@@ -22,6 +22,7 @@ rint:r_hook(n).
 rint:r_hook(k).
 rint:r_hook(p0).
 rint:r_hook(factorial(_N)).
+rint:r_hook(choose(_N, _K)).
 
 render
 --> {start(item(_K, N, P0)) },
@@ -97,12 +98,12 @@ expert(exactprob, stage(2), From, To, [step(expert, success, [K, P0])]) :-
     To   = P0^K.
 
 feedback(success, [K, _P0], Col, Feed) =>
-    Feed = [ "Correctly determined the probability for ", \mml(Col, K), " ",
+    Feed = [ "Correctly determined the probability for ", \mmlm(Col, K), " ",
              "independent successes."
            ].
 
 hint(success, [K, _P0], Col, Hint) =>
-    Hint = [ "Determine the probability for ", \mml(Col, K), " independent ",
+    Hint = [ "Determine the probability for ", \mmlm(Col, K), " independent ",
              "successes."
            ].
 
@@ -112,12 +113,12 @@ expert(exactprob, stage(2), From, To, [step(expert, failure, [K, P0])]) :-
     To   = P0^K.
 
 feedback(failure, [K, _P0], Col, Feed) =>
-    Feed = [ "Correctly determined the probability for ", \mml(Col, K), " ",
+    Feed = [ "Correctly determined the probability for ", \mmlm(Col, K), " ",
              "independent failures."
            ].
 
 hint(failure, [K, _P0], Col, Hint) =>
-    Hint = [ "Determine the probability for ", \mml(Col, K), " independent ",
+    Hint = [ "Determine the probability for ", \mmlm(Col, K), " independent ",
              "failures."
            ].
 
