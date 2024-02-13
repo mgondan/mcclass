@@ -2490,6 +2490,117 @@ math(omit_left(Expr), M, _Flags), % default
     Expr =.. [Op, L, R]
  => M = list(space, [cancel(list(space, [L, op(Op)])), R]).
 
+% Legacy code from McClass
+math(omit_right(_Bug, Expr), New, M, Flags),
+    option(error(correct), Flags, fix),
+    Expr =.. [Op, Num, Den],
+    member(Op, [frac, dfrac])
+ => Flags = New,
+    M =.. [Op, Num, Den].
+
+math(omit_right(_Bug, Expr), New, M, Flags),
+    option(error(show), Flags, fix),
+    Expr =.. [Op, Num, _Den],
+    member(Op, [frac, dfrac])
+ => Flags = New,
+    M = Num.
+
+math(omit_right(Bug, Expr), New, M, Flags),
+    option(error(fix), Flags, fix),
+    Expr =.. [Op, Num, Den],
+    member(Op, [frac, dfrac])
+ => Flags = New,
+    M =.. [Op, Num, color(Bug, box(color("#000000", Den)))].
+
+math(omit_right(Bug, Expr), New, M, Flags),
+    option(error(highlight), Flags, fix),
+    Expr =.. [Op, Num, Den],
+    member(Op, [frac, dfrac])
+ => M =.. [Op, Num, color(Bug, cancel(color("#000000", Den)))],
+    Flags = New.
+
+% Powers
+math(Flags, omit_right(_Bug, Base^Pwr), New, M),
+    option(error(correct), Flags, fix)
+ => Flags = New,
+    M = Base^Pwr.
+
+math(Flags, omit_right(_Bug, Base^_Pwr), New, M),
+    option(error(show), Flags, fix)
+ => Flags = New,
+    M = Base.
+
+math(Flags, omit_right(Bug, Base^Pwr), New, M),
+    option(error(fix), Flags, fix)
+ => Flags = New,
+    M = Base^color(Bug, box(color("#000000", Pwr))).
+
+math(Flags, omit_right(Bug, Base^Pwr), New, M),
+    option(error(highlight), Flags, fix)
+ => Flags = New,
+    M = Base^color(Bug, cancel(color("#000000", Pwr))).
+
+math(Flags, A^B, New, X)
+ => New = Flags,
+    X = supscript(A, B).
+
+%
+math(Flags, omit_right(_Bug, Expr), New, M),
+    option(error(correct), Flags, fix)
+ => Flags = New,
+    M = Expr.
+
+math(Flags, omit_right(_Bug, Expr), New, M),
+    option(error(show), Flags, fix)
+ => Flags = New,
+    Expr =.. [_Op, M, _R].
+
+math(Flags, omit_right(Bug, Expr), New, M),
+    option(error(fix), Flags, fix)
+ => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, " ", R],
+    Flags = New,
+    M = list(space, [L, color(Bug, box(color("#000000", Expr1)))]).
+
+math(Flags, omit_right(Bug, Expr), New, M),
+    option(error(highlight), Flags, fix)
+ => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, " ", R],
+    Flags = New,
+    M = list(space, [L, color(Bug, cancel(color("#000000", Expr1)))]).
+
+%
+mathml :- mathml(dfrac(omit_right(bug, overline('D') - mu),
+                   subscript(s, 'D') / sqrt('N'))).
+
+mathml :- writeln("Same with Flags = error(fix)"),
+    mathml([error(fix)], 
+           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
+
+mathml :- writeln("Same with Flags = error(highlight)"),
+    mathml([error(highlight)], 
+           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
+    
+mathml :- writeln("Same with Flags = error(show)"),
+    mathml([error(show)], 
+           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
+
+mathml :- writeln("Same with Flags = error(correct)"),
+    mathml([error(correct)],
+           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
+
+%
+% Expert and buggy rules
+%
+math(Flags, expert(Flags, _, B), New, X)
+ => New = Flags,
+    X = B.
+
+math(Flags, buggy(Flags, _, B), New, X)
+ => New = Flags,
+    X = B.
+% End legacy code 
+
 math(omit_right(Expr), M, Flags),
     option_(error(ignore), Flags)
  => M = Expr.
