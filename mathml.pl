@@ -2626,6 +2626,24 @@ math(omit_right(Expr), M, _Flags),
     Expr =.. [Op, L, R]
  => M = list(space, [L, cancel(list(space, [op(Op), R]))]).
 
+% Legacy code from McClass
+math(omit(_Bug, Expr), M, Flags),
+    option(error(correct), Flags, fix)
+ => M = Expr.
+
+math(omit(_Bug, _Expr), M, Flags),
+    option(error(show), Flags, fix)
+ => M = "omitted".
+
+math(omit(Bug, Expr), M, Flags),
+    option(error(fix), Flags, fix)
+ => M = color(Bug, box(color("#000000", Expr))).
+
+math(omit(Bug, Expr), M, Flags),
+    option(error(highlight), Flags, fix)
+ => M = color(Bug, cancel(color("#000000", Expr))).
+% End legacy code
+
 math(omit(_Expr), M, Flags),
     option_(error(asis), Flags)
  => M = "".
