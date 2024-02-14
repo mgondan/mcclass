@@ -11,6 +11,7 @@
 :- use_module(session).
 :- use_module(interval).
 :- use_module(library(quantity)).
+:- use_module(mathmltrial).
 :- use_module(tpaired).
 :- use_module(tpaired1t).
 :- use_module(tpaired1tlow).
@@ -29,6 +30,7 @@
 :- use_module(power).
 :- use_module(cigroups).
 :- use_module(subgroups).
+
 
 % Render R result
 mathml:math_hook(r(Expr), Res) :-
