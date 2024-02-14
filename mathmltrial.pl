@@ -55,7 +55,7 @@ render
           p(class('card-text'),
             ["omit_right: ", \mmlm(omit_right(N+N))]),
           p(class('card-text'),
-            ["omit_left: ", \mmlm(omit_left(mu, D - Mu))]),
+            ["omit_left: ", \mmlm(omit_left(D - Mu))]),
           p(class('card-text'),
             ["omit: ", \mmlm(omit(D - Mu))]),
           div(class(container),
