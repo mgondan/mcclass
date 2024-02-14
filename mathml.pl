@@ -2472,6 +2472,28 @@ option_(NameOption, Flags) :-
     member(Name-String, Flags),
     atom_string(Option, String).
 
+% Legacy code from McClass
+math(omit_left(_Bug, Expr), M, Flags),
+    option(error(correct), Flags, fix)
+ => M = Expr.
+
+math(omit_left(_Bug, Expr), M, Flags),
+    option(error(show), Flags, fix)
+ => Expr =.. [_Op, _L, M].
+
+math(omit_left(Bug, Expr), M, Flags),
+    option(error(fix), Flags, fix)
+ => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, L, " "],
+    M = list(space, [color(Bug, box(color("#000000", Expr1))), R]).
+
+math(omit_left(Bug, Expr), M, Flags),
+    option(error(highlight), Flags, fix)
+ => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, L, " "],
+    M = list(space, [color(Bug, cancel(color("#000000", Expr1))), R]).
+% End legacy code
+
 math(omit_left(Expr), M, Flags),
     option_(error(ignore), Flags)
  => M = Expr.
@@ -2603,6 +2625,24 @@ math(omit_right(Expr), M, Flags),
 math(omit_right(Expr), M, _Flags),
     Expr =.. [Op, L, R]
  => M = list(space, [L, cancel(list(space, [op(Op), R]))]).
+
+% Legacy code from McClass
+math(omit(_Bug, Expr), M, Flags),
+    option(error(correct), Flags, fix)
+ => M = Expr.
+
+math(omit(_Bug, _Expr), M, Flags),
+    option(error(show), Flags, fix)
+ => M = "omitted".
+
+math(omit(Bug, Expr), M, Flags),
+    option(error(fix), Flags, fix)
+ => M = color(Bug, box(color("#000000", Expr))).
+
+math(omit(Bug, Expr), M, Flags),
+    option(error(highlight), Flags, fix)
+ => M = color(Bug, cancel(color("#000000", Expr))).
+% End legacy code
 
 math(omit(_Expr), M, Flags),
     option_(error(asis), Flags)
