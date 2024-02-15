@@ -2731,6 +2731,40 @@ math(add_left(Expr), M, _Flags),
     Expr =.. [Op, L, R]
  => M = list(space, [box(list(space, [L, op(Op)])), R]).
 
+% Legacy code
+math(add_right(_Bug, Expr), M, Flags),
+    option(error(correct), Flags, fix)
+ => Expr =.. [_Op, L, _R],
+    M = L.
+
+math(add_right(_Bug, Expr), M, Flags),
+    option(error(show), Flags, fix)
+ => M = Expr.
+
+prec(add_right(_, Expr), Prec, Flags),
+    option(error(show), Flags, fix)
+ => prec(Flags, Expr, Prec).
+
+math(add_right(_Bug, Expr), M),
+    option(error(fix), Flags, fix)
+ => Expr =.. [_Op, L, _R],
+    M = L.
+
+math(add_right(Bug, L^R), M, Flags),
+    option(error(highlight), Flags, fix)
+ => M = L^color(Bug, R).
+
+math(add_right(Bug, Expr), M, Flags),
+    option(error(highlight), Flags, fix)
+ => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, " ", R],
+    M = list(space, [L, color(Bug, Expr1)]).
+
+prec(add_right(_, Expr), Prec, Flags),
+    option(error(highlight), Flags, fix)
+ => prec(Flags, Expr, Prec).
+% End legacy code
+
 math(add_right(Expr), M, Flags),
     option_(error(ignore), Flags),
     Expr =.. [_Op, L, _R]
