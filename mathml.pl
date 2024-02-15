@@ -2799,6 +2799,49 @@ math(add(Expr), M, _Flags)
  => M = box(Expr).
 
 % Legacy code
+math(drop_left(_Bug, Expr), M, Flags),
+    option(error(correct), Flags, fix)
+ => M = Expr.
+
+math(drop_left(_Bug, Expr), M, Flags),
+    option(error(show), Flags, fix)
+ => Expr =.. [_Op, _L, M].
+
+math(drop_left(Bug, Expr), M, Flags),
+    option(error(fix), Flags, fix)
+ => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, L, " "],
+    M = list(space, [color(Bug, Expr1), R]).
+
+math(drop_left(_Bug, Expr), M, Flags),
+    option(error(highlight), Flags, fix)
+ => Expr =.. [_Op, _L, R],
+    M = R.
+
+math(drop_right(_Bug, Expr), M, Flags),
+    option(error(correct), Flags, fix)
+ => M = Expr.
+
+math(drop_right(_Bug, Expr), M, Flags),
+    option(error(show), Flags, fix)
+ => Expr =.. [_Op, M, _R].
+
+math(drop_right(Bug, Expr), M, Flags),
+    option(error(fix), Flags, fix)
+ => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, " ", R],
+    M = list(space, [L, color(Bug, Expr1)]).
+
+math(drop_right(_Bug, Expr), M, Flags),
+    option(error(highlight), Flags, fix)
+ => Expr =.. [_Op, L, _R],
+    M = L.
+
+% End legacy code
+
+
+
+% Legacy code
 
 % Show correct alternative
 math(correct(Expr), M)
