@@ -59,7 +59,7 @@ render
           p(class('card-text'),
             ["omit: ", \mmlm(omit(D - Mu))]),
           p(class('card-text'),
-            ["omit: ", \mmlm(instead(D, S_D))]),
+            ["instead: ", \mmlm(instead(D, S_D))]),
           div(class(container),
             div(class("row justify-content-md-center"),
               div(class("col-6"),
