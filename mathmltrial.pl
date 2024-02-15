@@ -48,7 +48,7 @@ interval:monotonical(pt(+, /)).
 
 % Task description
 render
---> { start(item(_T0, _S_T0, _EOT, _S_EOT, D, _S_D, N, Mu, _Alpha)) },
+--> { start(item(_T0, _S_T0, _EOT, _S_EOT, D, S_D, N, Mu, _Alpha)) },
     html(
       div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Mathml trials"),
@@ -58,6 +58,8 @@ render
             ["omit_left: ", \mmlm(omit_left(D - Mu))]),
           p(class('card-text'),
             ["omit: ", \mmlm(omit(D - Mu))]),
+          p(class('card-text'),
+            ["omit: ", \mmlm(instead(D, S_D))]),
           div(class(container),
             div(class("row justify-content-md-center"),
               div(class("col-6"),

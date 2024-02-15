@@ -2710,6 +2710,34 @@ math(add(Expr), M, Flags),
 math(add(Expr), M, _Flags)
  => M = box(Expr).
 
+% Legacy code
+
+% Show correct alternative
+math(Flags, correct(Expr), New, M)
+ => New = [error(correct) | Flags],
+    M = Expr.
+
+math(instead(Bug, Wrong, Correct), M)
+ => M = instead(Bug, Wrong, Correct, Correct).
+
+math(instead(_Bug, _Wrong, _Correct0, Correct), M, Flags),
+    option(error(correct), Flags, fix)
+ => M = Correct.
+
+math(instead(Bug, Wrong, _Correct0, _Correct), M, Flags),
+    option(error(show), Flags, fix)
+ => M = color(Bug, Wrong).
+
+math( instead(Bug, Wrong, _Correct0, Correct), M, Flags),
+    option(error(fix), Flags, fix)
+ => bugs(Wrong, Bugs),
+    M = boxes([Bug | Bugs], Correct).
+
+math(instead(Bug, Wrong, Correct0, _Correct), M, Flags),
+    option(error(highlight), Flags, fix)
+ => M = underbrace(list(space, ["instead of", correct(Correct0)]), color(Bug, show(Wrong))).
+
+% End legacy code
 math(instead(_Wrong, Correct), M, Flags),
     option_(error(ignore), Flags)
  => M = Correct.
