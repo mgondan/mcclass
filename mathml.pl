@@ -1415,6 +1415,30 @@ prec(cancel(A), Prec, Flags)
 type(cancel(A), Type, Flags)
  => type(A, Type, Flags).
 
+% Legacy code
+%
+% Box
+%
+math(boxes([], A), M)
+ => A = M.
+
+math(boxes([Col | Boxes], A), M)
+ => M = color(Col, box(color("#000000", boxes(Boxes, A)))).
+
+ml(box(A), M)
+ => ml(A, X),
+    M = menclose(notation(roundedbox), X).
+
+paren(box(A), Paren, Flags)
+ => paren(Flags, A, Paren).
+
+prec(box(A), Prec, Flags)
+ => prec(Flags, A, Prec).
+
+type(box(A), Type, Flags)
+ => type(Flags, A, Type).
+% End legacy code
+
 math(boxed(A), M)
  => M = box(A).
 
@@ -2709,6 +2733,46 @@ math(add(Expr), M, Flags),
 
 math(add(Expr), M, _Flags)
  => M = box(Expr).
+
+% Legacy code
+
+% Show correct alternative
+math(correct(Expr), M)
+ => M = Expr.
+    
+% Show error
+math(show(Expr), M)
+ => M = Expr.
+
+% Fix error (with color)
+math(fix(Expr), M)
+ => M = Expr.
+
+% Show error (with color)
+math(highlight(Expr), M)
+ => M = Expr.
+
+math(instead(Bug, Wrong, Correct), M)
+ => M = instead(Bug, Wrong, Correct, Correct).
+
+math(instead(_Bug, _Wrong, _Correct0, Correct), M, Flags),
+    option(error(correct), Flags, fix)
+ => M = Correct.
+
+math(instead(Bug, Wrong, _Correct0, _Correct), M, Flags),
+    option(error(show), Flags, fix)
+ => M = color(Bug, Wrong).
+
+math( instead(Bug, Wrong, _Correct0, Correct), M, Flags),
+    option(error(fix), Flags, fix)
+ => bugs(Wrong, Bugs),
+    M = boxes([Bug | Bugs], Correct).
+
+math(instead(Bug, Wrong, Correct0, _Correct), M, Flags),
+    option(error(highlight), Flags, fix)
+ => M = underbrace(color(Bug, show(Wrong)), list(space, ["instead of", correct(Correct0)])).
+
+% End legacy code
 
 math(instead(_Wrong, Correct), M, Flags),
     option_(error(ignore), Flags)
