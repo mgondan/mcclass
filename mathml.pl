@@ -2683,6 +2683,36 @@ math(omit(Expr), M, Flags),
 math(omit(Expr), M, _Flags)
  => M = cancel(Expr).
 
+% Legacy code 
+math(add_left(_Bug, Expr), M, Flags),
+    option(error(correct), Flags, fix)
+ => Expr =.. [_Op, _L, R],
+    M = R.
+
+math(add_left(_Bug, Expr), M, Flags),
+    option(error(show), Flags, fix)
+ => Flags = New.
+
+prec(add_left(_, Expr), Prec, Flags),
+    option(error(show), Flags, fix)
+ => prec(Flags, Expr, Prec).
+
+math(add_left(_Bug, Expr), M, Flags),
+    option(error(fix), Flags, fix)
+ => Expr =.. [_Op, _L, R],
+    M = R.
+
+math(add_left(Bug, Expr), M, Flags),
+    option(error(highlight), Flags, fix)
+ => Expr =.. [Op, L, R],
+    Expr1 =.. [Op, L, " "],
+    M = list(space, [color(Bug, Expr1), R]).
+
+prec(add_left(_, Expr), Prec, Flags),
+    option(error(highlight), Flags, fix)
+ => prec(Flags, Expr, Prec).
+% End legacy code
+
 math(add_left(Expr), M, Flags),
     option_(error(ignore), Flags),
     Expr =.. [_Op, _L, R]
