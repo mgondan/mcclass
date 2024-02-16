@@ -1,4 +1,4 @@
-:- module(mathmltrial, []).
+:- module(mathmltest, []).
 
 :- use_module(library(http/html_write)).
 :- use_module(session).
@@ -8,7 +8,7 @@
 :- use_module(mathml).
 
 :- use_module(navbar).
-navbar:page(mathmltrial, ["Trials"]).
+navbar:page(mathmltest, ["Mathml playground"]).
 
 task(tratio).
 task(pvalue).
@@ -51,7 +51,7 @@ render
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, D, S_D, N, Mu, _Alpha)) },
     html(
       div(class(card), div(class('card-body'),
-        [ h1(class('card-title'), "Mathml trials"),
+        [ h1(class('card-title'), "Mathml playground"),
           p(class('card-text'),
             ["omit_right: ", \mmlm(omit_right(N+N))]),
           p(class('card-text'),
