@@ -2691,7 +2691,7 @@ math(add_left(_Bug, Expr), M, Flags),
 
 math(add_left(_Bug, Expr), M, Flags),
     option(error(show), Flags, fix)
- => Flags = New.
+ => M = Expr.
 
 prec(add_left(_, Expr), Prec, Flags),
     option(error(show), Flags, fix)
@@ -2745,7 +2745,7 @@ prec(add_right(_, Expr), Prec, Flags),
     option(error(show), Flags, fix)
  => prec(Flags, Expr, Prec).
 
-math(add_right(_Bug, Expr), M),
+math(add_right(_Bug, Expr), M, Flags),
     option(error(fix), Flags, fix)
  => Expr =.. [_Op, L, _R],
     M = L.
