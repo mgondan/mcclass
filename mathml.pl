@@ -1804,6 +1804,13 @@ math(number(A), M)
  => M = pos(A).
 
 % Operators
+
+%Legacy code
+math(pm(A, B), X)
+ => current_op(Prec, yfx, -),
+    X = yfx(Prec, &(pm), A, B).
+% End legacy code
+
 math(isin(A, B), X)
  => current_op(Prec, xfx, =),
     X = yfx(Prec, isin, A, B).
@@ -2783,6 +2790,19 @@ math(add_right(Expr), M, _Flags),
     Expr =.. [Op, L, R]
  => M = list(space, [L, box(list(space, [op(Op), R]))]).
 
+% Legacy code
+math(add(_Bug, Expr), M, Flags),
+    option(error(correct), Flags, fix)
+=>  M = Expr.
+
+math(add(_Bug, _Expr), M, Flags),
+    option(error(show), Flags, fix)
+ => M = "invented".
+
+math(add(Bug, Expr), M, Flags),
+    option(error(highlight), Flags, fix)
+ => M = color(Bug, box(color("#000000", Expr))). 
+% End legacy code
 math(add(_Expr), M, Flags),
     option_(error(ignore), Flags)
  => M = "". % suppress at the next level, in the list
@@ -2901,6 +2921,15 @@ math(Optim, M),
     compound(Optim),
     compound_name_arguments(Optim, optim, [Par, Fn | _])
  => M = argmin(fn(Fn, [Par])).
+
+% Legacy code
+%
+% t-test
+%
+math(var_pool(V1, N1, V2, N2), X)
+ => X = dfrac((N1 - 1)*V1 + (N2 - 1)*V2, N1 + N2 - 2).
+
+% End legacy code
 
 % Probability distributions
 math(dbinom(K, N, Pi), M)
