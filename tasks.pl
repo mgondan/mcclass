@@ -11,7 +11,7 @@
 :- use_module(session).
 :- use_module(interval).
 :- use_module(library(quantity)).
-:- use_module(mathmltrial).
+:- use_module(mathmltest).
 :- use_module(tpaired).
 :- use_module(tpaired1t).
 :- use_module(tpaired1tlow).

@@ -1,4 +1,4 @@
-:- module(mathmltrial, []).
+:- module(mathmltest, []).
 
 :- use_module(library(http/html_write)).
 :- use_module(session).
@@ -8,11 +8,11 @@
 :- use_module(mathml).
 
 :- use_module(navbar).
-navbar:page(mathmltrial, ["Trials"]).
+navbar:page(mathmltest, ["Mathml playground"]).
 
 task(tratio).
-task(pvalue).
-task(cipaired).
+/* task(pvalue).
+task(cipaired). */
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
@@ -48,22 +48,44 @@ interval:monotonical(pt(+, /)).
 
 % Task description
 render
---> { start(item(_T0, _S_T0, _EOT, _S_EOT, D, S_D, N, Mu, _Alpha)) },
+--> { start(item(_T0, _S_T0, _EOT, _S_EOT, D, S_D, _N, Mu, _Alpha)) },
     html(
       div(class(card), div(class('card-body'),
-        [ h1(class('card-title'), "Mathml trials"),
+        [ h1(class('card-title'), "Mathml playground"),
           p(class('card-text'),
-            ["omit_right: ", \mmlm(omit_right(N+N))]),
+            ["omit/1: ", \mmlm(omit(D - Mu))]),
           p(class('card-text'),
-            ["omit_left: ", \mmlm(omit_left(D - Mu))]),
+            ["omit/2: ", \mmlm([error(highlight)], omit(bug1, D - Mu))]),
           p(class('card-text'),
-            ["omit: ", \mmlm(omit(D - Mu))]),
+            ["omit_left/1: ", \mmlm(omit_left(D - Mu))]),
           p(class('card-text'),
-            ["instead: ", \mmlm(instead(D, S_D))]),
+            ["omit_left/2: ", \mmlm([error(highlight)], omit_left(bug1, D - Mu))]),
           p(class('card-text'),
-            ["add_left: ", \mmlm(add_left(D+S_D))]),
+            ["omit_right/1: ", \mmlm(omit_right(D - Mu))]),
           p(class('card-text'),
-            ["add_right: ", \mmlm(add_right(D+S_D))]),
+            ["omit_right/2 [error(highlight)]: ", \mmlm([error(highlight)], omit_right(bug1, D - Mu))]),
+          p(class('card-text'),
+            ["omit_right/2 [error(fix)]: ", \mmlm([error(fix)], omit_right(bug1, D - Mu))]),
+          p(class('card-text'),
+            ["omit_right/2 [error(show)]: ", \mmlm([error(show)], omit_right(bug1, D - Mu))]),
+          p(class('card-text'),
+            ["drop_right [error(highlight)]: ", \mmlm([error(highlight)], drop_right(bug1, D - Mu))]),
+          p(class('card-text'),
+            ["drop_right [error(fix)]: ", \mmlm([error(fix)], drop_right(bug1, D - Mu))]),
+          p(class('card-text'),
+            ["drop_left/2: ", \mmlm(drop_left(bug1, D - Mu))]),
+          p(class('card-text'),
+            ["instead/1: ", \mmlm(instead(D, S_D))]),
+          p(class('card-text'),
+            ["instead/2: ", \mmlm([error(highlight)], instead(bug1, D, S_D))]),
+          p(class('card-text'),
+            ["add_left/1: ", \mmlm(add_left(D+S_D))]),
+          p(class('card-text'),
+            ["add_left/2: ", \mmlm([error(highlight)], add_left(bug1, D+S_D))]),
+          p(class('card-text'),
+            ["add_right/1: ", \mmlm(add_right(D+S_D))]),
+          p(class('card-text'),
+            ["add_right/2: ", \mmlm([error(highlight)], add_right(bug1, D+S_D))]),
           div(class(container),
             div(class("row justify-content-md-center"),
               div(class("col-6"),
@@ -92,7 +114,7 @@ task(tratio)
         "scores between baseline (T0) and End of Treatment (EOT)? ",
         "Please report the ", \mmlm(hyph(t, "ratio.")) ], tratio, Resp)).
 
-% Question for the p-value
+/* % Question for the p-value
 task(pvalue)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, Mu, _Alpha)),
       session_data(resp(tpaired, pvalue, Resp), resp(tpaired, pvalue, '.###'))
@@ -108,7 +130,7 @@ task(cipaired)
       session_data(resp(tpaired, cipaired, Resp), resp(tpaired, cipaired, '#.# to #.#'))
     },
     html(\htmlform([ "Determine the confidence interval for the change in ",
-        "the patients\u0027 HDRS scores." ], cipaired, Resp)).
+        "the patients\u0027 HDRS scores." ], cipaired, Resp)). */
 
 %
 %% Expert rules for the t-ratio task
@@ -183,7 +205,7 @@ buggy(tratio, stage(2), X, Y, [step(buggy, mu, [Mu])]) :-
     Y = tstat(dfrac(omit_right(mu, D - Mu), S_D / sqrt(N))).
 
 feedback(mu, [Mu], Col, F)
- => F = [ "The result matches the ", \mmlm(hyph(t, "ratio,")), " when the null",
+ => F = [ "[omit_right] The result matches the ", \mmlm(hyph(t, "ratio,")), " when the null",
 	   " hypothesis ", \mmlm(Col, color(mu, Mu)), " has been omitted.",
 	   " Please do not forget ", \mmlm(Col, color(mu, Mu)), " in the ",
 	   \mmlm(hyph(t, "ratio."))
@@ -191,6 +213,23 @@ feedback(mu, [Mu], Col, F)
 
 hint(mu, [Mu], Col, F)
  => F = [ "Do not omit the null hypothesis ", \mmlm(Col, color(mu, Mu)),
+          " in the ", \mmlm(hyph(t, "ratio.")) 
+        ].
+
+  
+buggy(tratio, stage(2), X, Y, [step(buggy, mu2, [Mu])]) :-
+    X = paired(D, Mu, S_D, N),
+    Y = tstat(dfrac(drop_right(mu2, D - Mu), S_D / sqrt(N))).
+
+feedback(mu2, [Mu], Col, F)
+ => F = [ "[drop_right] The result matches the ", \mmlm(hyph(t, "ratio,")), " when the null",
+	   " hypothesis ", \mmlm(Col, color(mu2, Mu)), " has been omitted.",
+	   " Please do not forget ", \mmlm(Col, color(mu2, Mu)), " in the ",
+	   \mmlm(hyph(t, "ratio."))
+        ].
+
+hint(mu2, [Mu], Col, F)
+ => F = [ "Do not omit the null hypothesis ", \mmlm(Col, color(mu2, Mu)),
           " in the ", \mmlm(hyph(t, "ratio.")) 
         ].
 
@@ -297,7 +336,7 @@ buggy(tratio, stage(2), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
         D - add_right(bug1, dfrac(M0, S0) / SQRT_N)).
 
 feedback(bug1, [D, Mu, S, SQRT_N], Col, F)
- => F = [ "The result matches the fraction without parentheses around the ", 
+ => F = [ "[drop] The result matches the fraction without parentheses around the ", 
 	   "numerator and the denominator, ", \mmlm([error(correct) | Col], 
 	       [dfrac(color(bug1, paren(color("#000000", D - Mu))), 
 	           color(bug1, paren(color("#000000", S / SQRT_N)))), "."]),
@@ -311,6 +350,30 @@ hint(bug1, [D, Mu, S, SQRT_N], Col, F)
           \mmlm([error(correct) | Col],
             [dfrac(color(bug1, paren(color("#000000", D - Mu))), 
               color(bug1, paren(color("#000000", S / SQRT_N)))), "."]) 
+        ].
+
+buggy(tratio, stage(2), X, Y, [step(buggy, bug1_2, [D, Mu, S, SQRT_N])]) :-
+    X = dfrac(D - Mu, S / SQRT_N),
+    /*  M0 = drop_left(bug1_2, D - Mu),
+    S0 = drop_right(bug1_2, S / SQRT_N), */
+    Y = add_left(bug1_2, 
+        D - add_right(bug1_2, dfrac(Mu, S) / SQRT_N)).
+
+feedback(bug1_2, [D, Mu, S, SQRT_N], Col, F)
+ => F = [ "[without drop] The result matches the fraction without parentheses around the ", 
+	   "numerator and the denominator, ", \mmlm([error(correct) | Col], 
+	       [dfrac(color(bug1_2, paren(color("#000000", D - Mu))), 
+	           color(bug1_2, paren(color("#000000", S / SQRT_N)))), "."]),
+	   " Please do not forget the parentheses around the numerator and the ",
+	   "denominator of a fraction."
+        ].
+
+hint(bug1_2, [D, Mu, S, SQRT_N], Col, F)
+ => F = [ "Do not forget the parentheses around the numerator and ",
+          "the denominator of a fraction, ",
+          \mmlm([error(correct) | Col],
+            [dfrac(color(bug1_2, paren(color("#000000", D - Mu))), 
+              color(bug1_2, paren(color("#000000", S / SQRT_N)))), "."]) 
         ].
 
 % One challenging aspect of word problems ("Textaufgaben") is that students
@@ -418,7 +481,7 @@ hint(sqrt1, [N], Col, F)
           \mmlm(Col, [color(sqrt1, N), "."])
         ].
 
-% Buggy-Rule: Use of N instead of sqrt(N)
+/* % Buggy-Rule: Use of N instead of sqrt(N)
 buggy(tratio, stage(2), X, Y, [step(buggy, sqrt2, [N])]) :-
     X = sqrt(N),
     dif(N, n),
@@ -433,8 +496,8 @@ feedback(sqrt2, [N], Col, F)
 hint(sqrt2, [N], Col, F)
  => F = [ "Do not forget the square root around ",
           \mmlm(Col, [color(sqrt2, N), "."])
-        ].
-
+        ]. */
+/* 
 %
 % Expert-Rules for the p-value task
 %
@@ -646,6 +709,6 @@ hint(sqrt2, [N], Col, FB)
            \mmlm(Col, [color(sqrt2, N), "."])
          ]. 
 
-
+ */
 
 
