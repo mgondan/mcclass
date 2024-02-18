@@ -2915,6 +2915,15 @@ math(Optim, M),
     compound_name_arguments(Optim, optim, [Par, Fn | _])
  => M = argmin(fn(Fn, [Par])).
 
+% Legacy code
+%
+% t-test
+%
+math(var_pool(V1, N1, V2, N2), X)
+ => X = dfrac((N1 - 1)*V1 + (N2 - 1)*V2, N1 + N2 - 2).
+
+% End legacy code
+
 % Probability distributions
 math(dbinom(K, N, Pi), M)
  => M = fn(subscript('P', "Bi"), (['X' = K] ; [N, Pi])).
