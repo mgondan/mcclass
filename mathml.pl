@@ -1804,6 +1804,13 @@ math(number(A), M)
  => M = pos(A).
 
 % Operators
+
+%Legacy code
+math(pm(A, B), X)
+ => current_op(Prec, yfx, -),
+    X = yfx(Prec, &(pm), A, B).
+% End legacy code
+
 math(isin(A, B), X)
  => current_op(Prec, xfx, =),
     X = yfx(Prec, isin, A, B).
