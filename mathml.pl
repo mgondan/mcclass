@@ -2783,6 +2783,19 @@ math(add_right(Expr), M, _Flags),
     Expr =.. [Op, L, R]
  => M = list(space, [L, box(list(space, [op(Op), R]))]).
 
+% Legacy code
+math(add(_Bug, Expr), M, Flags),
+    option(error(correct), Flags, fix)
+=>  M = Expr.
+
+math(add(_Bug, _Expr), M, Flags),
+    option(error(show), Flags, fix)
+ => M = "invented".
+
+math(add(Bug, Expr), M, Flags),
+    option(error(highlight), Flags, fix)
+ => M = color(Bug, box(color("#000000", Expr))). 
+% End legacy code
 math(add(_Expr), M, Flags),
     option_(error(ignore), Flags)
  => M = "". % suppress at the next level, in the list
