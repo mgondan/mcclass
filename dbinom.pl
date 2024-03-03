@@ -89,7 +89,7 @@ feedback(bern, [K, N, _P0], Col, Feed) =>
 hint(bern, [K, N, _P0], Col, Hint) =>
     Hint = [ "Determine the probability for a sequence ",
              "of ", \mmlm(Col, K), " successes ",
-             "and ", \mmlm(Col, N - K), "failures."
+             "and ", \mmlm(Col, N - K), " failures."
            ].
 
 % Successes

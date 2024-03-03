@@ -30,7 +30,7 @@ render
             [ "Let ", \mmlm(x), " follow a normal distribution with ",
               "expectation ", \mmlm([digits(0)], Mu = r(mu)), " and ",
               "standard deviation ", \mmlm([digits(0)], [Sigma = r(sigma), "."]),
-              "A table of the standard ",
+              " A table of the standard ",
               "normal distribution is found below."
             ])]))]).
 
@@ -51,11 +51,11 @@ expert(ztrans, stage(2), From, To, [step(expert, steps, [])]) :-
          }.
 
 feedback(steps, [], Col, FB) =>
-    FB = [ "You determined the ", \mmlm(Col, z), "-statistic and translated it ",
+    FB = [ "You determined the ", \mmlm(Col, hyph(z, "statistic")), " and translated it ",
            "to the original scale." ].
 
 hint(steps, [], Col, FB) =>
-    FB = [ "First determine the ", \mmlm(Col, z), "statistic. Then translate ",
+    FB = [ "First determine the ", \mmlm(Col,  hyph(z, "statistic")), " Then translate ",
            "it to the original scale." ].
 
 % Expert rule (correct tail)
@@ -79,7 +79,7 @@ buggy(ztrans, stage(2), From, To, [step(buggy, wrong_tail, [])]) :-
     To = qnorm(instead(wrong_tail, P, 1 - P)).
 
 feedback(wrong_tail, [], _Col, FB) =>
-    FB = [ "Your response matches the lower insteada of the upper tail of the normal ",
+    FB = [ "Your response matches the lower instead of the upper tail of the normal ",
            "distribution." ].
 
 hint(wrong_tail, [], _Col, FB) =>
@@ -141,7 +141,7 @@ feedback(pdecimal2, [_], _ , FB) =>
     FB = [ "You converted P-% incorrectly to a decimal representation." ].
 
 hint(pdecimal2, [P], Col, FB) =>
-    FB = [ \mmlm(Col, color(pdecimal2, r(P))), "% in decimal representation is ", \mmlm(Col, color(pdecimal2, r(P/100))) ].
+    FB = [ \mmlm(Col, color(pdecimal2, perc(r(P)))), " in decimal representation is ", \mmlm(Col, [color(pdecimal2, r(P/100)), "."]) ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % Buggy Rule (zx) The z value was calculated but taken to be the endresult.
@@ -153,5 +153,5 @@ feedback(zx, [z, sigma, mu], _Col, FB) =>
     FB = [ "To complete the exercise successfully, you have to perform the second calculation as well." ].
 
 hint(zx, [z, sigma, mu], Col, FB) =>
-    FB = [ \mmlm(Col, color(zx, z)), "is the correct answer of the first equation. To continue, you need to calculate ", \mmlm(Col, [color(zx, z * sigma + mu), "."]) ].
+    FB = [ \mmlm(Col, color(zx, z)), " is the correct answer of the first equation. To continue, you need to calculate ", \mmlm(Col, [color(zx, z * sigma + mu), "."]) ].
 
