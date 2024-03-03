@@ -114,7 +114,7 @@ expert(cigroups, stage(1), X, Y, [step(expert, pooled, [S2P])]) :-
     Y = '<-'(S2P, dfrac((N_A-1) * S_A^2 + (N_B-1) * S_B^2, N_A + N_B - 2)).
 
 feedback(pooled, [S2P], Col, FB)
- => FB = [ "Correctly determined the pooled variance ", \mmlm(Col, S2P) ].
+ => FB = [ "Correctly determined the pooled variance ", \mmlm(Col, [S2P, "."]) ].
 
 hint(pooled, [S2P], Col, FB)
  => FB = [ "The pooled variance ", \mmlm(Col, S2P), " needs to be ",
@@ -137,7 +137,7 @@ feedback(ci_bounds, [_RC, _MC, _S2P, _N_RC, _N_MC, _Alpha], _Col, F)
 hint(ci_bounds, [RC, MC, S2P, N_RC, N_MC, Alpha], Col, H)
  => H = [ "The formula to calculate the lower and upper bound of the ",
           "confidence interval for the difference of group means is ",
-	  \mmlm(Col, pm(RC - MC, qt(1 - Alpha/2, N_RC + N_MC - 2) * sqrt(dot(S2P, frac(1, N_RC) + frac(1, N_MC)))))
+	  \mmlm(Col, [pm(RC - MC, qt(1 - Alpha/2, N_RC + N_MC - 2) * sqrt(dot(S2P, frac(1, N_RC) + frac(1, N_MC)))), "."])
         ].
 
 % Fourth step: Choose the correct quantile of the t-distribution
@@ -147,12 +147,12 @@ expert(cigroups, stage(2), X, Y, [step(expert, tquant, [Alpha])]) :-
 
 feedback(tquant, [Alpha], Col, F)
  => F = [ "Correctly used the ", \mmlm(Col, hyph(1 - Alpha/2, "quantile")),
-          "of the ", \mmlm(Col, hyph(t, "distribution"))
+          " of the ", \mmlm(Col, hyph(t, "distribution."))
         ].
 
 hint(tquant, [Alpha], Col, H)
  => H = [ "Make sure to use the ", \mmlm(Col, hyph(1 - Alpha/2, "quantile")),
-          "of the ", \mmlm(Col, hyph(t, "distribution"))
+          " of the ", \mmlm(Col, hyph(t, "distribution."))
         ].
 
 
@@ -167,7 +167,7 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, tstat, [N_RC, N_MC, Alpha])]) :-
 feedback(tstat, [N_RC, N_MC, Alpha], Col, F)
  => F = [ "The result matches the confidence interval based on the observed ",
           \mmlm(Col, hyph(t, "statistic.")), " Please use the quantile ",
-           "of the ", \mmlm(Col, hyph(t, "distribution ")), 
+           "of the ", \mmlm(Col, hyph(t, "distribution ")), " ",
 	   \mmlm(Col, color(qt, qt(1 - Alpha/2, N_RC + N_MC - 2))), " instead."
         ].
 
@@ -186,8 +186,8 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, qt, [N_RC, N_MC, Alpha])]) :-
 
 feedback(qt, [N_RC, N_MC, Alpha], Col, F)
  => F = [ "The result matches the confidence interval based on the standard ",
-          "Normal distribution. ",
-          "Please insert the quantile of the ", \mmlm(Col, hyph(t, "distribution")),
+          "normal distribution. ",
+          "Please insert the quantile of the ", \mmlm(Col, hyph(t, "distribution")), " ", 
           \mmlm(Col, color(qt, qt(1 - Alpha/2, N_RC + N_MC - 2))), " into ",
           "the formula for the confidence interval."
         ].
@@ -230,7 +230,7 @@ feedback(square, [S_A, S_B], Col, FB)
 	   "the square of ", \mmlm(Col, color(square, S_A)), " and ", 
 	   \mmlm(Col, color(square, S_B)), ". Please do not forget the square of ",
 	   \mmlm(Col, color(square, S_A)), " and ", \mmlm(Col, color(square, S_B)),
-	   "when calculating the pooled variance."
+	   " when calculating the pooled variance."
          ].
 
 hint(square, [_S_A, _S_B], _Col, FB)

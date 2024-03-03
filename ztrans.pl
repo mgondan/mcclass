@@ -30,7 +30,7 @@ render
             [ "Let ", \mmlm([digits(0)], X), " follow a normal distribution with ",
               "expectation ", \mmlm([digits(0)], Mu = r(mu)), " and ",
               "standard deviation ", \mmlm([digits(0)], [Sigma = r(sigma), "."]),
-              "A table of the standard ",
+              " A table of the standard ",
               "normal distribution is found below."
             ])]))]).
 
@@ -89,7 +89,7 @@ buggy(ztrans, stage(2), From, To, [step(buggy, wrong_tail, [Z])]) :-
     To = instead(wrong_tail, 1 - pnorm(Z), pnorm(Z)).
 
 feedback(wrong_tail, [_Z], Col, FB) =>
-    FB = [ "Your answer matches the ", \mmlm(Col, color(wrong_tail, "wrong tail " )), "of the normal distribution." ].
+    FB = [ "Your answer matches the ", \mmlm(Col, color(wrong_tail, "wrong tail" )), " of the normal distribution." ].
 
 hint(wrong_tail, [_Z], _Col, FB) =>
     FB = [ "Do not use the upper tail of the normal distribution." ].
@@ -105,7 +105,7 @@ feedback(plus, [X, Mu], Col, FB) =>
 
 hint(plus, [X, Mu], Col, FB) =>
     FB = [ "Try using subtraction rather than addition in ", 
-           \mmlm(Col, color(plus, X + Mu)) ].
+           \mmlm(Col, [color(plus, X + Mu), "."]) ].
 
 % Buggy Rule (swap) Mu and Sigma were swapped.
 buggy(ztrans, stage(1), From, To, [step(buggy, swap, [mu, sigma])]) :-
@@ -131,7 +131,7 @@ feedback(vardev_swap, [sigma], Col, FB) =>
     FB = [ "You squared ", \mmlm(Col, color(vardev_swap, sigma)), " by mistake." ].
 
 hint(vardev_swap, [sigma], Col, FB) =>
-    FB = [ "Use ", \mmlm(Col, color(vardev_swap, sigma)), " instead of ", \mmlm(Col, color(vardev_swap, sigma^2)) ].
+    FB = [ "Use ", \mmlm(Col, color(vardev_swap, sigma)), " instead of ", \mmlm(Col, [color(vardev_swap, sigma^2), "."]) ].
 
 % Buggy Rule (xp) (x - mu)/sigma was skipped.
 buggy(ztrans, stage(2), From, To, [step(buggy, xp, []), depends(xp2)]) :-
@@ -150,8 +150,8 @@ buggy(ztrans, stage(2), From, To, [step(buggy, xp2, []), depends(xp)]) :-
     To = instead(xp2, z/100, pnorm(z)).
 
 feedback(xp2, [], _Col, FB) =>
-    FB = [ "You mistakenly divided the z-value by 100 instead of retrieving the value from the normal distribution" ].
+    FB = [ "You mistakenly divided the z-value by 100 instead of retrieving the value from the normal distribution." ].
 
 hint(xp2, [], _Col, FB) =>
-    FB = [ "Do not divide the z-value by 100, use the normal distribution instead" ].
+    FB = [ "Do not divide the z-value by 100, use the normal distribution instead." ].
 
