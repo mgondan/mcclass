@@ -142,19 +142,19 @@ hint(zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box], Col, FB) =>
 %    From = ppool(S_VR, S_Box, N_VR, N_Box),
 %    To = dfrac(instead(pdiff, S_VR - S_Box, S_VR + S_Box),
 %               instead(pdiff, N_VR - N_Box, N_VR + N_Box)).
-
-feedback(pdiff, [], Col, FB) =>
-    FB = [ "The result matches the pooled proportion of successes with a ",
-	   "difference instead of a sum in both the numerator and the denominator of ",
-	   \mmlm(Col, color(pdiff, p_pool)), ". Please add the numbers in both the ",
-           "numerator and the denominator of ", \mmlm(Col, color(pdiff, p_pool))
-         ].
-
-hint(pdiff, [], Col, FB) =>
-    FB = [ "Remember to add the numbers in both the numerator and the ",
-           "denominator when calculating the pooled proportion of successes ", 
-	   \mmlm(Col, color(pdiff, p_pool))
-         ].
+%
+%feedback(pdiff, [], Col, FB) =>
+%    FB = [ "The result matches the pooled proportion of successes with a ",
+%	   "difference instead of a sum in both the numerator and the denominator of ",
+%	   \mmlm(Col, color(pdiff, p_pool)), ". Please add the numbers in both the ",
+%           "numerator and the denominator of ", \mmlm(Col, color(pdiff, p_pool))
+%         ].
+%
+%hint(pdiff, [], Col, FB) =>
+%    FB = [ "Remember to add the numbers in both the numerator and the ",
+%           "denominator when calculating the pooled proportion of successes ", 
+%	   \mmlm(Col, color(pdiff, p_pool))
+%         ].
 
 
 % Buggy-Rule: Forget to square z. 
@@ -162,8 +162,8 @@ hint(pdiff, [], Col, FB) =>
 % that could be caused by the listed error but erroneously rounded, 
 % lower end is number of exact matches).
 buggy(chisq, stage(2), From, To, [step(buggy, square, [])]) :-
-    From = ('<-'(chi2, chi2ratio(Z^2)) ; chi2),
-    To = (omit(square, '<-'(chi2, Z^2)) ; tstat(Z)).
+    From = chi2ratio(Z^2),
+    To = chi2ratio(omit_right(square, Z^2)).
 
 feedback(square, [], Col, FB) =>
     FB = [ "The result matches ",
