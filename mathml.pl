@@ -1928,11 +1928,11 @@ math(A + B, X)
 
 math(-A, X)
  => current_op(Prec, yfx, -),
-    X = fy(Prec, -, A).
+    X = fy(Prec, −, A).
 
 math(A - B, X)
  => current_op(Prec, yfx, -),
-    X = yfy(Prec, -, A, B).
+    X = yfy(Prec, &(minus), A, B).
 
 % Suppress multiplication dot in simple expressions
 math(A * B, X, Flags),
