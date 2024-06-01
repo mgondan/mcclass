@@ -30,6 +30,7 @@
 :- use_module(power).
 :- use_module(cigroups).
 :- use_module(subgroups).
+:- use_module(util).
 
 
 % Render R result
@@ -200,15 +201,17 @@ feedback(Topic, Task, Data, _Form)
                        [ "Other mistakes",
                          ul(class('card-text'), ul(Blame0))
                        ])
-      )
+      ),
+      util:expression_to_list(Expr, [topic(Topic), task(Task), error(fix) | Col], M1),
+      util:expression_to_list(Expr, [topic(Topic), task(Task), error(highlight) | Col], M2)
     },
     html(div(class(card),
       [ div(class('card-header text-white bg-warning'), "Careful"),
         div(class('card-body'),
           [ p(class('card-text'), "This is the correct expression:"),
-            p(class('card-text'), \mmlm([topic(Topic), task(Task), error(fix) | Col], Expr)),
+            p(class('card-text'), M1),
             p(class('card-text'), "Your response matches the following expression:"),
-            p(class('card-text'), \mmlm([topic(Topic), task(Task), error(highlight) | Col], Expr)),
+            p(class('card-text'), M2),
             Correct, Wrong, Praise, Blame
           ])
       ])).
@@ -265,7 +268,8 @@ pp_solution(Topic, Task, Expr-Result/Flags)
       findall(li(FB),
       ( member(step(expert, Name, Args), Flags),
         Topic:feedback(Name, Args, [topic(Topic), task(Task) | Col], FB)
-      ), Items)
+      ), Items),
+      util:expression_to_list(Expr, [topic(Topic), task(Task) | Col], M)
     },
     html(div(class('accordion-item'),
       [ h2(class('accordion-header'),
@@ -273,7 +277,7 @@ pp_solution(Topic, Task, Expr-Result/Flags)
             \mmlm([topic(Topic), task(Task) | Col], Result))),
         div(class('accordion-collapse collapse show'),
           div(class('accordion-body'), 
-           [ p(\mmlm([topic(Topic), task(Task) | Col], Expr)), 
+           [ p(M), 
              ul(Items)
            ]))
       ])).
