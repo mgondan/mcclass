@@ -2003,6 +2003,44 @@ math((A ; B), X)
 math(A^B, X)
  => X = superscript(A, B).
 
+% Legacy code
+% Intervals 
+% Rendering intervals as: '1 ... 2'
+%
+math(ci(L, U), X, Flags, New)
+=> New = Flags,
+   X = brackets(list(',', [L, U])).
+
+math('...'(L, U), X, Flags, New)
+=> New = Flags,
+   X = xfx(699, '...', floor(L), ceiling(U)).
+
+math(floor(A), X, Flags, New),
+   number(A),
+   A < 0
+=> select_option(digits(D), Flags, New0, 2),
+   New = [ceiling(D) | New0],
+   X = A.
+
+math(floor(A), X, Flags, New)
+=> select_option(digits(D), Flags, New0, 2),
+   New = [floor(D) | New0],
+   X = A.
+
+math(ceiling(A), X, Flags, New),
+   number(A),
+   A < 0
+=> select_option(digits(D), Flags, New0, 2),
+   New = [floor(D) | New0],
+   X = A.
+
+math(ceiling(A), X, Flags, New)
+=> select_option(digits(D), Flags, N, 2),
+   New = [ceiling(D) | N],
+   X = A.
+
+% End legacy code
+
 % Render operators with the appropriate parentheses
 ml(fy(Prec, Op, A), M, Flags)
  => ml(op(Op), S, Flags),
