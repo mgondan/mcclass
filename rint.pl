@@ -1,6 +1,6 @@
 :- module(rint, []).
 
-:- use_module(interval).
+:- reexport(interval). 
 :- use_module(r).
 :- use_module(session).
 

@@ -23,7 +23,9 @@ rint:r_hook(k).
 rint:r_hook(uqbinom(_Alpha, _Size, _Prob)).
 rint:r_hook(lqbinom(_Alpha, _Size, _Prob)).
 rint:r_hook(tail(_Tail, _K)).
-rint:r_hook(arg(_Arg, _K)).
+interval:hook(arg(A, _K), Res, Flags) :-
+  interval:int(A, Res, Flags).
+%rint:r_hook(arg(_Arg, _K)).
 rint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
 rint:r_hook(pbinom(_Q, _Size, _Prob)).
 rint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
@@ -63,14 +65,14 @@ start(item(alpha, n, p0)).
 
 % This is a problem that involves the binomial test 
 intermediate(amountsuccess, binom).
-expert(amountsuccess, stage(2), From, To, [step(expert, problem, [])]) :-
+expert(amountsuccess, stage(2), From, To, [step(expert, binom, [])]) :-
     From = item(Alpha, N, P0),
-    To   = binom(Alpha, N, P0).
+    To   = { '<-'(k, binom(Alpha, N, P0)) }.
 
-feedback(problem, [], _Col, Feed) =>
+feedback(binom, [], _Col, Feed) =>
     Feed = [ "Correctly identified the problem as a binomial test." ].
 
-hint(problem, [], _Col, Hint) =>
+hint(binom, [], _Col, Hint) =>
     Hint = [ "This problem involves the binomial test." ].
 
 % Upper tail of the binomial distribution

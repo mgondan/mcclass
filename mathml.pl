@@ -2980,6 +2980,25 @@ math(qbinom(Alpha, N, Pi), M)
  => M = fn(subscript(argmin, k),
           [fn(subscript('P', "Bi"), (['X' =< k] ; [N, Pi])) > Alpha]).
 
+% upper tail
+math(pwbinom(_K, N, Pi, Tail), X)
+=> X = fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])).
+
+% upper critical value
+math(uqbinom(Alpha, N, Pi), X)
+=> X = fn(subscript("argmin", k), [fn(subscript('P', "Bi"), ([('X' >= k)] ; [N, Pi])) =< Alpha]).
+
+% lower critical value
+math(lqbinom(Alpha, N, Pi), X)
+=> X = fn(subscript("argmax", k), [fn(subscript('P', "Bi"), ([('X' =< k)] ; [N, Pi])) =< Alpha]).
+
+math(qbinom(Alpha, N, Pi), X)
+=> X = fn(subscript("argmax", k), [fn(subscript('P', "Bi"), ([('X' =< k)] ; [N, Pi])) =< Alpha]).
+
+% critical value
+math(cbinom(Alpha, N, Pi, Tail, Arg), X)
+=> X = fn(Arg, [fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])) =< Alpha]).
+
 math(dpois(K, Rate), M)
   => M = fn(subscript('P', "Po"), (['X' = K] ; [Rate])).
 
@@ -3028,6 +3047,22 @@ math(pt(T, Df), M)
 
 math(qt(Alpha, Df), M)
  => M = fn(subscript('T', Alpha), [list(space, [Df, "df"])]).
+
+% Tails
+math(tail("upper", K), X)
+=> X = ('X' >= K).
+
+math(tail("lower", K), X)
+=> X = ('X' =< K).
+
+math(tail("equal", K), X)
+=> X = ('X' = K).
+
+math(arg("min", K), X)
+=> X = subscript(argmin, K).
+
+math(arg("max", K), X)
+=> X = subscript(argmax, K).
 
 % Functions like f(x) and f(x; a, b)
 ml(fn(Name, (Args ; Pars)), M, Flags)

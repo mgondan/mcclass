@@ -217,16 +217,16 @@ feedback(Topic, Task, Data, _Form)
       ])).
 
 feedback(Topic, Task, _Data, Form) -->
-    { http_log("Form: ~w~n", [Form]),
-      % option(resp(R), Form),
-      session_data(resp(Topic, Task, R)),
-      quantity(N, Opt, R)
-    },
-    html(div(class(card),
-      [ div(class('card-header text-white bg-secondary'), "Feedback"),
-        div(class('card-body'),
-          p(class('card-text'), "Response: ~p ~p"-[N, Opt]))
-      ])).
+  { http_log("Form: ~w~n", [Form]),
+    % option(resp(R), Form),
+    session_data(resp(Topic, Task, R)),
+    quantity(N, _Opt, R)
+  },
+  html(div(class(card),
+    [ div(class('card-header text-white bg-warning'), "Careful"),
+      div(class('card-body'),
+        p(class('card-text'), "The response ~p is not correct and cannot be attributed to any known mistake."-[N]))
+    ])).
 
 feedback(Topic, Task, _Data, _Form) -->
     { % option(resp(R), Form),
