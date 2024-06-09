@@ -18,6 +18,7 @@ task(exactprob).
 math_hook(n, 'N').
 math_hook(p0, pi).
 
+rint:r_hook(p).
 rint:r_hook(n).
 rint:r_hook(k).
 rint:r_hook(p0).
@@ -49,14 +50,14 @@ start(item(k, n, p0)).
 
 % Recognise as a binomial density
 intermediate(exactprob, dbinom).
-expert(exactprob, stage(2), From, To, [step(expert, dens, [])]) :-
+expert(exactprob, stage(2), From, To, [step(expert, dbinom, [])]) :-
     From = item(K, N, P0),
-    To   = dbinom(K, N, P0).
+    To   = { '<-'(p, dbinom(K, N, P0)) }.
 
-feedback(dens, [], _Col, Feed) =>
+feedback(dbinom, [], _Col, Feed) =>
     Feed = [ "Correctly recognised the problem as a binomial probability." ].
 
-hint(dens, [], _Col, Hint) =>
+hint(dbinom, [], _Col, Hint) =>
     Hint = [ "This is a binomial probability." ].
 
 % Convert to product
