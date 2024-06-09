@@ -40,6 +40,8 @@ rint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
 rint:r_hook(pwbinom(_Crit, _Size, _Prob, _Tail)).
 rint:r_hook(pbinom(_Q, _Size, _Prob)).
 rint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
+interval:hook(arg(A, _K), Res, Flags) :-
+  interval:int(A, Res, Flags).
 
 % Task description
 render

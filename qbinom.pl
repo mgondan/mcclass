@@ -23,7 +23,9 @@ rint:r_hook(k).
 rint:r_hook(uqbinom(_Alpha, _Size, _Prob)).
 rint:r_hook(lqbinom(_Alpha, _Size, _Prob)).
 rint:r_hook(tail(_Tail, _K)).
-rint:r_hook(arg(_Arg, _K)).
+interval:hook(arg(A, _K), Res, Flags) :-
+  interval:int(A, Res, Flags).
+%rint:r_hook(arg(_Arg, _K)).
 rint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
 rint:r_hook(pbinom(_Q, _Size, _Prob)).
 rint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
