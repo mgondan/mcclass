@@ -119,10 +119,12 @@ buggy(amountsuccess, stage(3), From, To, [step(buggy, dens, [K])]) :-
     To = instead(dens, tail("equal", K), tail("upper", K)).
 
 feedback(dens, [K], Col, Feed)
- => Feed = [ "The result matches the critical value based on the binomial ",
+ => r_topic(svg, Svg0),
+    format(atom(Svg), '<div style="display: flex; justify-content: center; margin-top: 1em">~w</div>', [Svg0]),
+    Feed = [ "The result matches the critical value based on the binomial ",
              "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens, tail("equal", K))]), "."]),
              "Please report the critical value based on the cumulative ",
-             "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [tail("upper", K)]), "."])
+             "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [tail("upper", K)]), "."]), \[Svg]
            ].
 
 hint(dens, [_K], _Col, Hint)
