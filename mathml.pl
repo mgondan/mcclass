@@ -1498,7 +1498,7 @@ type(prime(A), Type, Flags)
 %
 % Mathematical operators/signs
 %
-ml(op('%=/=%'), M, _Flags) 
+ml(op('=\\='), M, _Flags) 
  => M = mo(&(ne)).
 
 ml(op(le), M, _Flags)
@@ -1956,9 +1956,9 @@ math(A * B, X, Flags),
  => X = nodot(A, B).
 
 % Different multiplication signs
-math('%=/=%'(A, B), X)
+math('=\\='(A, B), X)
  => current_op(Prec, xfx, =),
-    X = yfy(Prec, '%=/=%', A, B).
+    X = yfy(Prec, '=\\=', A, B).
 
 math(A * B, M)
  => M = '%.%'(A, B).
