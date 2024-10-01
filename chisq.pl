@@ -222,9 +222,27 @@ hint(paren2, [N_VR, N_Box], Col, FB) =>
              paren(color("#000000", 1 / N_VR + 1 / N_Box))))
          ].
 
+% Buggy-Rule: Forgot school math
+buggy(chisq, stage(2), X, Y, [step(buggy, school1, [N_VR, N_Box])]) :-
+  dif(N_VR, N_Box),
+  X = 1/N_VR + 1/N_Box,
+  Y = frac(1, color(school1, N_VR + N_Box)).
+
+feedback(school1, [A, B], Col, F)
+=> F = [" Please keep in mind that ", 
+   \mmlm(Col, [color(school, color("black", frac(1, A)) + color("black", frac(1, B)))
+   =\= frac(1, color(school, color("black", A) + color("black", B))), "."])
+      ].
+
+hint(school1, [N_VR, N_Box], Col, F)
+=> F = [ "Please do not forget school ",
+        "math, ", \mmlm(Col, [=\=(frac(1, color(school1, N_VR)) +
+          frac(1, color(school1, N_Box)), frac(1, color(school1, N_VR+N_Box))), "."])
+      ].
+
 % Buggy-Rule: Forgot parentheses around denominator in main formula. 
 % Appeared 1-4 times in the 2018 exams.
-buggy(chisq, stage(2), From, To, [step(buggy, paren3, [From])]) :-
+/* buggy(chisq, stage(2), From, To, [step(buggy, paren3, [From])]) :-
     From = P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box),
     To = instead(paren3, P_Pool * 1 - P_Pool * 1 / N_VR + 1 / N_Box, From).
 
@@ -237,11 +255,11 @@ feedback(paren3, [From], Col, FB) =>
 
 hint(paren3, [From], Col, FB) =>
     FB = [ "Remember the parentheses around the different ",
-	   " elements in ", \mmlm(Col, color(paren3, From)) ].
+	   " elements in ", \mmlm(Col, color(paren3, From)) ]. */
 
 % Buggy-Rule: flipped nominator and denominator in main equation. 
 % Appeared 3-5 times in the 2018 exams.
-buggy(chisq, stage(2), From, To, [step(buggy, flip, [])]) :-
+/* buggy(chisq, stage(2), From, To, [step(buggy, flip, [])]) :-
     From = '<-'(z, zstat(P_VR, P_Box, P_pool, N_VR, N_Box)),
     To = '<-'(z, add_left(flip, 1/zstat(P_VR, P_Box, P_pool, N_VR, N_Box))).
 
@@ -252,4 +270,4 @@ feedback(flip, [], Col, FB) =>
 	 ].
 
 hint(flip, [], _Col, FB) =>
-    FB = "Do not flip the numerator and denominator of the test statistic.".
+    FB = "Do not flip the numerator and denominator of the test statistic.". */
