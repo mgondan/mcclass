@@ -414,21 +414,20 @@ hint(sqrt1, [N], Col, F)
           \mmlm(Col, [color(sqrt1, N), "."])
         ].
 
-% Buggy-Rule: Use of N instead of sqrt(N)
-buggy(tratio, stage(2), X, Y, [step(buggy, sqrt2, [N])]) :-
-    X = sqrt(N),
-    dif(N, n),
-    Y = omit_right(sqrt2, N^(1/2)).
+% Buggy-Rule: Forget square root around pooled variance
+buggy(tratio, stage(2), X, Y, [step(buggy, sqrt2, [S2P * Ns])]) :-
+    X = sqrt(S2P * Ns),
+    Y = omit_right(sqrt2, (S2P * Ns)^(1/2)).
 
-feedback(sqrt2, [N], Col, F)
+feedback(sqrt2, [V], Col, F)
  => F = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), " without", 
-	   " square root around ", \mmlm(Col, [color(sqrt2, N), "."]), " Please do not",
-	   " forget the square root around ", \mmlm(Col, [color(sqrt2, N), "."])
+          " square root in the denominator. Please do not forget to take the",
+          " square root of the error variance ", \mmlm(Col, [color(sqrt2, sqrt(V)), "."])
         ].
 
-hint(sqrt2, [N], Col, F)
+hint(sqrt2, [V], Col, F)
  => F = [ "Do not forget the square root around ",
-          \mmlm(Col, [color(sqrt2, N), "."])
+          \mmlm(Col, [color(sqrt2, V), "."])
         ].
 
 %
