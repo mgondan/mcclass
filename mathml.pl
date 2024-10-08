@@ -2866,7 +2866,7 @@ math(add(Expr), M, _Flags)
 % Legacy code
 math(drop_left(_Bug, Expr), M, Flags),
     option(error(correct), Flags, fix)
- => M = Expr.
+ => Expr = M.
 
 math(drop_left(_Bug, Expr), M, Flags),
     option(error(show), Flags, fix)
@@ -2880,8 +2880,7 @@ math(drop_left(Bug, Expr), M, Flags),
 
 math(drop_left(_Bug, Expr), M, Flags),
     option(error(highlight), Flags, fix)
- => Expr =.. [_Op, _L, R],
-    M = R.
+ => Expr =.. [_Op, _L, M].
 
 math(drop_right(_Bug, Expr), M, Flags),
     option(error(correct), Flags, fix)
@@ -2903,8 +2902,6 @@ math(drop_right(_Bug, Expr), M, Flags),
     M = L.
 
 % End legacy code
-
-
 
 % Legacy code
 

@@ -431,7 +431,7 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(tgroups, s2p).
+    tasks(tpaired, tratio).
 
 tasks(Topic, Task) :-
     r_initialize,
@@ -469,6 +469,5 @@ tasks(Topic, Task) :-
     memberchk(traps(T), Data),
     format("Traps: ~w~n", [T]),
     html(\pp_traps(Topic, Task, Data), Traps, []),
-    writeln(Traps),
-    true.
+    writeln(Traps).
 

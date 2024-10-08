@@ -29,7 +29,7 @@ math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 math_hook(alpha, greek("alpha")).
 
 % R definitions
-rint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
+rint:r_hook(var_pool(_V1, _N1, _V2, _N2)).
 rint:r_hook(t).
 rint:r_hook(d).
 rint:r_hook(mu).
@@ -44,7 +44,7 @@ rint:r_hook(pt(_T, _DF)).
 rint:r_hook(qt(_P, _DF)).
  
 interval:monotonical(pt(+, /)).
-
+interval:monotonical(var_pool(+, /, +, /)).
 
 % Task description
 render
@@ -68,12 +68,12 @@ render
                     "and ", \mmlm('D' = "T0" - "EOT") ],
                   [ "Average", "SD" ],
                   [ "HDRS", "T0", "EOT", \mmlm(d) ],
-                  [ [ \mmlm([digits(1)], r(t0)),
-                      \mmlm([digits(1)], r(eot)),
-                      \mmlm([digits(1)], r(d1)) ],
-                    [ \mmlm([digits(1)], r(s_t0)),
-                      \mmlm([digits(1)], r(s_eot)),
-                      \mmlm([digits(1)], r(s1_d)) ]
+                  [ [ \mmlm([digits(1)], r(t0x)),
+                      \mmlm([digits(1)], r(eotx)),
+                      \mmlm([digits(1)], r(dx)) ],
+                    [ \mmlm([digits(1)], r(sx_t0)),
+                      \mmlm([digits(1)], r(sx_eot)),
+                      \mmlm([digits(1)], r(sx_d)) ]
                   ])))),
           \download(tpaired)
         ]))).
