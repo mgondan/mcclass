@@ -2941,10 +2941,11 @@ math(instead(_, instead(Bug, Wrong, _, _), Correct0, Correct), M, Flags),
     option(error(fix), Flags, fix)
  => M = instead(Bug, Wrong, Correct0, Correct).
 
-math(instead(Bug, Wrong, _Correct0, Correct), M, Flags),
+math(instead(Bug, _Wrong, _Correct0, Correct), M, Flags),
     option(error(fix), Flags, fix)
- => bugs(Wrong, Bugs),
-    M = boxes([Bug | Bugs], Correct).
+% => bugs(Wrong, Bugs),
+%    M = boxes([Bug | Bugs], Correct).
+ => M = color(Bug, Correct).
 
 % Nested insteads
 math(instead(_, instead(Bug, Wrong, _), Correct0, Correct), M, Flags),
