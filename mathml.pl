@@ -2947,6 +2947,14 @@ math(instead(Bug, _Wrong, _Correct0, Correct), M, Flags),
 %    M = boxes([Bug | Bugs], Correct).
  => M = color(Bug, Correct).
 
+denoting(instead(_, _Wrong, _Of0, Of), D, Flags),
+    option(error(fix), Flags, fix)
+=> denoting(Of, D, Flags).
+
+denoting(instead(_, Wrong, _Of0, _Of), D, Flags),
+    option(error(highlight), Flags, fix)
+=> denoting(Wrong, D, Flags).
+
 % Nested insteads
 math(instead(_, instead(Bug, Wrong, _), Correct0, Correct), M, Flags),
     option(error(highlight), Flags, fix)
