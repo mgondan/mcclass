@@ -33,7 +33,7 @@
 % r2mathml(sin(pi/2), M).
 %
 r2mathml(R, S)
-=> r2mathml(R, S, []).
+ => r2mathml(R, S, []).
 
 % The flags allow for context-dependent translation
 %
@@ -161,6 +161,15 @@ ml(color(C, A), M, Flags),
     string(C)
  => ml(A, X, Flags),
     M = mstyle(mathcolor(C), X).
+
+paren(color(_, A), Paren, Flags)
+ => paren(A, Paren, Flags).
+
+prec(color(_, A), Prec, Flags)
+ => prec(A, Prec, Flags).
+
+type(color(_, A), Type, Flags)
+ => type(A, Type, Flags).
 
 fmt(Flags, Expr, F),
     atomic(Expr)
@@ -2949,11 +2958,11 @@ math(instead(Bug, _Wrong, _Correct0, Correct), M, Flags),
 
 denoting(instead(_, _Wrong, _Of0, Of), D, Flags),
     option(error(fix), Flags, fix)
-=> denoting(Of, D, Flags).
+ => denoting(Of, D, Flags).
 
 denoting(instead(_, Wrong, _Of0, _Of), D, Flags),
     option(error(highlight), Flags, fix)
-=> denoting(Wrong, D, Flags).
+ => denoting(Wrong, D, Flags).
 
 % Nested insteads
 math(instead(_, instead(Bug, Wrong, _), Correct0, Correct), M, Flags),

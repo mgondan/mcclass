@@ -121,14 +121,14 @@ hint(ppool, [S_VR, S_Box, N_VR, N_Box], Col, FB) =>
 % Third Step: Determine the z-statistic
 expert(chisq, stage(2), From, To, [step(expert, zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box])]) :-
     From = zstat(P_VR, P_Box, P_Pool, N_VR, N_Box),
-    To = dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box))).
+    To = dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box)))).
 
 feedback(zstat, [_P_VR, _P_Box, _P_Pool, _N_VR, _N_Box], Col, FB) =>
     FB = [ "Correctly determined the ", \mmlm(Col, hyph(z, "statistic.")) ].
 
 hint(zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box], Col, FB) =>
     FB = [ "The ", \mmlm(Col, hyph(z, "statistic")), " is ",
-           \mmlm(Col, dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box)))) 
+           \mmlm(Col, dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box))))) 
          ].
 
 
@@ -183,7 +183,7 @@ hint(square, [], Col, FB) =>
 % Appeared 3-8 times in the 2018 exams.
 buggy(chisq, stage(2), From, To, [step(buggy, zadd, [P_VR, P_Box])]) :-
     From = zstat(P_VR, P_Box, P_Pool, N_VR, N_Box),
-    To = dfrac(instead(zadd, P_VR + P_Box, P_VR - P_Box), sqrt(P_Pool * (1 - P_Pool) * (1 / N_VR + 1 / N_Box))).
+    To = dfrac(instead(zadd, P_VR + P_Box, P_VR - P_Box), sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box)))).
 
 feedback(zadd, [P_VR, P_Box], Col, FB) =>
     FB = [ "The results matches the ", \mmlm(Col, hyph(z, "statistic")), " where ",
@@ -210,23 +210,24 @@ buggy(chisq, stage(2), From, To, [step(buggy, paren2, [N_VR, N_Box])]) :-
 feedback(paren2, [N_VR, N_Box], Col, FB) =>
     FB = [ "The results matches the ", \mmlm(Col, hyph(z, "statistic")), " without ",
 	   "the parenthesis around ", 
-	   \mmlm(Col, color(paren2, paren(color("#000000", 1 / N_VR + 1 / N_Box)))),
+	   \mmlm(Col, color(paren2, paren(color("#000000", frac(1, N_VR) + frac(1, N_Box))))),
 	   ". Please do not forget the paranthesis around ",
-	   \mmlm(Col, color(paren2, paren(color("#000000", 1 / N_VR + 1 / N_Box)))),
+	   \mmlm(Col, color(paren2, paren(color("#000000", frac(1, N_VR) + frac(1, N_Box))))),
            "." 
          ].
 
 hint(paren2, [N_VR, N_Box], Col, FB) =>
     FB = [ "Do not forget to add parentheses around ", 
            \mmlm(Col, color(paren2,
-             paren(color("#000000", 1 / N_VR + 1 / N_Box))))
+             paren(color("#000000", frac(1, N_VR) + frac(1, N_Box)))))
          ].
 
 % Buggy-Rule: Forgot school math
-buggy(chisq, stage(2), X, Y, [step(buggy, school1, [N_VR, N_Box])]) :-
-  dif(N_VR, N_Box),
-  X = 1 / N_VR + 1 / N_Box,
-  Y = instead(school1, color(school1, frac(1, N_VR + N_Box)), 1 / N_VR + 1 / N_Box).
+buggy(chisq, stage(2), From, To, [step(buggy, school1, [N_VR, N_Box])]) :-
+    dif(N_VR, N_Box),
+    From = frac(1, N_VR) + frac(1, N_Box),
+    To = instead(school1, color(school1, frac(1, N_VR + N_Box)),
+           1 / N_VR + 1 / N_Box, frac(1, N_VR) + frac(1, N_Box)).
 
 feedback(school1, [A, B], Col, F)
 => F = [" Please keep in mind that ", 
