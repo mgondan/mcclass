@@ -14,6 +14,8 @@ Invoke R, and then
 * `install.packages("RInside")`
 * `install.packages("Rserve", repos="http://rforge.net/", type="source")`
 * You also need WriteXLS for exporting Excel files: `install.packages("WriteXLS")`
+* `install.packages("ggplot2")`
+* `install.packages("svglite")`
 * `quit()`
 
 Later, you just invoke `R -e "Rserve::Rserve()"` to start the R server.
