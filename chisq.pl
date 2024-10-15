@@ -225,8 +225,8 @@ hint(paren2, [N_VR, N_Box], Col, FB) =>
 % Buggy-Rule: Forgot school math
 buggy(chisq, stage(2), X, Y, [step(buggy, school1, [N_VR, N_Box])]) :-
   dif(N_VR, N_Box),
-  X = 1/N_VR + 1/N_Box,
-  Y = frac(1, color(school1, N_VR + N_Box)).
+  X = 1 / N_VR + 1 / N_Box,
+  Y = instead(school1, color(school1, frac(1, N_VR + N_Box)), 1 / N_VR + 1 / N_Box).
 
 feedback(school1, [A, B], Col, F)
 => F = [" Please keep in mind that ", 
