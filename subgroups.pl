@@ -4,9 +4,12 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
-:- use_module(r).
-:- use_module(interval).
-:- use_module(rint).
+:- use_module('/home/jeremyirilli/interval/prolog/mcclass.pl').
+:- use_module('/home/jeremyirilli/interval/prolog/rint.pl').
+:- use_module('/home/jeremyirilli/interval/prolog/r.pl').
+%:- use_module(r).
+%:- use_module(interval).
+%:- use_module(rint).
 :- use_module(mathml).
 :- use_module(navbar).
 navbar:page(subgroups, ["subgroups"]).
@@ -39,7 +42,8 @@ my_subset([X | L], [X | S], D) :-
 my_subset(L, [H | S], [H | D]) :-
     my_subset(L, S, D).
 
-interval:monotonical(pt(+, /)).
+%interval:monotonical(pt(+, /)).
+interval:mono((pt)/2, [+, /]).
 
 render
 --> { start(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)) },

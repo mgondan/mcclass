@@ -4,9 +4,12 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
-:- use_module(r).
-:- use_module(interval).
-:- use_module(rint).
+%:- use_module(r).
+:- use_module('/home/jeremyirilli/interval/prolog/mcclass.pl').
+:- use_module('/home/jeremyirilli/interval/prolog/rint.pl').
+:- use_module('/home/jeremyirilli/interval/prolog/r.pl').
+%:- use_module(interval).
+%:- use_module(rint).
 :- use_module(mathml).
 :- use_module(navbar).
 navbar:page(baseline, ["baseline covariates"]).
@@ -27,9 +30,12 @@ rint:r_hook(ancova_f(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 rint:r_hook(ancova_p(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 rint:r_hook(ancova_ci(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 
-interval:monotonical(ancova_f(/, /, /, /, /, /, /)).
-interval:monotonical(ancova_p(/, /, /, /, /, /, /)).
-interval:monotonical(ancova_ci(/, /, /, /, /, /, /)).
+%interval:monotonical(ancova_f(/, /, /, /, /, /, /)).
+%interval:monotonical(ancova_p(/, /, /, /, /, /, /)).
+%interval:monotonical(ancova_ci(/, /, /, /, /, /, /)).
+interval:mono((ancova_f)/7, [/, /, /, /, /, /, /]).
+interval:mono((ancova_p)/7, [/, /, /, /, /, /, /]).
+interval:mono((ancova_ci)/7, [/, /, /, /, /, /, /]).
 
 % my_subset(+List, -Subset, -Difference)
 my_subset([], [], []).

@@ -3,8 +3,11 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
-:- use_module(r).
-:- use_module(rint).
+:- use_module('/home/jeremyirilli/interval/prolog/mcclass.pl').
+:- use_module('/home/jeremyirilli/interval/prolog/rint.pl').
+:- use_module('/home/jeremyirilli/interval/prolog/r.pl').
+%:- use_module(r).
+%:- use_module(rint).
 :- use_module(mathml).
 
 :- use_module(navbar).
@@ -43,8 +46,10 @@ rint:r_hook(lo).
 rint:r_hook(pt(_T, _DF)).
 rint:r_hook(qt(_P, _DF)).
  
-interval:monotonical(pt(+, /)).
-interval:monotonical(var_pool(+, /, +, /)).
+%interval:monotonical(pt(+, /)).
+%interval:monotonical(var_pool(+, /, +, /)).
+interval:mono((pt)/2, [+, /]).
+interval:mono((var_pool)/4, [+, /, +, /]).
 
 % Task description
 render

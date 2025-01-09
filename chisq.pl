@@ -1,6 +1,8 @@
 :- module(chisq, []).
 
-:- use_module(rint).
+:- use_module('/home/jeremyirilli/interval/prolog/mcclass.pl').
+:- use_module('/home/jeremyirilli/interval/prolog/rint.pl').
+%:- use_module(rint).
 :- use_module(table).
 :- use_module(navbar).
 navbar:page(chisq, "chi-square").
