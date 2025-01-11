@@ -26,18 +26,18 @@ math_hook(s2p, subscript(s, "pool")^2).
 math_hook(alpha, greek("alpha")).
 
 % R definitions
-rint:r_hook(n_mc).
-rint:r_hook(n_rc).
-rint:r_hook(mc).
-rint:r_hook(s_mc).
-rint:r_hook(rc).
-rint:r_hook(s_rc).
-rint:r_hook(s2p).
-rint:r_hook(t).
-rint:r_hook(lo).
-rint:r_hook(mu).
-rint:r_hook(qt(_P, _DF)).
-rint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
+r_hook(n_mc).
+r_hook(n_rc).
+r_hook(mc).
+r_hook(s_mc).
+r_hook(rc).
+r_hook(s_rc).
+r_hook(s2p).
+r_hook(t).
+r_hook(lo).
+r_hook(mu).
+r_hook(qt(_P, _DF)).
+r_hook(var_pool(_N1, _V1, _N2, _V2)).
 
 % Task description
 render

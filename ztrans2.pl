@@ -17,11 +17,11 @@ task(ztrans).
 
 math_hook(x, 'X').
 
-rint:r_hook(x).
-rint:r_hook(sigma).
-rint:r_hook(z).
-rint:r_hook(qnorm(_P)).
-rint:r_hook(p).
+r_hook(x).
+r_hook(sigma).
+r_hook(z).
+r_hook(qnorm(_P)).
+r_hook(p).
 
 render
 --> {start(item(_P, Mu, Sigma)) },

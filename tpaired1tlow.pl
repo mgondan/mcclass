@@ -32,23 +32,23 @@ math_hook(alpha, greek("alpha")).
 math_hook(t(DF), fn(t, [DF])).
 
 % R definitions
-rint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
-rint:r_hook(t).
-rint:r_hook(d).
-rint:r_hook(mu).
-rint:r_hook(s_d).
-rint:r_hook(n).
-rint:r_hook(t0).
-rint:r_hook(s_t0).
-rint:r_hook(eot).
-rint:r_hook(s_eot).
-rint:r_hook(lo).
-rint:r_hook(incr).
-rint:r_hook(pt(_T, _DF)).
-rint:r_hook(qt(_P, _DF)).
+r_hook(var_pool(_N1, _V1, _N2, _V2)).
+r_hook(t).
+r_hook(d).
+r_hook(mu).
+r_hook(s_d).
+r_hook(n).
+r_hook(t0).
+r_hook(s_t0).
+r_hook(eot).
+r_hook(s_eot).
+r_hook(lo).
+r_hook(incr).
+r_hook(pt(_T, _DF)).
+r_hook(qt(_P, _DF)).
  
 %interval:monotonical(pt(+, /)).
-interval:mono((pt)/2, [+, /]).
+mono((pt)/2, [+, /]).
 
 
 % Task description

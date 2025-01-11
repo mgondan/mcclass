@@ -25,9 +25,9 @@ math_hook(m_EOT, overline("EOT")).
 math_hook(s_T0, subscript(s, "T0")).
 math_hook(s_EOT, subscript(s, "EOT")).
 
-rint:r_hook(ancova_f(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
-rint:r_hook(ancova_p(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
-rint:r_hook(ancova_ci(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
+r_hook(ancova_f(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
+r_hook(ancova_p(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
+r_hook(ancova_ci(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 
 %r:pl2r_hook(add(_, P), R) :-
 %    maplist(r:pl2r, P, R).
@@ -42,7 +42,7 @@ my_subset(L, [H | S], [H | D]) :-
     my_subset(L, S, D).
 
 %interval:monotonical(pt(+, /)).
-interval:mono((pt)/2, [+, /]).
+mono((pt)/2, [+, /]).
 
 render
 --> { start(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)) },

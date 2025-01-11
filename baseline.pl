@@ -25,16 +25,16 @@ math_hook(m_EOT, overline("EOT")).
 math_hook(s_T0, subscript(s, "T0")).
 math_hook(s_EOT, subscript(s, "EOT")).
 
-rint:r_hook(ancova_f(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
-rint:r_hook(ancova_p(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
-rint:r_hook(ancova_ci(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
+r_hook(ancova_f(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
+r_hook(ancova_p(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
+r_hook(ancova_ci(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 
-%interval:monotonical(ancova_f(/, /, /, /, /, /, /)).
-%interval:monotonical(ancova_p(/, /, /, /, /, /, /)).
-%interval:monotonical(ancova_ci(/, /, /, /, /, /, /)).
-interval:mono((ancova_f)/7, [/, /, /, /, /, /, /]).
-interval:mono((ancova_p)/7, [/, /, /, /, /, /, /]).
-interval:mono((ancova_ci)/7, [/, /, /, /, /, /, /]).
+%monotonical(ancova_f(/, /, /, /, /, /, /)).
+%monotonical(ancova_p(/, /, /, /, /, /, /)).
+%monotonical(ancova_ci(/, /, /, /, /, /, /)).
+mono((ancova_f)/7, [/, /, /, /, /, /, /]).
+mono((ancova_p)/7, [/, /, /, /, /, /, /]).
+mono((ancova_ci)/7, [/, /, /, /, /, /, /]).
 
 % my_subset(+List, -Subset, -Difference)
 my_subset([], [], []).

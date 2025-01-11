@@ -25,14 +25,14 @@ math_hook(s_box, subscript(s, "Box")).
 math_hook(s2p, subscript(s, "pool")^2).
 
 % Obtain information from R
-rint:r_hook(n_vr).
-rint:r_hook(n_box).
-rint:r_hook(vr).
-rint:r_hook(s_vr).
-rint:r_hook(box).
-rint:r_hook(s_box).
-rint:r_hook(s2p).
-rint:r_hook(t).
+r_hook(n_vr).
+r_hook(n_box).
+r_hook(vr).
+r_hook(s_vr).
+r_hook(box).
+r_hook(s_box).
+r_hook(s2p).
+r_hook(t).
 
 % Task description
 render

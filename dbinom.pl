@@ -20,12 +20,12 @@ task(exactprob).
 math_hook(n, 'N').
 math_hook(p0, pi).
 
-rint:r_hook(p).
-rint:r_hook(n).
-rint:r_hook(k).
-rint:r_hook(p0).
-rint:r_hook(factorial(_N)).
-rint:r_hook(choose(_N, _K)).
+r_hook(p).
+r_hook(n).
+r_hook(k).
+r_hook(p0).
+r_hook(factorial(_N)).
+r_hook(choose(_N, _K)).
 
 render
 --> {start(item(_K, N, P0)) },

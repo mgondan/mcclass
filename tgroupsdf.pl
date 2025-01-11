@@ -20,14 +20,14 @@ math_hook(s_box, subscript(s, "Box")).
 math_hook(n, subscript('N', "total")).
 
 % Obtain information from R
-rint:r_hook(n_vr).
-rint:r_hook(n_box).
-rint:r_hook(vr).
-rint:r_hook(s_vr).
-rint:r_hook(box).
-rint:r_hook(s_box).
-rint:r_hook(n).
-rint:r_hook(df).
+r_hook(n_vr).
+r_hook(n_box).
+r_hook(vr).
+r_hook(s_vr).
+r_hook(box).
+r_hook(s_box).
+r_hook(n).
+r_hook(df).
 
 render(item(VR, S_VR, N_VR, Box, S_Box, N_Box), Form) -->
     { option(resp(R), Form, '##.##') },

@@ -18,24 +18,23 @@ task(amountsuccess).
 math_hook(p0, subscript(pi, 0)).
 math_hook(n, 'N').
 
-rint:r_hook(alpha).
-rint:r_hook(n).
-rint:r_hook(p0).
-rint:r_hook(k).
-rint:r_hook(uqbinom(_Alpha, _Size, _Prob)).
-rint:r_hook(lqbinom(_Alpha, _Size, _Prob)).
-rint:r_hook(tail(_Tail, _K)).
-%interval:int_hook(arg(A, _K), Res, Flags) :-
-%  interval:int(A, Res, Flags).
+r_hook(alpha).
+r_hook(n).
+r_hook(p0).
+r_hook(k).
+r_hook(uqbinom(_Alpha, _Size, _Prob)).
+r_hook(lqbinom(_Alpha, _Size, _Prob)).
+r_hook(tail(_Tail, _K)).
+r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
+r_hook(pbinom(_Q, _Size, _Prob)).
+r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
+%r_hook(arg(_Arg, _K)).
+%int_hook(arg(A, _K), Res, Flags) :-
+%  int(A, Res, Flags).
 
-interval:int_hook(arg, arg(_, _), _, []).
+int_hook(arg, arg(_, _), _, []).
 arg(A, _K, Res, Flags) :-
-  interval:interval_(A, Res, Flags).
-
-%rint:r_hook(arg(_Arg, _K)).
-rint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
-rint:r_hook(pbinom(_Q, _Size, _Prob)).
-rint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
+  interval_(A, Res, Flags).
 
 render
 --> { start(item(_Alpha, N, P0)), 

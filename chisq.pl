@@ -20,15 +20,15 @@ math_hook(chi2, chi^2).
 math_hook(p_pool, subscript(p, "pool")).
 
 % R constants
-rint:r_hook(p_VR).
-rint:r_hook(s_VR).
-rint:r_hook(n_VR).
-rint:r_hook(p_Box).
-rint:r_hook(s_Box).
-rint:r_hook(n_Box).
-rint:r_hook(z).
-rint:r_hook(chi2).
-rint:r_hook(p_pool).
+r_hook(p_VR).
+r_hook(s_VR).
+r_hook(n_VR).
+r_hook(p_Box).
+r_hook(s_Box).
+r_hook(n_Box).
+r_hook(z).
+r_hook(chi2).
+r_hook(p_pool).
 
 % Task description
 render

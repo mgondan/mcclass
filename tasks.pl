@@ -39,7 +39,7 @@
 mathml:math_hook(r(Expr), Res) :-
     r_topic(Expr, Res).
 
-% read intervals from input
+/* % read intervals from input
 interval:hook(@(Expr, Options), Res, Flags) :-
     !, append(Options, Flags, New),
     option(digits(D), New, 1.0Inf),
@@ -85,7 +85,7 @@ interval:hook(';'(Expr1, Expr2), Res, Flags) :-
     interval(Expr2, Res, Flags).
 
 interval:hook('{}'(Expr), Res, Flags) :-
-    interval(Expr, Res, Flags).
+    interval(Expr, Res, Flags). */
 
 % Gather useful information
 %

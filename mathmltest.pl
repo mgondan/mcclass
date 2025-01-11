@@ -31,21 +31,21 @@ math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 math_hook(alpha, greek("alpha")).
 
 % R definitions
-rint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
-rint:r_hook(t).
-rint:r_hook(d).
-rint:r_hook(mu).
-rint:r_hook(s_d).
-rint:r_hook(n).
-rint:r_hook(t0).
-rint:r_hook(s_t0).
-rint:r_hook(eot).
-rint:r_hook(s_eot).
-rint:r_hook(lo).
-rint:r_hook(pt(_T, _DF)).
-rint:r_hook(qt(_P, _DF)).
+r_hook(var_pool(_N1, _V1, _N2, _V2)).
+r_hook(t).
+r_hook(d).
+r_hook(mu).
+r_hook(s_d).
+r_hook(n).
+r_hook(t0).
+r_hook(s_t0).
+r_hook(eot).
+r_hook(s_eot).
+r_hook(lo).
+r_hook(pt(_T, _DF)).
+r_hook(qt(_P, _DF)).
  
-interval:monotonical(pt(+, /)).
+monotonical(pt(+, /)).
 
 
 % Task description
