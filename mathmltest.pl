@@ -16,7 +16,7 @@ task(tratio).
 /* task(pvalue).
 task(cipaired). */
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
 math_hook(d, overline('D')).
@@ -31,19 +31,19 @@ math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 math_hook(alpha, greek("alpha")).
 
 % R definitions
-r_hook(var_pool(_N1, _V1, _N2, _V2)).
-r_hook(t).
-r_hook(d).
-r_hook(mu).
-r_hook(s_d).
-r_hook(n).
-r_hook(t0).
-r_hook(s_t0).
-r_hook(eot).
-r_hook(s_eot).
-r_hook(lo).
-r_hook(pt(_T, _DF)).
-r_hook(qt(_P, _DF)).
+mcint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
+mcint:r_hook(t).
+mcint:r_hook(d).
+mcint:r_hook(mu).
+mcint:r_hook(s_d).
+mcint:r_hook(n).
+mcint:r_hook(t0).
+mcint:r_hook(s_t0).
+mcint:r_hook(eot).
+mcint:r_hook(s_eot).
+mcint:r_hook(lo).
+mcint:r_hook(pt(_T, _DF)).
+mcint:r_hook(qt(_P, _DF)).
  
 monotonical(pt(+, /)).
 

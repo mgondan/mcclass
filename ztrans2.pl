@@ -13,15 +13,15 @@
 navbar:page(ztrans2, [i(z), "-transform (2)"]).
 task(ztrans).
 
-:- multifile intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- multifile intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 math_hook(x, 'X').
 
-r_hook(x).
-r_hook(sigma).
-r_hook(z).
-r_hook(qnorm(_P)).
-r_hook(p).
+mcint:r_hook(x).
+mcint:r_hook(sigma).
+mcint:r_hook(z).
+mcint:r_hook(qnorm(_P)).
+mcint:r_hook(p).
 
 render
 --> {start(item(_P, Mu, Sigma)) },

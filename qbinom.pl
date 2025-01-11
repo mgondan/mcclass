@@ -13,22 +13,22 @@
 navbar:page(qbinom, "Binomial test").
 task(amountsuccess).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 math_hook(p0, subscript(pi, 0)).
 math_hook(n, 'N').
 
-r_hook(alpha).
-r_hook(n).
-r_hook(p0).
-r_hook(k).
-r_hook(uqbinom(_Alpha, _Size, _Prob)).
-r_hook(lqbinom(_Alpha, _Size, _Prob)).
-r_hook(tail(_Tail, _K)).
-r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
-r_hook(pbinom(_Q, _Size, _Prob)).
-r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
-%r_hook(arg(_Arg, _K)).
+mcint:r_hook(alpha).
+mcint:r_hook(n).
+mcint:r_hook(p0).
+mcint:r_hook(k).
+mcint:r_hook(uqbinom(_Alpha, _Size, _Prob)).
+mcint:r_hook(lqbinom(_Alpha, _Size, _Prob)).
+mcint:r_hook(tail(_Tail, _K)).
+mcint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
+mcint:r_hook(pbinom(_Q, _Size, _Prob)).
+mcint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
+%mcint:r_hook(arg(_Arg, _K)).
 %int_hook(arg(A, _K), Res, Flags) :-
 %  int(A, Res, Flags).
 

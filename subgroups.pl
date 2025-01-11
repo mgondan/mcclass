@@ -17,7 +17,7 @@ task(pvalue).
 task(cibase).
 
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
 math_hook(m_T0, overline("T0")).
@@ -25,9 +25,9 @@ math_hook(m_EOT, overline("EOT")).
 math_hook(s_T0, subscript(s, "T0")).
 math_hook(s_EOT, subscript(s, "EOT")).
 
-r_hook(ancova_f(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
-r_hook(ancova_p(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
-r_hook(ancova_ci(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
+mcint:r_hook(ancova_f(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
+mcint:r_hook(ancova_p(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
+mcint:r_hook(ancova_ci(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 
 %r:pl2r_hook(add(_, P), R) :-
 %    maplist(r:pl2r, P, R).
@@ -42,7 +42,7 @@ my_subset(L, [H | S], [H | D]) :-
     my_subset(L, S, D).
 
 %interval:monotonical(pt(+, /)).
-mono((pt)/2, [+, /]).
+mcint:mono((pt)/2, [+, /]).
 
 render
 --> { start(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)) },

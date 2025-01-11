@@ -15,17 +15,17 @@
 navbar:page(dbinom, "Binomial probability").
 task(exactprob).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 math_hook(n, 'N').
 math_hook(p0, pi).
 
-r_hook(p).
-r_hook(n).
-r_hook(k).
-r_hook(p0).
-r_hook(factorial(_N)).
-r_hook(choose(_N, _K)).
+mcint:r_hook(p).
+mcint:r_hook(n).
+mcint:r_hook(k).
+mcint:r_hook(p0).
+mcint:r_hook(factorial(_N)).
+mcint:r_hook(choose(_N, _K)).
 
 render
 --> {start(item(_K, N, P0)) },

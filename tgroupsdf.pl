@@ -8,7 +8,7 @@
 %:- use_module(rint).
 :- use_module(mathml).
 
-:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4.
+:- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
 math_hook(n_vr, subscript(n, "VR")).
@@ -20,14 +20,14 @@ math_hook(s_box, subscript(s, "Box")).
 math_hook(n, subscript('N', "total")).
 
 % Obtain information from R
-r_hook(n_vr).
-r_hook(n_box).
-r_hook(vr).
-r_hook(s_vr).
-r_hook(box).
-r_hook(s_box).
-r_hook(n).
-r_hook(df).
+mcint:r_hook(n_vr).
+mcint:r_hook(n_box).
+mcint:r_hook(vr).
+mcint:r_hook(s_vr).
+mcint:r_hook(box).
+mcint:r_hook(s_box).
+mcint:r_hook(n).
+mcint:r_hook(df).
 
 render(item(VR, S_VR, N_VR, Box, S_Box, N_Box), Form) -->
     { option(resp(R), Form, '##.##') },

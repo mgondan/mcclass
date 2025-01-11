@@ -16,7 +16,7 @@ task(s2p).
 task(tratio).
 task(cigroups).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
 math_hook(n_vr, subscript(n, "VR")).
@@ -29,18 +29,18 @@ math_hook(s2p, subscript(s, "pool")^2).
 math_hook(alpha, greek("alpha")).
 
 % Obtain information from R
-r_hook(n_vr).
-r_hook(n_box).
-r_hook(vr).
-r_hook(s_vr).
-r_hook(box).
-r_hook(s_box).
-r_hook(s2p).
-r_hook(t).
-r_hook(lo).
-r_hook(mu).
-r_hook(qt(_P, _DF)).
-r_hook(var_pool(_N1, _V1, _N2, _V2)).
+mcint:r_hook(n_vr).
+mcint:r_hook(n_box).
+mcint:r_hook(vr).
+mcint:r_hook(s_vr).
+mcint:r_hook(box).
+mcint:r_hook(s_box).
+mcint:r_hook(s2p).
+mcint:r_hook(t).
+mcint:r_hook(lo).
+mcint:r_hook(mu).
+mcint:r_hook(qt(_P, _DF)).
+mcint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
 
 % Task description
 render 

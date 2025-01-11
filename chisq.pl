@@ -7,7 +7,7 @@
 navbar:page(chisq, "chi-square").
 task(chisq).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
 math_hook(p_VR, subscript(p, "VR")).
@@ -20,15 +20,15 @@ math_hook(chi2, chi^2).
 math_hook(p_pool, subscript(p, "pool")).
 
 % R constants
-r_hook(p_VR).
-r_hook(s_VR).
-r_hook(n_VR).
-r_hook(p_Box).
-r_hook(s_Box).
-r_hook(n_Box).
-r_hook(z).
-r_hook(chi2).
-r_hook(p_pool).
+mcint:mcint:r_hook(p_VR).
+mcint:mcint:r_hook(s_VR).
+mcint:r_hook(n_VR).
+mcint:r_hook(p_Box).
+mcint:r_hook(s_Box).
+mcint:r_hook(n_Box).
+mcint:r_hook(z).
+mcint:r_hook(chi2).
+mcint:r_hook(p_pool).
 
 % Task description
 render
