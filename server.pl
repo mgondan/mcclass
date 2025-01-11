@@ -3,7 +3,7 @@
 :- use_module(library(dcg/basics)).
 :- use_module(library(dcg/high_order)).
 :- use_module(tasks).
-:- use_module('/home/jeremyirilli/interval/prolog/r.pl').
+:- use_module(r_mcclass).
 %:- use_module(r).
 :- use_module(search).
 :- use_module(feedback).

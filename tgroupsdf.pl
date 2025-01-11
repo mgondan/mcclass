@@ -3,8 +3,7 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module('/home/jeremyirilli/interval/prolog/mcclass.pl').
-:- use_module('/home/jeremyirilli/interval/prolog/rint.pl').
-:- use_module('/home/jeremyirilli/interval/prolog/r.pl').
+:- use_module(r_mcclass).
 %:- use_module(r).
 %:- use_module(rint).
 :- use_module(mathml).

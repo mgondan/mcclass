@@ -8,8 +8,7 @@
 :- use_module(mathml).
 :- use_module(search).
 :- use_module('/home/jeremyirilli/interval/prolog/mcclass.pl').
-:- use_module('/home/jeremyirilli/interval/prolog/rint.pl').
-:- use_module('/home/jeremyirilli/interval/prolog/r.pl').
+:- use_module(r_mcclass).
 %:- use_module(r).
 :- use_module(session).
 %:- use_module(interval).
