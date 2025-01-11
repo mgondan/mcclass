@@ -1,7 +1,5 @@
-:- module(r, 
-  [ r_initialize/0,
-    r/1, r/2, r//1, r_source/1, 
-    r_session/1, r_session/2, r_session//1, r_session_source/1,
+:- module(r_mcclass, 
+  [ r//1, r_session/1, r_session/2, r_session//1, r_session_source/1,
     r_topic/1, r_topic/2, r_topic//1
   ]).
 
@@ -10,6 +8,12 @@
 :- use_module(library(http/http_session)).
 :- use_module(library(http/http_log)).
 
+% Evaluate R expression and render it as html
+r(Expr) -->
+    { r(Expr, R) },
+    term_string(R, S),
+    html(S).
+    
 % Use R environment for session specific R commands
 :- listen(http_session(begin(_Session, _Peer)), r_session_begin).
 
