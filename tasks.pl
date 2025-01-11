@@ -13,6 +13,7 @@
 :- use_module(session).
 %:- use_module(interval).
 :- use_module(library(quantity)).
+:- use_module(testodds).
 :- use_module(mathmltest).
 :- use_module(tpaired).
 :- use_module(tpaired1t).
@@ -433,7 +434,7 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(tpaired, tratio).
+    tasks(testodds, oddstask).
 
 tasks(Topic, Task) :-
     r_init,
