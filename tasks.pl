@@ -101,7 +101,7 @@ task(Topic, Task, Data) :-
     !, Data=D.
 
 task(Topic, Task, Data) :-
-    r_initialize,
+    r_init,
     r_session_source(Topic),
     solutions(Topic, Task, Solutions),
     hints(Topic, Task, Hints),
@@ -436,7 +436,7 @@ tasks :-
     tasks(tpaired, tratio).
 
 tasks(Topic, Task) :-
-    r_initialize,
+    r_init,
     r('set.seed'(4711)),
     r_session_source(Topic),
     b_setval(topic, Topic),

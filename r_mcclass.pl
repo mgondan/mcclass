@@ -1,5 +1,5 @@
 :- module(r_mcclass, 
-  [ r//1, r_session/1, r_session/2, r_session//1, r_session_source/1,
+  [ r_init/0, r//1, r_session/1, r_session/2, r_session//1, r_session_source/1,
     r_topic/1, r_topic/2, r_topic//1
   ]).
 
@@ -7,6 +7,11 @@
 :- use_module(session).
 :- use_module(library(http/http_session)).
 :- use_module(library(http/http_log)).
+
+% Initialize R, load some code into the base environment.
+r_init :-
+    r_initialize,
+    r_session_begin.
 
 % Evaluate R expression and render it as html
 r(Expr) -->
@@ -24,14 +29,14 @@ r_session_begin,
 
 r_session_begin
  => session_id(Session),
-    r_call('<-'(Session, 'new.env'())),
+    r('<-'(Session, 'new.env'())),
     session_assert(r_session).
 
 :- listen(http_session(end(_Session, _Peer)), r_session_end).
 
 r_session_end
  => session_id(Session),
-    r_call(rm(Session)).
+    r(rm(Session)).
 
 % Evaluate R expression in the current http_session for the current topic
 r_session(Expr)
