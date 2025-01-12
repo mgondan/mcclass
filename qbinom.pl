@@ -26,13 +26,10 @@ mcint:r_hook(tail(_Tail, _K)).
 mcint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
 mcint:r_hook(pbinom(_Q, _Size, _Prob)).
 mcint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
-%mcint:r_hook(arg(_Arg, _K)).
-%int_hook(arg(A, _K), Res, Flags) :-
-%  int(A, Res, Flags).
 
-int_hook(arg, arg(_, _), _, []).
-arg(A, _K, Res, Flags) :-
-  interval_(A, Res, Flags).
+mcint:int_hook(arg, arg(_, _), _, []).
+mcint:arg(A, _K, Res, Flags) :-
+  mcint:interval_(A, Res, Flags).
 
 render
 --> { start(item(_Alpha, N, P0)), 

@@ -38,8 +38,6 @@ my_subset([X | L], [X | S], D) :-
 my_subset(L, [H | S], [H | D]) :-
     my_subset(L, S, D).
 
-%interval:monotonical(pt(+, /)).
-mcint:mono((pt)/2, [+, /]).
 
 render
 --> { start(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)) },

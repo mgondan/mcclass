@@ -42,12 +42,9 @@ mcint:r_hook(eot).
 mcint:r_hook(s_eot).
 mcint:r_hook(lo).
 mcint:r_hook(incr).
-mcint:r_hook(pt(_T, _DF)).
-mcint:r_hook(qt(_P, _DF)).
+%mcint:r_hook(pt(_T, _DF)).
+%mcint:r_hook(qt(_P, _DF)).
  
-%interval:monotonical(pt(+, /)).
-mcint:mono((pt)/2, [+, /]).
-
 
 
 % Task description
@@ -483,7 +480,7 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
 % Third step: Determine the two-tailed p-value
 expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
     X = twotailed(T, DF),
-    Y = pval(pt(-T, DF)).
+    Y = pval(pt(T, DF, false)).
 
 feedback(pvalue, [], Col, F)
  => F = [ "Correctly determined the one-tailed ", \mmlm(Col, hyph(p, "value.")) ].
@@ -499,7 +496,7 @@ hint(pvalue, [], Col, F)
 % Buggy-Rule: report the left-tail instead of the right-tail. 
 buggy(pvalue, stage(2), X, Y, [step(buggy, wrongtail, [DF])]) :-
      X = twotailed(T, DF),
-     Y = pval(pt(T, DF)).
+     Y = pval(pt(T, DF, true)).
 
 feedback(wrongtail, [DF], Col, F)
  => F = [ "The result matches the left-sided ", \mmlm(Col, hyph(p, "value.")), 
@@ -516,7 +513,7 @@ hint(wrongtail, [DF], Col, F)
 % the correct t-value and degrees of freedom (both left- and right-sided). 
 buggy(pvalue, stage(2), X, Y, [step(buggy, wrong, [T, DF])]) :-
      X = twotailed(T, DF),
-     Y = pval(pt(T, DF)).
+     Y = pval(pt(T, DF, true)).
 
 feedback(wrong, [T, DF], Col, F)
  => F = [ "The result is not the ", \mmlm(Col, hyph(p, "value")), 

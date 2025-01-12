@@ -384,7 +384,7 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(debug, debugtask).
+    tasks(tpaired, tratio).
 
 tasks(Topic, Task) :-
     r_init,

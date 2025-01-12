@@ -40,12 +40,9 @@ mcint:r_hook(s_t0).
 mcint:r_hook(eot).
 mcint:r_hook(s_eot).
 mcint:r_hook(lo).
-mcint:r_hook(pt(_T, _DF)).
-mcint:r_hook(qt(_P, _DF)).
+%mcint:r_hook(pt(_T, _DF)).
+%mcint:r_hook(qt(_P, _DF)).
  
-%interval:monotonical(pt(+, /)).
-%interval:monotonical(var_pool(+, /, +, /)).
-mcint:mono((pt)/2, [+, /]).
 mcint:mono((var_pool)/4, [+, /, +, /]).
 
 % Task description
@@ -479,7 +476,7 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
 % Third step: Determine the two-tailed p-value
 expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
     X = twotailed(T, DF),
-    Y = pval(2*pt(-abs(T), DF)).
+    Y = pval(2*pt(abs(T), DF, false)).
 
 feedback(pvalue, [], Col, F)
  => F = [ "Correctly determined the two-tailed ", \mmlm(Col, hyph(p, "value.")) ].

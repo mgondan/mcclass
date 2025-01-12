@@ -41,12 +41,9 @@ mcint:r_hook(pwbinom(_Crit, _Size, _Prob, _Tail)).
 mcint:r_hook(pbinom(_Q, _Size, _Prob)).
 mcint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
-int_hook(arg, arg(_, _), _, []).
-arg(A, _K, Res, Flags) :-
-  interval_(A, Res, Flags).
-
-/* hook(arg(A, _K), Res, Flags) :-
-  int(A, Res, Flags). */
+mcint:int_hook(arg, arg(_, _), _, []).
+mcint:arg(A, _K, Res, Flags) :-
+  mcint:interval_(A, Res, Flags).
 
 % Task description
 render

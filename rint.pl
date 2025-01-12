@@ -1,4 +1,4 @@
-% DELETE BEFORE FINAL MERGE
+% DELETE AFTER DEBUGGING
 :- module(rint, []).
 
 :- reexport(interval). 

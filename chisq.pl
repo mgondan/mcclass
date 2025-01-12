@@ -19,8 +19,8 @@ math_hook(chi2, chi^2).
 math_hook(p_pool, subscript(p, "pool")).
 
 % R constants
-mcint:mcint:r_hook(p_VR).
-mcint:mcint:r_hook(s_VR).
+mcint:r_hook(p_VR).
+mcint:r_hook(s_VR).
 mcint:r_hook(n_VR).
 mcint:r_hook(p_Box).
 mcint:r_hook(s_Box).

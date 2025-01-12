@@ -1,3 +1,4 @@
+#DELETE AFTER DEBUGGING
 pi_A<- 0.3
 
 v_A <- 2

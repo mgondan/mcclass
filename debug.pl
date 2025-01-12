@@ -1,3 +1,4 @@
+% SIMPLE SETUP. DELETE AFTER DEBUGGING
 :- module(debug, []).
 
 :- use_module(library(http/html_write)).

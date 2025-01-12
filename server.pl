@@ -4,7 +4,6 @@
 :- use_module(library(dcg/high_order)).
 :- use_module(tasks).
 :- use_module(r_mcclass).
-%:- use_module(r).
 :- use_module(search).
 :- use_module(feedback).
 :- use_module(mathml).

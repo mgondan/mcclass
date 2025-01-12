@@ -42,8 +42,6 @@ mcint:r_hook(s_eot).
 mcint:r_hook(lo).
 mcint:r_hook(pt(_T, _DF)).
 mcint:r_hook(qt(_P, _DF)).
- 
-monotonical(pt(+, /)).
 
 
 % Task description

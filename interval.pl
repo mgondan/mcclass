@@ -1,4 +1,4 @@
-% DELETE BEFORE FINAL MERGE
+% DELETE AFTER DEBUGGING
 % Interval arithmetic in Prolog
 :- module(interval, [ interval/2, interval/3, op(150, xfx, ...) ]).
 
