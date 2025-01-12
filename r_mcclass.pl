@@ -3,7 +3,7 @@
     r_topic/1, r_topic/2, r_topic//1
   ]).
 
-:- reexport('/home/jeremyirilli/interval/prolog/r.pl').
+:- reexport(library(r)).
 :- use_module(session).
 :- use_module(library(http/http_session)).
 :- use_module(library(http/http_log)).

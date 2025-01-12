@@ -4,7 +4,7 @@
 :- use_module(library(http/html_write)).
 :- use_module(table).
 :- use_module(r_mcclass).
-:- use_module('/home/jeremyirilli/interval/prolog/mcclass.pl').
+:- use_module(library(mcclass)).
 :- use_module(mathml).
 
 :- use_module(navbar).
