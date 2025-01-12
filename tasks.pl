@@ -7,11 +7,9 @@
 :- use_module(library(dcg/high_order)).
 :- use_module(mathml).
 :- use_module(search).
-:- use_module('/home/jeremyirilli/interval/prolog/mcclass.pl').
 :- use_module(r_mcclass).
-%:- use_module(r).
+:- use_module('/home/jeremyirilli/interval/prolog/mcclass.pl').
 :- use_module(session).
-%:- use_module(interval).
 :- use_module(library(quantity)).
 :- use_module(testodds).
 :- use_module(mathmltest).
@@ -39,54 +37,6 @@
 % Render R result
 mathml:math_hook(r(Expr), Res) :-
     r_topic(Expr, Res).
-
-/* % read intervals from input
-interval:hook(@(Expr, Options), Res, Flags) :-
-    !, append(Options, Flags, New),
-    option(digits(D), New, 1.0Inf),
-    Eps is 10^(-D)/2,
-    MEps is -Eps,
-    interval(Expr + MEps...Eps, Res, New).
-
-interval:hook(denote(_Sym, Expr, _Text), Flags, Expr, Flags).
-
-interval:hook(color(_Col, Expr), Flags, Expr, Flags).
-
-interval:hook(instead(_Bug, Wrong, _Correct), Flags, Wrong, Flags).
-
-interval:hook(instead(_Bug, Wrong, _Correct0, _Correct), Flags, Wrong, Flags).
-
-interval:hook(omit_right(_Bug, Expr), Flags, Left, Flags) :-
-    Expr =.. [_Op, Left, _Right].
-
-interval:hook(omit_left(_Bug, Expr), Flags, Right, Flags) :-
-    Expr =.. [_Op, _Left, Right].
-
-interval:hook(omit(_Bug, _Expr), Flags, na, Flags).
-
-interval:hook(drop_right(_Bug, Expr), Flags, Left, Flags) :-
-    Expr =.. [_Op, Left, _Right].
-
-interval:hook(drop_left(_Bug, Expr), Flags, Right, Flags) :-
-    Expr =.. [_Op, _Left, Right].
-
-interval:hook(add_left(_Bug, Expr), Flags, Expr, Flags).
-
-interval:hook(add_right(_Bug, Expr), Flags, Expr, Flags).
-
-interval:hook('<-'(Var, Expr), Res, Flags) :-
-    interval(Expr, Res, Flags),
-    ( Res = L ... _
-     -> r_topic('<-'(Var, L)) % incomplete
-     ;  r_topic('<-'(Var, Res))
-    ).
-
-interval:hook(';'(Expr1, Expr2), Res, Flags) :-
-    interval(Expr1, _, Flags),
-    interval(Expr2, Res, Flags).
-
-interval:hook('{}'(Expr), Res, Flags) :-
-    interval(Expr, Res, Flags). */
 
 % Gather useful information
 %

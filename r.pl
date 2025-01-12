@@ -1,3 +1,4 @@
+% DELETE BEFORE FINAL MERGE
 :- module(r, 
   [ r_initialize/0,
     r/1, r/2, r//1, r_source/1, 

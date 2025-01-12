@@ -4,11 +4,8 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
-%:- use_module(r).
-:- use_module('/home/jeremyirilli/interval/prolog/mcclass.pl').
 :- use_module(r_mcclass).
-%:- use_module(interval).
-%:- use_module(rint).
+:- use_module('/home/jeremyirilli/interval/prolog/mcclass.pl').
 :- use_module(mathml).
 :- use_module(navbar).
 navbar:page(baseline, ["baseline covariates"]).
@@ -29,9 +26,6 @@ mcint:r_hook(ancova_f(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 mcint:r_hook(ancova_p(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 mcint:r_hook(ancova_ci(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 
-%monotonical(ancova_f(/, /, /, /, /, /, /)).
-%monotonical(ancova_p(/, /, /, /, /, /, /)).
-%monotonical(ancova_ci(/, /, /, /, /, /, /)).
 mcint:mono((ancova_f)/7, [/, /, /, /, /, /, /]).
 mcint:mono((ancova_p)/7, [/, /, /, /, /, /, /]).
 mcint:mono((ancova_ci)/7, [/, /, /, /, /, /, /]).
