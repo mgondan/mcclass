@@ -60,7 +60,7 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(cigroups), handler(cigroups), []).
 :- http_handler(mcclass(mathmltest), handler(mathmltest), []).
 
-:- http_handler(mcclass(testodds), handler(testodds), []).
+:- http_handler(mcclass(debug), handler(debug), []).
 
 
 handler(Topic, Request) :-

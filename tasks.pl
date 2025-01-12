@@ -11,7 +11,7 @@
 :- use_module('/home/jeremyirilli/interval/prolog/mcclass.pl').
 :- use_module(session).
 :- use_module(library(quantity)).
-:- use_module(testodds).
+:- use_module(debug).
 :- use_module(mathmltest).
 :- use_module(tpaired).
 :- use_module(tpaired1t).
@@ -384,7 +384,7 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(testodds, oddstask).
+    tasks(debug, debugtask).
 
 tasks(Topic, Task) :-
     r_init,
