@@ -6,7 +6,7 @@
     r_topic/1, r_topic/2, r_topic//1
   ]).
 
-:- use_module(library(rologp)).
+:- use_module(library(rolog)).
 :- use_module(session).
 :- use_module(library(http/http_session)).
 :- use_module(library(http/http_log)).
