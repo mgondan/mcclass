@@ -22,8 +22,11 @@ mcint:r_hook(p).
 mcint:r_hook(n).
 mcint:r_hook(k).
 mcint:r_hook(p0).
+
 mcint:r_hook(factorial(_N)).
 mcint:r_hook(choose(_N, _K)).
+mcint:mono((choose)/2, [+, +]).
+mcint:mono((factorial)/1, [+]).
 
 render
 --> {start(item(_K, N, P0)) },

@@ -37,8 +37,9 @@ mcint:r_hook(s2p).
 mcint:r_hook(t).
 mcint:r_hook(lo).
 mcint:r_hook(mu).
-mcint:r_hook(qt(_P, _DF)).
-mcint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
+
+mcint:mono((var_pool)/4, [+, /, +, /]).
+mcint:r_hook(var_pool/4).
 
 % Task description
 render 

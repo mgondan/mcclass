@@ -31,6 +31,8 @@ mcint:r_hook(p0).
 mcint:r_hook(p1).
 mcint:r_hook(k).
 mcint:r_hook(crit).
+
+% Todo: update definitions to new pattern mcint:r_hook(Name/Arity)
 mcint:r_hook(uqbinom(_Alpha, _Size, _Prob)).
 mcint:r_hook(lqbinom(_Alpha, _Size, _Prob)).
 mcint:r_hook(tail1(_Tail, _K)).
@@ -41,9 +43,9 @@ mcint:r_hook(pwbinom(_Crit, _Size, _Prob, _Tail)).
 mcint:r_hook(pbinom(_Q, _Size, _Prob)).
 mcint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
-mcint:int_hook(arg, arg(_, _), _, []).
+/* mcint:int_hook(arg, arg(_, _), _, []).
 mcint:arg(A, _K, Res, Flags) :-
-  mcint:interval_(A, Res, Flags).
+  mcint:interval_(A, Res, Flags). */
 
 % Task description
 render

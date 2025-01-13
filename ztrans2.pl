@@ -18,7 +18,6 @@ math_hook(x, 'X').
 mcint:r_hook(x).
 mcint:r_hook(sigma).
 mcint:r_hook(z).
-mcint:r_hook(qnorm(_P)).
 mcint:r_hook(p).
 
 render

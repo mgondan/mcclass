@@ -32,6 +32,9 @@ mcint:r_hook(s_box).
 mcint:r_hook(s2p).
 mcint:r_hook(t).
 
+mcint:mono((var_pool)/4, [+, /, +, /]).
+mcint:r_hook(var_pool/4).
+
 % Task description
 render
 --> {start(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX)) },

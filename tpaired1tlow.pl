@@ -30,7 +30,6 @@ math_hook(alpha, greek("alpha")).
 math_hook(t(DF), fn(t, [DF])).
 
 % R definitions
-mcint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
 mcint:r_hook(t).
 mcint:r_hook(d).
 mcint:r_hook(mu).
@@ -42,8 +41,9 @@ mcint:r_hook(eot).
 mcint:r_hook(s_eot).
 mcint:r_hook(lo).
 mcint:r_hook(incr).
-%mcint:r_hook(pt(_T, _DF)).
-%mcint:r_hook(qt(_P, _DF)).
+
+mcint:mono((var_pool)/4, [+, /, +, /]).
+mcint:r_hook(var_pool/4).
  
 % Task description
 render

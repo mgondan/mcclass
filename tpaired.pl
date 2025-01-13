@@ -29,7 +29,7 @@ math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 math_hook(alpha, greek("alpha")).
 
 % R definitions
-mcint:r_hook(var_pool(_V1, _N1, _V2, _N2)).
+
 mcint:r_hook(t).
 mcint:r_hook(d).
 mcint:r_hook(mu).
@@ -40,10 +40,9 @@ mcint:r_hook(s_t0).
 mcint:r_hook(eot).
 mcint:r_hook(s_eot).
 mcint:r_hook(lo).
-%mcint:r_hook(pt(_T, _DF)).
-%mcint:r_hook(qt(_P, _DF)).
  
 mcint:mono((var_pool)/4, [+, /, +, /]).
+mcint:r_hook(var_pool/4).
 
 % Task description
 render

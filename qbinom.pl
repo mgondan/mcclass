@@ -27,7 +27,7 @@ mcint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
 mcint:r_hook(pbinom(_Q, _Size, _Prob)).
 mcint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
-mcint:int_hook(arg, arg(_, _), _, []).
+mcint:int_hook(arg, arg(_, _), _, [evaluate(false)]).
 mcint:arg(A, _K, Res, Flags) :-
   mcint:interval_(A, Res, Flags).
 
