@@ -25,6 +25,60 @@ mcint:r_hook(v_A).
 mcint:r_hook(n_A).
 mcint:r_hook(v_B).
 mcint:r_hook(n_B).
+mcint:r_hook(n).
+mcint:r_hook(k).
+
+mcint:mono((choose)/2, [+, +]).
+mcint:mono((factorial)/1, [+]).
+mcint:r_hook(choose/2).
+mcint:r_hook(factorial/1).
+
+render
+--> { start(item(N, K)) },
+	html(
+      [ div(class(card),
+          div(class('card-body'),
+            [ h1(class('card-title'), "Binomial coefficient"),
+		      p(class('card-text'),
+                [ "N = " , \mmlm([r(N)]), 
+                ". K = " , \mmlm([r(K)])
+                ])]))]).
+
+task(debugtask)
+--> { start(item(_N, _K)),
+      session_data(resp(debug, debugtask, Resp), resp(debug, debugtask, '#.##'))
+	},
+	html(\htmlform(["What is the binomial coefficient"], debugtask, Resp)).
+      
+
+intermediate(debugtask, item).
+start(item(n, k)).
+
+% Recognized the problem
+expert(debugtask, stage(1), From, To, [step(expert, problem, [])]) :-
+    From = item(N, K),
+    To = { choose(N, K) }.
+
+feedback(problem, [], _Col, FB)
+ => FB = "Correctly identified the problem and the main steps of the calculation.".
+
+hint(problem, [], _Col, FB)
+ => FB = "This is a binomial coefficient".
+ 
+/*  Variance
+% Prettier symbols for mathematical rendering
+math_hook(v_A, subscript(v, "A")).
+math_hook(n_A, subscript(n, "A")).
+math_hook(v_B, subscript(v, "B")).
+math_hook(n_B, subscript(n, "B")).
+
+% R constants
+mcint:r_hook(v_A).
+mcint:r_hook(n_A).
+mcint:r_hook(v_B).
+mcint:r_hook(n_B).
+
+mcint:mono((var_pool)/4, [+, /, +, /]).
 mcint:r_hook(var_pool/4).
 
 render
@@ -59,9 +113,9 @@ feedback(problem, [], _Col, FB)
  => FB = "Correctly identified the problem and the main steps of the calculation.".
 
 hint(problem, [], _Col, FB)
- => FB = "This is an odds ratio.".
+ => FB = "This is an odds ratio.". */
  
-/* 
+/* Odds ratio
 % Prettier symbols for mathematical rendering
 math_hook(pi_A, subscript(pi, "A")).
 math_hook(odds_A, subscript(odds, "A")).
