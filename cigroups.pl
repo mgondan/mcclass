@@ -3,15 +3,15 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
-:- use_module(r).
-:- use_module(rint).
+:- use_module(r_session).
+:- use_module(library(mcclass)).
 :- use_module(mathml).
 :- use_module(navbar).
 
 navbar:page(cigroups, ["Confidence interval for independent samples"]).
 task(cigroups).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
 math_hook(n_mc, subscript(n, "MC")).
@@ -24,18 +24,19 @@ math_hook(s2p, subscript(s, "pool")^2).
 math_hook(alpha, greek("alpha")).
 
 % R definitions
-rint:r_hook(n_mc).
-rint:r_hook(n_rc).
-rint:r_hook(mc).
-rint:r_hook(s_mc).
-rint:r_hook(rc).
-rint:r_hook(s_rc).
-rint:r_hook(s2p).
-rint:r_hook(t).
-rint:r_hook(lo).
-rint:r_hook(mu).
-rint:r_hook(qt(_P, _DF)).
-rint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
+mcint:r_hook(n_mc).
+mcint:r_hook(n_rc).
+mcint:r_hook(mc).
+mcint:r_hook(s_mc).
+mcint:r_hook(rc).
+mcint:r_hook(s_rc).
+mcint:r_hook(s2p).
+mcint:r_hook(t).
+mcint:r_hook(lo).
+mcint:r_hook(mu).
+
+mcint:mono((var_pool)/4, [+, /, +, /]).
+mcint:r_hook(var_pool/4).
 
 % Task description
 render

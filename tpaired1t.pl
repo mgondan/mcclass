@@ -3,8 +3,8 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
-:- use_module(r).
-:- use_module(rint).
+:- use_module(r_session).
+:- use_module(library(mcclass)).
 :- use_module(mathml).
 
 :- use_module(navbar).
@@ -14,7 +14,7 @@ task(tratio).
 task(pvalue).
 task(cipaired).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
 math_hook(d, overline('D')).
@@ -30,22 +30,20 @@ math_hook(alpha, greek("alpha")).
 math_hook(t(DF), fn(t, [DF])).
 
 % R definitions
-rint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
-rint:r_hook(t).
-rint:r_hook(d).
-rint:r_hook(mu).
-rint:r_hook(s_d).
-rint:r_hook(n).
-rint:r_hook(t0).
-rint:r_hook(s_t0).
-rint:r_hook(eot).
-rint:r_hook(s_eot).
-rint:r_hook(lo).
-rint:r_hook(incr).
-rint:r_hook(pt(_T, _DF)).
-rint:r_hook(qt(_P, _DF)).
- 
-interval:monotonical(pt(+, /)).
+mcint:r_hook(t).
+mcint:r_hook(d).
+mcint:r_hook(mu).
+mcint:r_hook(s_d).
+mcint:r_hook(n).
+mcint:r_hook(t0).
+mcint:r_hook(s_t0).
+mcint:r_hook(eot).
+mcint:r_hook(s_eot).
+mcint:r_hook(lo).
+mcint:r_hook(incr).
+
+mcint:mono((var_pool)/4, [+, /, +, /]).
+mcint:r_hook(var_pool/4). 
 
 
 % Task description
@@ -481,7 +479,7 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
 % Third step: Determine the two-tailed p-value
 expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
     X = twotailed(T, DF),
-    Y = pval(pt(-T, DF)).
+    Y = pval(pt(T, DF, false)).
 
 feedback(pvalue, [], Col, F)
  => F = [ "Correctly determined the one-tailed ", \mmlm(Col, hyph(p, "value.")) ].
@@ -497,7 +495,7 @@ hint(pvalue, [], Col, F)
 % Buggy-Rule: report the left-tail instead of the right-tail. 
 buggy(pvalue, stage(2), X, Y, [step(buggy, wrongtail, [DF])]) :-
      X = twotailed(T, DF),
-     Y = pval(pt(T, DF)).
+     Y = pval(pt(T, DF, true)).
 
 feedback(wrongtail, [DF], Col, F)
  => F = [ "The result matches the left-sided ", \mmlm(Col, hyph(p, "value.")), 
@@ -514,7 +512,7 @@ hint(wrongtail, [DF], Col, F)
 % the correct t-value and degrees of freedom (both left- and right-sided). 
 buggy(pvalue, stage(2), X, Y, [step(buggy, wrong, [T, DF])]) :-
      X = twotailed(T, DF),
-     Y = pval(pt(T, DF)).
+     Y = pval(pt(T, DF, true)).
 
 feedback(wrong, [T, DF], Col, F)
  => F = [ "The result is not the ", \mmlm(Col, hyph(p, "value")), 

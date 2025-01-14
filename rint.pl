@@ -1,3 +1,4 @@
+% DELETE AFTER DEBUGGING
 :- module(rint, []).
 
 :- reexport(interval). 

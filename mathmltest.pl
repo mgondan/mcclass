@@ -3,8 +3,8 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
-:- use_module(r).
-:- use_module(rint).
+:- use_module(r_session).
+:- use_module(library(mcclass)).
 :- use_module(mathml).
 
 :- use_module(navbar).
@@ -14,7 +14,7 @@ task(tratio).
 /* task(pvalue).
 task(cipaired). */
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
 math_hook(d, overline('D')).
@@ -29,21 +29,19 @@ math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 math_hook(alpha, greek("alpha")).
 
 % R definitions
-rint:r_hook(var_pool(_N1, _V1, _N2, _V2)).
-rint:r_hook(t).
-rint:r_hook(d).
-rint:r_hook(mu).
-rint:r_hook(s_d).
-rint:r_hook(n).
-rint:r_hook(t0).
-rint:r_hook(s_t0).
-rint:r_hook(eot).
-rint:r_hook(s_eot).
-rint:r_hook(lo).
-rint:r_hook(pt(_T, _DF)).
-rint:r_hook(qt(_P, _DF)).
- 
-interval:monotonical(pt(+, /)).
+mcint:r_hook(t).
+mcint:r_hook(d).
+mcint:r_hook(mu).
+mcint:r_hook(s_d).
+mcint:r_hook(n).
+mcint:r_hook(t0).
+mcint:r_hook(s_t0).
+mcint:r_hook(eot).
+mcint:r_hook(s_eot).
+mcint:r_hook(lo).
+
+mcint:mono((var_pool)/4, [+, /, +, /]).
+mcint:r_hook(var_pool/4).
 
 
 % Task description

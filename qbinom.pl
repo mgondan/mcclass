@@ -3,32 +3,33 @@
 
 :- use_module(library(http/html_write)).
 :- use_module(table).
-:- use_module(r).
-:- use_module(rint).
+:- use_module(r_session).
+:- use_module(library(mcclass)).
 :- use_module(mathml).
 
 :- use_module(navbar).
 navbar:page(qbinom, "Binomial test").
 task(amountsuccess).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 math_hook(p0, subscript(pi, 0)).
 math_hook(n, 'N').
 
-rint:r_hook(alpha).
-rint:r_hook(n).
-rint:r_hook(p0).
-rint:r_hook(k).
-rint:r_hook(uqbinom(_Alpha, _Size, _Prob)).
-rint:r_hook(lqbinom(_Alpha, _Size, _Prob)).
-rint:r_hook(tail(_Tail, _K)).
-interval:hook(arg(A, _K), Res, Flags) :-
-  interval:int(A, Res, Flags).
-%rint:r_hook(arg(_Arg, _K)).
-rint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
-rint:r_hook(pbinom(_Q, _Size, _Prob)).
-rint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
+mcint:r_hook(alpha).
+mcint:r_hook(n).
+mcint:r_hook(p0).
+mcint:r_hook(k).
+mcint:r_hook(uqbinom(_Alpha, _Size, _Prob)).
+mcint:r_hook(lqbinom(_Alpha, _Size, _Prob)).
+mcint:r_hook(tail(_Tail, _K)).
+mcint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
+mcint:r_hook(pbinom(_Q, _Size, _Prob)).
+mcint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
+
+mcint:int_hook(arg, arg(_, _), _, [evaluate(false)]).
+mcint:arg(A, _K, Res, Flags) :-
+  mcint:interval_(A, Res, Flags).
 
 render
 --> { start(item(_Alpha, N, P0)), 
@@ -148,7 +149,7 @@ binomtable(N, P0, Caption, Rows, Cols, Cells) :-
     % upper tail
     HN is H + 1,
     RowN = \mmlm([HN, "...", N]),
-    CellN = \mmlm([digits=3], r(pbinom(H, n, p0, 'lower.tail'='FALSE'))), % H not HN
+    CellN = \mmlm([digits=3], r(pbinom(H, n, p0, 'lower.tail'=false))), % H not HN
     append([[Row0], RowsX, [RowN]], Rows),
     append([[[Cell0]], CellsX, [[CellN]]], Cells).
 

@@ -4,26 +4,29 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
-:- use_module(r).
-:- use_module(rint).
+:- use_module(r_session).
+:- use_module(library(mcclass)).
 :- use_module(mathml).
-:- use_module(interval).
+
 
 :- use_module(navbar).
 navbar:page(dbinom, "Binomial probability").
 task(exactprob).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 math_hook(n, 'N').
 math_hook(p0, pi).
 
-rint:r_hook(p).
-rint:r_hook(n).
-rint:r_hook(k).
-rint:r_hook(p0).
-rint:r_hook(factorial(_N)).
-rint:r_hook(choose(_N, _K)).
+mcint:r_hook(p).
+mcint:r_hook(n).
+mcint:r_hook(k).
+mcint:r_hook(p0).
+
+mcint:r_hook(factorial(_N)).
+mcint:r_hook(choose(_N, _K)).
+mcint:mono((choose)/2, [+, +]).
+mcint:mono((factorial)/1, [+]).
 
 render
 --> {start(item(_K, N, P0)) },
