@@ -1,47 +1,24 @@
-% DELETE AFTER DEBUGGING
-:- module(r, 
-  [ r_initialize/0,
-    r/1, r/2, r//1, r_source/1, 
-    r_session/1, r_session/2, r_session//1, r_session_source/1,
+:- module(r_mcclass, 
+  [ r_init/0, r//1, r_session/1, r_session/2, r_session//1, r_session_source/1,
     r_topic/1, r_topic/2, r_topic//1
   ]).
 
-:- use_module(library(rolog)).
+:- reexport(library(r)).
 :- use_module(session).
 :- use_module(library(http/http_session)).
 :- use_module(library(http/http_log)).
 
-:- multifile r_hook/1.
-:- dynamic r_initialized/0.
-
 % Initialize R, load some code into the base environment.
-r_initialize,
-    r_initialized
- => true.
-
-r_initialize
- => r_source(r),
-    r_session_begin,
-    assert(r_initialized).
-
-% Call R
-r(Expr) 
- => r_call(Expr).
-
-% Evaluate R expression
-r(Expr, Res)
- => r_eval(Expr, Res).
+r_init :-
+    r_initialize,
+    r_session_begin.
 
 % Evaluate R expression and render it as html
 r(Expr) -->
     { r(Expr, R) },
     term_string(R, S),
     html(S).
-
-r_source(File)
- => format(string(String), "~w.R", [File]),
-    r(source(String)).
-
+    
 % Use R environment for session specific R commands
 :- listen(http_session(begin(_Session, _Peer)), r_session_begin).
 
@@ -52,14 +29,14 @@ r_session_begin,
 
 r_session_begin
  => session_id(Session),
-    r_call('<-'(Session, 'new.env'())),
+    r('<-'(Session, 'new.env'())),
     session_assert(r_session).
 
 :- listen(http_session(end(_Session, _Peer)), r_session_end).
 
 r_session_end
  => session_id(Session),
-    r_call(rm(Session)).
+    r(rm(Session)).
 
 % Evaluate R expression in the current http_session for the current topic
 r_session(Expr)
@@ -99,22 +76,3 @@ r_session_source(Topic)
     r(with(Session, '<-'(Topic, 'new.env'()))),
     r(with(Session, with(Topic, source(S, local='TRUE')))),
     session_assert(topic(Topic)).
-
-test :-
-   r_init,
-   r_session_begin,
-   r('<-'(a, 1)),
-   r_session('<-'(a, 2)),
-   r(a, A),
-   r_session(a, S),
-   writeln(a=A),
-   writeln(session(a)=S),
-   r_session_source(tpaired),
-   r_session($(tpaired, mu), Mu1),
-   writeln(session($(tpaired, mu))=Mu1),
-   r_session_source(tpaired),
-   b_setval(topic, tpaired),
-   r_topic(mu, Mu2),
-   writeln(topic(tpaired, mu)=Mu2).
-
-

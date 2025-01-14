@@ -3,8 +3,8 @@
 
 :- use_module(library(http/html_write)).
 :- use_module(table).
-:- use_module(r).
-:- use_module(rint).
+:- use_module(r_mcclass).
+:- use_module(library(mcclass)).
 :- use_module(mathml).
 
 :- http_handler(mcclass(powbinom), handler(powbinom), []).
@@ -13,7 +13,7 @@
 navbar:page(powbinom, "Power of binomial test").
 task(powbinom).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
 math_hook(p0, subscript(pi, 0)).
@@ -25,23 +25,27 @@ math_hook(tail1(Tail, K), tail(Tail, K)).
 math_hook(tail2(Tail, K), tail(Tail, K)).
 
 % R definitions
-rint:r_hook(alpha).
-rint:r_hook(n).
-rint:r_hook(p0).
-rint:r_hook(p1).
-rint:r_hook(k).
-rint:r_hook(crit).
-rint:r_hook(uqbinom(_Alpha, _Size, _Prob)).
-rint:r_hook(lqbinom(_Alpha, _Size, _Prob)).
-rint:r_hook(tail1(_Tail, _K)).
-rint:r_hook(tail2(_Tail, _K)).
-rint:r_hook(arg(_Arg, _K)).
-rint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
-rint:r_hook(pwbinom(_Crit, _Size, _Prob, _Tail)).
-rint:r_hook(pbinom(_Q, _Size, _Prob)).
-rint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
-interval:hook(arg(A, _K), Res, Flags) :-
-  interval:int(A, Res, Flags).
+mcint:r_hook(alpha).
+mcint:r_hook(n).
+mcint:r_hook(p0).
+mcint:r_hook(p1).
+mcint:r_hook(k).
+mcint:r_hook(crit).
+
+% Todo: update definitions to new pattern mcint:r_hook(Name/Arity)
+mcint:r_hook(uqbinom(_Alpha, _Size, _Prob)).
+mcint:r_hook(lqbinom(_Alpha, _Size, _Prob)).
+mcint:r_hook(tail1(_Tail, _K)).
+mcint:r_hook(tail2(_Tail, _K)).
+mcint:r_hook(arg(_Arg, _K)).
+mcint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
+mcint:r_hook(pwbinom(_Crit, _Size, _Prob, _Tail)).
+mcint:r_hook(pbinom(_Q, _Size, _Prob)).
+mcint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
+
+/* mcint:int_hook(arg, arg(_, _), _, []).
+mcint:arg(A, _K, Res, Flags) :-
+  mcint:interval_(A, Res, Flags). */
 
 % Task description
 render

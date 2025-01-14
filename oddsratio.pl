@@ -3,15 +3,15 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
-:- use_module(r).
-:- use_module(rint).
+:- use_module(r_mcclass).
+:- use_module(library(mcclass)).
 :- use_module(mathml).
 
 :- use_module(navbar).
 navbar:page(oddsratio, "OR (1)").
 task(oratio).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
 math_hook(pi_A, subscript(pi, "A")).
@@ -21,11 +21,11 @@ math_hook(odds_B, subscript(odds, "B")).
 math_hook(or, 'OR').
 
 % R constants
-rint:r_hook(odds_A).
-rint:r_hook(pi_A).
-rint:r_hook(pi_B).
-rint:r_hook(or).
-rint:r_hook(odds_B).
+mcint:r_hook(odds_A).
+mcint:r_hook(pi_A).
+mcint:r_hook(pi_B).
+mcint:r_hook(or).
+mcint:r_hook(odds_B).
 
 
 render

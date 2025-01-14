@@ -3,15 +3,15 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
-:- use_module(r).
-:- use_module(rint).
+:- use_module(r_mcclass).
+:- use_module(library(mcclass)).
 :- use_module(mathml).
 
 :- use_module(navbar).
 navbar:page(power, "Power").
 task(power).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
 math_hook(n_vr, subscript(n, "VR")).
@@ -23,14 +23,17 @@ math_hook(s_box, subscript(s, "Box")).
 math_hook(s2p, subscript(s, "pool")^2).
 
 % Obtain information from R
-rint:r_hook(n_vr).
-rint:r_hook(n_box).
-rint:r_hook(vr).
-rint:r_hook(s_vr).
-rint:r_hook(box).
-rint:r_hook(s_box).
-rint:r_hook(s2p).
-rint:r_hook(t).
+mcint:r_hook(n_vr).
+mcint:r_hook(n_box).
+mcint:r_hook(vr).
+mcint:r_hook(s_vr).
+mcint:r_hook(box).
+mcint:r_hook(s_box).
+mcint:r_hook(s2p).
+mcint:r_hook(t).
+
+mcint:mono((var_pool)/4, [+, /, +, /]).
+mcint:r_hook(var_pool/4).
 
 % Task description
 render

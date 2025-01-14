@@ -4,9 +4,8 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
-:- use_module(r).
-:- use_module(interval).
-:- use_module(rint).
+:- use_module(r_mcclass).
+:- use_module(library(mcclass)).
 :- use_module(mathml).
 :- use_module(navbar).
 navbar:page(baseline, ["baseline covariates"]).
@@ -15,7 +14,7 @@ task(pvalue).
 task(cibase).
 
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
 math_hook(m_T0, overline("T0")).
@@ -23,13 +22,14 @@ math_hook(m_EOT, overline("EOT")).
 math_hook(s_T0, subscript(s, "T0")).
 math_hook(s_EOT, subscript(s, "EOT")).
 
-rint:r_hook(ancova_f(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
-rint:r_hook(ancova_p(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
-rint:r_hook(ancova_ci(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
+% Todo: define these functions
+mcint:r_hook(ancova_f(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
+mcint:r_hook(ancova_p(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
+mcint:r_hook(ancova_ci(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)).
 
-interval:monotonical(ancova_f(/, /, /, /, /, /, /)).
-interval:monotonical(ancova_p(/, /, /, /, /, /, /)).
-interval:monotonical(ancova_ci(/, /, /, /, /, /, /)).
+mcint:mono((ancova_f)/7, [/, /, /, /, /, /, /]).
+mcint:mono((ancova_p)/7, [/, /, /, /, /, /, /]).
+mcint:mono((ancova_ci)/7, [/, /, /, /, /, /, /]).
 
 % my_subset(+List, -Subset, -Difference)
 my_subset([], [], []).

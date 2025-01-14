@@ -1,3 +1,4 @@
+# DELETE AFTER DEBUGGING
 dfrac <- frac <- `/`
 
 var_pool <- function(v_A, n_A, v_B, n_B)
