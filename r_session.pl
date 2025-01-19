@@ -1,5 +1,5 @@
-:- module(r_mcclass, 
-  [ r_init/0, r//1, r_session/1, r_session/2, r_session//1, r_session_source/1,
+:- module(r_session, 
+  [ r_init_session/0, r//1, r_session/1, r_session/2, r_session//1, r_session_source/1,
     r_topic/1, r_topic/2, r_topic//1
   ]).
 
@@ -9,7 +9,7 @@
 :- use_module(library(http/http_log)).
 
 % Initialize R, load some code into the base environment.
-r_init :-
+r_init_session :-
     r_initialize,
     r_session_begin.
 
@@ -74,5 +74,5 @@ r_session_source(Topic)
  => format(string(S), "~w.R", [Topic]),
     session_id(Session),
     r(with(Session, '<-'(Topic, 'new.env'()))),
-    r(with(Session, with(Topic, source(S, local='TRUE')))),
+    r(with(Session, with(Topic, source(S, local=true)))),
     session_assert(topic(Topic)).

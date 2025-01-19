@@ -3,7 +3,7 @@
 :- use_module(library(dcg/basics)).
 :- use_module(library(dcg/high_order)).
 :- use_module(tasks).
-:- use_module(r_mcclass).
+:- use_module(r_session).
 :- use_module(search).
 :- use_module(feedback).
 :- use_module(mathml).
@@ -74,7 +74,7 @@ handler(Topic, _) :-
 % Download csv data
 handle(Topic, Form),
     member(download=_, Form)
- => r_init,
+ => r_init_session,
     b_setval(topic, Topic),
     download(Local),
     format(atom(File), "attachment; filename=~k.csv", [Topic]),
@@ -90,7 +90,7 @@ handle(Topic, Form),
     option(resp(Resp), Form)
  => session_retractall(resp(Topic, Task, _)),
     session_assert(resp(Topic, Task, Resp)),
-    r_init,
+    r_init_session,
     r_session_source(Topic),
     b_setval(topic, Topic),
     findall(T, Topic:task(T), [T1 | Tasks]),
@@ -136,7 +136,7 @@ handle(Topic, Form),
 handle(Topic, Form)
  => findall(T, Topic:task(T), [T1 | Tasks]),
     option(task(Task), Form, T1),
-    r_init,
+    r_init_session,
     r_session_source(Topic),
     b_setval(topic, Topic),
     reply_html_page(

@@ -7,7 +7,7 @@
 :- use_module(library(dcg/high_order)).
 :- use_module(mathml).
 :- use_module(search).
-:- use_module(r_mcclass).
+:- use_module(r_session).
 :- use_module(library(mcclass)).
 :- use_module(session).
 :- use_module(library(quantity)).
@@ -52,7 +52,7 @@ task(Topic, Task, Data) :-
     !, Data=D.
 
 task(Topic, Task, Data) :-
-    r_init,
+    r_init_session,
     r_session_source(Topic),
     solutions(Topic, Task, Solutions),
     hints(Topic, Task, Hints),
@@ -384,10 +384,10 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(tpaired, tratio).
+    tasks(qbinom, amountsuccess).
 
 tasks(Topic, Task) :-
-    r_init,
+    r_init_session,
     r('set.seed'(4711)),
     r_session_source(Topic),
     b_setval(topic, Topic),

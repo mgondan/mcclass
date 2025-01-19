@@ -3,7 +3,7 @@
 
 :- use_module(library(http/html_write)).
 :- use_module(table).
-:- use_module(r_mcclass).
+:- use_module(r_session).
 :- use_module(library(mcclass)).
 :- use_module(mathml).
 
@@ -149,7 +149,7 @@ binomtable(N, P0, Caption, Rows, Cols, Cells) :-
     % upper tail
     HN is H + 1,
     RowN = \mmlm([HN, "...", N]),
-    CellN = \mmlm([digits=3], r(pbinom(H, n, p0, 'lower.tail'='FALSE'))), % H not HN
+    CellN = \mmlm([digits=3], r(pbinom(H, n, p0, 'lower.tail'=false))), % H not HN
     append([[Row0], RowsX, [RowN]], Rows),
     append([[[Cell0]], CellsX, [[CellN]]], Cells).
 
