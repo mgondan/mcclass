@@ -15,6 +15,10 @@ task(powbinom).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
+term_expansion(mono(A, B), mcint:mono(A, B)).
+
+term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A)).
+
 % Prettier symbols for mathematical rendering
 math_hook(p0, subscript(pi, 0)).
 math_hook(p1, subscript(pi, 1)).
@@ -25,23 +29,24 @@ math_hook(tail1(Tail, K), tail(Tail, K)).
 math_hook(tail2(Tail, K), tail(Tail, K)).
 
 % R definitions
-mcint:r_hook(alpha).
-mcint:r_hook(n).
-mcint:r_hook(p0).
-mcint:r_hook(p1).
-mcint:r_hook(k).
-mcint:r_hook(crit).
+r_hook(alpha).
+r_hook(n).
+r_hook(p0).
+r_hook(p1).
+r_hook(k).
+r_hook(crit).
 
+r_hook('<-'/2).
 % Todo: update definitions to new pattern mcint:r_hook(Name/Arity)
-mcint:r_hook(uqbinom(_Alpha, _Size, _Prob)).
-mcint:r_hook(lqbinom(_Alpha, _Size, _Prob)).
-mcint:r_hook(tail1(_Tail, _K)).
-mcint:r_hook(tail2(_Tail, _K)).
-mcint:r_hook(arg(_Arg, _K)).
-mcint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
-mcint:r_hook(pwbinom(_Crit, _Size, _Prob, _Tail)).
-mcint:r_hook(pbinom(_Q, _Size, _Prob)).
-mcint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
+r_hook(uqbinom(_Alpha, _Size, _Prob)).
+r_hook(lqbinom(_Alpha, _Size, _Prob)).
+r_hook(tail1(_Tail, _K)).
+r_hook(tail2(_Tail, _K)).
+r_hook(arg(_Arg, _K)).
+r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
+r_hook(pwbinom(_Crit, _Size, _Prob, _Tail)).
+r_hook(pbinom(_Q, _Size, _Prob)).
+r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
 /* mcint:int_hook(arg, arg(_, _), _, []).
 mcint:arg(A, _K, Res, Flags) :-

@@ -13,19 +13,25 @@ task(amountsuccess).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
+term_expansion(mono(A, B), mcint:mono(A, B)).
+
+term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A)).
+
 math_hook(p0, subscript(pi, 0)).
 math_hook(n, 'N').
 
-mcint:r_hook(alpha).
-mcint:r_hook(n).
-mcint:r_hook(p0).
-mcint:r_hook(k).
-mcint:r_hook(uqbinom(_Alpha, _Size, _Prob)).
-mcint:r_hook(lqbinom(_Alpha, _Size, _Prob)).
-mcint:r_hook(tail(_Tail, _K)).
-mcint:r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
-mcint:r_hook(pbinom(_Q, _Size, _Prob)).
-mcint:r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
+r_hook(alpha).
+r_hook(n).
+r_hook(p0).
+r_hook(k).
+
+r_hook('<-'/2).
+r_hook(uqbinom(_Alpha, _Size, _Prob)).
+r_hook(lqbinom(_Alpha, _Size, _Prob)).
+r_hook(tail(_Tail, _K)).
+r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
+r_hook(pbinom(_Q, _Size, _Prob)).
+r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
 
 mcint:int_hook(arg, arg(_, _), _, [evaluate(false)]).
 mcint:arg(A, _K, Res, Flags) :-

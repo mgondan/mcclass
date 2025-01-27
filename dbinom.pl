@@ -15,18 +15,23 @@ task(exactprob).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
+term_expansion(mono(A, B), mcint:mono(A, B)).
+
+term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A)).
+
 math_hook(n, 'N').
 math_hook(p0, pi).
 
-mcint:r_hook(p).
-mcint:r_hook(n).
-mcint:r_hook(k).
-mcint:r_hook(p0).
+r_hook(p).
+r_hook(n).
+r_hook(k).
+r_hook(p0).
 
-mcint:r_hook(factorial(_N)).
-mcint:r_hook(choose(_N, _K)).
-mcint:mono((choose)/2, [+, +]).
-mcint:mono((factorial)/1, [+]).
+r_hook('<-'/2).
+r_hook(factorial(_N)).
+r_hook(choose(_N, _K)).
+mono((choose)/2, [+, +]).
+mono((factorial)/1, [+]).
 
 render
 --> {start(item(_K, N, P0)) },

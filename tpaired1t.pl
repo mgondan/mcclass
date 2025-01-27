@@ -16,6 +16,10 @@ task(cipaired).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
+term_expansion(mono(A, B), mcint:mono(A, B)).
+
+term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A)).
+
 % Prettier symbols for mathematical rendering
 math_hook(d, overline('D')).
 math_hook(s_d, subscript(s, 'D')).
@@ -30,20 +34,22 @@ math_hook(alpha, greek("alpha")).
 math_hook(t(DF), fn(t, [DF])).
 
 % R definitions
-mcint:r_hook(t).
-mcint:r_hook(d).
-mcint:r_hook(mu).
-mcint:r_hook(s_d).
-mcint:r_hook(n).
-mcint:r_hook(t0).
-mcint:r_hook(s_t0).
-mcint:r_hook(eot).
-mcint:r_hook(s_eot).
-mcint:r_hook(lo).
-mcint:r_hook(incr).
+r_hook(t).
+r_hook(d).
+r_hook(mu).
+r_hook(s_d).
+r_hook(n).
+r_hook(t0).
+r_hook(s_t0).
+r_hook(eot).
+r_hook(s_eot).
+r_hook(lo).
+r_hook(incr).
 
-mcint:mono((var_pool)/4, [+, /, +, /]).
-mcint:r_hook(var_pool/4). 
+r_hook('<-'/2).
+r_hook(var_pool/4). 
+mono((var_pool)/4, [+, /, +, /]).
+
 
 
 % Task description

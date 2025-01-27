@@ -16,6 +16,10 @@ task(cigroups).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
+term_expansion(mono(A, B), mcint:mono(A, B)).
+
+term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A)).
+
 % Prettier symbols for mathematical rendering
 math_hook(n_vr, subscript(n, "VR")).
 math_hook(n_box, subscript(n, "BOX")).
@@ -27,19 +31,20 @@ math_hook(s2p, subscript(s, "pool")^2).
 math_hook(alpha, greek("alpha")).
 
 % Obtain information from R
-mcint:r_hook(n_vr).
-mcint:r_hook(n_box).
-mcint:r_hook(vr).
-mcint:r_hook(s_vr).
-mcint:r_hook(box).
-mcint:r_hook(s_box).
-mcint:r_hook(s2p).
-mcint:r_hook(t).
-mcint:r_hook(lo).
-mcint:r_hook(mu).
+r_hook(n_vr).
+r_hook(n_box).
+r_hook(vr).
+r_hook(s_vr).
+r_hook(box).
+r_hook(s_box).
+r_hook(s2p).
+r_hook(t).
+r_hook(lo).
+r_hook(mu).
 
-mcint:mono((var_pool)/4, [+, /, +, /]).
-mcint:r_hook(var_pool/4).
+r_hook('<-'/2).
+r_hook(var_pool/4).
+mono((var_pool)/4, [+, /, +, /]).
 
 % Task description
 render 

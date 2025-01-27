@@ -14,6 +14,10 @@ task(debugtask).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
+term_expansion(mono(A, B), mcint:mono(A, B)).
+
+term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A)).
+
 % Prettier symbols for mathematical rendering
 math_hook(v_A, subscript(v, "A")).
 math_hook(n_A, subscript(n, "A")).
@@ -21,17 +25,19 @@ math_hook(v_B, subscript(v, "B")).
 math_hook(n_B, subscript(n, "B")).
 
 % R constants
-mcint:r_hook(v_A).
-mcint:r_hook(n_A).
-mcint:r_hook(v_B).
-mcint:r_hook(n_B).
-mcint:r_hook(n).
-mcint:r_hook(k).
+r_hook(v_A).
+r_hook(n_A).
+r_hook(v_B).
+r_hook(n_B).
+r_hook(n).
+r_hook(k).
 
-mcint:mono((choose)/2, [+, +]).
-mcint:mono((factorial)/1, [+]).
-mcint:r_hook(choose/2).
-mcint:r_hook(factorial/1).
+% R functions
+r_hook('<-'/2).
+r_hook(choose/2).
+r_hook(factorial/1).
+mono((choose)/2, [+, +]).
+mono((factorial)/1, [+]).
 
 render
 --> { start(item(N, K)) },

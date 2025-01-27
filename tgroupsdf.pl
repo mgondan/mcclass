@@ -8,6 +8,10 @@
 
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4, r_hook/1.
 
+term_expansion(mono(A, B), mcint:mono(A, B)).
+
+term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A)).
+
 % Prettier symbols for mathematical rendering
 math_hook(n_vr, subscript(n, "VR")).
 math_hook(n_box, subscript(n, "Box")).
@@ -18,14 +22,16 @@ math_hook(s_box, subscript(s, "Box")).
 math_hook(n, subscript('N', "total")).
 
 % Obtain information from R
-mcint:r_hook(n_vr).
-mcint:r_hook(n_box).
-mcint:r_hook(vr).
-mcint:r_hook(s_vr).
-mcint:r_hook(box).
-mcint:r_hook(s_box).
-mcint:r_hook(n).
-mcint:r_hook(df).
+r_hook(n_vr).
+r_hook(n_box).
+r_hook(vr).
+r_hook(s_vr).
+r_hook(box).
+r_hook(s_box).
+r_hook(n).
+r_hook(df).
+
+r_hook('<-'/2).
 
 render(item(VR, S_VR, N_VR, Box, S_Box, N_Box), Form) -->
     { option(resp(R), Form, '##.##') },
