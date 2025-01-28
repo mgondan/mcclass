@@ -15,10 +15,6 @@ task(exactprob).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
-term_expansion(mono(A, B), mcint:mono(A, B)).
-
-term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A)).
-
 math_hook(n, 'N').
 math_hook(p0, pi).
 

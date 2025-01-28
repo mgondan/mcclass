@@ -11,6 +11,10 @@
 :- use_module(library(mcclass)).
 :- use_module(session).
 :- use_module(library(quantity)).
+
+:- assert(user:term_expansion(mono(A, B), mcint:mono(A, B))).
+:- assert(user:term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A))).
+
 :- use_module(debug).
 :- use_module(mathmltest).
 :- use_module(tpaired).
@@ -32,7 +36,6 @@
 :- use_module(cigroups).
 :- use_module(subgroups).
 :- use_module(util).
-
 
 % Render R result
 mathml:math_hook(r(Expr), Res) :-
