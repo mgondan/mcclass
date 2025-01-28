@@ -21,17 +21,19 @@ math_hook(v_B, subscript(v, "B")).
 math_hook(n_B, subscript(n, "B")).
 
 % R constants
-mcint:r_hook(v_A).
-mcint:r_hook(n_A).
-mcint:r_hook(v_B).
-mcint:r_hook(n_B).
-mcint:r_hook(n).
-mcint:r_hook(k).
+r_hook(v_A).
+r_hook(n_A).
+r_hook(v_B).
+r_hook(n_B).
+r_hook(n).
+r_hook(k).
 
-mcint:mono((choose)/2, [+, +]).
-mcint:mono((factorial)/1, [+]).
-mcint:r_hook(choose/2).
-mcint:r_hook(factorial/1).
+% R functions
+r_hook('<-'/2).
+r_hook(choose/2).
+r_hook(factorial/1).
+mono((choose)/2, [+, +]).
+mono((factorial)/1, [+]).
 
 render
 --> { start(item(N, K)) },

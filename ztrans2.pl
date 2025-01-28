@@ -15,10 +15,12 @@ task(ztrans).
 
 math_hook(x, 'X').
 
-mcint:r_hook(x).
-mcint:r_hook(sigma).
-mcint:r_hook(z).
-mcint:r_hook(p).
+r_hook(x).
+r_hook(sigma).
+r_hook(z).
+r_hook(p).
+
+r_hook('<-'/2).
 
 render
 --> {start(item(_P, Mu, Sigma)) },

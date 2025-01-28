@@ -21,11 +21,13 @@ math_hook(odds_B, subscript(odds, "B")).
 math_hook(or, 'OR').
 
 % R constants
-mcint:r_hook(odds_A).
-mcint:r_hook(pi_A).
-mcint:r_hook(pi_B).
-mcint:r_hook(or).
-mcint:r_hook(odds_B).
+r_hook(odds_A).
+r_hook(pi_A).
+r_hook(pi_B).
+r_hook(or).
+r_hook(odds_B).
+
+r_hook('<-'/2).
 
 render
 --> { start(item(Pi_A, Pi_B)) },

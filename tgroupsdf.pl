@@ -18,14 +18,16 @@ math_hook(s_box, subscript(s, "Box")).
 math_hook(n, subscript('N', "total")).
 
 % Obtain information from R
-mcint:r_hook(n_vr).
-mcint:r_hook(n_box).
-mcint:r_hook(vr).
-mcint:r_hook(s_vr).
-mcint:r_hook(box).
-mcint:r_hook(s_box).
-mcint:r_hook(n).
-mcint:r_hook(df).
+r_hook(n_vr).
+r_hook(n_box).
+r_hook(vr).
+r_hook(s_vr).
+r_hook(box).
+r_hook(s_box).
+r_hook(n).
+r_hook(df).
+
+r_hook('<-'/2).
 
 render(item(VR, S_VR, N_VR, Box, S_Box, N_Box), Form) -->
     { option(resp(R), Form, '##.##') },

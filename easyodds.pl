@@ -9,6 +9,7 @@
 :- use_module(navbar).
 navbar:page(easyodds, "OR (3)").
 task(oratio).
+
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
@@ -18,10 +19,12 @@ math_hook(pi_B, subscript(pi, "B")).
 math_hook(or, 'OR').
 
 % R constants
-mcint:r_hook(odds_A).
-mcint:r_hook(pi_A).
-mcint:r_hook(pi_B).
-mcint:r_hook(or).
+r_hook(odds_A).
+r_hook(pi_A).
+r_hook(pi_B).
+r_hook(or).
+
+r_hook('<-'/2).
 
 render
 --> {start(item(Odds_A, Pi_B, OR)) }, 

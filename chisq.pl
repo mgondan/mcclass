@@ -19,15 +19,17 @@ math_hook(chi2, chi^2).
 math_hook(p_pool, subscript(p, "pool")).
 
 % R constants
-mcint:r_hook(p_VR).
-mcint:r_hook(s_VR).
-mcint:r_hook(n_VR).
-mcint:r_hook(p_Box).
-mcint:r_hook(s_Box).
-mcint:r_hook(n_Box).
-mcint:r_hook(z).
-mcint:r_hook(chi2).
-mcint:r_hook(p_pool).
+r_hook(p_VR).
+r_hook(s_VR).
+r_hook(n_VR).
+r_hook(p_Box).
+r_hook(s_Box).
+r_hook(n_Box).
+r_hook(z).
+r_hook(chi2).
+r_hook(p_pool).
+
+r_hook('<-'/2).
 
 % Task description
 render

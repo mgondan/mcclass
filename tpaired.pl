@@ -30,19 +30,20 @@ math_hook(alpha, greek("alpha")).
 
 % R definitions
 
-mcint:r_hook(t).
-mcint:r_hook(d).
-mcint:r_hook(mu).
-mcint:r_hook(s_d).
-mcint:r_hook(n).
-mcint:r_hook(t0).
-mcint:r_hook(s_t0).
-mcint:r_hook(eot).
-mcint:r_hook(s_eot).
-mcint:r_hook(lo).
- 
-mcint:mono((var_pool)/4, [+, /, +, /]).
-mcint:r_hook(var_pool/4).
+r_hook(t).
+r_hook(d).
+r_hook(mu).
+r_hook(s_d).
+r_hook(n).
+r_hook(t0).
+r_hook(s_t0).
+r_hook(eot).
+r_hook(s_eot).
+r_hook(lo).
+
+r_hook('<-'/2).
+r_hook(var_pool/4). 
+mono((var_pool)/4, [+, /, +, /]).
 
 % Task description
 render

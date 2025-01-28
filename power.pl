@@ -23,17 +23,19 @@ math_hook(s_box, subscript(s, "Box")).
 math_hook(s2p, subscript(s, "pool")^2).
 
 % Obtain information from R
-mcint:r_hook(n_vr).
-mcint:r_hook(n_box).
-mcint:r_hook(vr).
-mcint:r_hook(s_vr).
-mcint:r_hook(box).
-mcint:r_hook(s_box).
-mcint:r_hook(s2p).
-mcint:r_hook(t).
+r_hook(n_vr).
+r_hook(n_box).
+r_hook(vr).
+r_hook(s_vr).
+r_hook(box).
+r_hook(s_box).
+r_hook(s2p).
+r_hook(t).
 
-mcint:mono((var_pool)/4, [+, /, +, /]).
-mcint:r_hook(var_pool/4).
+r_hook('<-'/2).
+r_hook(var_pool/4).
+mono((var_pool)/4, [+, /, +, /]).
+
 
 % Task description
 render
