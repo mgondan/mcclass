@@ -29,8 +29,6 @@ r_hook(z).
 r_hook(chi2).
 r_hook(p_pool).
 
-r_hook('<-'/2).
-
 % Task description
 render
 -->  {start(item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box)) },

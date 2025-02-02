@@ -27,8 +27,6 @@ r_hook(s_box).
 r_hook(n).
 r_hook(df).
 
-r_hook('<-'/2).
-
 render(item(VR, S_VR, N_VR, Box, S_Box, N_Box), Form) -->
     { option(resp(R), Form, '##.##') },
 	html(
