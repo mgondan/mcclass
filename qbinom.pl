@@ -21,7 +21,6 @@ r_hook(n).
 r_hook(p0).
 r_hook(k).
 
-r_hook('<-'/2).
 r_hook(uqbinom(_Alpha, _Size, _Prob)).
 r_hook(lqbinom(_Alpha, _Size, _Prob)).
 r_hook(tail(_Tail, _K)).

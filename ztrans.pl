@@ -20,8 +20,6 @@ r_hook(sigma).
 r_hook(z).
 r_hook(p).
 
-r_hook('<-'/2).
-
 render
 --> { start(item(X, Mu, Sigma)) },
     html(

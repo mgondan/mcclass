@@ -32,7 +32,6 @@ r_hook(p1).
 r_hook(k).
 r_hook(crit).
 
-r_hook('<-'/2).
 % Todo: update definitions to new pattern mcint:r_hook(Name/Arity)
 r_hook(uqbinom(_Alpha, _Size, _Prob)).
 r_hook(lqbinom(_Alpha, _Size, _Prob)).

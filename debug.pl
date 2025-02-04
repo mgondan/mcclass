@@ -29,7 +29,6 @@ r_hook(n).
 r_hook(k).
 
 % R functions
-r_hook('<-'/2).
 r_hook(choose/2).
 r_hook(factorial/1).
 mono((choose)/2, [+, +]).

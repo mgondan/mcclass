@@ -24,8 +24,6 @@ r_hook(pi_A).
 r_hook(pi_B).
 r_hook(or).
 
-r_hook('<-'/2).
-
 render
 --> {start(item(Odds_A, Pi_B, OR)) }, 
 	
