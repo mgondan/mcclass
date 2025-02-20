@@ -36,7 +36,7 @@ Install a current version of SWI-Prolog from www.swi-prolog.org.
 
 Invoke swipl, and then
 
-* `pack_install(rologp).`
+* `pack_install(interval).`
 * `pack_install(quantity).`
 * `halt.`
 
