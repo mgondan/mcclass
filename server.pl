@@ -58,6 +58,7 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(power), handler(power), []).
 :- http_handler(mcclass(cigroups), handler(cigroups), []).
 :- http_handler(mcclass(mathmltest), handler(mathmltest), []).
+:- http_handler(mcclass(linreg), handler(linreg), []).
 
 :- http_handler(mcclass(debug), handler(debug), []).
 
