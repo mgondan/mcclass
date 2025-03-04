@@ -38,7 +38,6 @@ r_hook(t).
 r_hook(lo).
 r_hook(mu).
 
-r_hook('<-'/2).
 r_hook(var_pool/4).
 mono((var_pool)/4, [+, /, +, /]).
 
