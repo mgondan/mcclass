@@ -13,7 +13,7 @@ task(ztrans).
 
 :- multifile intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
-math_hook(x, 'X').
+mathml:math_hook(x, 'X').
 
 r_hook(x).
 r_hook(sigma).

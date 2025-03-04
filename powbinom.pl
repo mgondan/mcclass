@@ -16,13 +16,13 @@ task(powbinom).
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
-math_hook(p0, subscript(pi, 0)).
-math_hook(p1, subscript(pi, 1)).
-math_hook(crit, c).
-math_hook(power, 'Pwr').
-math_hook(n, 'N').
-math_hook(tail1(Tail, K), tail(Tail, K)).
-math_hook(tail2(Tail, K), tail(Tail, K)).
+mathml:math_hook(p0, subscript(pi, 0)).
+mathml:math_hook(p1, subscript(pi, 1)).
+mathml:math_hook(crit, c).
+mathml:math_hook(power, 'Pwr').
+mathml:math_hook(n, 'N').
+mathml:math_hook(tail1(Tail, K), tail(Tail, K)).
+mathml:math_hook(tail2(Tail, K), tail(Tail, K)).
 
 % R definitions
 r_hook(alpha).

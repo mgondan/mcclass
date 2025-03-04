@@ -13,10 +13,10 @@ task(oratio).
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
-math_hook(pi_A, subscript(pi, "A")).
-math_hook(odds_A, subscript(odds, "A")).
-math_hook(pi_B, subscript(pi, "B")).
-math_hook(or, 'OR').
+mathml:math_hook(pi_A, subscript(pi, "A")).
+mathml:math_hook(odds_A, subscript(odds, "A")).
+mathml:math_hook(pi_B, subscript(pi, "B")).
+mathml:math_hook(or, 'OR').
 
 % R constants
 r_hook(odds_A).

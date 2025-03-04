@@ -17,10 +17,10 @@ task(cibase).
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
-math_hook(m_T0, overline("T0")).
-math_hook(m_EOT, overline("EOT")).
-math_hook(s_T0, subscript(s, "T0")).
-math_hook(s_EOT, subscript(s, "EOT")).
+mathml:math_hook(m_T0, overline("T0")).
+mathml:math_hook(m_EOT, overline("EOT")).
+mathml:math_hook(s_T0, subscript(s, "T0")).
+mathml:math_hook(s_EOT, subscript(s, "EOT")).
 
 r_hook(ancova_f/7).
 r_hook(ancova_p/7).

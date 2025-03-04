@@ -9,13 +9,13 @@
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
-math_hook(n_vr, subscript(n, "VR")).
-math_hook(n_box, subscript(n, "Box")).
-math_hook(vr, overline("VR")).
-math_hook(s_vr, subscript(s, "VR")).
-math_hook(box, overline("Box")).
-math_hook(s_box, subscript(s, "Box")).
-math_hook(n, subscript('N', "total")).
+mathml:math_hook(n_vr, subscript(n, "VR")).
+mathml:math_hook(n_box, subscript(n, "Box")).
+mathml:math_hook(vr, overline("VR")).
+mathml:math_hook(s_vr, subscript(s, "VR")).
+mathml:math_hook(box, overline("Box")).
+mathml:math_hook(s_box, subscript(s, "Box")).
+mathml:math_hook(n, subscript('N', "total")).
 
 % Obtain information from R
 r_hook(n_vr).

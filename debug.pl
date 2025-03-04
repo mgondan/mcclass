@@ -15,10 +15,10 @@ task(debugtask).
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-math_hook(v_A, subscript(v, "A")).
-math_hook(n_A, subscript(n, "A")).
-math_hook(v_B, subscript(v, "B")).
-math_hook(n_B, subscript(n, "B")).
+mathml:math_hook(v_A, subscript(v, "A")).
+mathml:math_hook(n_A, subscript(n, "A")).
+mathml:math_hook(v_B, subscript(v, "B")).
+mathml:math_hook(n_B, subscript(n, "B")).
 
 % R constants
 r_hook(v_A).
@@ -79,10 +79,10 @@ hint(problem1, [], _Col, FB)
  
 /*  Variance
 % Prettier symbols for mathematical rendering
-math_hook(v_A, subscript(v, "A")).
-math_hook(n_A, subscript(n, "A")).
-math_hook(v_B, subscript(v, "B")).
-math_hook(n_B, subscript(n, "B")).
+mathml:math_hook(v_A, subscript(v, "A")).
+mathml:math_hook(n_A, subscript(n, "A")).
+mathml:math_hook(v_B, subscript(v, "B")).
+mathml:math_hook(n_B, subscript(n, "B")).
 
 % R constants
 mcint:r_hook(v_A).
@@ -129,8 +129,8 @@ hint(problem, [], _Col, FB)
  
 /* Odds ratio
 % Prettier symbols for mathematical rendering
-math_hook(pi_A, subscript(pi, "A")).
-math_hook(odds_A, subscript(odds, "A")).
+mathml:math_hook(pi_A, subscript(pi, "A")).
+mathml:math_hook(odds_A, subscript(odds, "A")).
 
 % R constants
 rint:r_hook(pi_A).

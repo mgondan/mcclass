@@ -38,7 +38,7 @@ user:term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A)).
 :- use_module(util).
 
 % Render R result
-mathml:math_hook(r(Expr), Res) :-
+mathml:mathml:math_hook(r(Expr), Res) :-
     r_topic(Expr, Res).
 
 % Gather useful information
