@@ -387,7 +387,7 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(qbinom, amountsuccess).
+    tasks(debug, debugtask).
 
 tasks(Topic, Task) :-
     r_init_session,

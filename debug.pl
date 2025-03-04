@@ -65,6 +65,17 @@ feedback(problem, [], _Col, FB)
 
 hint(problem, [], _Col, FB)
  => FB = "This is a binomial coefficient".
+
+% Recognized the problem
+buggy(debugtask, stage(1), From, To, [step(buggy, problem1, [])]) :-
+    From = item(N, K),
+    To = { 1+choose(N, K) }.
+
+feedback(problem1, [], _Col, FB)
+ => FB = "Correctly identified the problem and the main steps of the calculation.".
+
+hint(problem1, [], _Col, FB)
+ => FB = "This is a binomial coefficient".
  
 /*  Variance
 % Prettier symbols for mathematical rendering
