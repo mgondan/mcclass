@@ -15,15 +15,14 @@ task(exactprob).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
-math_hook(n, 'N').
-math_hook(p0, pi).
+mathml:math_hook(n, 'N').
+mathml:math_hook(p0, pi).
 
 r_hook(p).
 r_hook(n).
 r_hook(k).
 r_hook(p0).
 
-r_hook('<-'/2).
 r_hook(factorial(_N)).
 r_hook(choose(_N, _K)).
 mono((choose)/2, [+, +]).

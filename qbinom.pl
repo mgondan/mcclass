@@ -13,15 +13,14 @@ task(amountsuccess).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
-math_hook(p0, subscript(pi, 0)).
-math_hook(n, 'N').
+mathml:math_hook(p0, subscript(pi, 0)).
+mathml:math_hook(n, 'N').
 
 r_hook(alpha).
 r_hook(n).
 r_hook(p0).
 r_hook(k).
 
-r_hook('<-'/2).
 r_hook(uqbinom(_Alpha, _Size, _Prob)).
 r_hook(lqbinom(_Alpha, _Size, _Prob)).
 r_hook(tail(_Tail, _K)).

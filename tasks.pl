@@ -39,7 +39,7 @@ user:term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A)).
 :- use_module(linreg).
 
 % Render R result
-mathml:math_hook(r(Expr), Res) :-
+mathml:mathml:math_hook(r(Expr), Res) :-
     r_topic(Expr, Res).
 
 % Gather useful information
@@ -77,7 +77,7 @@ feedback(Topic, Task, Data, _Form)
 --> { % option(resp(R), Form),
       session_data(resp(Topic, Task, R)),
       quantity(N0, Opt, R),
-      interval(@(N0, Opt), Num, [topic(Topic), task(Task)]),
+      interval(input(N0), Num, [topic(Topic), task(Task) | Opt]),
       memberchk(solutions(Solutions), Data),
       member(Expr-Res/Flags, Solutions),
       colors(Expr, Col),
@@ -100,7 +100,7 @@ feedback(Topic, Task, Data, _Form)
 --> { % option(resp(R), Form),
       session_data(resp(Topic, Task, R)),
       quantity(N0, Opt, R),
-      interval(@(N0, Opt), Num, [topic(Topic), task(Task)]),
+      interval(input(N0), Num, [topic(Topic), task(Task) | Opt]),
       memberchk(wrongall(Wrongs), Data),
       member(Expr-Res/Flags, Wrongs),
       colors(Expr, Col),
@@ -388,7 +388,7 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(qbinom, amountsuccess).
+    tasks(debug, debugtask).
 
 tasks(Topic, Task) :-
     r_init_session,

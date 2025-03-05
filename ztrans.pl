@@ -13,14 +13,12 @@ task(ztrans).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
-math_hook(x, 'X').
+mathml:math_hook(x, 'X').
 
 r_hook(x).
 r_hook(sigma).
 r_hook(z).
 r_hook(p).
-
-r_hook('<-'/2).
 
 render
 --> { start(item(X, Mu, Sigma)) },

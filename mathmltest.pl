@@ -17,16 +17,16 @@ task(cipaired). */
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
-math_hook(d, overline('D')).
-math_hook(s_d, subscript(s, 'D')).
-math_hook(n, 'N').
-math_hook(t0, overline("T0")).
-math_hook(s_t0, subscript(s, "T0")).
-math_hook(eot, overline("EOT")).
-math_hook(s_eot, subscript(s, "EOT")).
-math_hook(s2p, subscript(s, "pool")^2).
-math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
-math_hook(alpha, greek("alpha")).
+mathml:math_hook(d, overline('D')).
+mathml:math_hook(s_d, subscript(s, 'D')).
+mathml:math_hook(n, 'N').
+mathml:math_hook(t0, overline("T0")).
+mathml:math_hook(s_t0, subscript(s, "T0")).
+mathml:math_hook(eot, overline("EOT")).
+mathml:math_hook(s_eot, subscript(s, "EOT")).
+mathml:math_hook(s2p, subscript(s, "pool")^2).
+mathml:math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
+mathml:math_hook(alpha, greek("alpha")).
 
 % R definitions
 r_hook(t).
@@ -40,7 +40,6 @@ r_hook(eot).
 r_hook(s_eot).
 r_hook(lo).
 
-r_hook('<-'/2).
 r_hook(var_pool/4).
 mono((var_pool)/4, [+, /, +, /]).
 

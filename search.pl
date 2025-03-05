@@ -55,7 +55,8 @@ searchdep(Topic, Task, Expr_Res_Flags) :-
         dependencies(S),            % check dependencies here
         exclusive(S),
         codes(S, C),
-        interval(available(E), R, [topic(Topic), task(Task)])
+        interval(E, R, [topic(Topic), task(Task)]),
+        interval(available(R), true)
       ), Results),
     sort(2, @<, Results, Sorted),
     findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
