@@ -150,9 +150,8 @@ math(ci(L, U), X, Flags, New)
 => New = Flags,
    X = brackets(list(',', [L, U])).
 
-math('...'(L, U), X, Flags, New)
-=> New = Flags,
-   X = xfx(699, '...', floor(L), ceiling(U)).
+mathml:math_hook('...'(L, U), M) :-
+    M = xfx(699, '...', L, U).
 
 math(floor(A), X, Flags, New),
    number(A),
