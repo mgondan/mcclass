@@ -89,7 +89,7 @@ render
                   "(VR: ", \mmlm([digits(1)], r(vr)), " ± ", \mmlm([digits(1)], r(s_vr1)), 
                   " vs. BOX: ", \mmlm([digits(1)], r(box)), " ± ", \mmlm([digits(1)], r(s_box)), 
                   ", p = 0.437). The significance level is set to ",
-                  \mmlm(alpha = perc(r(Alpha))), " two-tailed. ",
+                  \mmlm(alpha = percent(r(Alpha))), " two-tailed. ",
                   "The medical students generally appreciated the training and felt well prepared for ", 
                   "assisting in laparoscopic surgery. The efficiency of the training ",
                   "was judged higher by the VR group than by the Box group."

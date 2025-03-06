@@ -56,7 +56,7 @@ render
               "outcome is the score on the Hamilton Rating Scale for ", 
               "Depression (HDRS, range from best = 0 to worst = 42). ",
               "The significance level is set to ",
-              \mmlm(alpha = perc(0.05)), " two-tailed."]),
+              \mmlm(alpha = percent(0.05)), " two-tailed."]),
           div(class(container),
             div(class("row justify-content-md-center"),
               div(class("col-6"),

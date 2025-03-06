@@ -117,12 +117,6 @@ math(chi2ratio(A), X, Flags, Flags1)
  => Flags1 = [digits(2) | Flags],
     A = X.
 
-math(perc(A), X, Flags, Flags1)
- => option(digits(D0), Flags, 2),
-    D is D0 - 2,
-    Flags1 = [digits(D), mult(100) | Flags],
-    X = list("", [A, '%']).
-
 % Hyphen
 math(hyph(L, R), X)
  => X = list(&('#8209'), [L, R]).
