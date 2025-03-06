@@ -109,10 +109,6 @@ bugs_(X, List),
 %
 % Formatting numbers
 %
-math(tstat(A), X, Flags, Flags1)
- => Flags1 = [digits(2) | Flags],
-    A = X.
-
 math(hdrs(A), X, Flags, Flags1)
  => Flags1 = [digits(1) | Flags],
     A = X.
@@ -126,10 +122,6 @@ math(perc(A), X, Flags, Flags1)
     D is D0 - 2,
     Flags1 = [digits(D), mult(100) | Flags],
     X = list("", [A, '%']).
-
-math(pval(A), X, Flags, Flags1)
- => Flags1 = [digits(3) | Flags],
-    A = X.
 
 % Hyphen
 math(hyph(L, R), X)
