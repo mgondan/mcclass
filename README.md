@@ -12,13 +12,10 @@ Install a current version of R
 Invoke R, and then
 
 * `install.packages("RInside")`
-* `install.packages("Rserve", repos="http://rforge.net/", type="source")`
 * You also need WriteXLS for exporting Excel files: `install.packages("WriteXLS")`
 * `install.packages("ggplot2")`
 * `install.packages("svglite")`
 * `quit()`
-
-Later, you just invoke `R -e "Rserve::Rserve()"` to start the R server.
 
 ## Step 2: install postgresql
 
@@ -36,8 +33,10 @@ Install a current version of SWI-Prolog from www.swi-prolog.org.
 
 Invoke swipl, and then
 
-* `pack_install(interval).`
 * `pack_install(quantity).`
+* `pack_install(mathml).`
+* `pack_install(rolog).`
+* `pack_install(interval).`
 * `halt.`
 
 ## Start the server
@@ -49,9 +48,10 @@ Use `kill $(cat http.pid)` to stop the server. Sometimes this doesn't work, then
 
 ## Watch the program
 
-Open firefox and go to http://localhost:8001/mcclass
+Open a web browser and go to http://localhost:8001/mcclass
 
 ## Behind an Apache proxy
+
 Let's assume you have a working https-configuration. Then add the following two lines to your, e.g.,
 /etc/apache2/sites-enabled/000-default-le-ssl.conf
 
