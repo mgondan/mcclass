@@ -57,7 +57,7 @@ render
             [ "Consider an evaluation study on self-regulatory revising strategies training (SRT) with ",
               \mmlm(N = r(N)), " German-speaking sixth-graders. The primary outcome is the global score on the RANT (Rating for Narrative Texts, range
                from best = 1 to worst = 10). The significance level is set to ",
-              \mmlm([alpha = perc(0.05), "."]), " A decrease of the values (i.e., higher text quality)
+              \mmlm([alpha = percent(0.05), "."]), " A decrease of the values (i.e., higher text quality)
               should result in a positive ", \mmlm(hyph(t, "value."))]),     
           div(class(container),
             div(class("row justify-content-md-center"),

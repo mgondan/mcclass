@@ -5,6 +5,7 @@
 
 :- use_module(library(http/html_write)).
 :- reexport(library(mathml)).
+:- reexport(library(pval)).
 
 % Legacy code from mcclass
 mmlm(A) -->
@@ -108,26 +109,12 @@ bugs_(X, List),
 %
 % Formatting numbers
 %
-math(tstat(A), X, Flags, Flags1)
- => Flags1 = [digits(2) | Flags],
-    A = X.
-
 math(hdrs(A), X, Flags, Flags1)
  => Flags1 = [digits(1) | Flags],
     A = X.
 
 math(chi2ratio(A), X, Flags, Flags1)
  => Flags1 = [digits(2) | Flags],
-    A = X.
-
-math(perc(A), X, Flags, Flags1)
- => option(digits(D0), Flags, 2),
-    D is D0 - 2,
-    Flags1 = [digits(D), mult(100) | Flags],
-    X = list("", [A, '%']).
-
-math(pval(A), X, Flags, Flags1)
- => Flags1 = [digits(3) | Flags],
     A = X.
 
 % Hyphen
@@ -163,9 +150,8 @@ math(ci(L, U), X, Flags, New)
 => New = Flags,
    X = brackets(list(',', [L, U])).
 
-math('...'(L, U), X, Flags, New)
-=> New = Flags,
-   X = xfx(699, '...', floor(L), ceiling(U)).
+mathml:math_hook('...'(L, U), M) :-
+    M = xfx(699, '...', L, U).
 
 math(floor(A), X, Flags, New),
    number(A),

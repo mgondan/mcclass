@@ -140,7 +140,7 @@ feedback(pdecimal2, [_], _ , FB) =>
     FB = [ "You converted P-% incorrectly to a decimal representation." ].
 
 hint(pdecimal2, [P], Col, FB) =>
-    FB = [ \mmlm(Col, color(pdecimal2, perc(r(P)))), " in decimal representation is ", \mmlm(Col, [color(pdecimal2, r(P/100)), "."]) ].
+    FB = [ \mmlm(Col, color(pdecimal2, percent(r(P)))), " in decimal representation is ", \mmlm(Col, [color(pdecimal2, r(P/100)), "."]) ].
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % Buggy Rule (zx) The z value was calculated but taken to be the endresult.
