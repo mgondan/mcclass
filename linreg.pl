@@ -34,11 +34,13 @@ r_hook(b_coef).
 r_hook(intercept).
 r_hook(cor_value).
 r_hook(p_value).
+r_hook(dep).
+r_hook(sleep).
 
 % Task description
 
 render
---> { start(item(N, _Mean_Sleep, _SD_Sleep, _Mean_Dep, _SD_Dep, _B_Coef, _Intercept, _Cor_Value, _P_Value)) },
+--> { start(item(N, _Mean_Sleep, _SD_Sleep, _Mean_Dep, _SD_Dep, _B_Coef, _Intercept, _Cor_Value, _P_Value, _Dep, _Sleep)) },
 	html(
       [ div(class(card),
           div(class('card-body'),
@@ -56,7 +58,7 @@ render
 % Question for b-coefficient
 
 task(bcoef)
---> { start(item(_N, _Mean_Sleep, _SD_Sleep, _Mean_Dep, _SD_Dep, _B_Coef, _Intercept, _Cor_Value, _P_Value)),
+--> { start(item(_N, _Mean_Sleep, _SD_Sleep, _Mean_Dep, _SD_Dep, _B_Coef, _Intercept, _Cor_Value, _P_Value, _Dep, _Sleep)),
       session_data(resp(linreg, bcoef, Resp), resp(linreg, bcoef, '#.##'))
     },
 	html(\htmlform(["Calculate the b-coefficient for the sleep duration."], bcoef, Resp)).
@@ -64,14 +66,14 @@ task(bcoef)
 % Expert rule for b-coefficient
 
 intermediate(bcoef, item).
-start(item(n, mean_Sleep, sd_Sleep, mean_Dep, sd_Dep, b_coef, intercept, cor_value, p_value)).
+start(item(n, mean_Sleep, sd_Sleep, mean_Dep, sd_Dep, b_coef, intercept, cor_value, p_value, dep, sleep)).
 
 % First step
 
 intermediate(bcoef, correct).
 expert(bcoef, stage(2), X, Y, [step(expert, correct, [])]) :-
-    X = item(_N, _Mean_Sleep, _SD_Sleep, _Mean_Dep, _SD_Dep, B_Coef, _Intercept, _Cor_Value, _P_Value),
-    Y = { '<-'(b, correct(B_Coef)) }.
+    X = item(_N, _Mean_Sleep, _SD_Sleep, _Mean_Dep, _SD_Dep, B_Coef, _Intercept, _Cor_Value, _P_Value, Dep, Sleep),
+    Y = { '<-'(b, correct(Dep, Sleep, B_Coef)) }.
 
 feedback(correct, [], _Col, F)
  => F = ["Test1"].
@@ -81,22 +83,31 @@ hint(correct, [], _Col, F)
 
 % Second step
 
-expert(bcoef, stage(2), X, Y, [step(expert, bcoef, [B_Coef])]) :-
-    X = correct(B_Coef),
+expert(bcoef, stage(2), X, Y, [step(expert, bcoef, [Dep, Sleep, B_Coef])]) :-
+    X = correct(Dep, Sleep, B_Coef),
     Y = B_Coef.
 
-feedback(bcoef, [_], _Col, F)
+feedback(bcoef, [_,_,_], _Col, F)
  => F = ["Test2"].
 
-hint(bcoef, [_], _Col, F)
+hint(bcoef, [_,_,_], _Col, F)
  => F = ["Test2"].
 
+% Buggy rules for b-coefficient
 
-% Buggy rules for b-coefficient:
+% Switched dependent and independent variable
 
-% read intercept instead of sleep
+buggy(bcoef, stage(1), X, Y, [step(buggy, switch, [Dep, Sleep])]) :-
+    X = correct(Dep, Sleep, B_Coef),
+    Y = correct(Sleep, Dep, B_Coef).
 
+feedback(switch, [_, _], _, F)
+ => F = ["Test"].
 
+hint(switch, [_,_], _, F)
+ => F = ["Test"].
+
+/*
 % Expert rule for correlation
 
 intermediate(correlation, item).
@@ -155,3 +166,4 @@ feedback(pvalue, [_], _Col, F)
 
 hint(pvalue, [_], _Col, F)
  => F = ["Test2"].
+ */

@@ -15,23 +15,25 @@ linreg_data = function(seed)
 
 data        <- linreg_data(seed = sample(1:10000, 1))
 n           <- nrow(data)
+sleep       <- data$Sleep
 mean_Sleep  <- mean(data$Sleep)
 sd_Sleep    <- sd(data$Sleep)
+dep       <- data$Dep
 mean_Dep    <- mean(data$Dep)
 sd_Dep      <- sd(data$Dep)
 
 # Linear regression
-lm_model    <- lm(Dep ~ Sleep, data=data)
+lm_model    <- lm(dep ~ sleep)
 
 # Coefficients
-b_coef      <- coef(lm_model)["Sleep"]
+b_coef      <- coef(lm_model)["sleep"]
 intercept   <- coef(lm_model)["(Intercept)"]
 
 # Correlation
 cor_value   <- cor(data$Sleep, data$Dep)
 
 # p-value
-p_value     <- summary(lm_model)$coefficients["Sleep", "Pr(>|t|)"]
+p_value     <- summary(lm_model)$coefficients["sleep", "Pr(>|t|)"]
 
 download <- function(fname) {
   write.csv2(data, fname, row.names=FALSE)
