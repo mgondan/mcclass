@@ -56,7 +56,7 @@ render
               "in early childhood. The study is a randomized trial ",
               "on ", \mmlm(r('N')), "children, comparing Lidcombe ",
               "with treatment as usual (TAU). The significance level ",
-              "is ", \mmlm(alpha = perc(0.05)), " two-tailed. ",
+              "is ", \mmlm(alpha = percent(0.05)), " two-tailed. ",
 	      "In this Task analyze the impact of the biological Sex of the children on the Therapy-effect, the subgroup-interaction of Sex:Therapy. ",
               "Please analyze the data and draw the correct conclusions." 
             ]),

@@ -60,7 +60,7 @@ render
                The primary outcome was the score on the Wide Range Achievement Test 
                (WRAT, standard mean score = 100, SD = 15) with higher scores indicating 
                higher performance. The significance level is set to ",
-              \mmlm([alpha = perc(0.05), "."]), 
+              \mmlm([alpha = percent(0.05), "."]), 
               " A performance increase should result in a positive ", 
               \mmlm(hyph(t, "value."))]),     
           div(class(container),

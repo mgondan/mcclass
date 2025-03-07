@@ -48,7 +48,7 @@ render
               "in early childhood. The study is a randomized trial ",
               "on ", \mmlm(r('N')), "children, comparing Lidcombe ",
               "with treatment as usual (TAU). The significance level ",
-              "is ", \mmlm(alpha = perc(0.05)), " two-tailed. ",
+              "is ", \mmlm(alpha = percent(0.05)), " two-tailed. ",
               "Please analyze the data and draw the correct conclusions." 
             ]),
           div(class('container'),
