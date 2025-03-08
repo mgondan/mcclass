@@ -475,6 +475,6 @@ mathml:math_hook(instead(Bug, Wrong, Correct0, _Correct), M, Flags) :-
 %
 % t-test
 %
-math(var_pool(V1, N1, V2, N2), X)
- => X = dfrac((N1 - 1)*V1 + (N2 - 1)*V2, N1 + N2 - 2).
+mathml:math_hook(var_pool(V1, N1, V2, N2), X) :-
+    X = dfrac((N1 - 1)*V1 + (N2 - 1)*V2, N1 + N2 - 2).
 
