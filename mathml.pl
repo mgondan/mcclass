@@ -408,46 +408,45 @@ math(drop_right(_Bug, Expr), M, Flags),
     M = L.
 
 % Show correct alternative
-math(correct(Expr), M)
- => M = Expr.
+mathml:math_hook(correct(Expr), Expr).
     
 % Show error
-math(show(Expr), M)
- => M = Expr.
+mathml:math_hook(show(Expr), Expr).
 
 % Fix error (with color)
-math(fix(Expr), M)
- => M = Expr.
+mathml:math_hook(fix(Expr), Expr).
 
 % Show error (with color)
-math(highlight(Expr), M)
- => M = Expr.
+mathml:math_hook(highlight(Expr), Expr).
 
-math(instead(Bug, Wrong, Correct), M)
- => M = instead(Bug, Wrong, Correct, Correct).
+mathml:math_hook(instead(Bug, Wrong, Correct), M) :-
+    M = instead(Bug, Wrong, Correct, Correct).
 
-math(instead(_Bug, _Wrong, _Correct0, Correct), M, Flags),
-    option(error(correct), Flags, fix)
- => M = Correct.
+mathml:math_hook(instead(_Bug, _Wrong, _Correct0, Correct), M, Flags) :-
+    option(error(correct), Flags, fix),
+    !,
+    M = Correct.
 
-math(instead(Bug, Wrong, _Correct0, _Correct), M, Flags),
-    option(error(show), Flags, fix)
- => M = color(Bug, Wrong).
+mathml:math_hook(instead(Bug, Wrong, _Correct0, _Correct), M, Flags) :-
+    option(error(show), Flags, fix),
+    !,
+    M = color(Bug, Wrong).
 
 % Nested insteads
-math(instead(_, instead(Bug, Wrong, _), Correct0, Correct), M, Flags),
-    option(error(fix), Flags, fix)
- => M = instead(Bug, Wrong, Correct0, Correct).
+mathml:math_hook(instead(_, instead(Bug, Wrong, _), Correct0, Correct), M, Flags) :-
+    option(error(fix), Flags, fix),
+    !,
+    M = instead(Bug, Wrong, Correct0, Correct).
 
-math(instead(_, instead(Bug, Wrong, _, _), Correct0, Correct), M, Flags),
-    option(error(fix), Flags, fix)
- => M = instead(Bug, Wrong, Correct0, Correct).
+mathml:math_hook(instead(_, instead(Bug, Wrong, _, _), Correct0, Correct), M, Flags) :-
+    option(error(fix), Flags, fix),
+    !,
+    M = instead(Bug, Wrong, Correct0, Correct).
 
-math(instead(Bug, _Wrong, _Correct0, Correct), M, Flags),
-    option(error(fix), Flags, fix)
-% => bugs(Wrong, Bugs),
-%    M = boxes([Bug | Bugs], Correct).
- => M = color(Bug, Correct).
+mathml:math_hook(instead(Bug, _Wrong, _Correct0, Correct), M, Flags) :-
+    option(error(fix), Flags, fix),
+    !,
+    M = color(Bug, Correct).
 
 denoting(instead(_, _Wrong, _Of0, Of), D, Flags),
     option(error(fix), Flags, fix)
@@ -458,17 +457,20 @@ denoting(instead(_, Wrong, _Of0, _Of), D, Flags),
  => denoting(Wrong, D, Flags).
 
 % Nested insteads
-math(instead(_, instead(Bug, Wrong, _), Correct0, Correct), M, Flags),
-    option(error(highlight), Flags, fix)
- => M = instead(Bug, Wrong, Correct0, Correct).
+mathml:math_hook(instead(_, instead(Bug, Wrong, _), Correct0, Correct), M, Flags) :-
+    option(error(highlight), Flags, fix),
+    !,
+    M = instead(Bug, Wrong, Correct0, Correct).
 
-math(instead(_, instead(Bug, Wrong, _, _), Correct0, Correct), M, Flags),
-    option(error(highlight), Flags, fix)
- => M = instead(Bug, Wrong, Correct0, Correct).
+mathml:math_hook(instead(_, instead(Bug, Wrong, _, _), Correct0, Correct), M, Flags) :-
+    option(error(highlight), Flags, fix),
+    !,
+    M = instead(Bug, Wrong, Correct0, Correct).
 
-math(instead(Bug, Wrong, Correct0, _Correct), M, Flags),
-    option(error(highlight), Flags, fix)
- => M = underbrace(color(Bug, show(Wrong)), list(space, ["instead of", correct(Correct0)])).
+mathml:math_hook(instead(Bug, Wrong, Correct0, _Correct), M, Flags) :-
+    option(error(highlight), Flags, fix),
+    !,
+    M = underbrace(color(Bug, show(Wrong)), list(space, ["instead of", correct(Correct0)])).
 
 %
 % t-test
