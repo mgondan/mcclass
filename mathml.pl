@@ -177,110 +177,101 @@ math(ceiling(A), X, Flags, New)
    New = [ceiling(D) | N],
    X = A.
 
-math(omit_left(_Bug, Expr), M, Flags),
-    option(error(correct), Flags, fix)
- => M = Expr.
+mathml:math_hook(omit_left(_Bug, Expr), M, Flags) :-
+    option(error(correct), Flags, fix),
+    !,
+    M = Expr.
 
-math(omit_left(_Bug, Expr), M, Flags),
-    option(error(show), Flags, fix)
- => Expr =.. [_Op, _L, M].
+mathml:math_hook(omit_left(_Bug, Expr), M, Flags) :-
+    option(error(show), Flags, fix),
+    !,
+    Expr =.. [_Op, _L, M].
 
-math(omit_left(Bug, Expr), M, Flags),
-    option(error(fix), Flags, fix)
- => Expr =.. [Op, L, R],
+mathml:math_hook(omit_left(Bug, Expr), M, Flags) :-
+    option(error(fix), Flags, fix),
+    !,
+    Expr =.. [Op, L, R],
     Expr1 =.. [Op, L, " "],
     M = list(space, [color(Bug, box(color("#000000", Expr1))), R]).
 
-math(omit_left(Bug, Expr), M, Flags),
-    option(error(highlight), Flags, fix)
- => Expr =.. [Op, L, R],
+mathml:math_hook(omit_left(Bug, Expr), M, Flags) :-
+    option(error(highlight), Flags, fix),
+    !,
+    Expr =.. [Op, L, R],
     Expr1 =.. [Op, L, " "],
     M = list(space, [color(Bug, cancel(color("#000000", Expr1))), R]).
 
-math(omit_right(_Bug, Expr), M, Flags),
+mathml:math_hook(omit_right(_Bug, Expr), M, Flags) :-
     option(error(correct), Flags, fix),
     Expr =.. [Op, Num, Den],
-    member(Op, [frac, dfrac])
- => M =.. [Op, Num, Den].
+    member(Op, [frac, dfrac]),
+    !,
+    M =.. [Op, Num, Den].
 
-math(omit_right(_Bug, Expr), M, Flags),
+mathml:math_hook(omit_right(_Bug, Expr), M, Flags) :-
     option(error(show), Flags, fix),
     Expr =.. [Op, Num, _Den],
-    member(Op, [frac, dfrac])
- => M = Num.
+    member(Op, [frac, dfrac]),
+    !,
+    M = Num.
 
-math(omit_right(Bug, Expr), M, Flags),
+mathml:math_hook(omit_right(Bug, Expr), M, Flags) :-
     option(error(fix), Flags, fix),
     Expr =.. [Op, Num, Den],
-    member(Op, [frac, dfrac])
- =>  M =.. [Op, Num, color(Bug, box(color("#000000", Den)))].
+    member(Op, [frac, dfrac]),
+    !,
+    M =.. [Op, Num, color(Bug, box(color("#000000", Den)))].
 
-math(omit_right(Bug, Expr), M, Flags),
+mathml:math_hook(omit_right(Bug, Expr), M, Flags) :-
     option(error(highlight), Flags, fix),
     Expr =.. [Op, Num, Den],
-    member(Op, [frac, dfrac])
- => M =.. [Op, Num, color(Bug, cancel(color("#000000", Den)))].
+    member(Op, [frac, dfrac]),
+    !,
+    M =.. [Op, Num, color(Bug, cancel(color("#000000", Den)))].
 
 % Powers
-math(omit_right(_Bug, Base^Pwr), M, Flags),
-    option(error(correct), Flags, fix)
- =>  M = Base^Pwr.
+mathml:math_hook(omit_right(_Bug, Base^Pwr), M, Flags) :-
+    option(error(correct), Flags, fix),
+    M = Base^Pwr.
 
-math(omit_right(_Bug, Base^_Pwr), M, Flags),
-    option(error(show), Flags, fix)
- => M = Base.
+mathml:math_hook(omit_right(_Bug, Base^_Pwr), M, Flags) :-
+    option(error(show), Flags, fix),
+    !,
+    M = Base.
 
-math(omit_right(Bug, Base^Pwr), M, Flags),
-    option(error(fix), Flags, fix)
- => M = Base^color(Bug, box(color("#000000", Pwr))).
+mathml:math_hook(omit_right(Bug, Base^Pwr), M, Flags) :-
+    option(error(fix), Flags, fix),
+    !,
+    M = Base^color(Bug, box(color("#000000", Pwr))).
 
-math(omit_right(Bug, Base^Pwr), M, Flags),
-    option(error(highlight), Flags, fix)
- =>  M = Base^color(Bug, cancel(color("#000000", Pwr))).
+mathml:math_hook(omit_right(Bug, Base^Pwr), M, Flags) :-
+    option(error(highlight), Flags, fix),
+    !,
+    M = Base^color(Bug, cancel(color("#000000", Pwr))).
 
-math(A^B, X)
- => X = supscript(A, B).
+mathml:math_hook(omit_right(_Bug, Expr), M, Flags) :-
+    option(error(correct), Flags, fix),
+    !,
+    M = Expr.
 
-%
-math(omit_right(_Bug, Expr), M, Flags),
-    option(error(correct), Flags, fix)
- => M = Expr.
+mathml:math_hook(omit_right(_Bug, Expr), M, Flags) :-
+    option(error(show), Flags, fix),
+    !,
+    Expr =.. [_Op, M, _R].
 
-math(omit_right(_Bug, Expr), M, Flags),
-    option(error(show), Flags, fix)
- => Expr =.. [_Op, M, _R].
-
-math(omit_right(Bug, Expr), M, Flags),
-    option(error(fix), Flags, fix)
- => Expr =.. [Op, L, R],
+mathml:math_hook(omit_right(Bug, Expr), M, Flags) :-
+    option(error(fix), Flags, fix),
+    !,
+    Expr =.. [Op, L, R],
     Expr1 =.. [Op, " ", R],
     M = list(space, [L, color(Bug, box(color("#000000", Expr1)))]).
 
-math(omit_right(Bug, Expr), M, Flags),
-    option(error(highlight), Flags, fix)
- => Expr =.. [Op, L, R],
+mathml:math_hook(omit_right(Bug, Expr), M, Flags) :-
+    option(error(highlight), Flags, fix),
+    !,
+    Expr =.. [Op, L, R],
     Expr1 =.. [Op, " ", R],
     M = list(space, [L, color(Bug, cancel(color("#000000", Expr1)))]).
-
-%
-mathml :- mathml(dfrac(omit_right(bug, overline('D') - mu),
-                   subscript(s, 'D') / sqrt('N'))).
-
-mathml :- writeln("Same with Flags = error(fix)"),
-    mathml([error(fix)], 
-           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
-
-mathml :- writeln("Same with Flags = error(highlight)"),
-    mathml([error(highlight)], 
-           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
-    
-mathml :- writeln("Same with Flags = error(show)"),
-    mathml([error(show)], 
-           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
-
-mathml :- writeln("Same with Flags = error(correct)"),
-    mathml([error(correct)],
-           dfrac(omit_right(bug, overline('D') - mu), subscript(s, 'D') / sqrt('N'))).
 
 %
 % Expert and buggy rules
