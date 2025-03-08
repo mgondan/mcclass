@@ -12,9 +12,10 @@ Install a current version of R
 Invoke R, and then
 
 * `install.packages("RInside")`
-* You also need WriteXLS for exporting Excel files: `install.packages("WriteXLS")`
+* `install.packages("WriteXLS")`
 * `install.packages("ggplot2")`
 * `install.packages("svglite")`
+* `install.packages("emmeans")`
 * `quit()`
 
 ## Step 2: install postgresql
