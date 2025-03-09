@@ -27,6 +27,8 @@ mathml:math_hook(s_eot, subscript(s, "EOT")).
 mathml:math_hook(s2p, subscript(s, "pool")^2).
 mathml:math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 mathml:math_hook(alpha, greek("alpha")).
+mathml:math_hook(var_pool(V1, N1, V2, N2), X) :-
+    X = dfrac((N1 - 1)*V1 + (N2 - 1)*V2, N1 + N2 - 2).
 
 % R definitions
 r_hook(t).
@@ -474,7 +476,7 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
 % Third step: Determine the two-tailed p-value
 expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
     X = twotailed(T, DF),
-    Y = pval(2*pt(abs(T), DF, false)).
+    Y = 1 - pval(2 * pt(abs(T), DF)).
 
 feedback(pvalue, [], Col, F)
  => F = [ "Correctly determined the two-tailed ", \mmlm(Col, hyph(p, "value.")) ].
