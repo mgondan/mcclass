@@ -68,14 +68,14 @@ navtabs(Topic, Tasks, Current)
       \foreach(member(T, Tasks), html(\navtab(Topic, T, Current)))))).
 
 navtab(Topic, Task, Task)
---> {Topic:task_label(Topic, Task, Label)},
+--> {Topic:label(Task, Label)},
     html(button([class('nav-link active'), id('nav-~w-tab'-[Task]),
       'data-bs-toggle'(tab), 'data-bs-target'('#nav-~w'-[Task]),
       type(button), role(tab), 'aria-controls'('nav-~w'-[Task]),
       'aria-selected'(true)], Label)).
 
 navtab(Topic, Task, _)
---> {Topic:task_label(Topic, Task, Label)},
+--> {Topic:label(Task, Label)},
     html(button([class('nav-link'), id('nav-~w-tab'-[Task]), 
       'data-bs-toggle'(tab), 'data-bs-target'('#nav-~w'-[Task]), 
       type(button), role(tab), 'aria-controls'('nav-~w'-[Task]), 

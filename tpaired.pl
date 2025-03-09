@@ -14,9 +14,9 @@ task(tratio).
 task(pvalue).
 task(cipaired).
 
-task_label(tpaired, tratio, [math(mi(t)), "-ratio"]).
-task_label(tpaired, pvalue, [math(mi(p)), "-value"]).
-task_label(tpaired, cipaired, "Confidence interval").
+label(tratio, [math(mi(t)), "-ratio"]).
+label(pvalue, [math(mi(p)), "-value"]).
+label(cipaired, "Confidence interval").
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
