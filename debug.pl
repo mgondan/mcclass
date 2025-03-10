@@ -10,7 +10,9 @@
 
 :- use_module(navbar).
 navbar:page(debug, "debug").
+
 task(debugtask).
+label(debugtask, "for debugging").
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 

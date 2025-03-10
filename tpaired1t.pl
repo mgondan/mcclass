@@ -14,6 +14,10 @@ task(tratio).
 task(pvalue).
 task(cipaired).
 
+label(tratio, [math(mi(t)), "-ratio"]).
+label(pvalue, [math(mi(p)), "-value"]).
+label(cipaired, "Confidence interval").
+
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering

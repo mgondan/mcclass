@@ -1,4 +1,4 @@
-:- module(table, [ htmltable//4, htmlform//3, download//1, navtabs//2, tabcontents//2 ]).
+:- module(table, [ htmltable//4, htmlform//3, download//1, navtabs//3, tabcontents//2 ]).
 
 /** <module> APA tables in HTML
 
@@ -63,22 +63,27 @@ download(Task) -->
     html(form(method(post),
       button([class('btn btn-secondary'), name(download), value(Task)], "Download data"))).
 
-navtabs(Tasks, Current)
---> html(nav(div([class('nav nav-tabs'), id('nav-tab'), role(tablist)],
-      \foreach(member(T, Tasks), html(\navtab(T, Current)))))).
+navtabs(Topic, [T1, T2 | Tasks], Current)
+--> !, html(nav(div([class('nav nav-tabs'), id('nav-tab'), role(tablist)],
+      \foreach(member(T, [T1, T2 | Tasks]), html(\navtab(Topic, T, Current)))))).
 
-navtab(Task, Task)
---> html(button([class('nav-link active'), id('nav-~w-tab'-[Task]),
-        'data-bs-toggle'(tab), 'data-bs-target'('#nav-~w'-[Task]),
-        type(button), role(tab), 'aria-controls'('nav-~w'-[Task]),
-        'aria-selected'(true)], Task)).
+navtabs(_, _, _)
+--> [].
 
-navtab(Task, _)
---> html(button([class('nav-link'), id('nav-~w-tab'-[Task]), 
-        'data-bs-toggle'(tab), 'data-bs-target'('#nav-~w'-[Task]), 
-        type(button), role(tab), 'aria-controls'('nav-~w'-[Task]), 
-        'aria-selected'(false)], 
-      Task)).
+navtab(Topic, Task, Task)
+--> {Topic:label(Task, Label)},
+    html(button([class('nav-link active'), id('nav-~w-tab'-[Task]),
+      'data-bs-toggle'(tab), 'data-bs-target'('#nav-~w'-[Task]),
+      type(button), role(tab), 'aria-controls'('nav-~w'-[Task]),
+      'aria-selected'(true)], Label)).
+
+navtab(Topic, Task, _)
+--> {Topic:label(Task, Label)},
+    html(button([class('nav-link'), id('nav-~w-tab'-[Task]), 
+      'data-bs-toggle'(tab), 'data-bs-target'('#nav-~w'-[Task]), 
+      type(button), role(tab), 'aria-controls'('nav-~w'-[Task]), 
+      'aria-selected'(false)], 
+      Label)).
 
 tabcontents(Contents, Current)
 --> html(div([class('tab-content'), id('nav-tabContent')],
