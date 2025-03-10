@@ -63,9 +63,12 @@ download(Task) -->
     html(form(method(post),
       button([class('btn btn-secondary'), name(download), value(Task)], "Download data"))).
 
-navtabs(Topic, Tasks, Current)
---> html(nav(div([class('nav nav-tabs'), id('nav-tab'), role(tablist)],
-      \foreach(member(T, Tasks), html(\navtab(Topic, T, Current)))))).
+navtabs(Topic, [T1, T2 | Tasks], Current)
+--> !, html(nav(div([class('nav nav-tabs'), id('nav-tab'), role(tablist)],
+      \foreach(member(T, [T1, T2 | Tasks]), html(\navtab(Topic, T, Current)))))).
+
+navtabs(_, _, _)
+--> [].
 
 navtab(Topic, Task, Task)
 --> {Topic:label(Task, Label)},

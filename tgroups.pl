@@ -14,6 +14,10 @@ task(s2p).
 task(tratio).
 task(cigroups).
 
+label(s2p, "Pooled variance").
+label(tratio, [math(mi(t)), "-ratio"]).
+label(cigroups, "Confidence interval").
+
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering

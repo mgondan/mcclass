@@ -8,11 +8,16 @@
 :- use_module(library(mcclass)).
 :- use_module(mathml).
 :- use_module(navbar).
+
 navbar:page(subgroups, ["subgroups"]).
+
 task(fratio).
 task(pvalue).
 task(cibase).
 
+label(fratio, [math(mi('F')), "-ratio"]).
+label(pvalue, [math(mi(p)), "-value"]).
+label(cibase, "Confidence interval").
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
