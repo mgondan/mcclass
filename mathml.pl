@@ -482,6 +482,11 @@ mathml:math_hook(instead(Bug, Wrong, Correct0, _Correct), M, Flags) :-
 %
 % t-test
 %
-mathml:math_hook(var_pool(V1, N1, V2, N2), X) :-
-    X = dfrac((N1 - 1)*V1 + (N2 - 1)*V2, N1 + N2 - 2).
+mathml:math_hook(var_pool(V1, N1, V2, N2), M) :-
+    M = dfrac((N1 - 1)*V1 + (N2 - 1)*V2, N1 + N2 - 2).
 
+mathml:math_hook(pm(A, B), M) :-
+    M = '%+-%'(A, B).
+
+mathml:math_hook(ci(A, B), M) :-
+    M = [A, "to", B].
