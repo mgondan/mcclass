@@ -36,6 +36,7 @@ user:term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A)).
 :- use_module(cigroups).
 :- use_module(subgroups).
 :- use_module(util).
+:- use_module(regression).
 
 % Render R result
 mathml:mathml:math_hook(r(Expr), Res) :-
