@@ -31,6 +31,10 @@ navbar -->
             ])
         ]))).
 
+% Temporarily disable
+showuser
+--> !, [].
+
 showuser -->
     { current_user(Email) },
     html(form([class("d-flex"), method(post), action(logout)],
