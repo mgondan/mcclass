@@ -489,15 +489,15 @@ expert(pvalue, stage(2), X, Y, [step(expert, paired, [])]) :-
           '<-'(p, twotailed(t, N-1))
         }.
 
-% feedback(paired, [], Col, F)
-%  => F = [ "Correctly recognised the problem as ",
-%           "a ", \mmlm(Col, hyph(t, "test")), " for paired samples."
-%         ].
+ feedback(paired, [], Col, F)
+  => F = [ "Correctly recognised the problem as ",
+           "a ", \mmlm(Col, hyph(t, "test")), " for paired samples."
+         ].
 
-% hint(paired, [], Col, F)
-%  => F = [ "This is a ", \mmlm(Col, hyph(t, "test")), " for paired ",
-%           "samples."
-%         ].
+ hint(paired, [], Col, F)
+  => F = [ "This is a ", \mmlm(Col, hyph(t, "test")), " for paired ",
+           "samples."
+         ].
 
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal)
@@ -506,15 +506,15 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
     X = paired(D, Mu, S_D, N),
     Y = dfrac(D - Mu, S_D / sqrt(N)).
 
-% feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
-%  => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
-%           "paired samples."
-%         ].
+ feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
+  => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
+           "paired samples."
+         ].
 
-% hint(tratio, [D, Mu, S_D, N], Col, F)
-%  => F = [ "The ", \mmlm(Col, hyph(t, "ratio")), " ",
-%           "is ", \mmlm(Col, [dfrac(D - Mu, S_D / sqrt(N)), "."])
-%         ].
+ hint(tratio, [D, Mu, S_D, N], Col, F)
+  => F = [ "The ", \mmlm(Col, hyph(t, "ratio")), " ",
+           "is ", \mmlm(Col, [dfrac(D - Mu, S_D / sqrt(N)), "."])
+         ].
 
 % Third step: Determine the two-tailed p-value
 expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
