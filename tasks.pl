@@ -16,7 +16,6 @@ user:term_expansion(mono(A, B), mcint:mono(A, B)).
 user:term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A)).
 
 :- use_module(debug).
-:- use_module(mathmltest).
 :- use_module(tpaired).
 :- use_module(tpaired1t).
 :- use_module(tpaired1tlow).
