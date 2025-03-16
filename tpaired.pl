@@ -104,7 +104,7 @@ task(pvalue)
         "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean HDRS ",
         "scores between baseline (T0) and End of Treatment (EOT)? ",
         "Please report ",
-	"the ", span(class('text-nowrap'), [\mmlm(p), "-value."]) ], 
+        "the two-tailed ", span(class('text-nowrap'), [\mmlm(p), "-value."]) ], 
 	pvalue, Resp)).
 
 % Question for the confidence interval
@@ -521,7 +521,7 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
 % Third step: Determine the two-tailed p-value
 expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
     X = twotailed(T, DF),
-    Y = pval(2 * pt(dist(T, "upper"), DF, tail("upper"))).
+    Y = pval(2 * pt(dist('T', T, "upper"), DF, tail("upper"))).
 
 feedback(pvalue, [], Col, F)
  => F = [ "Correctly determined the two-tailed ", 
