@@ -49,6 +49,8 @@ r_hook(lo).
 r_hook(var_pool/4). 
 mono((var_pool)/4, [+, /, +, /]).
 
+r_hook(tail/1).
+
 % Task description
 render
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha)) },
@@ -519,7 +521,7 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
 % Third step: Determine the two-tailed p-value
 expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
     X = twotailed(T, DF),
-    Y = 1 - pval(2 * pt(abs(T), DF)).
+    Y = pval(2 * pt(dist(T, "upper"), DF, tail("upper"))).
 
 feedback(pvalue, [], Col, F)
  => F = [ "Correctly determined the two-tailed ", 
