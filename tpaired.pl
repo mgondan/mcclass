@@ -491,15 +491,15 @@ expert(pvalue, stage(2), X, Y, [step(expert, paired, [])]) :-
           '<-'(p, twotailed(t, N-1))
         }.
 
- feedback(paired, [], Col, F)
-  => F = [ "Correctly recognised the problem as ",
-           "a ", \mmlm(Col, hyph(t, "test")), " for paired samples."
-         ].
+feedback(paired, [], Col, F)
+ => F = [ "Correctly recognised the problem as ",
+          "a ", \mmlm(Col, hyph(t, "test")), " for paired samples."
+        ].
 
- hint(paired, [], Col, F)
-  => F = [ "This is a ", \mmlm(Col, hyph(t, "test")), " for paired ",
-           "samples."
-         ].
+hint(paired, [], Col, F)
+ => F = [ "This is a ", \mmlm(Col, hyph(t, "test")), " for paired ",
+          "samples."
+        ].
 
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal)
@@ -508,37 +508,64 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
     X = paired(D, Mu, S_D, N),
     Y = dfrac(D - Mu, S_D / sqrt(N)).
 
- feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
-  => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
-           "paired samples."
-         ].
+feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
+ => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
+          "paired samples."
+        ].
 
- hint(tratio, [D, Mu, S_D, N], Col, F)
-  => F = [ "The ", \mmlm(Col, hyph(t, "ratio")), " ",
-           "is ", \mmlm(Col, [dfrac(D - Mu, S_D / sqrt(N)), "."])
-         ].
+hint(tratio, [D, Mu, S_D, N], Col, F)
+ => F = [ "The ", \mmlm(Col, hyph(t, "ratio")), " ",
+          "is ", \mmlm(Col, [dfrac(D - Mu, S_D / sqrt(N)), "."])
+        ].
 
 % Third step: Determine the two-tailed p-value
 expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
     X = twotailed(T, DF),
-    Y = pval(2 * pt(dist('T', T, "upper"), DF, tail("upper"))).
+    Y = pval(pt(dist('T', T, "two.sided"), DF, tail("two.sided"))).
 
 feedback(pvalue, [], Col, F)
  => F = [ "Correctly determined the two-tailed ", 
            span(class('text-nowrap'), [\mmlm(Col, p), "-value."])
-	].
+        ].
 
 hint(pvalue, [], Col, F)
  => F = [ "The two-tailed ", 
           span(class('text-nowrap'), [\mmlm(Col, p), "-value"]),
-          " must be determined." ].
-
+          " must be determined." 
+        ].
 
 %
-%% Buggy-Rules for the p-value task
+% Buggy-Rules for the p-value task
 %
+buggy(pvalue, stage(2), X, Y, [step(buggy, lower, [])]) :-
+    X = twotailed(T, DF),
+    Y = pval(pt(instead(lower, dist('T', T, "lower"), dist('T', T, "two.sided")),
+          DF, instead(lower, tail("lower"), tail("two.sided")))).
 
+feedback(lower, [], Col, F)
+ => F = [ "The result matches the lower ",
+          "one-tailed ", span(class('text-nowrap'), [\mmlm(Col, p), "-value."])
+        ].
 
+hint(lower, [], Col, F)
+ => F = [ "Do not report the lower one-tailed ",
+          span(class('text-nowrap'), [\mmlm(Col, p), "-value."])
+        ].
+
+buggy(pvalue, stage(2), X, Y, [step(buggy, upper, [])]) :-
+    X = twotailed(T, DF),
+    Y = pval(pt(instead(upper, dist('T', T, "upper"), dist('T', T, "two.sided")),
+          DF, instead(upper, tail("upper"), tail("two.sided")))).
+
+feedback(upper, [], Col, F)
+ => F = [ "The result matches the upper ",
+          "one-tailed ", span(class('text-nowrap'), [\mmlm(Col, p), "-value."])
+        ].
+
+hint(upper, [], Col, F)
+ => F = [ "Do not report the upper one-tailed ",
+          span(class('text-nowrap'), [\mmlm(Col, p), "-value."])
+        ].
 
 %
 % Confidence interval for a difference of paired samples 
