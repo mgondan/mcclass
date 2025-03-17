@@ -488,7 +488,8 @@ intermediate(pvalue, twotailed).
 expert(pvalue, stage(2), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu, _Alpha),
     Y = { '<-'(t, paired(D, Mu, S_D, N)) ;
-          '<-'(p, twotailed(t, N-1))
+          '<-'(p, twotailed(t, N-1)) ;
+	  pval(p)
         }.
 
 feedback(paired, [], Col, F)
@@ -521,7 +522,7 @@ hint(tratio, [D, Mu, S_D, N], Col, F)
 % Third step: Determine the two-tailed p-value
 expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
     X = twotailed(T, DF),
-    Y = pval(pt(dist('T', T, "two.sided"), DF, tail("two.sided"))).
+    Y = pt(dist('T', T, "two.sided"), DF, tail("two.sided")).
 
 feedback(pvalue, [], Col, F)
  => F = [ "Correctly determined the two-tailed ", 
@@ -537,10 +538,11 @@ hint(pvalue, [], Col, F)
 %
 % Buggy-Rules for the p-value task
 %
+% Lower tail
 buggy(pvalue, stage(2), X, Y, [step(buggy, lower, [])]) :-
     X = twotailed(T, DF),
-    Y = pval(pt(instead(lower, dist('T', T, "lower"), dist('T', T, "two.sided")),
-          DF, instead(lower, tail("lower"), tail("two.sided")))).
+    Y = pt(instead(lower, dist('T', T, "lower"), dist('T', T, "two.sided")),
+          DF, instead(lower, tail("lower"), tail("two.sided"))).
 
 feedback(lower, [], Col, F)
  => F = [ "The result matches the lower ",
@@ -552,10 +554,11 @@ hint(lower, [], Col, F)
           span(class('text-nowrap'), [\mmlm(Col, p), "-value."])
         ].
 
+% Upper tail
 buggy(pvalue, stage(2), X, Y, [step(buggy, upper, [])]) :-
     X = twotailed(T, DF),
-    Y = pval(pt(instead(upper, dist('T', T, "upper"), dist('T', T, "two.sided")),
-          DF, instead(upper, tail("upper"), tail("two.sided")))).
+    Y = pt(instead(upper, dist('T', T, "upper"), dist('T', T, "two.sided")),
+          DF, instead(upper, tail("upper"), tail("two.sided"))).
 
 feedback(upper, [], Col, F)
  => F = [ "The result matches the upper ",
@@ -565,6 +568,22 @@ feedback(upper, [], Col, F)
 hint(upper, [], Col, F)
  => F = [ "Do not report the upper one-tailed ",
           span(class('text-nowrap'), [\mmlm(Col, p), "-value."])
+        ].
+
+% Density instead of distribution
+buggy(pvalue, stage(2), X, Y, [step(buggy, density, [])]) :-
+    X = twotailed(T, DF),
+    Y = pt(instead(density, dist('T', T, "density"), dist('T', T, "two.sided")),
+          DF, instead(density, tail("density"), tail("two.sided"))).
+
+feedback(density, [], Col, F)
+ => F = [ "The result matches the density of ",
+          "the ", span(class('text-nowrap'), [\mmlm(Col, t), "-distribution."])
+        ].
+
+hint(density, [], Col, F)
+ => F = [ "Do not report the density of the ",
+          span(class('text-nowrap'), [\mmlm(Col, t), "-distribution."])
         ].
 
 %

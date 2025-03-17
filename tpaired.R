@@ -39,3 +39,14 @@ alpha  <- 0.05
 # Export data for download
 download <- function(fname)
   write.csv2(data, fname, row.names=FALSE)
+
+tail <- function(lower)
+{
+  if(lower == "lower")
+    return(TRUE)
+
+  if(lower == "upper")
+    return(FALSE)
+
+  stop("tail: argument must be 'upper' or 'lower'.")
+}
