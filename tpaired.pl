@@ -36,6 +36,7 @@ mathml:math_hook(var_pool(V1, N1, V2, N2), X) :-
 
 % R definitions
 r_hook(t).
+r_hook(p).
 r_hook(d).
 r_hook(mu).
 r_hook(s_d).
