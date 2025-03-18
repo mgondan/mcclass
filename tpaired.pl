@@ -614,7 +614,7 @@ hint(paired, [], Col, H)
 intermediate(cipaired, quant).
 expert(cipaired, stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N, Alpha])]) :-
     X = paired(D, Mu, S_D, N, Alpha),
-    Y = hdrs(pm(D, dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
+    Y = { hdrs(pm(D, dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))) }.
 
 feedback(ci_lower, [_D, _S_D, _N, _Alpha], _Col, F)					
  => F = [ "Correctly identified the formula for the upper and lower bound of ",
