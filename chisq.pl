@@ -1,6 +1,6 @@
 :- module(chisq, []).
 
-:- use_module(library(mcclass)).
+:- use_module(interval/interval).
 :- use_module(table).
 :- use_module(navbar).
 navbar:page(chisq, "chi-square").
