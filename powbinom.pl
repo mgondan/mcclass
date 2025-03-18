@@ -4,7 +4,7 @@
 :- use_module(library(http/html_write)).
 :- use_module(table).
 :- use_module(r_session).
-:- use_module(library(mcclass)).
+:- use_module(interval/interval).
 :- use_module(mathml).
 
 :- http_handler(mcclass(powbinom), handler(powbinom), []).

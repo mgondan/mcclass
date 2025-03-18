@@ -3,7 +3,7 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(r_session).
-:- use_module(library(mcclass)).
+:- use_module(interval/interval).
 :- use_module(mathml).
 
 :- discontiguous intermediate/1, expert/4, buggy/4, feedback/4, hint/4, r_hook/1.
