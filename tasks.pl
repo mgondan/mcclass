@@ -104,10 +104,12 @@ feedback(Topic, Task, Data, _Form)
       member(Expr-Res/Flags, Wrongs),
       colors(Expr, Col),
       interval(Num =@= Res, true, [topic(Topic), task(Task) | Col]),
+      http_log("Num-Res = ~w-~w~n", [Num, Res]),
       member(traps(Traps), Data),
       member(hints(Hints0), Data),
       append(Hints0, Hints1),
       sort(Hints1, Hints),
+      http_log("relevant Num-Res = ~w-~w~n", [Num, Res]),
       % relevant feedback
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
@@ -121,6 +123,7 @@ feedback(Topic, Task, Data, _Form)
                          ul(class('card-text'), ul(Correct0))
                        ])
       ),
+http_log("xx Num-Res = ~w-~w~n", [Num, Res]),
       findall(li(FB),
         ( member(step(buggy, Name, Args), Flags),
           memberchk(Name, Traps),
@@ -133,6 +136,7 @@ feedback(Topic, Task, Data, _Form)
                          ul(class('card-text'), ul(Wrong0))
                        ])
       ),
+http_log("irrelevant Num-Res = ~w-~w~n", [Num, Res]),
       % irrelevant feedback
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
@@ -146,6 +150,7 @@ feedback(Topic, Task, Data, _Form)
                          ul(class('card-text'), ul(Praise0))
                        ])
       ),
+http_log("blame Num-Res = ~w-~w~n", [Num, Res]),
       findall(li(FB),
         ( member(step(buggy, Name, Args), Flags),
           \+ memberchk(Name, Traps),
@@ -158,8 +163,10 @@ feedback(Topic, Task, Data, _Form)
                          ul(class('card-text'), ul(Blame0))
                        ])
       ),
+http_log("util = ~w-~w~n~w~n", [Num, Res, Expr]),
       util:expression_to_list(Expr, [topic(Topic), task(Task), error(fix) | Col], M1),
-      util:expression_to_list(Expr, [topic(Topic), task(Task), error(highlight) | Col], M2)
+      util:expression_to_list(Expr, [topic(Topic), task(Task), error(highlight) | Col], M2),
+http_log("done = ~w-~w~n", [Num, Res])
     },
     html(div(class(card),
       [ div(class('card-header text-white bg-warning'), "Careful"),
@@ -172,9 +179,8 @@ feedback(Topic, Task, Data, _Form)
           ])
       ])).
 
-feedback(Topic, Task, _Data, Form) -->
-  { http_log("Form: ~w~n", [Form]),
-    % option(resp(R), Form),
+feedback(Topic, Task, _Data, _Form) -->
+  { % option(resp(R), Form),
     session_data(resp(Topic, Task, R)),
     quantity(N, _Opt, R)
   },
