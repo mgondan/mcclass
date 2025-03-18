@@ -631,18 +631,20 @@ hint(ci_lower, [D, S_D, N, Alpha], Col, H)
 % Third step: Choose the correct quantile of the t-distribution
 expert(cipaired, stage(2), X, Y, [step(expert, tquant, [N, Alpha])]) :-
     X = quant(_D, _Mu, _S_D, N, Alpha),
-    Y = qt(1 - Alpha/2, N-1).
+    Y = qt(1 - Alpha/2, N - 1).
 
 feedback(tquant, [_N, Alpha], Col, F)
  => F = [ "Correctly used the ", 
           span(class('text-nowrap'), [\mmlm(Col, 1 - Alpha/2), "-quantile"]),
-          "of the ", span(class('text-nowrap'), [\mmlm(Col, t), "-distribution."])
+          " of the ", 
+          span(class('text-nowrap'), [\mmlm(Col, t), "-distribution."])
         ].
 
 hint(tquant, [_N, Alpha], Col, H)
  => H = [ "Make sure to use the ", 
           span(class('text-nowrap'), [\mmlm(Col, 1 - Alpha/2), "-quantile"]),
-          "of the ", span(class('text-nowrap'), [\mmlm(Col, t), "-distribution."])
+          " of the ", 
+          span(class('text-nowrap'), [\mmlm(Col, t), "-distribution."])
         ].
 
 %
@@ -651,13 +653,13 @@ hint(tquant, [_N, Alpha], Col, H)
 % Buggy-Rule: Use t-statistic instead of t-quantile
 buggy(cipaired, stage(2), X, Y, [step(buggy, tstat, [D, S_D, N, Mu, Alpha])]) :-
     X = quant(D, Mu, S_D, N, Alpha),
-    P = denote(t, dfrac(D - Mu, S_D / sqrt(N)), ["the observed", space, t, "-statistic."]),
-    Y = P. 
+    T = denote(t, dfrac(D - Mu, S_D / sqrt(N)), mrow(["the observed ", math(mi(t)), "-statistic"])),
+    Y = instead(tstat, T, qt(1 - Alpha/2, N - 1)).
 
 feedback(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, F)
  => F = [ "The result matches the confidence interval based on the observed ",
-          span(class('text-nowrap'), [\mmlm(Col, t), "-statistic."]), " Please use the quantile ",
-          "of the ", 
+          span(class('text-nowrap'), [\mmlm(Col, t), "-statistic."]), " ",
+          "Please use the quantile of the ", 
           span(class('text-nowrap'), [\mmlm(Col, t), "-distribution."]), " instead."
         ].
 
@@ -673,7 +675,7 @@ hint(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, H)
 % This rule may be dropped because we might not be able to distinguish the results.
 buggy(cipaired, stage(2), X, Y, [step(buggy, qnorm, [])]) :-
     X = quant(_D, _Mu, _S_D, N, Alpha),
-    Y = instead(qt, qnorm(1 - Alpha/2) , qt(1 - Alpha/2, N - 1)).
+    Y = instead(qnorm, qnorm(1 - Alpha/2), qt(1 - Alpha/2, N - 1)).
 
 feedback(qnorm, [], Col, F)
  => F = [ "The result matches the confidence interval based on the standard ",

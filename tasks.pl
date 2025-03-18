@@ -172,9 +172,8 @@ feedback(Topic, Task, Data, _Form)
           ])
       ])).
 
-feedback(Topic, Task, _Data, Form) -->
-  { http_log("Form: ~w~n", [Form]),
-    % option(resp(R), Form),
+feedback(Topic, Task, _Data, _Form) -->
+  { % option(resp(R), Form),
     session_data(resp(Topic, Task, R)),
     quantity(N, _Opt, R)
   },
