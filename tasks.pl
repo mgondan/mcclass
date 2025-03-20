@@ -8,12 +8,12 @@
 :- use_module(mathml).
 :- use_module(search).
 :- use_module(r_session).
-:- use_module(library(mcclass)).
+:- use_module(interval/interval).
 :- use_module(session).
 :- use_module(library(quantity)).
 
-user:term_expansion(mono(A, B), mcint:mono(A, B)).
-user:term_expansion(r_hook(A), mcint:r_hook(r_session:r_topic, A)).
+user:term_expansion(mono(A, B), rint:mono(A, B)).
+user:term_expansion(r_hook(A), rint:r_hook(r_session:r_topic, A)).
 
 :- use_module(debug).
 :- use_module(tpaired).

@@ -1,0 +1,13 @@
+---------
+2025-03-19 08:51:42 
+test1 | Inferences: 1360
+test2 | Inferences: 1131
+test3 | Inferences: 780
+test4 | Inferences: 827
+test5 | Inferences: 152
+test6 | Inferences: 691 | Levels=6
+test7 | Inferences: 803 | Levels=7
+test8 | Inferences: 915 | Levels=8
+test9 | Inferences: 1027 | Levels=9
+---------
+
