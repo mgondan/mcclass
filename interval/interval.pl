@@ -273,13 +273,13 @@ rint:input1(A, Res, Flags) :-
     MEps is -Eps,
     rint:interval_(A + MEps...Eps, Res, Flags).
 
-int_hook(input, input2(ci), ci, []).
-input2(ci(A, B), Res, Flags) :-
+rint:int_hook(input, input2(ci), ci, []).
+rint:input2(ci(A, B), Res, Flags) :-
     option(digits(D), Flags, 2),
     Eps is 10^(-D)/2,
     MEps is -Eps,
-    interval_(A + MEps...Eps, A1, Flags),
-    interval_(B + MEps...Eps, B1, Flags),
+    rint:interval_(A + MEps...Eps, A1, Flags),
+    rint:interval_(B + MEps...Eps, B1, Flags),
     Res = ci(A1, B1).
 
 %
