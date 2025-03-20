@@ -9,7 +9,7 @@
 :- use_module(mathml).
 
 :- use_module(navbar).
-navbar:page(debug, "debug").
+% navbar:page(debug, "debug").
 
 task(debugtask).
 label(debugtask, "for debugging").
