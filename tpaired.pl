@@ -653,7 +653,7 @@ hint(tquant, [_N, Alpha], Col, H)
 % Buggy-Rule: Use t-statistic instead of t-quantile
 buggy(cipaired, stage(2), X, Y, [step(buggy, tstat, [D, S_D, N, Mu, Alpha])]) :-
     X = quant(D, Mu, S_D, N, Alpha),
-    T = denote(t, dfrac(D - Mu, S_D / sqrt(N)), mrow(["the observed ", math(mi(t)), "-statistic"])),
+    T = denote(t, abs(dfrac(D - Mu, S_D / sqrt(N))), mrow(["the observed ", math(mi(t)), "-statistic"])),
     Y = instead(tstat, T, qt(1 - Alpha/2, N - 1)).
 
 feedback(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, F)
