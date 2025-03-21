@@ -2,21 +2,23 @@
 
 :- reexport(library(rint)).
 
+:- initialization(init).
+
+init :-
+    asserta(rint:instantiate(ci, ci(_, _))).
+
 % Evaluate variables in R
 rint:interval_hook(atomic(A), Res, _Flags) :-
     rint:r_hook(_R, A),
     !,
     rint:eval(A, Res1),
-    rint:clean(Res1, Res).
+    rint:clean(Res1, Res). 
 
 % Confidence intervals
-rint:int_hook(ci, ci0(_, _), ci, []).
-rint:ci0(A, B, Res, Flags) :-
+rint:interval_hook(ci(A, B), Res, Flags) :- 
     rint:interval_(A, A1, Flags),
     rint:interval_(B, B1, Flags),
     Res = ci(A1, B1).
-
-rint:instantiate(ci, ci(_, _)).
 
 %
 % Addition (for testing)
