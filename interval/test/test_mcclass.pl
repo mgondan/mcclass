@@ -305,6 +305,16 @@ test(onetailed_ninfpos) :-
     interval(ninfpos(A), Res),
     Res = ci(-1.0Inf, A).
 
+test(assign_ci1) :-
+    A = ci(5.1, 5.6),
+    interval(<-(ci,A), Res),
+    interval(r(ci), Res).
+
+test(assign_ci2) :-
+    A = ci(5.1...5.6, 5.9...6.5),
+    interval(<-(ci,A), Res),
+    interval(r(ci), Res).
+
 :- end_tests(ci).
 
 :- begin_tests(pm).

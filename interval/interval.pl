@@ -2,21 +2,34 @@
 
 :- reexport(library(rint)).
 
+:- initialization(init).
+
+init :-
+    asserta(rint:instantiate(ci, ci(_, _))).
+
 % Evaluate variables in R
 rint:interval_hook(atomic(A), Res, _Flags) :-
     rint:r_hook(_R, A),
     !,
     rint:eval(A, Res1),
-    rint:clean(Res1, Res).
+    rint:clean(Res1, Res). 
 
+%
 % Confidence intervals
-rint:int_hook(ci, ci0(_, _), ci, []).
-rint:ci0(A, B, Res, Flags) :-
+%
+rint:interval_hook(ci(A, B), Res, Flags) :- 
     rint:interval_(A, A1, Flags),
     rint:interval_(B, B1, Flags),
     Res = ci(A1, B1).
 
-rint:instantiate(ci, ci(_, _)).
+rint:int_hook(assign, assign3(atomic, ci), ci, []).
+rint:assign3(atomic(Var), ci(atomic(A), atomic(B)), Res, _Flags) :-
+    rint:eval(Var <- call("ci", A, B), Res1),
+    rint:clean(Res1, Res).
+
+rint:assign3(atomic(Var), ci(L1...U1, L2...U2), Res, _Flags) :-
+    rint:eval(Var <- call("ci", call("...", L1, U1), call("...", L2, U2)), Res1),
+    rint:clean(Res1, Res). 
 
 %
 % Addition (for testing)
@@ -317,3 +330,4 @@ rint:dist(_, X, _, Res, Flags) :-
 %
 rint:int_hook(tail, tail(atomic), atomic, []).
 rint:tail(A, A, _).
+
