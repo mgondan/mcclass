@@ -59,7 +59,6 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(cigroups), handler(cigroups), []).
 :- http_handler(mcclass(regression), handler(regression), []).
 
-:- http_handler(mcclass(debug), handler(debug), []).
 
 
 handler(Topic, Request) :-
