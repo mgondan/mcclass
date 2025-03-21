@@ -36,6 +36,7 @@ mathml:math_hook(t(DF), fn(t, [DF])).
 % R definitions
 r_hook(t).
 r_hook(d).
+r_hook(p).
 r_hook(mu).
 r_hook(s_d).
 r_hook(n).
@@ -47,7 +48,7 @@ r_hook(lo).
 r_hook(incr).
 
 r_hook(var_pool/4).
-mono((var_pool)/4, [+, /, +, /]).
+mono(var_pool/4, [+, /, +, /]).
 
  
 % Task description
@@ -118,7 +119,7 @@ task(cipaired)
 
 
 %
-%% Expert rules for the t-ratio task
+% Expert rules for the t-ratio task
 %
 % t-test for paired samples
 intermediate(tratio, item).
@@ -166,7 +167,7 @@ hint(tratio, [D, Mu, S_D, N], Col, F)
 
 
 %
-%% Buggy-Rules for the for the t-ratio task
+% Buggy-Rules for the for the t-ratio task
 %
 % Buggy-Rule: Omit the null hypothesis Mu
 % Misconception: Run the paired t-test against zero, that is, just test for a
@@ -455,7 +456,8 @@ intermediate(pvalue, onetailed).
 expert(pvalue, stage(2), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu, _Alpha),
     Y = { '<-'(t, paired(D, Mu, S_D, N)) ;
-          '<-'(p, onetailed(t, N-1))
+          '<-'(p, onetailed(t, N-1)) ;
+          pval(p)
         }.
 
 
@@ -495,7 +497,7 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
 % Third step: Determine the one-tailed p-value
 expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
     X = onetailed(T, DF),
-    Y = pval(pt(T, DF, false)).
+    Y = pt(T, DF, false).
 
 feedback(pvalue, [], Col, F)
  => F = [ "Correctly determined the one-tailed ", \mmlm(Col, hyph(p, "value.")) ].
@@ -511,7 +513,7 @@ hint(pvalue, [], Col, F)
 % Buggy-Rule: report the left-tail instead of the right-tail. 
 buggy(pvalue, stage(2), X, Y, [step(buggy, wrongtail, [DF])]) :-
      X = onetailed(T, DF),
-     Y = pval(pt(T, DF, true)).
+     Y = pt(T, DF, true).
 
 feedback(wrongtail, [DF], Col, F)
  => F = [ "The result matches the left-sided ", \mmlm(Col, hyph(p, "value.")), 
@@ -528,7 +530,7 @@ hint(wrongtail, [DF], Col, F)
 % the correct t-value and degrees of freedom (both left- and right-sided). So this should be a catch-all condition.
 buggy(pvalue, stage(2), X, Y, [step(buggy, wrong, [T, DF])]) :-
      X = onetailed(T, DF),
-     Y = pval(pt(T, DF, true)).
+     Y = pt(T, DF, true).
 
 feedback(wrong, [T, DF], Col, F)
  => F = [ "The result is not the ", \mmlm(Col, hyph(p, "value")), 
