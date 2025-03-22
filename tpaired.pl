@@ -660,7 +660,7 @@ feedback(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, F)
  => F = [ "The result matches the confidence interval based on the observed ",
           span(class('text-nowrap'), [\mmlm(Col, t), "-statistic."]), " ",
           "Please use the quantile of the ", 
-          span(class('text-nowrap'), [\mmlm(Col, t), "-distribution."]), " instead."
+          span(class('text-nowrap'), [\mmlm(Col, t), "-distribution"]), " instead."
         ].
 
 hint(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, H)
@@ -708,18 +708,35 @@ hint(spss, [Mu], Col, H)
         ].
 
 % Buggy-Rule: Use of N instead of sqrt(N)
-buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt1, [N])]) :-			
-    X = S_D / sqrt(N),
-    Y = S_D / omit_right(sqrt1, N^(1/2)).
+buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt3, [N])]) :-
+    X = dfrac(Q, S_D / sqrt(N)),
+    Y = dfrac(Q, S_D / omit_right(sqrt3, N^(1/2))).
 
-feedback(sqrt1, [N], Col, F)
- => F = [ "The result matches the confidence interval without square root around ", 
-          \mmlm(Col, [color(sqrt1, N), "."]), " Please do not forget the square root",
-          " around ", \mmlm(Col, [color(sqrt1, N), "."])
+feedback(sqrt3, [N], Col, F)
+ => F = [ "The result matches ",
+          "the ", span(class('text-nowrap'), [\mmlm(Col, t), "-ratio"]), " ",
+          "without the square root around ",
+          span(class('text-nowrap'), [\mmlm(Col, color(sqrt1, N)), "."])
         ].
 
-hint(sqrt1, [N], Col, H)
+hint(sqrt3, [N], Col, F)
+ => F = [ "Do not forget the square root around ",
+          span(class('text-nowrap'), [\mmlm(Col, color(sqrt3, N)), "."])
+        ].
+
+% Buggy-Rule: Use of N instead of sqrt(N)
+buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt4, [N])]) :-
+    X = dot(Q, S_D / sqrt(N)),
+    Y = dot(Q, S_D / omit_right(sqrt4, N^(1/2))).
+
+feedback(sqrt4, [N], Col, F)
+ => F = [ "The result matches the confidence interval without square root around ", 
+          \mmlm(Col, [color(sqrt4, N), "."]), " Please do not forget the square root",
+          " around ", \mmlm(Col, [color(sqrt4, N), "."])
+        ].
+
+hint(sqrt4, [N], Col, H)
  => H = [ "Do not forget the square root around ",
-          \mmlm(Col, [color(sqrt1, N), "."])
+          \mmlm(Col, [color(sqrt4, N), "."])
         ].
 
