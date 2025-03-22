@@ -30,17 +30,18 @@ colors(Expr, Flags) :-
     findall(color(B, C), (nth0(N, Bugs, B), N10 is N mod 10, nth0(N10, Colors, C)), Flags0),
     sort(Flags0, Flags).
 
+% color("dark").
+color("red").
+color("blue").
+color("green").
+color("indigo-600").
+color("pink").
+color("orange").
+color("teal-400").
+color("cyan").
+color("yellow-600").
+color("purple-300").
 color("dark").
-color("$blue").   % #0d6efd
-color("$indigo"). % #6610f2
-color("$purple"). % #6f42c1
-color("$pink").   % #d63384
-color("$red").    % #dc3545
-color("$orange"). % #fd7e14
-color("$yellow"). % #ffc107
-color("$green").  % #198754
-color("$teal").   % #20c997
-color("$cyan").   % #0dcaf0
 
 % Bugs
 bugs(Expr, Bugs) :-
