@@ -495,11 +495,11 @@ expert(pvalue, stage(2), X, Y, [step(expert, paired, [])]) :-
 
 feedback(paired, [], Col, F)
  => F = [ "Correctly recognised the problem as ",
-          "a ", \mmlm(Col, hyph(t, "test")), " for paired samples."
+          "a ", span(class('text-nowrap'), [\mmlm(Col, t, "test")]), " for paired samples."
         ].
 
 hint(paired, [], Col, F)
- => F = [ "This is a ", \mmlm(Col, hyph(t, "test")), " for paired ",
+ => F = [ "This is a ", span(class('text-nowrap'), [\mmlm(Col, t), "-test"]), " for paired ",
           "samples."
         ].
 
@@ -511,13 +511,14 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
     Y = dfrac(D - Mu, S_D / sqrt(N)).
 
 feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
- => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
+ => F = [ "Correctly identified the ", 
+          span(class('text-nowrap'), [\mmlm(Col, t), "-ratio"]), " for ",
           "paired samples."
         ].
 
 hint(tratio, [D, Mu, S_D, N], Col, F)
- => F = [ "The ", \mmlm(Col, hyph(t, "ratio")), " ",
-          "is ", \mmlm(Col, [dfrac(D - Mu, S_D / sqrt(N)), "."])
+ => F = [ "The ", span(class('text-nowrap'), [\mmlm(Col, t), "-ratio"]), " ",
+          "is ", span(class('text-nowrap'), [\mmlm(Col, dfrac(D - Mu, S_D / sqrt(N))), "."])
         ].
 
 % Third step: Determine the two-tailed p-value
@@ -731,12 +732,13 @@ buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt4, [N])]) :-
 
 feedback(sqrt4, [N], Col, F)
  => F = [ "The result matches the confidence interval without square root around ", 
-          \mmlm(Col, [color(sqrt4, N), "."]), " Please do not forget the square root",
-          " around ", \mmlm(Col, [color(sqrt4, N), "."])
+          span(class('text-nowrap'), [\mmlm(Col, color(sqrt4, N)), "."]), " Please ",
+	  "do not forget the square root",
+          " around ", span(class('text-nowrap'), [\mmlm(Col, color(sqrt4, N)), "."])
         ].
 
 hint(sqrt4, [N], Col, H)
  => H = [ "Do not forget the square root around ",
-          \mmlm(Col, [color(sqrt4, N), "."])
+          span(class('text-nowrap'), [\mmlm(Col, color(sqrt4, N)), "."])
         ].
 
