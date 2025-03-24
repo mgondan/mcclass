@@ -23,8 +23,8 @@ r_hook(n).
 r_hook(k).
 r_hook(p0).
 
-r_hook(factorial(_N)).
-r_hook(choose(_N, _K)).
+r_hook(factorial/1).
+r_hook(choose/2).
 mono((choose)/2, [+, +]).
 mono((factorial)/1, [+]).
 
