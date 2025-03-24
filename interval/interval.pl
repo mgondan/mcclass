@@ -331,3 +331,9 @@ rint:dist(_, X, _, Res, Flags) :-
 rint:int_hook(tail, tail(atomic), atomic, []).
 rint:tail(A, A, _).
 
+rint:int_hook(tail, tail(atomic, _), atomic, []).
+rint:tail(A, _, A, _Flags).
+
+rint:int_hook(arg, arg(_, _), _, [evaluate(false)]).
+rint:arg(A, _K, Res, Flags) :-
+  rint:interval_(A, Res, Flags).
