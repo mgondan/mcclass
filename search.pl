@@ -55,9 +55,9 @@ searchdep(Topic, Task, Expr_Res_Flags) :-
         dependencies(S),            % check dependencies here
         exclusive(S),
         codes(S, C),
-	interval_ex(E, R, [topic(Topic), task(Task)])
-%        interval(E, R, [topic(Topic), task(Task)]),
-%        interval(available(R), true)
+	      interval_ex(E, R, [topic(Topic), task(Task)]),
+%       interval(E, R, [topic(Topic), task(Task)]),
+        interval(available(R), true)
       ), Results),
     sort(2, @<, Results, Sorted),
     findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
@@ -72,10 +72,8 @@ searchall(Topic, Task, Expr_Res_Flags) :-
     findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
 
 interval_ex(E, R, Flags) :-
-    interval(E, R0, Flags),
-    interval(available(R0), true),
-    !,
-    R = R0.
+    interval(E, R, Flags),
+    !.
 
 interval_ex(E, _, _) :-
   throw(error(existence_error(interval, E), E)).
