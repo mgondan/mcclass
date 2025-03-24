@@ -38,12 +38,6 @@ cbinom = function(Alpha, N, Pi, Tail, Arg)
   stop("Wrong Tail or Arg")
 }
 
-tail = function(Tail, K)
-  return(Tail)
-
-arg = function(Arg, K)
-  return(Arg)
-
 library(ggplot2)
 library(svglite)
 

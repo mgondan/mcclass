@@ -21,16 +21,9 @@ r_hook(n).
 r_hook(p0).
 r_hook(k).
 
-r_hook(uqbinom(_Alpha, _Size, _Prob)).
-r_hook(lqbinom(_Alpha, _Size, _Prob)).
-r_hook(tail(_Tail, _K)).
-r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
-r_hook(pbinom(_Q, _Size, _Prob)).
-r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
-
-mcint:int_hook(arg, arg(_, _), _, [evaluate(false)]).
-mcint:arg(A, _K, Res, Flags) :-
-  mcint:interval_(A, Res, Flags).
+r_hook(uqbinom/3).
+r_hook(lqbinom/3).
+r_hook(cbinom/5).
 
 render
 --> { start(item(_Alpha, N, P0)), 
@@ -102,7 +95,7 @@ hint(lower, [], _Col, Hint)
 % Critical value based on distribution
 expert(amountsuccess, stage(2), From, To, [step(expert, dist, [])]) :-
     From = binom(Alpha, N, P0, Tail, Arg),
-    To   = cbinom(Alpha, N, P0, Tail, Arg).
+    To   = r(cbinom(Alpha, N, P0, Tail, Arg)).
 
 feedback(dist, [], _Col, Feed)
  => Feed = [ "Correctly used the critical value of the cumulative ",
