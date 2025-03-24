@@ -19,6 +19,7 @@ r_hook(x).
 r_hook(sigma).
 r_hook(z).
 r_hook(p).
+r_hook(mu).
 
 render
 --> {start(item(_P, Mu, Sigma)) },
