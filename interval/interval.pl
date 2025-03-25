@@ -337,3 +337,25 @@ rint:tail(A, _, A, _Flags).
 rint:int_hook(arg, arg(_, _), _, [evaluate(false)]).
 rint:arg(A, _K, Res, Flags) :-
   rint:interval_(A, Res, Flags).
+
+
+%
+% cbinom
+%
+rint:r_hook(r_session:r_topic, ldbinom/3).
+rint:r_hook(r_session:r_topic, udbinom/3).
+rint:mono(udbinom/3, [-, +, +]).
+rint:mono(ldbinom/3, [+, +, +]).
+
+rint:int_hook(cbinom, cbinom0(_, _, _, atomic, atomic), _, []).
+rint:cbinom0(Alpha, N, Pi, atomic("upper"), atomic("min"), Res, Flags) :-
+    rint:interval_(qbinom(Alpha, N, Pi, atomic(false)) + atomic(1), Res, Flags).
+
+rint:cbinom0(Alpha, N, Pi, atomic("lower"), atomic("max"), Res, Flags) :-
+    rint:interval_(qbinom(Alpha, N, Pi, atomic(true)) - atomic(1), Res, Flags).
+
+rint:cbinom0(Alpha, N, Pi, atomic("equal"), atomic("min"), Res, Flags) :-
+    rint:interval_(udbinom(Alpha, N, Pi), Res, Flags).
+
+rint:cbinom0(Alpha, N, Pi, atomic("equal"), atomic("max"), Res, Flags) :-
+    rint:interval_(ldbinom(Alpha, N, Pi), Res, Flags).
