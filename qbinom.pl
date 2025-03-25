@@ -23,7 +23,6 @@ r_hook(k).
 
 r_hook(uqbinom/3).
 r_hook(lqbinom/3).
-r_hook(cbinom/5).
 
 render
 --> { start(item(_Alpha, N, P0)), 
@@ -95,7 +94,7 @@ hint(lower, [], _Col, Hint)
 % Critical value based on distribution
 expert(amountsuccess, stage(2), From, To, [step(expert, dist, [])]) :-
     From = binom(Alpha, N, P0, Tail, Arg),
-    To   = r(cbinom(Alpha, N, P0, Tail, Arg)).
+    To   = cbinom(Alpha, N, P0, Tail, Arg).
 
 feedback(dist, [], _Col, Feed)
  => Feed = [ "Correctly used the critical value of the cumulative ",

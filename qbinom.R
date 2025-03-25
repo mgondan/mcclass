@@ -21,23 +21,6 @@ ldbinom = function(Alpha, N, Pi)
   sum(v <= Alpha) - 1L
 }
 
-cbinom = function(Alpha, N, Pi, Tail, Arg)
-{
-  if(Tail == "upper" & Arg == "min")
-    return(uqbinom(Alpha, N, Pi))
-
-  if(Tail == "lower" & Arg == "max")
-    return(lqbinom(Alpha, N, Pi))
-
-  if(Tail == "equal" & Arg == "min")
-    return(udbinom(Alpha, N, Pi))
-
-  if(Tail == "equal" & Arg == "max")
-    return(ldbinom(Alpha, N, Pi))
-
-  stop("Wrong Tail or Arg")
-}
-
 library(ggplot2)
 library(svglite)
 
