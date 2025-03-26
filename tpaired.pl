@@ -59,7 +59,7 @@ render
       div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Phase II clinical study"),
           p(class('card-text'),
-            [ "Consider a clinical study on rumination-focused Cognitive",
+            [ "Consider a clinical study on rumination-focused Cognitive ",
               "Behavioral Therapy (rfCBT) with ",
               \mmlm(N = r(N)), " patients. The primary ",
               "outcome is the score on the Hamilton Rating Scale for ", 

@@ -331,8 +331,12 @@ rint:dist(_, X, _, Res, Flags) :-
 rint:int_hook(tail, tail(atomic), atomic, []).
 rint:tail(A, A, _).
 
-rint:int_hook(tail, tail(atomic, _), atomic, []).
-rint:tail(A, _, A, _Flags).
+rint:int_hook(upper, upper(_), atomic, []).
+rint:upper(_, atomic("upper"), _Flags).
+rint:int_hook(lower, lower(_), atomic, []).
+rint:lower(_, atomic("lower"), _Flags).
+rint:int_hook(densi, densi(_), atomic, []).
+rint:densi(_, atomic("densi"), _Flags).
 
 rint:int_hook(arg, arg(_, _), _, [evaluate(false)]).
 rint:arg(A, _K, Res, Flags) :-
@@ -353,10 +357,10 @@ rint:cbinom0(Alpha, N, Pi, atomic("upper"), atomic("min"), Res, Flags) :-
 rint:cbinom0(Alpha, N, Pi, atomic("lower"), atomic("max"), Res, Flags) :-
     rint:interval_(qbinom(Alpha, N, Pi, atomic(true)) - atomic(1), Res, Flags).
 
-rint:cbinom0(Alpha, N, Pi, atomic("equal"), atomic("min"), Res, Flags) :-
+rint:cbinom0(Alpha, N, Pi, atomic("densi"), atomic("min"), Res, Flags) :-
     rint:interval_(udbinom(Alpha, N, Pi), Res, Flags).
 
-rint:cbinom0(Alpha, N, Pi, atomic("equal"), atomic("max"), Res, Flags) :-
+rint:cbinom0(Alpha, N, Pi, atomic("densi"), atomic("max"), Res, Flags) :-
     rint:interval_(ldbinom(Alpha, N, Pi), Res, Flags).
 
 %
@@ -369,5 +373,5 @@ rint:pwbinom0(Crit, N, Pi, atomic("lower"), Res, Flags) :-
 rint:pwbinom0(Crit, N, Pi, atomic("upper"), Res, Flags) :-
     rint:interval_(pbinom(Crit - atomic(1), N, Pi, atomic(false)), Res, Flags).
 
-rint:pwbinom0(Crit, N, Pi, atomic("equal"), Res, Flags) :-
+rint:pwbinom0(Crit, N, Pi, atomic("densi"), Res, Flags) :-
     rint:interval_(dbinom(Crit, N, Pi), Res, Flags).
