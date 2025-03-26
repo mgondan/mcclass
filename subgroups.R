@@ -79,12 +79,14 @@ ancova_p = function(Prim, Cov, Strata, Other, Int, Ex, Main)
 
 
 library(emmeans)
-ancova_ci = function(Prim, Cov, Strata, Other, Int, Ex, Main) {
-  Predictors = paste(c(Cov, Strata, Int, list(Main)), collapse="+")
+ancova_ci = function(Prim, Cov, Strata, Other, Int, Ex, Main)
+{
+  Predictors = paste(c(Cov, Strata, list(Main)), collapse="+")
   formula = sprintf("%s ~ %s", Prim, Predictors)
-  m = lm(formula, data=data)
-  ci <- as.data.frame(confint(emmeans(m, "Therapy", contr = 'trt.vs.ctrl1')))
-  lower <- round(ci[1, "contrasts.lower.CL"], digits = 1)
-  upper <- round(ci[1, "contrasts.upper.CL"], digits = 1)
-  return(call("ci", lower, upper))
+  m <- lm(formula, data=data)
+  emm <- emmeans(m, Main, contr="trt.vs.ctrl1")
+  ci <- confint(emm)$contrasts
+  lower <- ci[1, "lower.CL"]
+  upper <- ci[1, "upper.CL"]
+  call("ci", lower, upper)
 }
