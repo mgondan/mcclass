@@ -21,9 +21,6 @@ r_hook(n).
 r_hook(p0).
 r_hook(k).
 
-r_hook(uqbinom/3).
-r_hook(lqbinom/3).
-
 render
 --> { start(item(_Alpha, N, P0)), 
       binomtable(N, P0, Caption, Rows, Cols, Cells) 

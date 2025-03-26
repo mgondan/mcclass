@@ -5,7 +5,7 @@
 :- use_module('../interval').
 
 test_mcclass :-
-    run_tests([fractions, number_digit, bugs, multiply, available, equality, plus, ci, pm, denote, color, semicolon, curly]).
+    run_tests([fractions, number_digit, bugs, multiply, available, equality, plus, ci, pm, denote, color, semicolon, curly, cbinom, pwbinom]).
 
 :- begin_tests(fractions).
 
@@ -376,6 +376,50 @@ test(curly1) :-
     Res = 3. 
 
 :- end_tests(curly).
+
+:- begin_tests(cbinom).
+
+test(cbinom1) :-
+    interval(cbinom(0.5, 20, 0.7, "upper", "min"), Res),
+    Res = 15.0. 
+
+test(cbinom2) :-
+    interval(cbinom(0.5, 20, 0.7, "lower", "max"), Res),
+    Res = 13.0. 
+
+test(cbinom3) :-
+    interval(cbinom(0.5...0.6, 20...21, 0.7...0.8, "upper", "min"), Res),
+    Res = 15.0...18.0. 
+
+test(cbinom4) :-
+    interval(cbinom(0.5...0.6, 20...21, 0.7...0.8, "lower", "max"), Res),
+    Res = 13.0...16.0. 
+
+:- end_tests(cbinom).
+
+:- begin_tests(pwbinom).
+
+test(pwbinom1) :-
+    interval(pwbinom(10, 20, 0.7, "lower"), Res),
+    equal(Res, 0.0479...0.0480).
+
+test(pwbinom2) :-
+    interval(pwbinom(10, 20, 0.7, "upper"), Res),
+    equal(Res, 0.9828...0.9829).
+
+test(pwbinom3) :-
+    interval(pwbinom(10, 20, 0.7, "equal"), Res),
+    equal(Res, 0.0308...0.0309).
+
+test(pwbinom4) :-
+    interval(pwbinom(10, 20, 0.7...0.8, "lower"), Res),
+    equal(Res, 0.0025...0.0480).
+
+test(pwbinom5) :-
+    interval(pwbinom(10, 20, 0.7...0.8, "upper"), Res),
+    equal(Res, 0.9828...0.9995).
+
+:- end_tests(pwbinom).
 
 % Helper predicate to check equality
 equal(Res0, Res) :-

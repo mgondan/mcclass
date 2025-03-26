@@ -21,8 +21,6 @@ mathml:math_hook(p1, subscript(pi, 1)).
 mathml:math_hook(crit, c).
 mathml:math_hook(power, 'Pwr').
 mathml:math_hook(n, 'N').
-mathml:math_hook(tail1(Tail, K), tail(Tail, K)).
-mathml:math_hook(tail2(Tail, K), tail(Tail, K)).
 
 % R definitions
 r_hook(alpha).
@@ -31,21 +29,6 @@ r_hook(p0).
 r_hook(p1).
 r_hook(k).
 r_hook(crit).
-
-% Todo: update definitions to new pattern mcint:r_hook(Name/Arity)
-r_hook(uqbinom(_Alpha, _Size, _Prob)).
-r_hook(lqbinom(_Alpha, _Size, _Prob)).
-r_hook(tail1(_Tail, _K)).
-r_hook(tail2(_Tail, _K)).
-r_hook(arg(_Arg, _K)).
-r_hook(cbinom(_Alpha, _Size, _Prob, _Tail, _Arg)).
-r_hook(pwbinom(_Crit, _Size, _Prob, _Tail)).
-r_hook(pbinom(_Q, _Size, _Prob)).
-r_hook(pbinom(_Q, _Size, _Prob, _Tail)).
-
-/* mcint:int_hook(arg, arg(_, _), _, []).
-mcint:arg(A, _K, Res, Flags) :-
-  mcint:interval_(A, Res, Flags). */
 
 % Task description
 render
@@ -106,7 +89,7 @@ hint(problem, [], _Col, Hint) =>
 % binomial distribution.
 expert(powbinom, stage(2), From, To, [step(expert, upper1, [])]) :-
     From = crit(Alpha, N, P0),
-    To   = crit(Alpha, N, P0, tail1("upper", k), arg("min", k > N*P0)).
+    To   = crit(Alpha, N, P0, tail("upper", k), arg("min", k > N*P0)).
 
 feedback(upper1, [], _Col, Feed)
  => Feed = [ "Correctly determined the critical value from the upper tail of ",
@@ -136,7 +119,7 @@ hint(dist1, [], _Col, Hint)
 % Fourth step: Determine the power based on upper tail
 expert(powbinom, stage(2), From, To, [step(expert, upper2, [])]) :-
     From = power(Crit, N, P1),
-    To   = power(Crit, N, P1, tail2("upper", Crit)).
+    To   = power(Crit, N, P1, tail("upper", Crit)).
 
 feedback(upper2, [], _Col, Feed)
  => Feed = [ "Correctly selected the upper tail of cumulative distribution ",
@@ -170,7 +153,7 @@ hint(dist2, [], _Col, Hint)
 % binomial distribution.
 buggy(powbinom, stage(2), From, To, [step(buggy, lower1, [])]) :-
     From = crit(Alpha, N, P0),
-    To   = crit(Alpha, N, P0, instead(lower1, tail1("lower", k), tail1("upper", k)),
+    To   = crit(Alpha, N, P0, instead(lower1, tail("lower", k), tail("upper", k)),
                 instead(lower1, arg("max", k < N*P0), arg("min", k > N*P0))).
 
 feedback(lower1, [], _Col, Feed)
@@ -186,15 +169,15 @@ hint(lower1, [], _Col, Hint)
 
 % Buggy- Rule: Critical value based on density = not cumulated
 buggy(powbinom, stage(2), From, To, [step(buggy, dens1, [K])]) :-
-    From = tail1(Tail, K),
+    From = tail(Tail, K),
     member(Tail, ["upper", "lower"]),
-    To = instead(dens1, tail1("equal", K), tail1("upper", K)).
+    To = instead(dens1, tail("equal", K), tail("upper", K)).
 
 feedback(dens1, [K], Col, Feed)
  => Feed = [ "The result matches the critical value based on the binomial ",
-             "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens1, tail1("equal", K))]), "."]),
+             "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens1, tail("equal", K))]), "."]),
              "Please calculate the critical value based on the cumulative ",
-             "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [tail1("upper", K)]), "."])
+             "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [tail("upper", K)]), "."])
            ].
 
 hint(dens1, [_K], _Col, Hint)
@@ -205,7 +188,7 @@ hint(dens1, [_K], _Col, Hint)
 % Buggy-Rule: Power based on lower tail (wrong tail for power)
 buggy(powbinom, stage(2), From, To, [step(buggy, lower2, [])]) :-
     From = power(Crit, N, P1),
-    To   = power(Crit, N, P1, instead(lower2, tail2("lower", k), tail2("upper", k))).
+    To   = power(Crit, N, P1, instead(lower2, tail("lower", k), tail("upper", k))).
 
 feedback(lower2, [], _Col, Feed)
  => Feed = ["The result matches the Power based on the lower critical ",
@@ -220,15 +203,15 @@ hint(lower2, [], _Col, Hint)
 
 % Buggy- Rule: Critical value based on density
 buggy(powbinom, stage(2), From, To, [step(buggy, dens2, [C])]) :-
-    From = tail2(Tail, C),
+    From = tail(Tail, C),
     member(Tail, ["upper", "lower"]),
-    To = instead(dens2, tail2("equal", C), tail2("upper", C)).
+    To = instead(dens2, tail("equal", C), tail("upper", C)).
 
 feedback(dens2, [C], Col, Feed)
  => Feed = [ "The result matches the Power based on the binomial probability, ",
-             \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens2, tail2("equal", C))]), "."]),
+             \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens2, tail("equal", C))]), "."]),
              "Please report the power based on the cumulative ",
-             "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [tail2("upper", C)]), "."])
+             "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [tail("upper", C)]), "."])
            ].
 
 hint(dens2, [_C], _Col, Hint)
