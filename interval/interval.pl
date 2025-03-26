@@ -338,7 +338,6 @@ rint:int_hook(arg, arg(_, _), _, [evaluate(false)]).
 rint:arg(A, _K, Res, Flags) :-
   rint:interval_(A, Res, Flags).
 
-
 %
 % cbinom
 %
@@ -359,3 +358,16 @@ rint:cbinom0(Alpha, N, Pi, atomic("equal"), atomic("min"), Res, Flags) :-
 
 rint:cbinom0(Alpha, N, Pi, atomic("equal"), atomic("max"), Res, Flags) :-
     rint:interval_(ldbinom(Alpha, N, Pi), Res, Flags).
+
+%
+% pwbinom
+%
+rint:int_hook(pwbinom, pwbinom0(_, _, _, atomic), _, []).
+rint:pwbinom0(Crit, N, Pi, atomic("lower"), Res, Flags) :-
+    rint:interval_(pbinom(Crit, N, Pi), Res, Flags).
+
+rint:pwbinom0(Crit, N, Pi, atomic("upper"), Res, Flags) :-
+    rint:interval_(pbinom(Crit - atomic(1), N, Pi, atomic(false)), Res, Flags).
+
+rint:pwbinom0(Crit, N, Pi, atomic("equal"), Res, Flags) :-
+    rint:interval_(dbinom(Crit, N, Pi), Res, Flags).
