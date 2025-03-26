@@ -293,7 +293,7 @@ hint(interactions, [_Int], _Col, H)
 
 % Step 6: Apply linear regression
 expert(fratio, stage(2), X, Y, [step(expert, ancova, [Therapy])]) :-
-    X = baseline4(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
+    X = baseline5(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Y = ancova_f(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
 feedback(ancova, [Therapy], Col, F)
@@ -482,7 +482,7 @@ hint(interactions, [_Int], _Col, H)
 %step 6 / calculating the model
 intermediate(pvalue, ancova). 
 expert(pvalue, stage(2), X, Y, [step(expert, ancova, [Therapy])]) :-
-    X = baseline4(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
+    X = baseline5(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Y = ancova_p(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
 feedback(ancova, [Therapy], Col, F)
@@ -662,7 +662,7 @@ hint(noint, [_Int], _Col, H)
 
 % Step 6 / calculating the model
 expert(cibase, stage(2), X, Y, [step(expert, ancova, [Therapy])]) :-
-    X = baseline4(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
+    X = baseline5(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Y = ancova_ci(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
 feedback(ancova, [Therapy], Col, F)

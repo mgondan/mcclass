@@ -111,13 +111,14 @@ rint:int_hook(drop_left, drop_left(_, _), _, [evaluate(false)]).
 rint:drop_left(Bug, A, Res, Flags) :-
     rint:left(Bug, A, Res, Flags).
 
-% add_left, add_right
+% add_left, add_right, add
 rint:int_hook(add_right, add(_, _), _, [evaluate(false)]).
 rint:add(_Bug, A, Res, Flags) :-
     rint:interval_(A, Res, Flags).
 
 rint:int_hook(add_left, add(_, _), _, [evaluate(false)]).
 
+rint:int_hook(add, add(_, _), _, [evaluate(false)]).
 %
 % Multiply
 %
@@ -174,6 +175,9 @@ rint:avail4(ci(A, B), Res, Flags)
     -> Res = true
     ;  Res = false
     ). 
+
+rint:int_hook(available1, avail5(_), _, []).
+rint:avail5([], true, _Flags).
 
 rint:int_hook(=@=, equal0(_, _), _, []).
 rint:equal0(A, pval(B), Res, Flags) :-

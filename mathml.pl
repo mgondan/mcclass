@@ -491,3 +491,10 @@ mathml:math_hook(pm(A, B), M) :-
 
 mathml:math_hook(ci(A, B), M) :-
     M = [A, "to", B].
+
+
+%
+% Empty list
+%
+mathml:math_hook([], M) :-
+    M = "".
