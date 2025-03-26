@@ -408,7 +408,7 @@ test(pwbinom2) :-
     equal(Res, 0.9828...0.9829).
 
 test(pwbinom3) :-
-    interval(pwbinom(10, 20, 0.7, "equal"), Res),
+    interval(pwbinom(10, 20, 0.7, "densi"), Res),
     equal(Res, 0.0308...0.0309).
 
 test(pwbinom4) :-
