@@ -9,17 +9,17 @@
 
 :- use_module(navbar).
 navbar:page(qbinom, "Binomial test").
-task(amountsuccess).
+task(critical).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 mathml:math_hook(p0, subscript(pi, 0)).
 mathml:math_hook(n, 'N').
-mathml:math_hook(upper(K), M) :-
+mathml:math_hook(tail(upper, K), M) :-
     M = ('X' >= K).
-mathml:math_hook(lower(K), M) :-
+mathml:math_hook(tail(lower, K), M) :-
     M = ('X' =< K).
-mathml:math_hook(densi(K), M) :-
+mathml:math_hook(tail(densi, K), M) :-
     M = ('X' = K).
 mathml:math_hook(cbinom(Alpha, N, Pi, Tail, MinArg), M) :-
     M = (nodot(MinArg, fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])) =< Alpha)).
@@ -49,20 +49,20 @@ render
         ]))
       ]).
 
-task(amountsuccess)
+task(critical)
 --> { start(item(Alpha, _N, _P0)),
-      session_data(resp(qbinom, amountsuccess, Resp), resp(qbinom, amountsuccess, '#'))
+      session_data(resp(qbinom, critical, Resp), resp(qbinom, critical, '#'))
     },
     html(\htmlform([ "How many successes are needed to rule out the null ",
       "hypothesis at the one-tailed significance level ",
-      "of ", \mmlm(alpha = r(Alpha)), "?"], amountsuccess, Resp)).
+      "of ", \mmlm(alpha = r(Alpha)), "?"], critical, Resp)).
 
-intermediate(amountsuccess, item).
+intermediate(critical, item).
 start(item(alpha, n, p0)).
 
 % This is a problem that involves the binomial test 
-intermediate(amountsuccess, binom).
-expert(amountsuccess, stage(2), From, To, [step(expert, binom, [])]) :-
+intermediate(critical, binom).
+expert(critical, stage(2), From, To, [step(expert, binom, [])]) :-
     From = item(Alpha, N, P0),
     To   = { round(binom(Alpha, N, P0)) }.
 
@@ -73,9 +73,9 @@ hint(binom, [], _Col, H) =>
     H = [ "This problem is solved with a binomial test." ].
 
 % Upper tail of the binomial distribution
-expert(amountsuccess, stage(2), From, To, [step(expert, upper, [])]) :-
+expert(critical, stage(2), From, To, [step(expert, upper, [])]) :-
     From = binom(Alpha, N, P0),
-    To   = binom(Alpha, N, P0, upper(k), arg("min", k > N*P0)).
+    To   = binom(Alpha, N, P0, tail(upper, k), arg("min", k > N*P0)).
 
 feedback(upper, [], _Col, F)
  => F = [ "Correctly selected the upper tail of the binomial distribution." ].
@@ -84,21 +84,23 @@ hint(upper, [], _Col, H)
  => H = [ "The upper tail of the binomial distribution is needed." ].
 
 % Lower tail of the binomial distribution
-buggy(amountsuccess, stage(2), From, To, [step(buggy, lower, [])]) :-
+buggy(critical, stage(2), From, To, [step(buggy, lower, [])]) :-
     From = binom(Alpha, N, P0),
-    To   = binom(Alpha, N, P0, instead(lower, lower(k), upper(k)),
+    To   = binom(Alpha, N, P0, instead(lower, tail(lower, k), tail(upper, k)),
            instead(lower, arg("max", k < N*P0), arg("min", k > N*P0))).
 
 feedback(lower, [], _Col, F)
  => F = [ "The result matches the lower tail of the binomial ",
           "distribution." 
-        ].
+       ].
 
 hint(lower, [], _Col, H)
- => H = [ "Select the upper tail of the binomial distribution." ].
+ => H = [ "Select the upper tail of the binomial distribution, ",
+          "not the lower tail."
+        ].
 
 % Critical value based on distribution
-expert(amountsuccess, stage(2), From, To, [step(expert, dist, [])]) :-
+expert(critical, stage(2), From, To, [step(expert, dist, [])]) :-
     From = binom(Alpha, N, P0, Tail, Arg),
     To   = cbinom(Alpha, N, P0, Tail, Arg).
 
@@ -113,40 +115,22 @@ hint(dist, [], _Col, H)
         ].
 
 % Critical value based on density
-buggy(amountsuccess, stage(3), From, To, [step(buggy, dens1, [K])]) :-
-    From = upper(K),
-    To = instead(dens1, densi(K), upper(K)).
+buggy(critical, stage(2), From, To, [step(buggy, dens1, [Tail, K])]) :-
+    From = tail(Tail, K),
+    To = instead(dens1, tail(densi, K), tail(Tail, K)).
 
-feedback(dens1, [K], Col, F)
+feedback(dens1, [Tail, K], Col, F)
  => F = [ "The result matches the critical value based on the binomial ",
           "probability, ", 
-	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, densi(K))])), "."]), " ",
+	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail(densi, K))])), "."]), " ",
           "Please report the critical value based on the cumulative ",
           "distribution, ", 
-	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [upper(K)])), "."])
+	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail(Tail, K)])), "."])
         ].
 
 hint(dens1, [_K], _Col, H)
  => H = [ "Use the cumulative distribution to determine the critical value, ",
           "not the density."
-        ].
-
-buggy(amountsuccess, stage(3), From, To, [step(buggy, dens2, [K])]) :-
-    From = lower(K),
-    To = instead(dens2, densi(K), lower(K)).
-
-feedback(dens2, [K], Col, F)
- => F = [ "The result matches the critical value based on the binomial ",
-          "probability, ",
-          span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, densi(K))])), "."]), " ",
-          "Please report the critical value based on the cumulative ",
-          "distribution, ",
-          span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [lower(K)])), "."])
-        ].
-
-hint(dens2, [_K], _Col, H)
- => H = [ "Use the cumulative distribution to determine the critical value, ",
-          "not the density"
         ].
 
 % Helper function(s)
