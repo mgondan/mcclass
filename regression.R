@@ -1,52 +1,50 @@
-regression_data = function(seed)
+x <- "Sleep"
+y <- "Depression"
+n = sample(100:150, size=1)
+
+generate.data = function(seed)
 {
   set.seed(seed)
-  N = sample(100:150, size=1)
-  Sleep = round(rnorm(N, mean=5.5, sd=1.5), 1)
-  Dep = round(rnorm(N, mean=30 - 1.8 * Sleep, sd=6), 1)
-  d = data.frame(ID=1:N, Sleep, Dep)
+  sleep = round(rnorm(n, mean=5.5, sd=1.5), 1)
+  dep = round(rnorm(n, mean=30 - 1.8 * sleep + rnorm(n, mean=1, sd=8), sd=6), 1)
+  d <- setNames(data.frame(sleep, dep), c(x, y))
   
   #Inclusion criteria
-  d = d[d$Dep > 15 & d$Dep < 45, ]
-
+  d = d[d[[y]] > 0 & d[[y]] < 42, ]
   return(d)
 }
 
-
-data        <- regression_data(seed = sample(1:10000, 1))
-n           <- nrow(data)
-sleep       <- data$Sleep
-mean_Sleep  <- mean(data$Sleep)
-sd_Sleep    <- sd(data$Sleep)
-dep       <- data$Dep
-mean_Dep    <- mean(data$Dep)
-sd_Dep      <- sd(data$Dep)
-
-# Coefficients
-
-bcoef <- function(Dep, Sleep)
+get.models <- function(d)
 {
-
-    m <- lm(Dep ~ Sleep, data=data)
-    coef(m)[2]
-
+  correct <- sprintf("%s ~ %s", y, x)
+  switched <- sprintf("%s ~ %s", x, y)
+  setNames(list(lm(correct, data=d),lm(switched, d=data)),
+  c(correct, switched))
 }
 
+data <- generate.data(seed = sample(1:10000, 1))
 
-intercept <- function(DV, IV)
+models <- get.models(data)
+
+# Extract value from model 
+lm0 <- function(y, x, index)
 {
-
-    m <- lm(DV ~ IV, data=data)
-
-    coef(m)[1]
-
+  formula <- sprintf("%s ~ %s", y, x)
+  m <- models[[formula]]
+  
+  if (index == "intercept") {
+    return(coef(m)[1])
+  }
+  if (index == "coef") {
+    return(coef(m)[2])
+  }
+  if (index == "pval:coef") {
+    return( summary(m)$coefficients[x, "Pr(>|t|)"])
+  }
+  if (index == "pval:intercept") {
+    return( summary(m)$coefficients["(Intercept)", "Pr(>|t|)"])
+  }
 }
-
-# Correlation
-#cor_value   <- cor(data$Sleep, data$Dep)
-
-# p-value
-#p_value     <- summary(lm_model)$coefficients["sleep", "Pr(>|t|)"]
 
 download <- function(fname) {
   write.csv2(data, fname, row.names=FALSE)
