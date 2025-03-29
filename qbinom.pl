@@ -64,7 +64,7 @@ start(item(alpha, n, p0)).
 intermediate(amountsuccess, binom).
 expert(amountsuccess, stage(2), From, To, [step(expert, binom, [])]) :-
     From = item(Alpha, N, P0),
-    To   = round(binom(Alpha, N, P0)).
+    To   = { round(binom(Alpha, N, P0)) }.
 
 feedback(binom, [], _Col, F) =>
     F = [ "Correctly identified the problem as a binomial test." ].
@@ -119,9 +119,11 @@ buggy(amountsuccess, stage(3), From, To, [step(buggy, dens1, [K])]) :-
 
 feedback(dens1, [K], Col, F)
  => F = [ "The result matches the critical value based on the binomial ",
-          "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens1, densi(K))]), ". "]),
+          "probability, ", 
+	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, densi(K))])), "."]), " ",
           "Please report the critical value based on the cumulative ",
-          "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [upper(K)]), "."])
+          "distribution, ", 
+	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [upper(K)])), "."])
         ].
 
 hint(dens1, [_K], _Col, H)
@@ -135,9 +137,11 @@ buggy(amountsuccess, stage(3), From, To, [step(buggy, dens2, [K])]) :-
 
 feedback(dens2, [K], Col, F)
  => F = [ "The result matches the critical value based on the binomial ",
-          "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens2, densi(K))]), ". "]),
+          "probability, ",
+          span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, densi(K))])), "."]), " ",
           "Please report the critical value based on the cumulative ",
-          "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [lower(K)]), "."])
+          "distribution, ",
+          span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [lower(K)])), "."])
         ].
 
 hint(dens2, [_K], _Col, H)
