@@ -11,7 +11,7 @@
 navbar:page(qbinom, "Binomial test").
 task(amountsuccess).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 mathml:math_hook(p0, subscript(pi, 0)).
 mathml:math_hook(n, 'N').
@@ -35,29 +35,27 @@ render
     },
     html(
       [ div(class(card), div(class('card-body'),
-        [ h1(class('card-title'), "Binary outcomes"),
+        [ h1(class('card-title'), "Phase II clinical study with binary outcome"),
           p(class('card-text'), 
-            [ "Consider a clinical study with ", \mmlm(n = r(N)), " ",
-              "patients. The variable ", \mmlm('X'), " represents the ",
-              "number of therapeutic successes in the sample. We assume ",
-              "that the successes occur independently, and under the null ",
-              "hypothesis, the success probability is ", \mmlm(r(P0)), " ",
-              "in all patients. The binomial probabilities are given in ",
-              "the table below."
+            [ "Consider a clinical study with ", \mmlm(r(N)), " patients. We ",
+              "assume that the successes occur independently, and under the ",
+              "null hypothesis, the success probability is ", \mmlm(r(P0)), " ",
+              "in all patients. The binomial probabilities are given below."
             ]),
           div(class(container),	  
             div(class("row justify-content-md-center"),
-              div(class("col-6"), \htmltable(Caption, Rows, Cols, Cells))))
+              div(class("col-6"), 
+                \htmltable(Caption, Rows, Cols, Cells))))
         ]))
       ]).
 
 task(amountsuccess)
 --> { start(item(Alpha, _N, _P0)),
       session_data(resp(qbinom, amountsuccess, Resp), resp(qbinom, amountsuccess, '#'))
-	},
-	html(\htmlform([ "How many successes are needed to rule out the null ",
-        "hypothesis at the one-tailed significance level ",
-        "of ", \mmlm(alpha = r(Alpha)), "?"], amountsuccess, Resp)).
+    },
+    html(\htmlform([ "How many successes are needed to rule out the null ",
+      "hypothesis at the one-tailed significance level ",
+      "of ", \mmlm(alpha = r(Alpha)), "?"], amountsuccess, Resp)).
 
 intermediate(amountsuccess, item).
 start(item(alpha, n, p0)).
@@ -66,87 +64,86 @@ start(item(alpha, n, p0)).
 intermediate(amountsuccess, binom).
 expert(amountsuccess, stage(2), From, To, [step(expert, binom, [])]) :-
     From = item(Alpha, N, P0),
-    To   = { '<-'(k, binom(Alpha, N, P0)) }.
+    To   = round(binom(Alpha, N, P0)).
 
-feedback(binom, [], _Col, Feed) =>
-    Feed = [ "Correctly identified the problem as a binomial test." ].
+feedback(binom, [], _Col, F) =>
+    F = [ "Correctly identified the problem as a binomial test." ].
 
-hint(binom, [], _Col, Hint) =>
-    Hint = [ "This problem involves the binomial test." ].
+hint(binom, [], _Col, H) =>
+    H = [ "This problem is solved with a binomial test." ].
 
 % Upper tail of the binomial distribution
 expert(amountsuccess, stage(2), From, To, [step(expert, upper, [])]) :-
     From = binom(Alpha, N, P0),
     To   = binom(Alpha, N, P0, upper(k), arg("min", k > N*P0)).
 
-feedback(upper, [], _Col, Feed)
- => Feed = [ "Correctly selected the upper tail of the binomial distribution." ].
+feedback(upper, [], _Col, F)
+ => F = [ "Correctly selected the upper tail of the binomial distribution." ].
 
-hint(upper, [], _Col, Hint)
- => Hint = [ "The upper tail of the binomial distribution is needed." ].
+hint(upper, [], _Col, H)
+ => H = [ "The upper tail of the binomial distribution is needed." ].
 
 % Lower tail of the binomial distribution
 buggy(amountsuccess, stage(2), From, To, [step(buggy, lower, [])]) :-
     From = binom(Alpha, N, P0),
-    To   = binom(Alpha, N, P0, instead(lower, lower(k), upper(k)), instead(lower, arg("max", k < N*P0), arg("min", k > N*P0))).
+    To   = binom(Alpha, N, P0, instead(lower, lower(k), upper(k)),
+           instead(lower, arg("max", k < N*P0), arg("min", k > N*P0))).
 
-feedback(lower, [], _Col, Feed)
- => Feed = [ "The result matches the lower tail of the binomial distribution." ].
+feedback(lower, [], _Col, F)
+ => F = [ "The result matches the lower tail of the binomial ",
+          "distribution." 
+        ].
 
-hint(lower, [], _Col, Hint)
- => Hint = [ "Do not select the lower tail of the binomial distribution." ].
+hint(lower, [], _Col, H)
+ => H = [ "Select the upper tail of the binomial distribution." ].
 
 % Critical value based on distribution
 expert(amountsuccess, stage(2), From, To, [step(expert, dist, [])]) :-
     From = binom(Alpha, N, P0, Tail, Arg),
     To   = cbinom(Alpha, N, P0, Tail, Arg).
 
-feedback(dist, [], _Col, Feed)
- => Feed = [ "Correctly used the critical value of the cumulative ",
-             "distribution."
-           ].
+feedback(dist, [], _Col, F)
+ => F = [ "Correctly used the critical value of the cumulative ",
+          "distribution."
+        ].
 
-hint(dist, [], _Col, Hint)
- => Hint = [ "The critical value should be determined on the cumulative ",
-             "distribution."
-           ].
+hint(dist, [], _Col, H)
+ => H = [ "The critical value is determined with help of the cumulative ",
+          "distribution."
+        ].
 
 % Critical value based on density
 buggy(amountsuccess, stage(3), From, To, [step(buggy, dens1, [K])]) :-
     From = upper(K),
     To = instead(dens1, densi(K), upper(K)).
 
-feedback(dens1, [K], Col, Feed)
- => r_topic(svg, Svg0),
-    format(atom(Svg), '<div style="display: flex; justify-content: center; margin-top: 1em">~w</div>', [Svg0]),
-    Feed = [ "The result matches the critical value based on the binomial ",
-             "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens1, densi(K))]), "."]),
-             "Please report the critical value based on the cumulative ",
-             "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [upper(K)]), "."]), \[Svg]
-           ].
+feedback(dens1, [K], Col, F)
+ => F = [ "The result matches the critical value based on the binomial ",
+          "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens1, densi(K))]), ". "]),
+          "Please report the critical value based on the cumulative ",
+          "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [upper(K)]), "."])
+        ].
 
-hint(dens1, [_K], _Col, Hint)
- => Hint = [ "Make sure to use the cumulative binomial distribution to ",
-             "determine the critical value."
-           ].
+hint(dens1, [_K], _Col, H)
+ => H = [ "Use the cumulative distribution to determine the critical value, ",
+          "not the density."
+        ].
 
 buggy(amountsuccess, stage(3), From, To, [step(buggy, dens2, [K])]) :-
     From = lower(K),
     To = instead(dens2, densi(K), lower(K)).
 
-feedback(dens2, [K], Col, Feed)
- => r_topic(svg, Svg0),
-    format(atom(Svg), '<div style="display: flex; justify-content: center; margin-top: 1em">~w</div>', [Svg0]),
-    Feed = [ "The result matches the critical value based on the binomial ",
-             "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens2, densi(K))]), "."]),
-             "Please report the critical value based on the cumulative ",
-             "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [lower(K)]), "."]), \[Svg]
-           ].
+feedback(dens2, [K], Col, F)
+ => F = [ "The result matches the critical value based on the binomial ",
+          "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens2, densi(K))]), ". "]),
+          "Please report the critical value based on the cumulative ",
+          "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [lower(K)]), "."])
+        ].
 
-hint(dens2, [_K], _Col, Hint)
- => Hint = [ "Make sure to use the cumulative binomial distribution to ",
-             "determine the critical value."
-           ].
+hint(dens2, [_K], _Col, H)
+ => H = [ "Use the cumulative distribution to determine the critical value, ",
+          "not the density"
+        ].
 
 % Helper function(s)
 binomtable(N, P0, Caption, Rows, Cols, Cells) :-
@@ -164,7 +161,7 @@ binomtable(N, P0, Caption, Rows, Cols, Cells) :-
     % upper tail
     HN is H + 1,
     RowN = \mmlm([HN, "...", N]),
-    CellN = \mmlm([digits=3], r(pbinom(H, n, p0, 'lower.tail'=false))), % H not HN
+    CellN = \mmlm([digits=3], r(pbinom(H, n, p0, 'lower.tail'=false))),
     append([[Row0], RowsX, [RowN]], Rows),
     append([[[Cell0]], CellsX, [[CellN]]], Cells).
 
