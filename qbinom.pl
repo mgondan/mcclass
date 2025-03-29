@@ -22,7 +22,7 @@ mathml:math_hook(lower(K), M) :-
 mathml:math_hook(densi(K), M) :-
     M = ('X' = K).
 mathml:math_hook(cbinom(Alpha, N, Pi, Tail, MinArg), M) :-
-    M = (nodot(MinArg, fn('P', ([Tail] ; [N, Pi])) =< Alpha)).
+    M = (nodot(MinArg, fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])) =< Alpha)).
 
 r_hook(alpha).
 r_hook(n).
