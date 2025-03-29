@@ -43,7 +43,7 @@ trow(Row, Data) -->
     html(tr([th(scope(row), Row) | \foreach(member(D, Data), html(td(D)))])).
 
 htmlform(Question, Action, Response) -->
-    html(div(class(card), div(class('card-body'),
+    html(div([class(card), id(Action)], div(class('card-body'),
       [ h4(class('card-title'), [a(id(question), []), "Question"]),
         p(class('card-text'), Question),
         form([class(form), method(post), action("#~w"-[Action])],
