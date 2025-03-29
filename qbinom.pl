@@ -129,7 +129,7 @@ feedback(dens1, [Tail, K], Col, F)
 	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail(Tail, K)])), "."])
         ].
 
-hint(dens1, [_K], _Col, H)
+hint(dens1, [_Tail, _K], _Col, H)
  => H = [ "Use the cumulative distribution to determine the critical value, ",
           "not the density."
         ].
