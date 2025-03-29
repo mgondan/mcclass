@@ -334,13 +334,8 @@ rint:dist(_, X, _, Res, Flags) :-
 %
 rint:int_hook(tail, tail(atomic), atomic, []).
 rint:tail(A, A, _).
-
-rint:int_hook(upper, upper(_), atomic, []).
-rint:upper(_, atomic("upper"), _Flags).
-rint:int_hook(lower, lower(_), atomic, []).
-rint:lower(_, atomic("lower"), _Flags).
-rint:int_hook(densi, densi(_), atomic, []).
-rint:densi(_, atomic("densi"), _Flags).
+rint:int_hook(tail, tail(atomic, atomic), atomic, []).
+rint:tail(Tail, _, Tail, _Flags).
 
 rint:int_hook(arg, arg(_, _), _, [evaluate(false)]).
 rint:arg(A, _K, Res, Flags) :-

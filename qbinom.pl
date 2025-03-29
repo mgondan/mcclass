@@ -15,11 +15,11 @@ task(critical).
 
 mathml:math_hook(p0, subscript(pi, 0)).
 mathml:math_hook(n, 'N').
-mathml:math_hook(tail(upper, K), M) :-
+mathml:math_hook(tail("upper", K), M) :-
     M = ('X' >= K).
-mathml:math_hook(tail(lower, K), M) :-
+mathml:math_hook(tail("lower", K), M) :-
     M = ('X' =< K).
-mathml:math_hook(tail(densi, K), M) :-
+mathml:math_hook(tail("densi", K), M) :-
     M = ('X' = K).
 mathml:math_hook(cbinom(Alpha, N, Pi, Tail, MinArg), M) :-
     M = (nodot(MinArg, fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])) =< Alpha)).
@@ -75,7 +75,7 @@ hint(binom, [], _Col, H) =>
 % Upper tail of the binomial distribution
 expert(critical, stage(2), From, To, [step(expert, upper, [])]) :-
     From = binom(Alpha, N, P0),
-    To   = binom(Alpha, N, P0, tail(upper, k), arg("min", k > N*P0)).
+    To   = binom(Alpha, N, P0, tail("upper", k), arg("min", k > N*P0)).
 
 feedback(upper, [], _Col, F)
  => F = [ "Correctly selected the upper tail of the binomial distribution." ].
@@ -86,7 +86,7 @@ hint(upper, [], _Col, H)
 % Lower tail of the binomial distribution
 buggy(critical, stage(2), From, To, [step(buggy, lower, [])]) :-
     From = binom(Alpha, N, P0),
-    To   = binom(Alpha, N, P0, instead(lower, tail(lower, k), tail(upper, k)),
+    To   = binom(Alpha, N, P0, instead(lower, tail("lower", k), tail("upper", k)),
            instead(lower, arg("max", k < N*P0), arg("min", k > N*P0))).
 
 feedback(lower, [], _Col, F)
@@ -117,12 +117,13 @@ hint(dist, [], _Col, H)
 % Critical value based on density
 buggy(critical, stage(2), From, To, [step(buggy, dens1, [Tail, K])]) :-
     From = tail(Tail, K),
-    To = instead(dens1, tail(densi, K), tail(Tail, K)).
+    member(Tail, ["lower", "upper"]),
+    To = instead(dens1, tail("densi", K), tail(Tail, K)).
 
 feedback(dens1, [Tail, K], Col, F)
  => F = [ "The result matches the critical value based on the binomial ",
           "probability, ", 
-	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail(densi, K))])), "."]), " ",
+	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail("densi", K))])), "."]), " ",
           "Please report the critical value based on the cumulative ",
           "distribution, ", 
 	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail(Tail, K)])), "."])
