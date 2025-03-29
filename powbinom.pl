@@ -171,11 +171,11 @@ hint(lower1, [], _Col, Hint)
 buggy(powbinom, stage(2), From, To, [step(buggy, dens1, [K])]) :-
     From = tail(Tail, K),
     member(Tail, ["upper", "lower"]),
-    To = instead(dens1, tail("equal", K), tail("upper", K)).
+    To = instead(dens1, tail("densi", K), tail("upper", K)).
 
 feedback(dens1, [K], Col, Feed)
  => Feed = [ "The result matches the critical value based on the binomial ",
-             "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens1, tail("equal", K))]), "."]),
+             "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens1, tail("densi", K))]), "."]),
              "Please calculate the critical value based on the cumulative ",
              "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [tail("upper", K)]), "."])
            ].
@@ -205,11 +205,11 @@ hint(lower2, [], _Col, Hint)
 buggy(powbinom, stage(2), From, To, [step(buggy, dens2, [C])]) :-
     From = tail(Tail, C),
     member(Tail, ["upper", "lower"]),
-    To = instead(dens2, tail("equal", C), tail("upper", C)).
+    To = instead(dens2, tail("densi", C), tail("upper", C)).
 
 feedback(dens2, [C], Col, Feed)
  => Feed = [ "The result matches the Power based on the binomial probability, ",
-             \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens2, tail("equal", C))]), "."]),
+             \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens2, tail("densi", C))]), "."]),
              "Please report the power based on the cumulative ",
              "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [tail("upper", C)]), "."])
            ].
