@@ -13,22 +13,24 @@
 navbar:page(powbinom, "Power of binomial test").
 task(powbinom).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
 mathml:math_hook(p0, subscript(pi, 0)).
 mathml:math_hook(p1, subscript(pi, 1)).
-mathml:math_hook(crit, c).
-mathml:math_hook(power, 'Pwr').
 mathml:math_hook(n, 'N').
+mathml:math_hook(tail1(Tail, Arg), tail(Tail, Arg)).
+mathml:math_hook(tail2(Tail, Arg), tail(Tail, Arg)).
+
+rint:int_hook(tail1, tail(atomic, atomic), atomic, []).
+rint:int_hook(tail2, tail(atomic, atomic), atomic, []).
 
 % R definitions
 r_hook(alpha).
 r_hook(n).
 r_hook(p0).
 r_hook(p1).
-r_hook(k).
-r_hook(crit).
+r_hook(c).
 
 % Task description
 render
@@ -39,14 +41,14 @@ render
         div(class(card), div(class('card-body'),
           [ h1(class('card-title'), "Binary outcomes"),
             p(class('card-text'),
-              [ "Consider a clinical study with ", \mmlm(n = r(N)), " ",
-                "patients testing a new treatment. The variable ", \mmlm('X'), " represents the ",
-                "number of therapeutic successes in the sample. We assume ",
-                "that the successes occur independently, and under the null ",
-                "hypothesis, the success probability is ", \mmlm(r(P0)), " ",
-                "in all patients. Under the alternative hypothesis, we hope ",
-                "that the success probability is ", \mmlm([r(P1), "."]), "The ",
-                "binomial probabilities are given in the table below."
+              [ "Consider a clinical study with ", \mmlm(r(N)), " patients ",
+                "testing a new treatment. We assume that the success ",
+                "probability is ", \mmlm(r(P0)), " under the null ",
+                "hypothesis, and that successes occur independently in all ",
+                "patients. Under the alternative hypothesis, we hope ",
+                "that the success probability is ",
+                span(class('text-nowrap'), [\mmlm(r(P1)), "."]), " The ",
+                "binomial probabilities are given in the tables below."
               ]),
             div(class(container),
               div(class("row justify-content-md-center"),
@@ -58,168 +60,167 @@ task(powbinom)
       session_data(resp(powbinom, powbinom, Resp), resp(powbinom, powbinom, '#.##'))
     },
     html(\htmlform([ "What is the power of the test at the one-tailed ",
-        "significance level of ", \mmlm([alpha = r(Alpha), "?"])],
+        "significance level of ",
+        span(class('text-nowrap'), [\mmlm(alpha = r(Alpha)), "?"])],
         powbinom, Resp)).
 
-% Power-test
 intermediate(powbinom, item).
 start(item(alpha, n, p0, p1)).
 
-% First Step: Extract the correct information for the critical value and the 
+% Extract the correct information for the critical value and the 
 % binomial probability.
 intermediate(powbinom, crit).
 intermediate(powbinom, power).
 expert(powbinom, stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(Alpha, N, P0, P1),
-    To = { '<-'(crit, crit(Alpha, N, P0)) ;
-           power(crit, N, P1)
+    To = { '<-'(c, crit(Alpha, N, P0)) ;
+           power(c, N, P1)
          }.
 
-feedback(problem, [], _Col, Feed) =>
-    Feed = [ "Correctly identified the two steps of the problem." ].
+feedback(problem, [], _Col, F)
+ => F = [ "Correctly identified the two steps of the solution." ].
 
-hint(problem, [], _Col, Hint) =>
-    Hint = [ "In the first step, the critical value is determined. In the ",
-             "second step, the probability for a significant result is ",
-             "calculated."
-           ].
+hint(problem, [], _Col, H)
+ => H = [ "First, the critical value is determined under the null hypothesis. ",
+          "Then, the probability for a significant result is calculated under ",
+          "the alternative."
+        ].
 
-% Second Step: Determine the critical value from the upper tail of the 
-% binomial distribution.
+% Determine the critical value
+%
+% In both steps, the upper tail must be determined. We use tail1 and tail2 to
+% avoid confusion in the feedback of the buggy rules.
+%
 expert(powbinom, stage(2), From, To, [step(expert, upper1, [])]) :-
     From = crit(Alpha, N, P0),
-    To   = crit(Alpha, N, P0, tail("upper", k), arg("min", k > N*P0)).
+    To   = crit(Alpha, N, P0, tail1("upper", k), arg("min", k > N*P0)).
 
-feedback(upper1, [], _Col, Feed)
- => Feed = [ "Correctly determined the critical value from the upper tail of ",
-             "the binomial distribution." 
-           ].
+feedback(upper1, [], _Col, F)
+ => F = [ "Correctly determined the critical value from the upper tail of ",
+          "the binomial distribution." 
+        ].
 
-hint(upper1, [], _Col, Hint)
- => Hint = [ "The critical value is determined from the upper tail of the ",
-             "binomial distribution." 
-           ].
+hint(upper1, [], _Col, H)
+ => H = [ "The critical value is determined from the upper tail of the ",
+          "binomial distribution." 
+        ].
 
-% Third Step: Determine the critical value based on the cumulative distribution
+% Determine the critical value based on the cumulative distribution
 expert(powbinom, stage(2), From, To, [step(expert, dist1, [])]) :-
     From = crit(Alpha, N, P0, Tail, Arg),
     To   = cbinom(Alpha, N, P0, Tail, Arg).
 
-feedback(dist1, [], _Col, Feed)
- => Feed = [ "Correctly used the critical value of the cumulative ",
-             "distribution."
-           ].
+feedback(dist1, [], _Col, F)
+ => F = [ "Correctly calculated the critical value from the cumulative ",
+          "distribution."
+        ].
 
-hint(dist1, [], _Col, Hint)
- => Hint = [ "The critical value should be determined on the cumulative ",
-             "distribution."
-           ].
+hint(dist1, [], _Col, H)
+ => H = [ "The critical value should be determined from the cumulative ",
+          "distribution."
+        ].
 
-% Fourth step: Determine the power based on upper tail
-expert(powbinom, stage(2), From, To, [step(expert, upper2, [])]) :-
+% Determine the power based on upper tail
+expert(powbinom, stage(3), From, To, [step(expert, upper2, [])]) :-
     From = power(Crit, N, P1),
-    To   = power(Crit, N, P1, tail("upper", Crit)).
+    To   = power(Crit, N, P1, tail2("upper", Crit)).
 
-feedback(upper2, [], _Col, Feed)
- => Feed = [ "Correctly selected the upper tail of cumulative distribution ",
-             "for the Power."
-           ].
+feedback(upper2, [], _Col, F)
+ => F = [ "Correctly determined the power from the upper tail of the ",
+          "distribution."
+        ].
 
-hint(upper2, [], _Col, Hint)
- => Hint = [ "The Power is determined from the upper tail of the binomial ",
-             "distribution."
-           ].
+hint(upper2, [], _Col, H)
+ => H = [ "The power is determined from the upper tail of the binomial ",
+          "distribution."
+        ].
 
-% Fifth step: Power based on cumulative distribution
-expert(powbinom, stage(2), From, To, [step(expert, dist2, [])]) :-
+% Power based on cumulative distribution
+expert(powbinom, stage(3), From, To, [step(expert, dist2, [])]) :-
     From = power(Crit, N, P1, Tail),
-    To   = pbinom(Crit, N, P1, Tail).
+    To   = pwbinom(Crit, N, P1, Tail).
 
-feedback(dist2, [], _Col, Feed)
- => Feed = [ "Correctly calculated the Power using the cumulative ",
-             "distribution."
-           ].
+feedback(dist2, [], _Col, F)
+ => F = [ "Correctly calculated the power using the cumulative ",
+          "distribution."
+        ].
 
-hint(dist2, [], _Col, Hint)
- => Hint = [ "The Power should be determined using the cumulative ",
-             "distribution."
-           ].
+hint(dist2, [], _Col, H)
+ => H = [ "The power should be determined using the cumulative ",
+          "distribution."
+        ].
 
-
-
-
-% Buggy-Rule: Determine the critical value from the lower tail of the 
+% Bug: Determine the critical value from the lower tail of the 
 % binomial distribution.
 buggy(powbinom, stage(2), From, To, [step(buggy, lower1, [])]) :-
     From = crit(Alpha, N, P0),
-    To   = crit(Alpha, N, P0, instead(lower1, tail("lower", k), tail("upper", k)),
+    To   = crit(Alpha, N, P0, instead(lower1, tail1("lower", k), tail1("upper", k)),
                 instead(lower1, arg("max", k < N*P0), arg("min", k > N*P0))).
 
-feedback(lower1, [], _Col, Feed)
- => Feed = [ "The result matches the Power obtained from the lower critical ",
-             "value of the binomial distribution. Please use the upper critical ",
-	     "value to determine the Power."
-           ].
+feedback(lower1, [], _Col, F)
+ => F = [ "The result matches the lower critical value of the binomial ",
+          "distribution. Please use the upper tail to determine the ",
+          "critical value."
+        ].
 
-hint(lower1, [], _Col, Hint)
- => Hint = [ "Make sure to determine the critical value from the upper tail ",
-             "of the binomial distribution."
-           ].
+hint(lower1, [], _Col, H)
+ => H = [ "Make sure to determine the critical value from the upper tail ",
+          "of the binomial distribution."
+        ].
 
-% Buggy- Rule: Critical value based on density = not cumulated
+% Bug: Critical value based on density (not cumulated)
 buggy(powbinom, stage(2), From, To, [step(buggy, dens1, [K])]) :-
-    From = tail(Tail, K),
+    From = tail1(Tail, K),
     member(Tail, ["upper", "lower"]),
-    To = instead(dens1, tail("densi", K), tail("upper", K)).
+    To = instead(dens1, tail1("densi", K), tail1("upper", K)).
 
-feedback(dens1, [K], Col, Feed)
- => Feed = [ "The result matches the critical value based on the binomial ",
-             "probability, ", \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens1, tail("densi", K))]), "."]),
-             "Please calculate the critical value based on the cumulative ",
-             "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [tail("upper", K)]), "."])
-           ].
+feedback(dens1, [K], Col, F)
+ => F = [ "The result matches the critical value based on the binomial ",
+          "probability, ", 
+	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail1("densi", K))])), "."]),
+          " Please calculate the critical value based on the cumulative ",
+          "distribution, ", 
+	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail1("upper", K)])), "."])
+        ].
 
-hint(dens1, [_K], _Col, Hint)
- => Hint = [ "Make sure to use the cumulative binomial distribution to ",
-             "determine the critical value."
-           ].
+hint(dens1, [_K], _Col, H)
+ => H = [ "Make sure to use the cumulative binomial distribution to ",
+          "determine the critical value."
+        ].
 
-% Buggy-Rule: Power based on lower tail (wrong tail for power)
-buggy(powbinom, stage(2), From, To, [step(buggy, lower2, [])]) :-
+% Bug: Power based on lower tail
+buggy(powbinom, stage(3), From, To, [step(buggy, lower2, [])]) :-
     From = power(Crit, N, P1),
-    To   = power(Crit, N, P1, instead(lower2, tail("lower", k), tail("upper", k))).
+    To   = power(Crit, N, P1, instead(lower2, tail2("lower", Crit), tail2("upper", Crit))).
 
-feedback(lower2, [], _Col, Feed)
- => Feed = ["The result matches the Power based on the lower critical ",
-            "value of the binomial distribution. Please use the upper critical ",
-	    "value to determine the Power."
-	   ].
+feedback(lower2, [], _Col, F)
+ => F = [ "The result matches the power based on the lower tail of the ",
+          "binomial distribution. Please use the upper tail to calculate ",
+          "the power."
+        ].
 
-hint(lower2, [], _Col, Hint)
- => Hint = [ "The power is determined from the upper tail of the binomial ",
-             "distribution. Don\u0027t select the lower tail of the binomial distribution."
-           ].
+hint(lower2, [], _Col, H)
+ => H = [ "The power is determined from the upper tail of the binomial ",
+          "distribution. Don\u0027t select the lower tail of the binomial distribution."
+        ].
 
-% Buggy- Rule: Critical value based on density
-buggy(powbinom, stage(2), From, To, [step(buggy, dens2, [C])]) :-
-    From = tail(Tail, C),
-    member(Tail, ["upper", "lower"]),
-    To = instead(dens2, tail("densi", C), tail("upper", C)).
+% Bug: Power based on density
+buggy(powbinom, stage(3), From, To, [step(buggy, dens2, [C])]) :-
+    From = tail2("upper", C),
+    To = instead(dens2, tail2("densi", C), tail2("upper", C)).
 
-feedback(dens2, [C], Col, Feed)
- => Feed = [ "The result matches the Power based on the binomial probability, ",
-             \mmlm(Col, [fn(subscript('P', "Bi"), [color(dens2, tail("densi", C))]), "."]),
-             "Please report the power based on the cumulative ",
-             "distribution, ", \mmlm(Col, [fn(subscript('P', "Bi"), [tail("upper", C)]), "."])
-           ].
+feedback(dens2, [C], Col, F)
+ => F = [ "The result matches the power based on the binomial probability, ",
+          span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens2, tail2("densi", C))])), "."]),
+          " Please determine the power based on the cumulative ",
+          "distribution, ", 
+	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail2("upper", C)])), "."])
+        ].
 
-hint(dens2, [_C], _Col, Hint)
- => Hint = [ "Make sure to use the cumulative binomial distribution to ",
-             "determine the power."
-           ].
-
-
-
+hint(dens2, [_], _Col, H)
+ => H = [ "Make sure to use the cumulative binomial distribution to ",
+          "determine the power."
+        ].
 
 % Helper function(s)
 binomtable(N, P0, P1, Caption, Rows, Cols, Cells) :-

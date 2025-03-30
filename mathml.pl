@@ -492,6 +492,10 @@ mathml:math_hook(pm(A, B), M) :-
 mathml:math_hook(ci(A, B), M) :-
     M = [A, "to", B].
 
+% Binomial distribution
+mathml:math_hook(pwbinom(_K, N, Pi, Tail), M) :-
+    M = fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])).
+
 
 %
 % Empty list
