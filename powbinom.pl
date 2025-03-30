@@ -36,7 +36,7 @@ render
       binomtable(N, P0, P1, Caption, Rows, Cols, Cells)
     },
     html(
-       div(class(card), div(class('card-body'),
+        div(class(card), div(class('card-body'),
           [ h1(class('card-title'), "Binary outcomes"),
             p(class('card-text'),
               [ "Consider a clinical study with ", \mmlm(n = r(N)), " ",
@@ -47,15 +47,14 @@ render
                 "in all patients. Under the alternative hypothesis, we hope ",
                 "that the success probability is ", \mmlm([r(P1), "."]), "The ",
                 "binomial probabilities are given in the table below."
-	          ]),
-	        div(class(container),
-	          div(class("row justify-content-md-center"),
-	            div(class("col-6"),
-	              \htmltable(Caption, Rows, Cols, Cells))))
-	      ]))).
+              ]),
+            div(class(container),
+              div(class("row justify-content-md-center"),
+                div(class("col-6"), \htmltable(Caption, Rows, Cols, Cells))))
+          ]))).
 
 task(powbinom)
--->  { start(item(Alpha, _N, _P0, _P1)),
+--> { start(item(Alpha, _N, _P0, _P1)),
       session_data(resp(powbinom, powbinom, Resp), resp(powbinom, powbinom, '#.##'))
     },
     html(\htmlform([ "What is the power of the test at the one-tailed ",
@@ -73,7 +72,7 @@ intermediate(powbinom, power).
 expert(powbinom, stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(Alpha, N, P0, P1),
     To = { '<-'(crit, crit(Alpha, N, P0)) ;
-           '<-'(power, power(crit, N, P1))
+           power(crit, N, P1)
          }.
 
 feedback(problem, [], _Col, Feed) =>
@@ -134,7 +133,7 @@ hint(upper2, [], _Col, Hint)
 % Fifth step: Power based on cumulative distribution
 expert(powbinom, stage(2), From, To, [step(expert, dist2, [])]) :-
     From = power(Crit, N, P1, Tail),
-    To   = pwbinom(Crit, N, P1, Tail).
+    To   = pbinom(Crit, N, P1, Tail).
 
 feedback(dist2, [], _Col, Feed)
  => Feed = [ "Correctly calculated the Power using the cumulative ",
