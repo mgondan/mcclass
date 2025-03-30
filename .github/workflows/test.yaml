@@ -1,0 +1,71 @@
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+name: test
+ 
+jobs:
+  run-tests:
+    runs-on: ${{ matrix.os }}-latest
+    name: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install R
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y r-base
+          sudo apt install -y r-base libtirpc-dev libfontconfig1-dev libfreetype6-dev pkg-config
+          mkdir -p $HOME/Rlibs 
+          R -e "install.packages(c('RInside', 'Rcpp', 'emmeans', 'ggplot2', 'svglite'), lib='$HOME/Rlibs')"
+          echo "R_LIBS=$HOME/Rlibs" >> ~/.Renviron
+          R -e "library(RInside); library(Rcpp)"
+          echo "R_LIBS_USER=$HOME/Rlibs" >> $GITHUB_ENV
+
+      - name: Install SWI-Prolog on Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-add-repository ppa:swi-prolog/devel
+          sudo apt-get update
+          sudo apt-get install swi-prolog
+        shell: bash
+
+      - name: Check installation
+        run: swipl -t check_installation
+        shell: bash
+
+      - name: Install SWIPL packages 
+        run: |
+          export R_LIBS_USER=$HOME/Rlibs
+          swipl -t "pack_install(rolog, [interactive(false)])"
+          swipl -t "pack_install('interval', [interactive(false), link(false)])"
+          swipl -t "pack_install('mathml', [interactive(false), link(false)])"
+          swipl -t "pack_install('quantity', [interactive(false), link(false)])"
+          mkdir -p ~/.local/share/swi-prolog/pack/rolog/foreign
+          cp ~/.local/share/swi-prolog/pack/rolog/lib/x86_64-linux/rolog.so ~/.local/share/swi-prolog/pack/rolog/foreign/
+        shell: bash
+
+      - name: Install mcclass
+        run: |
+          export R_LIBS_USER=$HOME/Rlibs
+          REPO_URL="https://github.com/$GITHUB_REPOSITORY.git"
+          git clone $REPO_URL ~/.local/share/swi-prolog/pack/mcclass
+        shell: bash
+
+      - name: Run tests mcclass interval 
+        run: |
+          export R_LIBS_USER=$HOME/Rlibs
+          swipl -g "test_mcclass." "$HOME/.local/share/swi-prolog/pack/mcclass/interval/test/test_mcclass.pl"
+        shell: bash
+
+      - name: Run tests mcclass tasks 
+        run: |
+          export R_LIBS_USER=$HOME/Rlibs
+          swipl -g "test_tasks." "$HOME/.local/share/swi-prolog/pack/mcclass/interval/test/test_tasks.pl"
+        shell: bash
