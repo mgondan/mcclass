@@ -35,9 +35,9 @@ repeat
 
   tratio <- (dx - mu) / (sx_d / sqrt(n))
   if(abs(tratio) < 0.1)
-    continue
+    next
   if(abs(tratio) > 3.0)
-    continue
+    next
 
   tails  <- "two-tailed"
   alpha  <- 0.05
