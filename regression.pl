@@ -18,11 +18,11 @@ label(pvalue, [math(mi(p)), "-value"]).
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-mathml:math_hook(n, 'N').
-mathml:math_hook(lm0(Y, X, "intercept"), ["Intercept: ", r(Y), "~", r(X)]).
-mathml:math_hook(lm0(Y, X, "coef"), ["Estimate: ", r(Y), "~", r(X)]).
-mathml:math_hook(lm0(Y, X, "pval:coef"), ["Estimate", p, "-value: ", r(Y), "~", r(X)]).
-mathml:math_hook(lm0(Y, X, "pval:intercept"), ["Intercept", p, "-value: ", r(Y), "~", r(X)]).
+math_hook(n, 'N').
+math_hook(lm0(Y, X, "intercept"), ["Intercept: ", r(Y), "~", r(X)]).
+math_hook(lm0(Y, X, "coef"), ["Estimate: ", r(Y), "~", r(X)]).
+math_hook(lm0(Y, X, "pval:coef"), ["Estimate", p, "-value: ", r(Y), "~", r(X)]).
+math_hook(lm0(Y, X, "pval:intercept"), ["Intercept", p, "-value: ", r(Y), "~", r(X)]).
 
 % R definitions
 r_hook(n).

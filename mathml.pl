@@ -108,6 +108,16 @@ bugs_(X, List),
     append(Bugs, List).
 
 %
+% Task-specific hooks
+%
+mathml:math_hook(A, M, Flags, Flags1) :-
+    member(topic(T), Flags),
+    T:math_hook(A, M0),
+    !,
+    M = M0,
+    Flags1 = Flags.
+
+%
 % Formatting numbers
 %
 mathml:math_hook(hdrs(A), X, Flags, Flags1) :-

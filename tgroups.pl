@@ -18,17 +18,17 @@ label(s2p, "Pooled variance").
 label(tratio, [math(mi(t)), "-ratio"]).
 label(cigroups, "Confidence interval").
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-mathml:math_hook(n_vr, subscript(n, "VR")).
-mathml:math_hook(n_box, subscript(n, "BOX")).
-mathml:math_hook(vr, overline("VR")).
-mathml:math_hook(s_vr, subscript(s, "VR")).
-mathml:math_hook(box, overline("BOX")).
-mathml:math_hook(s_box, subscript(s, "BOX")).
-mathml:math_hook(s2p, subscript(s, "pool")^2).
-mathml:math_hook(alpha, greek("alpha")).
+math_hook(n_vr, subscript(n, "VR")).
+math_hook(n_box, subscript(n, "BOX")).
+math_hook(vr, overline("VR")).
+math_hook(s_vr, subscript(s, "VR")).
+math_hook(box, overline("BOX")).
+math_hook(s_box, subscript(s, "BOX")).
+math_hook(s2p, subscript(s, "pool")^2).
+math_hook(alpha, greek("alpha")).
 
 % Obtain information from R
 r_hook(n_vr).

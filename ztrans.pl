@@ -11,9 +11,9 @@
 navbar:page(ztrans, [i(z), "-transform (1)"]).
 task(ztrans).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
-mathml:math_hook(x, 'X').
+math_hook(x, 'X').
 
 r_hook(x).
 r_hook(sigma).

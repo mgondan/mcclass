@@ -21,17 +21,17 @@ label(cipaired, "Confidence interval").
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
 
 % Prettier symbols for mathematical rendering
-mathml:math_hook(d, overline('D')).
-mathml:math_hook(s_d, subscript(s, 'D')).
-mathml:math_hook(n, 'N').
-mathml:math_hook(t0, overline("T0")).
-mathml:math_hook(s_t0, subscript(s, "T0")).
-mathml:math_hook(eot, overline("EOT")).
-mathml:math_hook(s_eot, subscript(s, "EOT")).
-mathml:math_hook(s2p, subscript(s, "pool")^2).
-mathml:math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
-mathml:math_hook(alpha, greek("alpha")).
-mathml:math_hook(var_pool(V1, N1, V2, N2), X) :-
+math_hook(d, overline('D0')).
+math_hook(s_d, subscript(s, 'D')).
+math_hook(n, 'N').
+math_hook(t0, overline("T0")).
+math_hook(s_t0, subscript(s, "T0")).
+math_hook(eot, overline("EOT")).
+math_hook(s_eot, subscript(s, "EOT")).
+math_hook(s2p, subscript(s, "pool")^2).
+math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
+math_hook(alpha, greek("alpha")).
+math_hook(var_pool(V1, N1, V2, N2), X) :-
     X = dfrac((N1 - 1)*V1 + (N2 - 1)*V2, N1 + N2 - 2).
 
 % R definitions

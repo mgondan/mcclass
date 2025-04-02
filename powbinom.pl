@@ -16,11 +16,11 @@ task(powbinom).
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-mathml:math_hook(p0, subscript(pi, 0)).
-mathml:math_hook(p1, subscript(pi, 1)).
-mathml:math_hook(n, 'N').
-mathml:math_hook(tail1(Tail, Arg), tail(Tail, Arg)).
-mathml:math_hook(tail2(Tail, Arg), tail(Tail, Arg)).
+math_hook(p0, subscript(pi, 0)).
+math_hook(p1, subscript(pi, 1)).
+math_hook(n, 'N').
+math_hook(tail1(Tail, Arg), tail(Tail, Arg)).
+math_hook(tail2(Tail, Arg), tail(Tail, Arg)).
 
 rint:int_hook(tail1, tail(atomic, atomic), atomic, []).
 rint:int_hook(tail2, tail(atomic, atomic), atomic, []).
@@ -73,9 +73,8 @@ intermediate(powbinom, crit).
 intermediate(powbinom, power).
 expert(powbinom, stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(Alpha, N, P0, P1),
-    To = { '<-'(c, crit(Alpha, N, P0)) ;
-           power(c, N, P1)
-         }.
+    C = denote(c, crit(Alpha, N, P0), "the critical value"),
+    To = { power(C, N, P1) }.
 
 feedback(problem, [], _Col, F)
  => F = [ "Correctly identified the two steps of the solution." ].

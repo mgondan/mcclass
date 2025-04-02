@@ -15,29 +15,33 @@
 user:term_expansion(mono(A, B), rint:mono(A, B)).
 user:term_expansion(r_hook(A), rint:r_hook(r_session:r_topic, A)).
 
-:- use_module(tpaired).
-:- use_module(tpaired1t).
-:- use_module(tpaired1tlow).
-:- use_module(baseline).
-:- use_module(oddsratio).
-:- use_module(oddsratio2).
-:- use_module(easyodds).
-:- use_module(tgroups).
-:- use_module(tgroupsdf).
-:- use_module(ztrans).
-:- use_module(ztrans2).
-:- use_module(dbinom).
-:- use_module(qbinom).
-:- use_module(powbinom).
-:- use_module(chisq).
-:- use_module(power).
-:- use_module(cigroups).
-:- use_module(subgroups).
-:- use_module(util).
-:- use_module(regression).
+use_task(T) :-
+    use_module(T),
+    dynamic(T:math_hook/2).
+
+:- use_task(tpaired).
+:- use_task(tpaired1t).
+:- use_task(tpaired1tlow).
+:- use_task(baseline).
+:- use_task(oddsratio).
+:- use_task(oddsratio2).
+:- use_task(easyodds).
+:- use_task(tgroups).
+:- use_task(tgroupsdf).
+:- use_task(ztrans).
+:- use_task(ztrans2).
+:- use_task(dbinom).
+:- use_task(qbinom).
+:- use_task(powbinom).
+:- use_task(chisq).
+:- use_task(power).
+:- use_task(cigroups).
+:- use_task(subgroups).
+:- use_task(util).
+:- use_task(regression).
 
 % Render R result
-mathml:mathml:math_hook(r(Expr), Res) :-
+mathml:math_hook(r(Expr), Res) :-
     r_topic(Expr, Res).
 
 % Gather useful information

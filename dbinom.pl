@@ -15,10 +15,10 @@ task(exactprob).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
-mathml:math_hook(n, 'N').
-mathml:math_hook(p0, pi).
-mathml:math_hook(successes(K, P0), P0^K).
-mathml:math_hook(failures(K, P0), P0^K).
+math_hook(n, 'N').
+math_hook(p0, pi).
+math_hook(successes(K, P0), P0^K).
+math_hook(failures(K, P0), P0^K).
 
 r_hook(p).
 r_hook(n).

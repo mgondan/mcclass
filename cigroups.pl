@@ -11,17 +11,17 @@
 navbar:page(cigroups, ["Confidence interval for independent samples"]).
 task(cigroups).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-mathml:math_hook(n_mc, subscript(n, "MC")).
-mathml:math_hook(n_rc, subscript(n, "RC")).
-mathml:math_hook(mc, overline("MC")).
-mathml:math_hook(s_mc, subscript(s, "MC")).
-mathml:math_hook(rc, overline("RC")).
-mathml:math_hook(s_rc, subscript(s, "RC")).
-mathml:math_hook(s2p, subscript(s, "pool")^2).
-mathml:math_hook(alpha, greek("alpha")).
+math_hook(n_mc, subscript(n, "MC")).
+math_hook(n_rc, subscript(n, "RC")).
+math_hook(mc, overline("MC")).
+math_hook(s_mc, subscript(s, "MC")).
+math_hook(rc, overline("RC")).
+math_hook(s_rc, subscript(s, "RC")).
+math_hook(s2p, subscript(s, "pool")^2).
+math_hook(alpha, greek("alpha")).
 
 % R definitions
 r_hook(n_mc).

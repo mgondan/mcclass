@@ -13,15 +13,12 @@ task(critical).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
-mathml:math_hook(p0, subscript(pi, 0)).
-mathml:math_hook(n, 'N').
-mathml:math_hook(tail("upper", K), M) :-
-    M = ('X' >= K).
-mathml:math_hook(tail("lower", K), M) :-
-    M = ('X' =< K).
-mathml:math_hook(tail("densi", K), M) :-
-    M = ('X' = K).
-mathml:math_hook(cbinom(Alpha, N, Pi, Tail, MinArg), M) :-
+math_hook(p0, subscript(pi, 0)).
+math_hook(n, 'N').
+math_hook(tail("upper", K), 'X'>= K).
+math_hook(tail("lower", K), 'X' =< K).
+math_hook(tail("densi", K), 'X' = K).
+math_hook(cbinom(Alpha, N, Pi, Tail, MinArg), M) :-
     M = (nodot(MinArg, fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])) =< Alpha)).
 
 r_hook(alpha).
