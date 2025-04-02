@@ -21,6 +21,11 @@ math_hook(p1, subscript(pi, 1)).
 math_hook(n, 'N').
 math_hook(tail1(Tail, Arg), tail(Tail, Arg)).
 math_hook(tail2(Tail, Arg), tail(Tail, Arg)).
+math_hook(tail("upper", K), 'X' >= K).
+math_hook(tail("lower", K), 'X' =< K).
+math_hook(tail("densi", K), 'X' = K).
+math_hook(cbinom(Alpha, N, Pi, Tail, MinArg), M) :-
+    M = (nodot(MinArg, fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])) =< Alpha)).
 
 rint:int_hook(tail1, tail(atomic, atomic), atomic, []).
 rint:int_hook(tail2, tail(atomic, atomic), atomic, []).
@@ -73,8 +78,8 @@ intermediate(powbinom, crit).
 intermediate(powbinom, power).
 expert(powbinom, stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(Alpha, N, P0, P1),
-    C = denote(c, crit(Alpha, N, P0), "the critical value"),
-    To = { power(C, N, P1) }.
+    To = { '<-'(c, crit(Alpha, N, P0)) ;
+           power(c, N, P1) }.
 
 feedback(problem, [], _Col, F)
  => F = [ "Correctly identified the two steps of the solution." ].

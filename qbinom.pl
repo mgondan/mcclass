@@ -15,7 +15,7 @@ task(critical).
 
 math_hook(p0, subscript(pi, 0)).
 math_hook(n, 'N').
-math_hook(tail("upper", K), 'X'>= K).
+math_hook(tail("upper", K), 'X' >= K).
 math_hook(tail("lower", K), 'X' =< K).
 math_hook(tail("densi", K), 'X' = K).
 math_hook(cbinom(Alpha, N, Pi, Tail, MinArg), M) :-
