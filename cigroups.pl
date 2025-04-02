@@ -39,7 +39,7 @@ r_hook(var_pool/4).
 mono((var_pool)/4, [+, /, +, /]).
 
 % Task description
-render
+render(Flags)
 --> {start(item(_RC, _S_RC, N_RC, _MC, _S_MC, N_MC, _Alpha)) },
     html(
        div(class(card), div(class('card-body'),
@@ -49,9 +49,9 @@ render
               "mathematics nationwide. Prior to this, a school is testing ",
               "whether the new concept improves the students\u0027 understanding ",
               "of the subject matter compared to the previous teaching concept. ", 
-	      "In this test phase, ", \mmlm([], N_MC = r(N_MC)),  " students from the model ",
+	      "In this test phase, ", \mmlm(Flags, N_MC = r(N_MC)),  " students from the model ",
               "class (MC) are taking part in lessons using the new concept and ",
-              \mmlm([], N_RC = r(N_RC)), " students from a reference class (RC) are taking ",
+              \mmlm(Flags, N_RC = r(N_RC)), " students from a reference class (RC) are taking ",
               "part in lessons using the existing concept. At the end of the ",
 	      "test phase, all students take a standardized mathematics test with ",
 	      "the following results."
@@ -64,21 +64,21 @@ render
                       "and reference class." ],
                     [ "Average", "SD" ],
                     [ "", "Model class", "Reference class"],
-                    [ [ \mmlm([digits(1)], r(mc)),
-                        \mmlm([digits(1)], r(rc)) ],
-                      [ \mmlm([digits(1)], r(s_mc)),
-                        \mmlm([digits(1)], r(s_rc))]
+                    [ [ \mmlm([digits(1) | Flags], r(mc)),
+                        \mmlm([digits(1) | Flags], r(rc)) ],
+                      [ \mmlm([digits(1) | Flags], r(s_mc)),
+                        \mmlm([digits(1) | Flags], r(s_rc))]
                     ])))),
             \download(cigroups)
           ]))).
 
-task(cigroups)
+task(Flags, cigroups)
 --> { start(item(_RC, _S_RC, _N_RC, _MC, _S_MC, _N_MC, Alpha)),
       session_data(resp(cigroups, cigroups, Resp), resp(cigroups, cigroups, '#.# to #.#'))
     },
     html(\htmlform(["Determine the confidence interval for the difference ",
         "between the two group means. The alpha level ",
-        "is ", \mmlm([], Alpha = percent(r(Alpha)))], cigroups, Resp)).
+        "is ", \mmlm(Flags, Alpha = percent(r(Alpha)))], cigroups, Resp)).
 
 % t-test and confidence intervall for independent samples 
 intermediate(cigroups, item).
