@@ -18,10 +18,10 @@ label(tratio, [math(mi(t)), "-ratio"]).
 label(pvalue, [math(mi(p)), "-value"]).
 label(cipaired, "Confidence interval").
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4, r_hook/1.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering
-math_hook(d, overline('D0')).
+math_hook(d, overline('D')).
 math_hook(s_d, subscript(s, 'D')).
 math_hook(n, 'N').
 math_hook(t0, overline("T0")).
@@ -439,9 +439,9 @@ hint(s_eot, [_S, S_EOT], Col, F)
         ].
 
 % Buggy-Rule: Use of n instead of sqrt(n)
-buggy(tratio, stage(2), X, Y, [step(buggy, sqrt1, [n])]) :-
-    X = sqrt(n),
-    Y = omit_right(sqrt1, n^(1/2)).
+buggy(tratio, stage(2), X, Y, [step(buggy, sqrt1, [N])]) :-
+    X = sqrt(N),
+    Y = omit_right(sqrt1, N^(1/2)).
 
 feedback(sqrt1, [N], Col, F)
  => F = [ "The result matches ",
