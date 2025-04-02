@@ -48,10 +48,8 @@ my_subset(L, [H | S], [H | D]) :-
     my_subset(L, S, D).
 
 
-render
+render(Flags)
 --> { start(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)) },
- 
-
     html(
       div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Subgroups - Treatment of early stuttering"),
@@ -59,9 +57,9 @@ render
             [ "Jones et al. (2005) investigated the efficacy of the ",
               "so-called Lidcombe therapy for the treatment of stuttering ",
               "in early childhood. The study is a randomized trial ",
-              "on ", \mmlm(r('N')), "children, comparing Lidcombe ",
+              "on ", \mmlm(Flags, r('N')), "children, comparing Lidcombe ",
               "with treatment as usual (TAU). The significance level ",
-              "is ", \mmlm(alpha = percent(0.05)), " two-tailed. ",
+              "is ", \mmlm(Flags, alpha = percent(0.05)), " two-tailed. ",
 	      "In this Task analyze the impact of the biological Sex of the children on the Therapy-effect, the subgroup-interaction of Sex:Therapy. ",
               "Please analyze the data and draw the correct conclusions." 
             ]),
@@ -72,8 +70,8 @@ render
                     [ em("Table 1. "), "Descriptive statistics" ],
                     [ "T0", "EOT" ],
                     [ "", "Lidcombe", "TAU" ],
-                    [ [ \mmlm(r('Lidcombe_T0')), \mmlm(r('TAU_T0')) ],
-                      [ \mmlm(r('Lidcombe_EOT')), \mmlm(r('TAU_EOT')) ]
+                    [ [ \mmlm(Flags, r('Lidcombe_T0')), \mmlm(Flags, r('TAU_T0')) ],
+                      [ \mmlm(Flags, r('Lidcombe_EOT')), \mmlm(Flags, r('TAU_EOT')) ]
                     ])))),
           p(class('card-text'),
              "Ficticious data can be downloaded below."),
@@ -94,23 +92,23 @@ render
         ]))).
 
 % Question for F-Ratio
-task(fratio)
+task(Flags, fratio)
 --> { start(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)),
       session_data(resp(baseline, fratio, Resp), resp(baseline, fratio, '#.##'))
     },
 	html(\htmlform([ "Does the therapy effect differ between boys and girls? ",
-	"Include the interaction and analyze its impact. Please report the ", \mmlm(hyph('F', "ratio for the interaction.")) ], fratio, Resp)).
+	"Include the interaction and analyze its impact. Please report the ", \mmlm(Flags, hyph('F', "ratio for the interaction.")) ], fratio, Resp)).
 
 % Question for p-value
-task(pvalue)
+task(Flags, pvalue)
 --> { start(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)),
       session_data(resp(baseline, pvalue, Resp), resp(baseline, pvalue, '.###'))
     },
 	html(\htmlform([ "Does the therapy effect differ between boys and girls? Include the interaction and analyze its impact. ",
-	"Please report the ", \mmlm(hyph(p, "value for the interaction.")) ], pvalue, Resp)).
+	"Please report the ", \mmlm(Flags, hyph(p, "value for the interaction.")) ], pvalue, Resp)).
 
 % Question for CI
-task(cibase)
+task(_Flags, cibase)
 --> { start(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)),
       session_data(resp(baseline, cibase, Resp), resp(baseline, cibase, '.###-.###'))
     },

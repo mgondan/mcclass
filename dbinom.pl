@@ -30,26 +30,26 @@ r_hook(choose/2).
 mono((choose)/2, [+, +]).
 mono((factorial)/1, [+]).
 
-render
+render(Flags)
 --> {start(item(_K, N, P0)) },
     html(
       [ div(class(card), div(class("card-body"),
           [ h1(class("card-title"), "Binary outcomes"),
             p(class("card-text"),
-              [ "Consider a clinical study with ", \mmlm(r(N)), " patients. ",
+              [ "Consider a clinical study with ", \mmlm(Flags, r(N)), " patients. ",
                 "We assume that the success probability ",
-                "is ", \mmlm(r(P0)), " in all patients, and that the ",
+                "is ", \mmlm(Flags, r(P0)), " in all patients, and that the ",
                 "successes occur independently."
               ])
           ]))
       ]).
         
 
-task(exactprob)
+task(Flags, exactprob)
 --> { start(item(K, _N, _P0)), 
       session_data(resp(dbinom, exactprob, Resp), resp(dbinom, exactprob, '#.##'))
     },
-    html(\htmlform([ "What is the probability for exactly ", \mmlm(r(K)), " ",
+    html(\htmlform([ "What is the probability for exactly ", \mmlm(Flags, r(K)), " ",
         "successes?" ], exactprob, Resp)).
 
 intermediate(exactprob, item).

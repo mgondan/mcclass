@@ -33,7 +33,7 @@ r_hook(p1).
 r_hook(c).
 
 % Task description
-render
+render(Flags)
 --> { start(item(_Alpha, N, P0, P1)),
       binomtable(N, P0, P1, Caption, Rows, Cols, Cells)
     },
@@ -41,13 +41,13 @@ render
         div(class(card), div(class('card-body'),
           [ h1(class('card-title'), "Binary outcomes"),
             p(class('card-text'),
-              [ "Consider a clinical study with ", \mmlm(r(N)), " patients ",
+              [ "Consider a clinical study with ", \mmlm(Flags, r(N)), " patients ",
                 "testing a new treatment. We assume that the success ",
-                "probability is ", \mmlm(r(P0)), " under the null ",
+                "probability is ", \mmlm(Flags, r(P0)), " under the null ",
                 "hypothesis, and that successes occur independently in all ",
                 "patients. Under the alternative hypothesis, we hope ",
                 "that the success probability is ",
-                span(class('text-nowrap'), [\mmlm(r(P1)), "."]), " The ",
+                span(class('text-nowrap'), [\mmlm(Flags, r(P1)), "."]), " The ",
                 "binomial probabilities are given in the tables below."
               ]),
             div(class(container),
@@ -55,13 +55,13 @@ render
                 div(class("col-6"), \htmltable(Caption, Rows, Cols, Cells))))
           ]))).
 
-task(powbinom)
+task(Flags, powbinom)
 --> { start(item(Alpha, _N, _P0, _P1)),
       session_data(resp(powbinom, powbinom, Resp), resp(powbinom, powbinom, '#.##'))
     },
     html(\htmlform([ "What is the power of the test at the one-tailed ",
         "significance level of ",
-        span(class('text-nowrap'), [\mmlm(alpha = r(Alpha)), "?"])],
+        span(class('text-nowrap'), [\mmlm(Flags, alpha = r(Alpha)), "?"])],
         powbinom, Resp)).
 
 intermediate(powbinom, item).

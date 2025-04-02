@@ -27,7 +27,7 @@ r_hook(pi_B).
 r_hook(or).
 r_hook(odds_B).
 
-render
+render(Flags)
 --> { start(item(Pi_A, Pi_B)) },
     
     html(
@@ -36,11 +36,11 @@ render
             [ h1(class('card-title'), "Odds ratio"),
               p(class('card-text'),
                 [ "The success probability of therapy A ",
-                  "is ", \mmlm([r(Pi_A), "."]), " Therapy B has a success ",
-                  "probability of ", \mmlm([r(Pi_B), "."])
+                  "is ", \mmlm(Flags, [r(Pi_A), "."]), " Therapy B has a success ",
+                  "probability of ", \mmlm(Flags, [r(Pi_B), "."])
                 ])]))]).
 
-task(oratio)
+task(_Flags, oratio)
 --> { start(item(_Pi_A, _Pi_B)),
       session_data(resp(oddsratio2, oratio, Resp), resp(oddsratio2, oratio, '#.##'))
 	}, 

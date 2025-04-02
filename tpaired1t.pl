@@ -53,17 +53,17 @@ mono(var_pool/4, [+, /, +, /]).
 
 
 % Task description
-render
+render(Flags)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha)) },      % by adding the parameter _Incr, the task description won't appear anymore
     html(
       div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Evaluation study on writing skills"),
           p(class('card-text'),
             [ "Consider an evaluation study on self-regulatory revising strategies training (SRT) with ",
-              \mmlm(N = r(N)), " German-speaking sixth-graders. The primary outcome is the global score on the RANT (Rating for Narrative Texts, range
+              \mmlm(Flags, N = r(N)), " German-speaking sixth-graders. The primary outcome is the global score on the RANT (Rating for Narrative Texts, range
                from best = 1 to worst = 10). The significance level is set to ",
-              \mmlm([alpha = percent(0.05), "."]), " A decrease of the values (i.e., higher text quality)
-              should result in a positive ", \mmlm(hyph(t, "value."))]),     
+              \mmlm(Flags, [alpha = percent(0.05), "."]), " A decrease of the values (i.e., higher text quality)
+              should result in a positive ", \mmlm(Flags, hyph(t, "value."))]),     
           div(class(container),
             div(class("row justify-content-md-center"),
               div(class("col-6"),
@@ -72,38 +72,38 @@ render
                     "and ", \mmlm('D' = "Pretest" - "Posttest") ],
                   [ "Average", "SD" ],
                   [ "RANT", "Pretest", "Posttest", \mmlm(d) ],
-                  [ [ \mmlm([digits(1)], r(t0)),
-                      \mmlm([digits(1)], r(eot)),
-                      \mmlm([digits(1)], r(d1)) ],
-                    [ \mmlm([digits(1)], r(s_t0)),
-                      \mmlm([digits(1)], r(s_eot)),
-                      \mmlm([digits(1)], r(s1_d)) ]
+                  [ [ \mmlm([digits(1) | Flags], r(t0)),
+                      \mmlm([digits(1) | Flags], r(eot)),
+                      \mmlm([digits(1) | Flags], r(d1)) ],
+                    [ \mmlm([digits(1) | Flags], r(s_t0)),
+                      \mmlm([digits(1) | Flags], r(s_eot)),
+                      \mmlm([digits(1) | Flags], r(s1_d)) ]
                   ])))),
           \download(tpaired)
         ]))).
 
 % Question for the t-ratio
-task(tratio)
+task(Flags, tratio)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, Mu, _Alpha)),
       session_data(resp(tpaired, tratio, Resp), resp(tpaired, tratio, '#.##'))
     },
     html(\htmlform([ "Does SRT lead to a relevant improvement (i.e., more ",
-        "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean RANT ",
+        "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in mean RANT ",
         "scores between Pretest and Posttest? ",
-        "Please report the ", \mmlm(hyph(t, "ratio.")) ], tratio, Resp)).
+        "Please report the ", \mmlm(Flags, hyph(t, "ratio.")) ], tratio, Resp)).
 
 % Question for the p-value
-task(pvalue)
+task(Flags, pvalue)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, Mu, _Alpha)),
       session_data(resp(tpaired, pvalue, Resp), resp(tpaired, pvalue, '.###'))
     },
     html(\htmlform([ "Does SRT lead to a relevant improvement (i.e., more ",
-        "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean RANT ",
+        "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in mean RANT ",
         "scores between Pretest and Posttest? ",
-        "Please report the ", \mmlm(hyph(p, "value.")) ], pvalue, Resp)).
+        "Please report the ", \mmlm(Flags, hyph(p, "value.")) ], pvalue, Resp)).
 
 % Question for the confidence interval
-task(cipaired)
+task(_Flags, cipaired)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, _Mu, _Alpha)),
       session_data(resp(tpaired, cipaired, Resp), resp(tpaired, cipaired, '#.# to #.#'))
     },

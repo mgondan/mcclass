@@ -35,7 +35,7 @@ r_hook(chi2).
 r_hook(p_pool).
 
 % Task description
-render
+render(Flags)
 -->  {start(item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box)) },
       html(
          div(class(card), div(class("card-body"),
@@ -66,23 +66,23 @@ render
                 [ "“Laparoscopy-naïve medical students were randomized into ",
                   "two groups. (...) The VR group completed the operation more ",
                   "often within 80 min than the Box ",
-                  "group ", \mmlm([digits(0)], ["(", (r(P_VR*100)), "%"]), " ",
-                  "vs. ", \mmlm([digits(0)], [(r(P_Box*100)), "%)."]), " The ",
-                  "percentages correspond to ", \mmlm(r(S_VR)), " ",
-                  "people (out of ", \mmlm([r(N_VR), ")"]), " in ",
-                  "the VR group and ", \mmlm(r(S_Box)), " people ",
-                  "(out of ", \mmlm([r(N_Box), ")"]), " in the Box ",
+                  "group ", \mmlm([digits(0) | Flags], ["(", (r(P_VR*100)), "%"]), " ",
+                  "vs. ", \mmlm([digits(0) | Flags], [(r(P_Box*100)), "%)."]), " The ",
+                  "percentages correspond to ", \mmlm(Flags, r(S_VR)), " ",
+                  "people (out of ", \mmlm(Flags, [r(N_VR), ")"]), " in ",
+                  "the VR group and ", \mmlm(Flags, r(S_Box)), " people ",
+                  "(out of ", \mmlm(Flags, [r(N_Box), ")"]), " in the Box ",
                   "group.”"
               ])))
 	      ]))).
 
-task(chisq)
+task(Flags, chisq)
 --> { start(item(_P_VR, _S_VR, _N_VR, _P_Box, _S_Box, _N_Box)),
       session_data(resp(chisq, chisq, Resp), resp(chisq, chisq, '#.##'))
     },
     html(\htmlform([ "Does VR training lead to faster surgery times than ",
         "traditional Box training? Please ",
-        "determine the ", \mmlm(hyph(chi^2, "statistic.")) ], chisq, Resp)).
+        "determine the ", \mmlm(Flags, hyph(chi^2, "statistic.")) ], chisq, Resp)).
 
 
 % Chi-square Test

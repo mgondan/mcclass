@@ -107,14 +107,14 @@ handle(Topic, Form),
           ])
       ],
       [ \navbar,
-        \(Topic:render),
+        \(Topic:render([topic(Topic)])),
         \navtabs(Topic, [T1 | Tasks], Task),
         div([class('tab-content'), id('nav-tabContent')],
           \foreach((member(T, [T1 | Tasks]), task(Topic, T, task(Topic, T, Data))),
             ( {T = Task}
             ->  html(div([class('tab-pane fade show active'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
                   div([
-                    \(Topic:task(T)),
+                    \(Topic:task([topic(Topic)], T)),
                     \feedback(Topic, T, Data, Form),
                     \pp_solutions(Topic, T, Data),
                     \pp_hints(Topic, T, Data),
@@ -122,7 +122,7 @@ handle(Topic, Form),
                     \pp_traps(Topic, T, Data)])))
             ;   html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
                   div([
-                    \(Topic:task(T)),
+                    \(Topic:task([topic(Topic)], T)),
                     \feedback(Topic, T, Data, Form),
                     \pp_solutions(Topic, T, Data),
                     \pp_hints(Topic, T, Data),
@@ -152,14 +152,14 @@ handle(Topic, Form)
           ])
       ],
       [ \navbar,
-        \(Topic:render),
+        \(Topic:render([topic(Topic)])),
 	\navtabs(Topic, [T1 | Tasks], Task),
         div([class('tab-content'), id('nav-tabContent')],
 	  \foreach((member(T, [T1 | Tasks]), task(Topic, T, task(Topic, T, Data))),
             ( {T = Task}
              -> html(div([class('tab-pane fade show active'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)], 
                   div([
-                    \(Topic:task(T)),
+                    \(Topic:task([topic(Topic)], T)),
                     \feedback(Topic, T, Data, Form),
                     \pp_solutions(Topic, T, Data),
                     \pp_hints(Topic, T, Data),
@@ -167,7 +167,7 @@ handle(Topic, Form)
                     \pp_traps(Topic, T, Data)])))
             ;   html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
                   div([
-                    \(Topic:task(T)),
+                    \(Topic:task([topic(Topic)], T)),
                     \feedback(Topic, T, Data, Form),
                     \pp_solutions(Topic, T, Data),
                     \pp_hints(Topic, T, Data),

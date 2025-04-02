@@ -20,25 +20,25 @@ r_hook(sigma).
 r_hook(z).
 r_hook(p).
 
-render
+render(Flags)
 --> { start(item(X, Mu, Sigma)) },
     html(
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
           p(class('card-text'), 
-            [ "Let ", \mmlm([digits(0)], X), " follow a normal distribution with ",
-              "expectation ", \mmlm([digits(0)], Mu = r(mu)), " and ",
-              "standard deviation ", \mmlm([digits(0)], [Sigma = r(sigma), "."]),
+            [ "Let ", \mmlm([digits(0) | Flags], X), " follow a normal distribution with ",
+              "expectation ", \mmlm([digits(0) | Flags], Mu = r(mu)), " and ",
+              "standard deviation ", \mmlm([digits(0) | Flags], [Sigma = r(sigma), "."]),
               " A table of the standard ",
               "normal distribution is found below."
             ])]))]).
 
-task(ztrans)
+task(Flags, ztrans)
 --> { start(item(_X, _Mu, _Sigma)),
       session_data(resp(ztrans, ztrans, Resp), resp(ztrans, ztrans, '.##'))
 	},
 	html(\htmlform([ "How many realizations are ",
-        "below ", \mmlm([digits(0)], [r(x), "?"])], ztrans, Resp)).
+        "below ", \mmlm([digits(0) | Flags], [r(x), "?"])], ztrans, Resp)).
       
 % z-transformation and normal distribution
 intermediate(ztrans, item).

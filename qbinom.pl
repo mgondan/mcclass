@@ -26,7 +26,7 @@ r_hook(n).
 r_hook(p0).
 r_hook(k).
 
-render
+render(Flags)
 --> { start(item(_Alpha, N, P0)), 
       binomtable(N, P0, Caption, Rows, Cols, Cells) 
     },
@@ -34,9 +34,9 @@ render
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Phase II clinical study with binary outcome"),
           p(class('card-text'), 
-            [ "Consider a clinical study with ", \mmlm(r(N)), " patients. We ",
+            [ "Consider a clinical study with ", \mmlm(Flags, r(N)), " patients. We ",
               "assume that the successes occur independently, and under the ",
-              "null hypothesis, the success probability is ", \mmlm(r(P0)), " ",
+              "null hypothesis, the success probability is ", \mmlm(Flags, r(P0)), " ",
               "in all patients. The binomial probabilities are given below."
             ]),
           div(class(container),	  
@@ -46,13 +46,13 @@ render
         ]))
       ]).
 
-task(critical)
+task(Flags, critical)
 --> { start(item(Alpha, _N, _P0)),
       session_data(resp(qbinom, critical, Resp), resp(qbinom, critical, '#'))
     },
     html(\htmlform([ "How many successes are needed to rule out the null ",
       "hypothesis at the one-tailed significance level ",
-      "of ", \mmlm(alpha = r(Alpha)), "?"], critical, Resp)).
+      "of ", \mmlm(Flags, alpha = r(Alpha)), "?"], critical, Resp)).
 
 intermediate(critical, item).
 start(item(alpha, n, p0)).

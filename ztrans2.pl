@@ -21,24 +21,24 @@ r_hook(z).
 r_hook(p).
 r_hook(mu).
 
-render
+render(Flags)
 --> {start(item(_P, Mu, Sigma)) },
     html(
       [ div(class(card), div(class('card-body'),
         [ h1(class('card-title'), "Normal distribution"),
           p(class('card-text'), 
-            [ "Let ", \mmlm(x), " follow a normal distribution with ",
-              "expectation ", \mmlm([digits(0)], Mu = r(mu)), " and ",
-              "standard deviation ", \mmlm([digits(0)], [Sigma = r(sigma), "."]),
+            [ "Let ", \mmlm(Flags, x), " follow a normal distribution with ",
+              "expectation ", \mmlm([digits(0) | Flags], Mu = r(mu)), " and ",
+              "standard deviation ", \mmlm([digits(0) | Flags], [Sigma = r(sigma), "."]),
               " A table of the standard ",
               "normal distribution is found below."
             ])]))]).
 
-task(ztrans)
+task(Flags, ztrans)
 --> { start(item(P, _Mu, _Sigma)),
       session_data(resp(ztrans2, ztrans, Resp), resp(ztrans2, ztrans, '##.#'))
 	},
-	html(\htmlform([ "In which area do the upper ", \mmlm([digits(0)], [r(P), "% fall?"])], ztrans, Resp)).
+	html(\htmlform([ "In which area do the upper ", \mmlm([digits(0) | Flags], [r(P), "% fall?"])], ztrans, Resp)).
 
 intermediate(ztrans, item).
 start(item(p, mu, sigma)).

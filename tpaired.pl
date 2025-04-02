@@ -53,7 +53,7 @@ mono((var_pool)/4, [+, /, +, /]).
 r_hook(tail/1).
 
 % Task description
-render
+render(Flags)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha)) },
     html(
       div(class(card), div(class('card-body'),
@@ -61,11 +61,11 @@ render
           p(class('card-text'),
             [ "Consider a clinical study on rumination-focused Cognitive ",
               "Behavioral Therapy (rfCBT) with ",
-              \mmlm(N = r(N)), " patients. The primary ",
+              \mmlm(Flags, N = r(N)), " patients. The primary ",
               "outcome is the score on the Hamilton Rating Scale for ", 
               "Depression (HDRS, range from best = 0 to worst = 42). ",
               "The significance level is set to ",
-              \mmlm(alpha = percent(0.05)), " two-tailed."]),
+              \mmlm(Flags, alpha = percent(0.05)), " two-tailed."]),
           div(class(container),
             div(class("row justify-content-md-center"),
               div(class("col-6"),
@@ -73,43 +73,43 @@ render
                   [ em("Table 1. "), "Observed HDRS scores at T0, EOT, ",
                     "and ", \mmlm('D' = "T0" - "EOT") ],
                   [ "Average", "SD" ],
-                  [ "HDRS", "T0", "EOT", \mmlm(d) ],
-                  [ [ \mmlm([digits(1)], r(t0x)),
-                      \mmlm([digits(1)], r(eotx)),
-                      \mmlm([digits(1)], r(dx)) ],
-                    [ \mmlm([digits(1)], r(sx_t0)),
-                      \mmlm([digits(1)], r(sx_eot)),
-                      \mmlm([digits(1)], r(sx_d)) ]
+                  [ "HDRS", "T0", "EOT", \mmlm(Flags, d) ],
+                  [ [ \mmlm([digits(1) | Flags], r(t0x)),
+                      \mmlm([digits(1) | Flags], r(eotx)),
+                      \mmlm([digits(1) | Flags], r(dx)) ],
+                    [ \mmlm([digits(1) | Flags], r(sx_t0)),
+                      \mmlm([digits(1) | Flags], r(sx_eot)),
+                      \mmlm([digits(1) | Flags], r(sx_d)) ]
                   ])))),
           \download(tpaired)
         ]))).
 
 % Question for the t-ratio
-task(tratio)
+task(Flags, tratio)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, Mu, _Alpha)),
       session_data(resp(tpaired, tratio, Resp), resp(tpaired, tratio, '#.##'))
     },
     html(\htmlform([ "Does rfCBT lead to a relevant reduction (i.e., more ",
-        "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean HDRS ",
+        "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in mean HDRS ",
         "scores between baseline (T0) and End of Treatment (EOT)? ",
 	"Please report ",
-	"the ", span(class('text-nowrap'), [\mmlm(t), "-ratio."]) ], 
+	"the ", span(class('text-nowrap'), [\mmlm(Flags, t), "-ratio."]) ], 
 	tratio, Resp)).
 
 % Question for the p-value
-task(pvalue)
+task(Flags, pvalue)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, Mu, _Alpha)),
       session_data(resp(tpaired, pvalue, Resp), resp(tpaired, pvalue, '.###'))
     },
     html(\htmlform([ "Does rfCBT lead to a relevant reduction (i.e., more ",
-        "than ", \mmlm([digits(1)], Mu = r(Mu)), " units) in mean HDRS ",
+        "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in mean HDRS ",
         "scores between baseline (T0) and End of Treatment (EOT)? ",
         "Please report ",
-        "the two-tailed ", span(class('text-nowrap'), [\mmlm(p), "-value."]) ], 
+        "the two-tailed ", span(class('text-nowrap'), [\mmlm(Flags, p), "-value."]) ], 
 	pvalue, Resp)).
 
 % Question for the confidence interval
-task(cipaired)
+task(_Flags, cipaired)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, _Mu, _Alpha)),
       session_data(resp(tpaired, cipaired, Resp), resp(tpaired, cipaired, '#.# to #.#'))
     },

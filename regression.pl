@@ -33,7 +33,7 @@ r_hook(lm0/3).
 mono(lm0/3, [/, /, /]).
 
 % Task description
-render
+render(Flags)
 --> { start(item(N, _Y, _X)) },
 	html(
       [ div(class(card),
@@ -43,25 +43,25 @@ render
                 [ "Consider a clinical study researching the relationship between sleep duration ",
                 "(hours per night) and depression severity measured on the Hamilton Rating Scale for Depression ", 
                 "(HDRS, range from best = 0 to worst = 42) in a sample of patients (",
-                \mmlm(N = r(N)),
+                \mmlm(Flags, N = r(N)),
                 "). The dataset can be downloaded below."
                 ]),
           \download(regression)
           ]))]).
 
 % Question for b-coefficient
-task(bcoef)
+task(_Flags, bcoef)
 --> { start(item(_N, _Y, _X)),
       session_data(resp(regression, bcoef, Resp), resp(regression, bcoef, '#.##'))
     },
 	html(\htmlform(["How does the depression severity change (increase/decrease in HDRS score) for every hour of additional sleep?"], bcoef, Resp)).
 
 % Question for p-value 
-task(pvalue)
+task(Flags, pvalue)
 --> { start(item(_N, _Y, _X)),
       session_data(resp(regression, pvalue, Resp), resp(regression, pvalue, '#.##'))
     },
-	html(\htmlform(["What is the ", span(class('text-nowrap'), [\mmlm(p), "-value"]), " of the estimate?"], pvalue, Resp)).
+	html(\htmlform(["What is the ", span(class('text-nowrap'), [\mmlm(Flags, p), "-value"]), " of the estimate?"], pvalue, Resp)).
 
 %
 % Expert rule for b-coefficient

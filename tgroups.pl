@@ -46,7 +46,7 @@ r_hook(var_pool/4).
 mono((var_pool)/4, [+, /, +, /]).
 
 % Task description
-render 
+render(Flags)
 --> {start(item(_VR, _S_VR, N_VR, _BOX, _S_BOX, N_BOX, Alpha)) },
     html(
        div(class(card), div(class('card-body'),
@@ -75,10 +75,10 @@ render
               p(class('card-text'),
                 [ "“Laparoscopy-naïve medical students were randomized into ",
                   "two groups. The Box ",
-                  "group ", \mmlm(["(", N_BOX = r(n_box), ")"]), " used ",
+                  "group ", \mmlm(Flags, ["(", N_BOX = r(n_box), ")"]), " used ",
                   "e-learning for laparoscopic cholecystectomy and practiced ",
                   "basic skills with Box trainers. The VR ",
-                  "group ", \mmlm(["(", N_VR = r(n_vr), ")"]), " trained ",
+                  "group ", \mmlm(Flags, ["(", N_VR = r(n_vr), ")"]), " trained ",
                   "basic skills and laparoscopic cholecystectomy on ",
                   "LAP Mentor II (Simbionix, Cleveland, USA). Each group ",
                   "trained 3 × 4 hours followed by a knowledge test. Blinded ",
@@ -90,10 +90,10 @@ render
                   "scored higher than the VR group in the knowledge ",
                   "test (Box: 13.4 ± 1.2 vs. VR: 10.8 ± 1.8, p < 0.001). Both ",
                   "groups showed equal operative performance in the OSATS score ",
-                  "(VR: ", \mmlm([digits(1)], r(vr)), " ± ", \mmlm([digits(1)], r(s_vr1)), 
-                  " vs. BOX: ", \mmlm([digits(1)], r(box)), " ± ", \mmlm([digits(1)], r(s_box)), 
+                  "(VR: ", \mmlm([digits(1) | Flags], r(vr)), " ± ", \mmlm([digits(1) | Flags], r(s_vr1)), 
+                  " vs. BOX: ", \mmlm([digits(1) | Flags], r(box)), " ± ", \mmlm([digits(1) | Flags], r(s_box)), 
                   ", p = 0.437). The significance level is set to ",
-                  \mmlm(alpha = percent(r(Alpha))), " two-tailed. ",
+                  \mmlm(Flags, alpha = percent(r(Alpha))), " two-tailed. ",
                   "The medical students generally appreciated the training and felt well prepared for ", 
                   "assisting in laparoscopic surgery. The efficiency of the training ",
                   "was judged higher by the VR group than by the Box group."
@@ -101,28 +101,28 @@ render
             \download(tgroups)]))).
 
 % Question for pooled variance.
-task(s2p)
+task(Flags, s2p)
 --> { start(item(_VR, _S_VR, _N_VR, _Box, _S_Box, _N_Box, _Alpha)),
       session_data(resp(tgroups2, s2p, Resp), resp(tgroups2, s2p, '#.##'))
     },
     html(\htmlform(
       [ "Compare the OSATS scores of both groups assuming homogeneity",
-        " of variance and calculate the pooled variance ", \mmlm([s2p, "."])
+        " of variance and calculate the pooled variance ", \mmlm(Flags, [s2p, "."])
       ], s2p, Resp)).
 
 % Question for independent t-test.
-task(tratio)
+task(Flags, tratio)
 --> { start(item(_VR, _S_VR, _N_VR, _BOX, _S_BOX, _N_BOX, _Alpha)),
       session_data(resp(tgroups, tratio, Resp), resp(tgroups, tratio, '#.##'))
     },
     html(\htmlform(
       [ "Is VR training superior to traditional Box training? ",
-        "Please report the ", \mmlm(hyph(t, "ratio")), " using the Box training",
+        "Please report the ", \mmlm(Flags, hyph(t, "ratio")), " using the Box training",
         "as the control intervention." 
       ], tratio, Resp)).
 
 % Question for the confidence interval.
-task(cigroups)
+task(_Flags, cigroups)
 --> { start(item(_VR, _S_VR, _N_VR, _Box, _S_Box, _N_Box, _Alpha)),
       session_data(resp(cigroups, cigroups, Resp), resp(cigroups, cigroups, '#.# to #.#'))
     },
