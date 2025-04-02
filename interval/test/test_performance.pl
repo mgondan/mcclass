@@ -1,12 +1,13 @@
-:- module(test_performance, [test_performance/0, clear_log/0]).
+:- module(test_performance, [test_performance/0, test_performance/1, clear_log/0]).
 
 :- use_module('../interval.pl').
+:- use_module('../../tasks.pl').
 :- use_module(library(date)). 
 
 :- initialization(init).
 
 init :-
-    interval(1 + 1, _Res).
+    tasks:interval(1 + 1, _Res).
 
 log_file(Path) :-
     source_file(test_performance:test_performance, Module),  
@@ -41,16 +42,20 @@ log_trailer :-
     close(Stream).
 
 test_(Name, Call, Opt) :-
+    open_null_stream(Null),
     statistics(inferences, Start),
-    call(Call),
+    with_output_to(Null, call(Call)),
     statistics(inferences, End),
     Inferences is End - Start - 3,
     log_result(Name, Inferences, Opt). 
 
 % Tests
 test_performance :-
+    test_performance([test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13]).
+
+test_performance([H | T]) :-
     log_header,
-    test1, test2, test3, test4, test5, test6, test7, test8, test9,
+    maplist(call, [H | T]),
     log_trailer.
 
 % Numbers
@@ -109,3 +114,40 @@ generate(Level, 2 + X) :-
     generate(Level1, X).
 
 generate(0, 2).
+
+test10 :-
+    Topic = easyodds,
+    Task = oratio,
+    Call = tasks:tasks(Topic, Task),
+    open_null_stream(Null),
+    with_output_to(Null, call(Call)), 
+    atomic_list_concat([' | ', Topic, ':', Task], Opt),
+    test_('test10', Call, Opt).
+
+test11 :-
+    Topic = powbinom,
+    Task = powbinom,
+    Call = tasks:tasks(Topic, Task),
+    open_null_stream(Null),
+    with_output_to(Null, call(Call)), 
+    atomic_list_concat([' | ', Topic, ':', Task], Opt),
+    test_('test11', Call, Opt).
+
+
+test12 :-
+    Topic = tpaired,
+    Task = tratio,
+    Call = tasks:tasks(Topic, Task),
+    open_null_stream(Null),
+    with_output_to(Null, call(Call)), 
+    atomic_list_concat([' | ', Topic, ':', Task], Opt),
+    test_('test12', Call, Opt).
+
+test13 :-
+    Topic = baseline,
+    Task = fratio,
+    Call = tasks:tasks(Topic, Task),
+    open_null_stream(Null),
+    with_output_to(Null, call(Call)), 
+    atomic_list_concat([' | ', Topic, ':', Task], Opt),
+    test_('test13', Call, Opt).

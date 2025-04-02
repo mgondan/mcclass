@@ -24,10 +24,10 @@ label(cipaired, "Confidence interval").
 math_hook(d, overline('D')).
 math_hook(s_d, subscript(s, 'D')).
 math_hook(n, 'N').
-math_hook(t0, overline("T0")).
-math_hook(s_t0, subscript(s, "T0")).
-math_hook(eot, overline("EOT")).
-math_hook(s_eot, subscript(s, "EOT")).
+math_hook(t0, overline("Pretest")).
+math_hook(s_t0, subscript(s, "Pretest")).
+math_hook(eot, overline("Posttest")).
+math_hook(s_eot, subscript(s, "Posttest")).
 math_hook(s2p, subscript(s, "pool")^2).
 math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 math_hook(alpha, greek("alpha")).
