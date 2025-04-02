@@ -414,7 +414,7 @@ tasks(Topic, Task) :-
     writeln("Task data"),
     writeln(Data),
     writeln("Task"),
-    html(\(Topic:render), Item, []),
+    html(\(Topic:render([topic(Topic)])), Item, []),
     writeln("Task as HTML"),
     writeln(Item),
     memberchk(solutions(S), Data), 
