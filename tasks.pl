@@ -20,7 +20,7 @@ use_task(T) :-
     dynamic(T:math_hook/2).
 
 :- use_task(tpaired).
-:- use_task(tpaired1t).
+:- use_task(tpairedupper).
 :- use_task(tpaired1tlow).
 :- use_task(baseline).
 :- use_task(oddsratio).

@@ -1,4 +1,4 @@
-:- module(tpaired1t, []).
+:- module(tpairedupper, []).
 
 :- use_module(library(http/html_write)).
 :- use_module(session).
@@ -6,9 +6,10 @@
 :- use_module(r_session).
 :- use_module(interval/interval).
 :- use_module(mathml).
+:- use_module(util).
 
 :- use_module(navbar).
-navbar:page(tpaired1t, ["paired ", i(t), "-test onetailed (1)"]).
+navbar:page(tpairedupper, ["Paired ", i(t), "-test upper tail"]).
 
 task(tratio).
 task(pvalue).
@@ -51,7 +52,6 @@ r_hook(var_pool/4).
 mono(var_pool/4, [+, /, +, /]).
 
 
-
 % Task description
 render(Flags)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha)) },      % by adding the parameter _Incr, the task description won't appear anymore
@@ -85,27 +85,29 @@ render(Flags)
 % Question for the t-ratio
 task(Flags, tratio)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, Mu, _Alpha)),
-      session_data(resp(tpaired, tratio, Resp), resp(tpaired, tratio, '#.##'))
+      session_data(resp(tpairedupper, tratio, Resp), resp(tpairedupper, tratio, '#.##')),
+      fmt(tratio, T_Ratio)
     },
     html(\htmlform([ "Does SRT lead to a relevant improvement (i.e., more ",
         "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in mean RANT ",
         "scores between Pretest and Posttest? ",
-        "Please report the ", \mmlm(Flags, hyph(t, "ratio.")) ], tratio, Resp)).
+        "Please report the ", T_Ratio ], tratio, Resp)).
 
 % Question for the p-value
 task(Flags, pvalue)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, Mu, _Alpha)),
-      session_data(resp(tpaired, pvalue, Resp), resp(tpaired, pvalue, '.###'))
+      session_data(resp(tpairedupper, pvalue, Resp), resp(tpairedupper, pvalue, '.###')),
+      fmt(pvalue, P_VALUE)
     },
     html(\htmlform([ "Does SRT lead to a relevant improvement (i.e., more ",
         "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in mean RANT ",
         "scores between Pretest and Posttest? ",
-        "Please report the ", \mmlm(Flags, hyph(p, "value.")) ], pvalue, Resp)).
+        "Please report the onetailed ", P_VALUE ], pvalue, Resp)).
 
 % Question for the confidence interval
 task(_Flags, cipaired)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, _Mu, _Alpha)),
-      session_data(resp(tpaired, cipaired, Resp), resp(tpaired, cipaired, '#.# to #.#'))
+      session_data(resp(tpairedupper, cipaired, Resp), resp(tpairedupper, cipaired, '#.# to #.#'))
     },
     html(\htmlform([ "Determine the confidence interval for the change in ",
         "the students\u0027 RANT scores." ], cipaired, Resp)).
@@ -125,14 +127,12 @@ expert(tratio, stage(2), X, Y, [step(expert, paired, [])]) :-
     Y = { '<-'(t, paired(D, Mu, S_D, N)) }.
 
 feedback(paired, [], Col, F)
- => F = [ "Correctly recognised the problem as a ",
-          \mmlm(Col, hyph(t, "test")), " for paired samples." 
-        ].
+ => fmt(ttest, Col, T_Test),
+    F = [ "Correctly recognised the problem as a ", T_Test, " for paired samples." ].
 
 hint(paired, [], Col, F)
- => F = [ "This is a ", \mmlm(Col, hyph(t, "test")), " for paired ",
-          "samples." 
-        ].
+ => fmt(ttest, Col, T_Test),
+    F = [ "This is a ", T_Test, " for paired samples." ].
 
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal)
@@ -141,13 +141,13 @@ expert(tratio, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N ])]) :-
     Y = tstat(dfrac(D - Mu, S_D / sqrt(N))).
 
 feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
- => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
-          "paired samples." 
-        ].
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "Correctly identified the ", T_Ratio, " for paired samples." ].
 
 hint(tratio, [D, Mu, S_D, N], Col, F)
- => F = [ "The ", \mmlm(Col, hyph(t, "ratio")), " ",
-          "is ", \mmlm(Col, [dfrac(D - Mu, S_D / sqrt(N)), "."])
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "The ", T_Ratio, " is ", 
+        \mmlm(Col, [dfrac(D - Mu, S_D / sqrt(N)), "."])
         ].
 
 
@@ -176,15 +176,16 @@ buggy(tratio, stage(2), X, Y, [step(buggy, mu, [Mu])]) :-
     Y = tstat(dfrac(omit_right(mu, D - Mu), S_D / sqrt(N))).
 
 feedback(mu, [Mu], Col, F)
- => F = [ "The result matches the ", \mmlm(hyph(t, "ratio,")), " when the null",
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "The result matches the ", \mmlm(hyph(t, "ratio,")), " when the null",
 	   " hypothesis ", \mmlm(Col, color(mu, Mu)), " has been omitted.",
-	   " Please do not forget ", \mmlm(Col, color(mu, Mu)), " in the ",
-	   \mmlm(hyph(t, "ratio."))
+	   " Please do not forget ", \mmlm(Col, color(mu, Mu)), " in the ", T_Ratio, "."
         ].
 
 hint(mu, [Mu], Col, F)
- => F = [ "Do not omit the null hypothesis ", \mmlm(Col, color(mu, Mu)),
-          " in the ", \mmlm(hyph(t, "ratio.")) 
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "Do not omit the null hypothesis ", \mmlm(Col, color(mu, Mu)),
+          " in the ", T_Ratio, "."
         ].
 
 % Buggy-Rule: t-test for independent samples
@@ -201,14 +202,14 @@ buggy(tratio, stage(2), X, Y, [step(buggy, indep, [])]) :-
         }.
 
 feedback(indep, [], Col, F)
- => F = [ "The problem was mistakenly identified as a ",
-          \mmlm(Col, hyph(t, "test")), " for independent samples." 
+ => fmt(ttest, Col, T_Test),
+    F = [ "The problem was mistakenly identified as a ",
+          T_Test, " for independent samples." 
         ].
 
 hint(indep, [], Col, F)
- => F = [ "Do not calculate a ", \mmlm(Col, hyph(t, "test")), " for ",
-          "independent samples here." 
-        ].
+ => fmt(ttest, Col, T_Test),
+    F = [ "Do not calculate a ", T_Test, " for independent samples here." ].
 
 % Second step of the Buggy-Rule: t-test for independent samples
 % Determine the test statistic for the t-test for independent samples.
@@ -221,14 +222,14 @@ expert(tratio, stage(2), X, Y,
     Y = tstat(dfrac(T0 - EOT, sqrt(P * (1/N + 1/N)))).
 
 feedback(tratio_indep, [_T0, _S_T0, _N, _EOT, _S_EOT], Col, F)
- => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")),
-          " for independent samples." 
-        ].
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "Correctly identified the ", T_Ratio, " for independent samples." ].
 
 hint(tratio_indep, [T0, S_T0, N, EOT, S_EOT], Col, F)
- => P = denote(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
-    F = [ "The ", \mmlm(Col, hyph(t, "ratio")), " for independent samples ",
-          "would be ", \mmlm(Col, [dfrac(T0 - EOT, sqrt(P * (1/N + 1/N))), "."])
+ => fmt(tratio, Col, T_Ratio),
+    P = denote(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
+    F = [ "The ", T_Ratio, " for independent samples would be ", 
+        \mmlm(Col, [dfrac(T0 - EOT, sqrt(P * (1/N + 1/N))), "."])
         ].
 
 % The following mistake cannot occur in the paired t-test, but is again only
@@ -246,18 +247,21 @@ buggy(tratio, stage(2), X, Y, [step(buggy, school1, [N1, N2])]) :-
     Y = frac(1, color(school1, N1 + N2)).
 
 feedback(school1, [A, B], Col, F)
- => F = [ "The result matches the expression for the ",
-	   \mmlm(Col, hyph(t, "ratio"))," for independent samples with ",
-	   \mmlm(Col, [frac(1, color(school, color("black", A) + color("black", B))), "."]), 
-	   " Please keep in mind that ", 
-	   \mmlm(Col, [color(school, color("black", frac(1, A)) + color("black", frac(1, B)))
-		 =\= frac(1, color(school, color("black", A) + color("black", B))), "."])
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "The result matches the expression for ",
+          "the ", T_Ratio, " for independent samples with ", 
+	      \mmlm(Col, frac(1, color(school, color("black", A) + color("black", B)))), 
+	      " under the square root. Please keep in mind that ", 
+	      span(class('text-nowrap'), 
+	      [\mmlm(Col, color(school, color("black", frac(1, A)) + color("black", frac(1, B)))
+              =\= frac(1, color(school, color("black", A) + color("black", B)))), "."])
         ].
 
 hint(school1, [N1, N2], Col, F)
- => F = [ "Please do not forget school ",
-          "math, ", \mmlm(Col, [frac(1, color(school1, N1)) +
-            frac(1, color(school1, N2)) =\= frac(1, color(school1, N1+N2)), "."])
+ => F = [ "Please do not forget school math, ", 
+          span(class('text-nowrap'), 
+            [\mmlm(Col, frac(1, color(school1, N1)) + frac(1, color(school1, N2))
+              =\= frac(1, color(school1, N1+N2))), "."]) 
         ].
 
 % Buggy-Rule: Forgot school math (Same for N1 = N2)
@@ -266,15 +270,21 @@ buggy(tratio, stage(2), X, Y, [step(buggy, school2, [N])]) :-
     Y = frac(1, color(school2, 2*N)).
 
 feedback(school2, [N], Col, F)
- => F = [ "The result matches the expression for the ", 
-	   \mmlm(Col, hyph(t, "ratio")), " for independent samples with ",
-	   \mmlm(Col, [frac(1, color(school2, 2*N)), "."]), " Please keep in mind that ",
-	   \mmlm(Col, [frac(1, color(school2, N)) + frac(1, color(school2, N)) =\= frac(1, color(school2, 2*N)), "."])
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "The result matches the expression for ",
+          "the ", T_Ratio, " for independent samples with ", 
+          \mmlm(Col, frac(1, color(school2, 2*N))), 
+          " under the square root. Please keep in mind that ",
+          span(class('text-nowrap'), 
+            [\mmlm(Col, frac(1, color(school2, N)) + frac(1, color(school2, N))
+            =\= frac(1, color(school2, 2*N))), "."]) 
         ].
 
 hint(school2, [N], Col, F)
  => F = [ "Please do not forget school math, ",
-          \mmlm(Col, [frac(1, color(school2, N)) + frac(1, color(school2, N)) =\= frac(1, color(school2, 2*N)), "."])
+          span(class('text-nowrap'),
+            [\mmlm(Col, frac(1, color(school2, N)) + frac(1, color(school2, N))
+              =\= frac(1, color(school2, 2*N))), "."])
         ].
 
 % Buggy-Rule: Forgot parentheses
@@ -319,18 +329,23 @@ buggy(tratio, stage(1), X, Y,
     Y = instead(t0, t0, d).
 
 feedback(t0, [D, T0], Col, F)
- => F = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), " with the", 
-	   " T0 average ", \mmlm(Col, color(t0, T0)), " instead of the average", 
-	   " change score ", \mmlm(Col, [color(t0, D), "."]), " Please insert the average",
-	   " change score ", \mmlm(Col, color(t0, D)), " into the ",
-	   \mmlm(Col, hyph(t, "ratio."))
-	].
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "The result matches ",
+          "the ", T_Ratio, "with the T0 average ", 
+          \mmlm(Col, color(t0, T0)), 
+          " instead of the average change score ", 
+          span(class('text-nowrap'), [\mmlm(Col, color(t0, D)), "."]),
+          " Please insert the average change ",
+          "score ", \mmlm(Col, color(t0, D)), " into ",
+          "the ", T_Ratio, "."
+	      ].
 
 hint(t0, [_D, T0], Col, F)
- => F = [ "Do not insert the T0 average ", \mmlm(Col, color(t0, T0)), " ",
-          "into the ", \mmlm(Col, hyph(t, "ratio.")), " Use the change ",
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "Do not insert the T0 average ", \mmlm(Col, color(t0, T0)), " ",
+          "into the ", T_Ratio, ". Use the change ",
           "scores instead." 
-	].
+	      ].
 
 % Buggy-Rule: Use SD of T0 instead of SD of D
 buggy(tratio, stage(1), X, Y, Flags) :-
@@ -339,20 +354,20 @@ buggy(tratio, stage(1), X, Y, Flags) :-
     Y = instead(s_t0, s_t0, s_d).
 
 feedback(s_t0, [S, S_T0], Col, F)
- => F = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), 
-	   " with the standard deviation for T0 ", \mmlm(Col, color(s_t0, S_T0)),
-	   " instead of the standard deviation of the change score ", 
-	   \mmlm(Col, [color(s_t0, S), "."]), " Please insert the standard deviation of the", 
-	   " change score ", \mmlm(Col, color(s_t0, S)), " into the ", 
-	   \mmlm(Col, hyph(t, "ratio."))
-	].
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "The result matches the ", T_Ratio, 
+	      " with the standard deviation for T0 ", \mmlm(Col, color(s_t0, S_T0)),
+	      " instead of the standard deviation of the change score ", 
+	      \mmlm(Col, [color(s_t0, S), "."]), " Please insert the standard deviation of the", 
+	      " change score ", \mmlm(Col, color(s_t0, S)), " into the ", T_Ratio, "."
+	      ].
 
 hint(s_t0, [_S, S_T0], Col, F)
- => F = [ "Do not insert the standard deviation for ",
-          "T0 ", \mmlm(Col, color(s_t0, S_T0)), " into ",
-          "the ", \mmlm(Col, hyph(t, "ratio.")), " Use the change scores ",
-          "instead." 
-	].
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "Do not insert the standard deviation for ",
+          "T0 ", \mmlm(Col, color(s_t0, S_T0)), " into the ", T_Ratio, 
+          ". Use the change scores instead." 
+	      ].
 
 % Buggy-Rule: Use mean EOT instead of mean D
 buggy(tratio, stage(1), X, Y, [step(buggy, eot, [d, eot]), 
@@ -361,18 +376,20 @@ buggy(tratio, stage(1), X, Y, [step(buggy, eot, [d, eot]),
     Y = instead(eot, eot, d).
 
 feedback(eot, [D, EOT], Col, F)
- => F = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), " with the",
-           " EOT average ", \mmlm(Col, color(eot, EOT)), " instead of the ", 
-           "average change score ", \mmlm(Col, [color(eot, D), "."]), " Please insert",
-           " the average change score ",\mmlm(Col, color(eot, D)), " into the ",
-	   \mmlm(Col, hyph(t, "ratio."))
-	].
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "The result matches the ", T_Ratio, 
+          " with the EOT average ", \mmlm(Col, color(eot, EOT)),
+	        " instead of the average change score ",
+          span(class('text-nowrap'), [\mmlm(Col, color(eot, D)), "."]), " ",
+          "Please insert the average change score ", 
+          \mmlm(Col, color(eot, D)), " into the ", T_Ratio, "."
+	      ].
 
 hint(eot, [_D, EOT], Col, F)
- => F = [ "Do not insert the EOT average ", \mmlm(Col, color(eot, EOT)), " ",
-          "into the ", \mmlm(Col, hyph(t, "ratio.")), " Use the change ",
-          "scores instead." 
-	].
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "Do not insert the EOT average ", \mmlm(Col, color(eot, EOT)), "into the ", 
+          T_Ratio, ". Use the change scores instead." 
+	      ].
 
 % Buggy-Rule: Use SD of EOT instead of SD of D
 buggy(tratio, stage(1), X, Y, Flags) :-
@@ -381,74 +398,54 @@ buggy(tratio, stage(1), X, Y, Flags) :-
     Y = instead(s_eot, s_eot, s_d).
 
 feedback(s_eot, [S, S_EOT], Col, F)
- => F = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), " with the",
-	   " standard deviation for EOT ", \mmlm(Col, color(s_eot, S_EOT)), 
-	   " instead of the standard deviation of the change score ", 
-	   \mmlm(Col, [color(s_eot, S), "."]), " Please insert the standard deviation of the",
-	   " change score ", \mmlm(Col, color(s_eot, S)), " into the ", 
-	   \mmlm(Col, hyph(t, "ratio."))
-	].
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "The result matches the ", T_Ratio, " with the standard deviation for ",
+          "EOT ", \mmlm(Col, color(s_eot, S_EOT)), 
+          " instead of the standard deviation of the change score ", 
+	        span(class('text-nowrap'), [\mmlm(Col, color(s_eot, S)), "."]),
+          " Please insert the standard deviation of the change score ", 
+          \mmlm(Col, color(s_eot, S)), " into the ", T_Ratio, "."
+	      ].
 
 hint(s_eot, [_S, S_EOT], Col, F)
- => F = [ "Do not insert the standard deviation for ",
-          "EOT ", \mmlm(Col, color(s_eot, S_EOT)), " into ",
-          "the ", \mmlm(Col, hyph(t, "ratio.")), " Use the change scores ",
-          "instead." 
-	].
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "Do not insert the standard deviation for EOT ", 
+          \mmlm(Col, color(s_eot, S_EOT)), " into the ", T_Ratio, 
+          ". Use the change scores instead." 
+        ].
 
 % Buggy-Rule: Use of n instead of sqrt(n)
-buggy(tratio, stage(2), X, Y, [step(buggy, sqrt1, [n])]) :-
-    X = sqrt(n),
-    Y = omit_right(sqrt1, n^(1/2)).
+buggy(tratio, stage(2), X, Y, [step(buggy, sqrt1, [N])]) :-
+    X = sqrt(N),
+    Y = omit_right(sqrt1, N^(1/2)).
 
 feedback(sqrt1, [N], Col, F)
- => F = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), " without", 
-	  " square root around ", \mmlm(Col, [color(sqrt1, N), "."]), " Please do not",
-	  " forget the square root around ", \mmlm(Col, [color(sqrt1, N), "."])
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "The result matches the ", T_Ratio, " without the square root around ", 
+          span(class('text-nowrap'), [\mmlm(Col, color(sqrt1, N)), "."]),
+          " Please do not forget the square root around ",
+          span(class('text-nowrap'), [\mmlm(Col, color(sqrt1, N)), "."])
         ].
 
 hint(sqrt1, [N], Col, F)
  => F = [ "Do not forget the square root around ",
-          \mmlm(Col, [color(sqrt1, N), "."])
+          span(class('text-nowrap'), [\mmlm(Col, color(sqrt1, N)), "."])
         ].
-
-% Buggy-Rule: Use of N instead of sqrt(N)
-buggy(tratio, stage(2), X, Y, [step(buggy, sqrt2, [N])]) :-
-    X = sqrt(N),
-    dif(N, n),
-    Y = omit_right(sqrt2, N^(1/2)).
-
-feedback(sqrt2, [N], Col, F)
- => F = [ "The result matches the ", \mmlm(Col, hyph(t, "ratio")), " without", 
-	   " square root around ", \mmlm(Col, [color(sqrt2, N), "."]), " Please do not",
-	   " forget the square root around ", \mmlm(Col, [color(sqrt2, N), "."])
-        ].
-
-hint(sqrt2, [N], Col, F)
- => F = [ "Do not forget the square root around ",
-          \mmlm(Col, [color(sqrt2, N), "."])
-        ].
-
-
-
-
 
 
 %
 % Expert-Rules for the p-value task
 %
-% Gathering the important data needed to solve the t-test for paired samples
-% (both correct and incorrect solutions) from the task description.
 intermediate(pvalue, item).
 
 % First step: Extract the correct information for a paired t-test from the task
 % description
 intermediate(pvalue, paired).
-intermediate(pvalue, twotailed).
+intermediate(pvalue, onetailed).
 expert(pvalue, stage(2), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu, _Alpha),
     Y = { '<-'(t, paired(D, Mu, S_D, N)) ;
-          '<-'(p, twotailed(t, N-1)) ;
+          '<-'(p, onetailed(t, N-1)) ;
 	  pval(p)
         }.
 
@@ -479,63 +476,68 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
 %           "is ", \mmlm(Col, dfrac(D - Mu, S_D / sqrt(N)))
 %         ].
 
-% Third step: Determine the two-tailed p-value
+% Third step: Determine the one-tailed p-value
 expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
-    X = twotailed(T, DF),
-    Y = pt(T, DF, false).
+    X = onetailed(T, DF),
+    Y = pt(T, DF, tail("upper")).
 
 feedback(pvalue, [], Col, F)
- => F = [ "Correctly determined the one-tailed ", \mmlm(Col, hyph(p, "value.")) ].
+ => fmt(pvalue, Col, P_VALUE),
+    F = [ "Correctly determined the one-tailed ", P_VALUE, "." ].
 
 hint(pvalue, [], Col, F)
- => F = [ "The one-tailed ", \mmlm(Col, hyph(p, "value")), " must be determined." ].
+ => fmt(pvalue, Col, P_VALUE),
+    F = [ "The one-tailed ", P_VALUE, " must be determined." ].
 
 
 %
-%% Buggy-Rules for the p-value task
+% Buggy-Rules for the p-value task
 %
+% Buggy-Rule: report the lower tail instead of the upper tail. 
+buggy(pvalue, stage(2), X, Y, [step(buggy, wrongtail1, [])]) :-
+     X = onetailed(T, DF),
+     Y = pt(instead(lower, dist('T', T, "lower"), dist('T', T, "upper")),
+          DF, instead(lower, tail("lower"), tail("upper"))).
 
-% Buggy-Rule: report the left-tail instead of the right-tail. 
-buggy(pvalue, stage(2), X, Y, [step(buggy, wrongtail, [DF])]) :-
-     X = twotailed(T, DF),
-     Y = pt(T, DF, true).
+feedback(wrongtail1, [], Col, F)
+ => fmt(pvalue, Col, P_VALUE),
+    F = [ "The result matches the left-sided ", P_VALUE, "." ].
 
-feedback(wrongtail, [DF], Col, F)
- => F = [ "The result matches the left-sided ", \mmlm(Col, hyph(p, "value.")), 
-          " Please make sure to use the area of the ", \mmlm(Col, hyph(t(DF), "distribution")),
-          " on the right side of the calculated ", \mmlm(Col, hyph(t, "value."))
-        ].
+hint(wrongtail1, [], Col, F)
+ => fmt(pvalue, Col, P_VALUE),
+    F = [ "Do not report the lower ", P_VALUE, "." ].
 
-hint(wrongtail, [DF], Col, F)
- => F = [ "Use the upper tail of the ", \mmlm(Col, hyph(t(DF), "distribution."))].
+% Buggy-Rule: report the two-sided p-value (i.e., p(T > t) * 2). 
+buggy(pvalue, stage(2), X, Y, [step(buggy, wrongtail2, [])]) :-
+     X = onetailed(T, DF),
+     Y = pt(instead(lower, dist('T', T, "two.sided"), dist('T', T, "upper")),
+          DF, instead(lower, tail("two.sided"), tail("upper"))).
 
+feedback(wrongtail2, [], Col, F)
+ => fmt(pvalue, Col, P_VALUE),
+    F = [ "The result matches the two-sided ", P_VALUE, "." ].
 
-% Buggy-Rule: used the wrong t-value and/or degrees of freedoms
-% TDOO: the matching values should include all the values from 0 to 1 except the ones for 
-% the correct t-value and degrees of freedom (both left- and right-sided). 
-buggy(pvalue, stage(2), X, Y, [step(buggy, wrong, [T, DF])]) :-
-     X = twotailed(T, DF),
-     Y = pt(T, DF, true).
+hint(wrongtail2, [], Col, F)
+ => fmt(pvalue, Col, P_VALUE),
+    F = [ "Do not report the two-sided ", P_VALUE, "." ].
 
-feedback(wrong, [T, DF], Col, F)
- => F = [ "The result is not the ", \mmlm(Col, hyph(p, "value")), 
-	        " associated with the calculated ", \mmlm(Col, hyph(t, "value")), \mmlm(T = r(T)), 
-          " and degrees of freedom ", \mmlm([DF = r(DF), "."]), 
-          " Please make sure to look at the correct column and row on the table of the ", 
-          \mmlm(Col, hyph(t, "distribution."))].
+% Buggy-Rule: report the density instead of distribution
+buggy(pvalue, stage(2), X, Y, [step(buggy, wrongtail3, [])]) :-
+     X = onetailed(T, DF),
+     Y = pt(instead(lower, dist('T', T, "density"), dist('T', T, "upper")),
+          DF, instead(lower, tail("density"), tail("upper"))).
 
-hint(wrong, [_T, _DF], Col, F)
- => F = [ "Look at the correct column and row on the table of the ", 
-          \mmlm(Col, hyph(t, "distribution."))].
+feedback(wrongtail3, [], Col, F)
+ => fmt(tdist, Col, T_DIST),
+    F = [ "The result matches the density of the ", T_DIST, "." ].
 
-
-
-
+hint(wrongtail3, [], Col, F)
+ => fmt(tdist, Col, T_DIST),
+  F = [ "Do not report the density of the ", T_DIST, "."].
 
 %
-%% Expert Rules for the confidence interval task
+% Expert Rules for the confidence interval task
 %
-% t-test and confidence intervall for paired samples 
 intermediate(cipaired, item).
 
 % First step: Extract the correct information for a paired t-test and 
@@ -546,32 +548,34 @@ expert(cipaired, stage(2), X, Y, [step(expert, paired, [])]) :-
     Y = paired(D, Mu, S_D, N, Alpha).
 
 feedback(paired, [], Col, F)
- => F = [ "Correctly recognised the problem as ",
-          "a ", \mmlm(Col, hyph(t, "test")), " for paired samples and that ",
-          "a confidence interval for the mean value has to be calculated." 
+ => fmt(ttest, Col, T_Test),
+    F = [ "Correctly recognised the problem as a ", T_Test, 
+          " for paired samples and that a confidence interval", 
+          " for the mean value has to be calculated." 
         ].
 
 hint(paired, [], Col, H)
- => H = [ "This is a ", \mmlm(Col, hyph(t, "test")), " for paired ",
-          "samples. Calculate the confidence interval for the mean difference." 
+ => fmt(ttest, Col, T_Test),
+    H = [ "This is a ", T_Test, " for paired samples.", 
+          " Calculate the confidence interval for the mean difference." 
         ].
 
 % Second step: Apply the formula for the confidence interval for a mean value.
 intermediate(cipaired, quant).
 expert(cipaired, stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N, Alpha])]) :-
     X = paired(D, Mu, S_D, N, Alpha),
-    Y = hdrs((D - dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
+    Y = { hdrs(ci((D - dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N))), 1.0Inf)) }.
 
 feedback(ci_lower, [_D, _S_D, _N, _Alpha], _Col, F)					
- => F = [ "Correctly identified the formula for the lower bound of ",
-           "the confidence interval for a mean value in a ",
-            \mmlm(hyph(t, "test."))
+ => fmt(ttest, T_Test),
+    F = [ "Correctly identified the formula for the lower bound of ",
+           "the confidence interval for a mean value in a ", T_Test, "."
         ].
 
 hint(ci_lower, [D, S_D, N, Alpha], _Col, H)
  => H = [ "The formula to calculate the lower a bound of the ",
           "confidence interval is ",
-	  \mmlm([(D - qt(1 - Alpha, N-1) * S_D / sqrt(N)), "."])
+	        \mmlm([(D - qt(1 - Alpha, N-1) * S_D / sqrt(N)), "."])
         ].
 
 % Third step: Choose the correct quantile of the t-distribution
@@ -580,35 +584,40 @@ expert(cipaired, stage(2), X, Y, [step(expert, tquant, [N, Alpha])]) :-
     Y = qt(1 - Alpha, N-1).
 
 feedback(tquant, [_N, Alpha], Col, F)
- => F = [ "Correctly used the ", \mmlm(Col, hyph(1 - Alpha, "quantile")),
-          "of the ", \mmlm(Col, hyph(t, "distribution."))
+ => fmt(ttest, Col, T_Dist),
+    F = [ "Correctly used the ", \mmlm(Col, hyph(1 - Alpha, "quantile")),
+          "of the ", T_Dist, "."
         ].
 
 hint(tquant, [_N, Alpha], Col, H)
- => H = [ "Make sure to use the ", \mmlm(Col, hyph(1 - Alpha, "quantile")),
-          "of the ", \mmlm(Col, hyph(t, "distribution."))
+ => fmt(ttest, Col, T_Dist),
+    H = [ "Make sure to use the ", \mmlm(Col, hyph(1 - Alpha, "quantile")),
+          "of the ", T_Dist, "."
         ].
 
 
 %
-%% Buggy-Rules for the confidence interval task
+% Buggy-Rules for the confidence interval task
 %
 % Buggy-Rule: Use t-statistic instead of t-quantile
 buggy(cipaired, stage(2), X, Y, [step(buggy, tstat, [D, S_D, N, Mu, Alpha])]) :-
     X = quant(D, Mu, S_D, N, Alpha),
-    P = denote(t, dfrac(D - Mu, S_D / sqrt(N)), ["the observed", space, t, "-statistic."]),
-    Y = P. 
+    T = denote(t, dfrac(D - Mu, S_D / sqrt(N)), mrow(["the observed ", math(mi(t)), "-statistic."])),
+    Y = instead(tstat, T, qt(1 - Alpha, N - 1)). 
 
 feedback(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, F)
- => F = [ "The result matches the confidence interval based on the observed ",
-          \mmlm(Col, hyph(t, "statistic.")), " Please use the quantile ",
-           "of the ", \mmlm(Col, hyph(t, "distribution")), " instead."
+ => fmt(tstat, Col, T_Stat),
+    fmt(tdist, Col, T_Dist),
+    F = [ "The result matches the confidence interval based on the observed ",
+          T_Stat, " Please use the quantile of the ", T_Dist, " instead."
         ].
 
 hint(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, H)
- => H = [ "Do not insert the observed ", \mmlm(Col, hyph(t, "statistic ")),
-          "into the formula for the confidence interval. Use the quantile of ", 
-	  "the ", \mmlm(Col, hyph(t, "distribution")), " instead."
+ => fmt(tstat, Col, T_Stat),
+    fmt(tdist, Col, T_Dist),
+    H = [ "Do not insert the observed ", T_Stat,
+          "into the formula for the confidence interval.", 
+          " Use the quantile of the ", T_Dist, " instead."
         ].
 
 % Buggy-Rule: Use z-quantile instead of t-quantile. 
@@ -617,18 +626,18 @@ buggy(cipaired, stage(2), X, Y, [step(buggy, qnorm, [N, Alpha])]) :-
     X = quant(_D, _Mu, _S_D, N, Alpha),
     Y = instead(qt, qnorm(1 - Alpha) , qt(1 - Alpha, N - 1)).
 
-feedback(qnorm, [N, Alpha], Col, F)
- => F = [ "The result matches the confidence interval based on the standard ",
-          "normal distribution. ",
-          "Please insert the quantile of the ", \mmlm(Col, hyph(t, "distribution")),
-          \mmlm(Col, color(qnorm, qt(1 - Alpha, N - 1))), " into ",
-          "the formula for the confidence interval."
+feedback(qnorm, [_N, _Alpha], Col, F)
+ => fmt(tdist, Col, T_Dist),
+    F = [ "The result matches the confidence interval based on the standard ",
+          "Normal distribution. Please insert the quantile of the ", T_Dist,
+          " into the formula for the confidence interval."
         ].
 
 hint(qnorm, [_N, _Alpha], Col, H)
- => H = [ "Do not insert the quantile of the ", \mmlm(Col, hyph(z, "distribution ")), 
-          "into the formula for the confidence interval. Use the quantile of the ", 			
-	  \mmlm(Col, hyph(t, "distribution")), "instead."
+ => fmt(tdist, Col, T_Dist),
+    H = [ "Do not insert the quantile of the ", \mmlm(Col, hyph(z, "distribution ")), 
+          " into the formula for the confidence interval. Use the quantile of the ", 			
+	        T_Dist, " instead."
         ].
 
 % Buggy-Rule: Calculating the confidence intervall with SPSS
@@ -649,35 +658,35 @@ hint(spss, [Mu], Col, H)
           " the CI (which must be undone)."
         ].
 
-% Buggy-Rule: Use of N instead of sqrt(N)				
-buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt1, [N])]) :-			
-    X = dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)),
-    Y = dot(quant(D, Mu, S_D, N, Alpha), S_D / omit_right(sqrt1, (2*N)^(1/2))).
-
-feedback(sqrt1, [N], Col, F)
- => F = [ "The result matches the confidence interval without square root around ", 
-          \mmlm(Col, [color(sqrt1, N), "."]), " Please do not forget the square root",
-          " around ", \mmlm(Col, [color(sqrt1, N), "."])
-        ].
-
-hint(sqrt1, [N], Col, F)
- => F = [ "Do not forget the square root around ",
-          \mmlm(Col, [color(sqrt1, N), "."])
-        ].
-
 % Buggy-Rule: Use of N instead of sqrt(N) in the t-ratio
-buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt2, [N])]) :-
-    X = dfrac(D - Mu, S_D / sqrt(N)),
-    Y = dfrac(D - Mu, S_D / omit_right(sqrt2, (3*N)^(1/2))).
+buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt3, [N])]) :-
+    X = dfrac(Q, S_D / sqrt(N)),
+    Y = dfrac(Q, S_D / omit_right(sqrt3, N^(1/2))).
 
-feedback(sqrt2, [N], Col, FB)
- => FB = [ "The result matches the confidence interval based on the observed ",
-	   \mmlm(Col, hyph(t, "statistic.")), " without square root around ",
-	   \mmlm(Col, [color(sqrt2, N), "."]), " Please do not forget the square root around ",
-           \mmlm(Col, [color(sqrt2, N), "."])
-         ].
+feedback(sqrt3, [N], Col, F)
+ => fmt(tratio, Col, T_Ratio),
+    F = [ "The result matches the ", T_Ratio, " without the square root around ",
+          span(class('text-nowrap'), [\mmlm(Col, color(sqrt1, N)), "."])
+        ].
 
-hint(sqrt2, [N], Col, FB)
- => FB = [ "Do not forget the square root around ",
-           \mmlm(Col, [color(sqrt2, N), "."])
-         ]. 
+hint(sqrt3, [N], Col, F)
+ => F = [ "Do not forget the square root around ",
+          span(class('text-nowrap'), [\mmlm(Col, color(sqrt3, N)), "."])
+        ].
+
+% Buggy-Rule: Use of N instead of sqrt(N)
+buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt4, [N])]) :-
+    X = dot(Q, S_D / sqrt(N)),
+    Y = dot(Q, S_D / omit_right(sqrt4, N^(1/2))).
+
+feedback(sqrt4, [N], Col, F)
+ => F = [ "The result matches the confidence interval without square root around ", 
+          span(class('text-nowrap'), [\mmlm(Col, color(sqrt4, N)), "."]), " Please ",
+	        "do not forget the square root",
+          " around ", span(class('text-nowrap'), [\mmlm(Col, color(sqrt4, N)), "."])
+        ].
+
+hint(sqrt4, [N], Col, H)
+ => H = [ "Do not forget the square root around ",
+          span(class('text-nowrap'), [\mmlm(Col, color(sqrt4, N)), "."])
+        ].
