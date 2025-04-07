@@ -1,4 +1,4 @@
-:- module(test_mcclass, [test_tasks/0]).
+:- module(test_tasks, [test_tasks/0]).
 
 :- use_module(library(plunit)).
 :- use_module(library(debug)).
@@ -104,14 +104,14 @@ test(tpaired_pvalue) :-
 test(tpaired_cipaired) :-
     tasks:tasks(tpaired, cipaired).
 
-test(tpaired1t_tratio) :-
-    tasks:tasks(tpaired, tratio).
+test(tpairedupper_tratio) :-
+    tasks:tasks(tpairedupper, tratio).
 
-test(tpaired1t_pvalue) :-
-    tasks:tasks(tpaired, pvalue).
+test(tpairedupper_pvalue) :-
+    tasks:tasks(tpairedupper, pvalue).
 
-test(tpaired1t_cipaired) :-
-    tasks:tasks(tpaired, cipaired).
+test(tpairedupper_cipaired) :-
+    tasks:tasks(tpairedupper, cipaired).
 
 test(tpaired1tlow_tratio) :-
     tasks:tasks(tpaired, tratio).
