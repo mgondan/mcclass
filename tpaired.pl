@@ -73,7 +73,7 @@ render(Flags)
                   [ em("Table 1. "), "Observed HDRS scores at T0, EOT, ",
                     "and ", \mmlm('D' = "T0" - "EOT") ],
                   [ "Average", "SD" ],
-                  [ "HDRS", "T0", "EOT", \mmlm(Flags, d) ],
+                  [ "HDRS", "T0", "EOT", \mmlm(Flags, 'D') ],
                   [ [ \mmlm([digits(1) | Flags], r(t0x)),
                       \mmlm([digits(1) | Flags], r(eotx)),
                       \mmlm([digits(1) | Flags], r(dx)) ],
