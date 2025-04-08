@@ -9,7 +9,7 @@
 :- use_module(util).
 
 :- use_module(navbar).
-navbar:page(tpairedupper, ["Paired ", i(t), "-test upper tail"]).
+navbar:page(tpairedupper, ["paired ", i(t), "-test (upper tail)"]).
 
 task(tratio).
 task(pvalue).
@@ -25,10 +25,10 @@ label(cipaired, "Confidence interval").
 math_hook(d, overline('D')).
 math_hook(s_d, subscript(s, 'D')).
 math_hook(n, 'N').
-math_hook(t0, overline("Pretest")).
-math_hook(s_t0, subscript(s, "Pretest")).
-math_hook(eot, overline("Posttest")).
-math_hook(s_eot, subscript(s, "Posttest")).
+math_hook(t0, overline("Pre")).
+math_hook(s_t0, subscript(s, "Pre")).
+math_hook(eot, overline("Post")).
+math_hook(s_eot, subscript(s, "Post")).
 math_hook(s2p, subscript(s, "pool")^2).
 math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
 math_hook(alpha, greek("alpha")).
@@ -51,27 +51,30 @@ r_hook(incr).
 r_hook(var_pool/4). 
 mono(var_pool/4, [+, /, +, /]).
 
-
 % Task description
 render(Flags)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha)) },      % by adding the parameter _Incr, the task description won't appear anymore
     html(
       div(class(card), div(class('card-body'),
-        [ h1(class('card-title'), "Evaluation study on writing skills"),
+        [ h1(class('card-title'), "Evaluation of writing skills"),
           p(class('card-text'),
-            [ "Consider an evaluation study on self-regulatory revising strategies training (SRT) with ",
-              \mmlm(Flags, N = r(N)), " German-speaking sixth-graders. The primary outcome is the global score on the RANT (Rating for Narrative Texts, range
-               from best = 1 to worst = 10). The significance level is set to ",
-              \mmlm(Flags, [alpha = percent(0.05), "."]), " A decrease of the values (i.e., higher text quality)
-              should result in a positive ", \mmlm(Flags, hyph(t, "value."))]),     
+            [ "Consider the evaluation of a self-regulatory training of ",
+              "revising strategies with ", \mmlm(Flags, N = r(N)), " ",
+              "German-speaking sixth-graders. The primary outcome is the ",
+              "global score on the RANT (Rating for Narrative Texts, range ",
+              "from best = 1 to worst = 10). The significance level is set ",
+              "to ", \mmlm(Flags, alpha = percent(0.05)), " one-tailed. A ",
+              "decrease of the values (i.e., better text quality) should ",
+              "result in a positive ", \mmlm(Flags, hyph(t, "value."))
+            ]),     
           div(class(container),
             div(class("row justify-content-md-center"),
               div(class("col-6"),
                 \htmltable(
-                   [ em("Table 1. "), "Observed RANT scores at Pretest, Posttest, ",
-                    "and ", \mmlm('D' = "Pretest" - "Posttest") ],
+                   [ em("Table 1. "), "RANT scores at Pretest, Posttest, ",
+                    "and ", \mmlm('D' = "Pre" - "Post") ],
                   [ "Average", "SD" ],
-                  [ "RANT", "Pretest", "Posttest", \mmlm(d) ],
+                  [ "RANT", "Pretest", "Posttest", \mmlm('D') ],
                   [ [ \mmlm([digits(1) | Flags], r(t0)),
                       \mmlm([digits(1) | Flags], r(eot)),
                       \mmlm([digits(1) | Flags], r(d1)) ],
@@ -89,8 +92,8 @@ task(Flags, tratio)
       fmt(tratio, T_Ratio)
     },
     html(\htmlform([ "Does SRT lead to a relevant improvement (i.e., more ",
-        "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in mean RANT ",
-        "scores between Pretest and Posttest? ",
+        "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in RANT ",
+        "performance between Pretest and Posttest? ",
         "Please report the ", T_Ratio ], tratio, Resp)).
 
 % Question for the p-value
