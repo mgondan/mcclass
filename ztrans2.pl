@@ -51,7 +51,7 @@ expert(ztrans, stage(2), From, To, [step(expert, steps, [])]) :-
          }.
 
 feedback(steps, [], Col, FB) =>
-    FB = [ "You determined the ", \mmlm(Col, hyph(z, "statistic")), " and translated it ",
+    FB = [ "You determined the ", nowrap([\mmlm(Col, z), "-statistic"]), " and translated it ",
            "to the original scale." ].
 
 hint(steps, [], Col, FB) =>
