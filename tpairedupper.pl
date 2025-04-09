@@ -64,7 +64,7 @@ render(Flags)
               "from best = 1 to worst = 10). The significance level is set ",
               "to ", \mmlm(Flags, alpha = percent(0.05)), " one-tailed. A ",
               "decrease of the values (i.e., better text quality) should ",
-              "result in a positive ", \mmlm(Flags, hyph(t, "value."))
+              "result in a positive ", nowrap([\mmlm(Flags, t), "-value."])
             ]),     
           div(class(container),
             div(class("row justify-content-md-center"),
@@ -425,11 +425,11 @@ expert(pvalue, stage(2), X, Y, [step(expert, paired, [])]) :-
 
 % feedback(paired, [], Col, F)
 %  => F = [ "Correctly recognised the problem as ",
-%           "a ", \mmlm(Col, hyph(t, "test")), " for paired samples."
+%           "a ", nowrap([\mmlm(Col, t), "-test"]), " for paired samples."
 %         ].
 
 % hint(paired, [], Col, F)
-%  => F = [ "This is a ", \mmlm(Col, hyph(t, "test")), " for paired ",
+%  => F = [ "This is a ", nowrap([\mmlm(Col, t), "-test"]), " for paired ",
 %           "samples."
 %         ].
 
@@ -441,12 +441,12 @@ expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
     Y = dfrac(D - Mu, S_D / sqrt(N)).
 
 % feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
-%  => F = [ "Correctly identified the ", \mmlm(Col, hyph(t, "ratio")), " for ",
+%  => F = [ "Correctly identified the ", nowrap([\mmlm(Col, t), "-ratio"]), " for ",
 %           "paired samples."
 %         ].
 
 % hint(tratio, [D, Mu, S_D, N], Col, F)
-%  => F = [ "The ", \mmlm(Col, hyph(t, "ratio")), " ",
+%  => F = [ "The ", nowrap([\mmlm(Col, t), "-ratio"]), " ",
 %           "is ", \mmlm(Col, dfrac(D - Mu, S_D / sqrt(N)))
 %         ].
 
@@ -547,12 +547,12 @@ expert(cipaired, stage(2), X, Y, [step(expert, tquant, [N, Alpha])]) :-
     Y = qt(1 - Alpha, N-1).
 
 feedback(tquant, [_N, Alpha], Col, F)
- => F = [ "Correctly used the ", \mmlm(Col, hyph(1 - Alpha, "quantile")),
+ => F = [ "Correctly used the ", nowrap([\mmlm(Col, 1 - Alpha), "-quantile"]),
           " of the ", nowrap([\mmlm(Col, t), "-distribution"]), "."
         ].
 
 hint(tquant, [_N, Alpha], Col, H)
- => H = [ "Make sure to use the ", \mmlm(Col, hyph(1 - Alpha, "quantile")),
+ => H = [ "Make sure to use the ", nowrap([\mmlm(Col, 1 - Alpha), "-quantile"]),
           " of the ", nowrap([\mmlm(Col, t), "-distribution"]), "."
         ].
 
@@ -590,7 +590,7 @@ feedback(qnorm, [_N, _Alpha], Col, F)
         ].
 
 hint(qnorm, [_N, _Alpha], Col, H)
- => H = [ "Do not insert the quantile of the ", \mmlm(Col, hyph(z, "distribution ")), 
+ => H = [ "Do not insert the quantile of the ", nowrap([\mmlm(Col, z), "-distribution "]), 
           " into the formula for the confidence interval. Use the quantile of the ", 			
 	        nowrap([\mmlm(Col, t), "-distribution"]), " instead."
         ].

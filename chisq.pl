@@ -82,7 +82,7 @@ task(Flags, chisq)
     },
     html(\htmlform([ "Does VR training lead to faster surgery times than ",
         "traditional Box training? Please ",
-        "determine the ", \mmlm(Flags, hyph(chi^2, "statistic.")) ], chisq, Resp)).
+        "determine the ", nowrap([\mmlm(Flags, chi^2), "-statistic."]) ], chisq, Resp)).
 
 
 % Chi-square Test
@@ -106,7 +106,7 @@ feedback(steps, [], _Col, FB) =>
 
 hint(steps, [], Col, FB) =>
     FB = [ "First determine the pooled success proportion, then ",
-           "the ", \mmlm(Col, hyph(z, "statistic,")), " lastly, square ",
+           "the ", nowrap([\mmlm(Col, z), "-statistic,"]), " lastly, square ",
            "it to obtain ", \mmlm(Col, chi^2)
          ].
 
@@ -129,10 +129,10 @@ expert(chisq, stage(2), From, To, [step(expert, zstat, [P_VR, P_Box, P_Pool, N_V
     To = dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box)))).
 
 feedback(zstat, [_P_VR, _P_Box, _P_Pool, _N_VR, _N_Box], Col, FB) =>
-    FB = [ "Correctly determined the ", \mmlm(Col, hyph(z, "statistic.")) ].
+    FB = [ "Correctly determined the ", nowrap([\mmlm(Col, z), "-statistic."]) ].
 
 hint(zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box], Col, FB) =>
-    FB = [ "The ", \mmlm(Col, hyph(z, "statistic")), " is ",
+    FB = [ "The ", nowrap([\mmlm(Col, z), "-statistic"]), " is ",
            \mmlm(Col, dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box))))) 
          ].
 
@@ -172,16 +172,16 @@ buggy(chisq, stage(2), From, To, [step(buggy, square, [])]) :-
 
 feedback(square, [], Col, FB) =>
     FB = [ "The result matches ",
-           "the ", \mmlm(Col, hyph(color(square, z), "statistic")), " instead ",
+           "the ", nowrap([\mmlm(Col, color(square, z)), "-statistic"]), " instead ",
            "of ", \mmlm(Col, [color(square, chi2)]), ". Please do not forget to ",
-	   "square the ", \mmlm(Col, hyph(z, "statistic."))
+	   "square the ", nowrap([\mmlm(Col, z), "-statistic."])
          ].
 
 hint(square, [], Col, FB) =>
     FB = [ "Do not forget to raise ",
-           "the ", \mmlm(Col, hyph(color(square, z), "value")), " ",
+           "the ", nowrap([\mmlm(Col, color(square, z)), "-value"]), " ",
            "to the square to obtain ",
-           "the ", \mmlm(Col, hyph(color(square, chi2), "statistic."))
+           "the ", nowrap([\mmlm(Col, color(square, chi2)), "-statistic."])
          ].
 
 % Buggy-Rule: Add probabilities instead of subtracting them. 
@@ -191,12 +191,12 @@ buggy(chisq, stage(2), From, To, [step(buggy, zadd, [P_VR, P_Box])]) :-
     To = dfrac(instead(zadd, P_VR + P_Box, P_VR - P_Box), sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box)))).
 
 feedback(zadd, [P_VR, P_Box], Col, FB) =>
-    FB = [ "The results matches the ", \mmlm(Col, hyph(z, "statistic")), " where ",
+    FB = [ "The results matches the ", nowrap([\mmlm(Col, z), "-statistic"]), " where ",
 	   \mmlm(Col, color(zadd, P_Box)), " was added to ", 
            \mmlm(Col, color(zadd, P_VR)), ", rather than subtracted from it.",
 	   " Please use the difference of ", \mmlm(Col, color(zadd, P_Box)), " and ",
 	   \mmlm(Col, color(zadd, P_VR)), " in the numerator of the ",
-	   \mmlm(Col, hyph(z, "statistic."))
+	   nowrap([\mmlm(Col, z), "-statistic."])
          ].
 
 hint(zadd, [P_VR, P_Box], Col, FB) =>
@@ -213,7 +213,7 @@ buggy(chisq, stage(2), From, To, [step(buggy, paren2, [N_VR, N_Box])]) :-
     To = A * B * color(paren2, 1) / color(paren2, N_VR) + color(paren2, 1) / color(paren2, N_Box).
 
 feedback(paren2, [N_VR, N_Box], Col, FB) =>
-    FB = [ "The results matches the ", \mmlm(Col, hyph(z, "statistic")), " without ",
+    FB = [ "The results matches the ", nowrap([\mmlm(Col, z), "-statistic"]), " without ",
 	   "the parenthesis around ", 
 	   \mmlm(Col, color(paren2, paren(color("#000000", frac(1, N_VR) + frac(1, N_Box))))),
 	   ". Please do not forget the paranthesis around ",
@@ -253,7 +253,7 @@ hint(school1, [N_VR, N_Box], Col, F)
     To = instead(paren3, P_Pool * 1 - P_Pool * 1 / N_VR + 1 / N_Box, From).
 
 feedback(paren3, [From], Col, FB) =>
-    FB = [ "The results matches the ", \mmlm(Col, hyph(z, "statistic")), " without ",
+    FB = [ "The results matches the ", nowrap([\mmlm(Col, z), "-statistic"]), " without ",
 	   "the parenthesis around the different elements in ", 
 	   \mmlm(Col, color(paren3, From)), ". Please do not forget the paranthesis ",
 	   " in the denominator of ", \mmlm(Col, color(paren3, From))
