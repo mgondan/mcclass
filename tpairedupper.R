@@ -22,7 +22,6 @@ s_d   <- call('...', floor(s1_d*10)/10, ceiling(s1_d*10)/10)
 
 tails <- "one-tailed"
 alpha <- 0.05
-incr <- FALSE            #if an increment is good (TRUE, e.g., in the WAIS) or bad (FALSE, e.g., in the HDRS)
 
 # Export data for download
 download <- function(fname)
