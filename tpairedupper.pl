@@ -91,8 +91,8 @@ task(Flags, tratio)
     },
     html(\htmlform([ "Does SRT lead to a relevant improvement (i.e., more ",
         "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in RANT ",
-        "performance between Pretest and Posttest? ",
-        "Please report the ", nowrap([\mmlm(t), "-ratio"]) ], tratio, Resp)).
+	"performance between Pre- and Posttest? ",
+	"Please report the ", nowrap([\mmlm(t), "-ratio."]) ], tratio, Resp)).
 
 % Question for the p-value
 task(Flags, pvalue)
@@ -101,16 +101,17 @@ task(Flags, pvalue)
     },
     html(\htmlform([ "Does SRT lead to a relevant improvement (i.e., more ",
         "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in mean RANT ",
-        "scores between Pretest and Posttest? ",
-        "Please report the onetailed ", nowrap([\mmlm(p), "-value"])], pvalue, Resp)).
+	"scores between Pre- and Posttest? ",
+	"Please report the one-tailed ", nowrap([\mmlm(p), "-value"])], pvalue, Resp)).
 
 % Question for the confidence interval
 task(_Flags, cipaired)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, _Mu, _Alpha)),
       session_data(resp(tpairedupper, cipaired, Resp), resp(tpairedupper, cipaired, '#.# to #.#'))
     },
-    html(\htmlform([ "Determine the confidence interval for the change in ",
-        "the students\u0027 RANT scores." ], cipaired, Resp)).
+    html(\htmlform([ "Please determine the one-sided confidence interval for ",
+        "the average change in the students\u0027 RANT scores." ], cipaired, 
+        Resp)).
 
 %
 % Expert rules for the t-ratio task
@@ -608,7 +609,7 @@ feedback(spss, [Mu], Col, F)
         ].
 
 hint(spss, [Mu], Col, H)
- => H = [ "If you calculate the confindence intervall with SPSS, keep in mind",
+ => H = [ "If you calculate the confindence interval with SPSS, keep in mind",
 	  " that SPSS subtracts ", \mmlm(Col, Mu), " from the two bounds of",
           " the CI (which must be undone)."
         ].
@@ -619,8 +620,9 @@ buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt3, [N])]) :-
     Y = dfrac(Q, S_D / omit_right(sqrt3, N^(1/2))).
 
 feedback(sqrt3, [N], Col, F)
- => F = [ "The result matches the ", nowrap([\mmlm(Col, t), "-ratio"]), " without the square root around ",
-          nowrap([\mmlm(Col, color(sqrt1, N)), "."])
+ => F = [ "The result matches the ", nowrap([\mmlm(Col, t), "-ratio"]), " ",
+          "without the square root ",
+          "around ", nowrap([\mmlm(Col, color(sqrt3, N)), "."])
         ].
 
 hint(sqrt3, [N], Col, F)

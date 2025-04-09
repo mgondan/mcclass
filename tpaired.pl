@@ -715,10 +715,9 @@ buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt3, [N])]) :-
     Y = dfrac(Q, S_D / omit_right(sqrt3, N^(1/2))).
 
 feedback(sqrt3, [N], Col, F)
- => F = [ "The result matches ",
-          "the ", nowrap([\mmlm(Col, t), "-ratio"]), " ",
-          "without the square root around ",
-          nowrap([\mmlm(Col, color(sqrt1, N)), "."])
+ => F = [ "The result matches the ", nowrap([\mmlm(Col, t), "-ratio"]), " ",
+          "without the square root ",
+          "around ", nowrap([\mmlm(Col, color(sqrt3, N)), "."])
         ].
 
 hint(sqrt3, [N], Col, F)

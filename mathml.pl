@@ -33,8 +33,8 @@ colors(Expr, Flags) :-
 % color("dark").
 color("red").
 color("blue").
-color("green-400").
-color("indigo-600").
+color("green").
+color("indigo").
 color("pink").
 color("orange").
 color("teal-400").
