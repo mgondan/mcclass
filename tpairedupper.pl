@@ -30,7 +30,7 @@ math_hook(s_t0, subscript(s, "Pre")).
 math_hook(eot, overline("Post")).
 math_hook(s_eot, subscript(s, "Post")).
 math_hook(s2p, subscript(s, "pool")^2).
-math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
+math_hook(paired(_D, _Mu, _S_D, _N), ["a paired ", t, "-test"]).
 math_hook(alpha, greek("alpha")).
 math_hook(t(DF), fn(t, [DF])).
 
@@ -193,7 +193,7 @@ intermediate(tratio, indep).
 buggy(tratio, stage(2), X, Y, [step(buggy, indep, [])]) :-
     X = item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu, _Alpha),
     Y = { '<-'(t, instead(indep, indep(T0, S_T0, N, EOT, S_EOT, N), 
-            dfrac(D - Mu, S_D / sqrt(N)))) 
+            paired(D, Mu, S_D, N))) 
         }.
 
 feedback(indep, [], Col, F)
