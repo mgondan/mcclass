@@ -193,7 +193,7 @@ intermediate(tratio, indep).
 buggy(tratio, stage(2), X, Y, [step(buggy, indep, [])]) :-
     X = item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu, _Alpha),
     Y = { '<-'(t, instead(indep, indep(T0, S_T0, N, EOT, S_EOT, N), 
-            paired(D, Mu, S_D, N))) 
+            dfrac(D - Mu, S_D / sqrt(N)))) 
         }.
 
 feedback(indep, [], Col, F)
@@ -391,9 +391,9 @@ hint(s_eot, [_S, S_EOT], Col, F)
         ].
 
 % Buggy-Rule: Use of n instead of sqrt(n)
-buggy(tratio, stage(2), X, Y, [step(buggy, sqrt1, [N])]) :-
-    X = sqrt(N),
-    Y = omit_right(sqrt1, N^(1/2)).
+buggy(tratio, stage(2), X, Y, [step(buggy, sqrt1, [n])]) :-
+    X = sqrt(n),
+    Y = omit_right(sqrt1, n^(1/2)).
 
 feedback(sqrt1, [N], Col, F)
  => F = [ "The result matches the ", nowrap([\mmlm(Col, t), "-ratio"]), " without the square root around ", 
