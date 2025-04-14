@@ -91,7 +91,7 @@ task(Flags, tratio)
     },
     html(\htmlform([ "Does SRT lead to a relevant improvement (i.e., more ",
         "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in RANT ",
-	"performance between Pre- and Posttest? ",
+	"performance between the pre- and posttest? ",
 	"Please report the ", nowrap([\mmlm(t), "-ratio."]) ], tratio, Resp)).
 
 % Question for the p-value
@@ -101,7 +101,7 @@ task(Flags, pvalue)
     },
     html(\htmlform([ "Does SRT lead to a relevant improvement (i.e., more ",
         "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in mean RANT ",
-	"scores between Pre- and Posttest? ",
+	"scores between the pre- and posttest? ",
 	"Please report the one-tailed ", nowrap([\mmlm(p), "-value"])], pvalue, Resp)).
 
 % Question for the confidence interval
@@ -324,7 +324,7 @@ feedback(t0, [D, T0], Col, F)
 	      ].
 
 hint(t0, [_D, T0], Col, F)
- => F = [ "Do not insert the T0 average ", \mmlm(Col, color(t0, T0)), " ",
+ => F = [ "Do not insert the pretest average ", \mmlm(Col, color(t0, T0)), " ",
           "into the ", nowrap([\mmlm(Col, t), "-ratio"]), ". Use the change ",
           "scores instead." 
 	      ].
@@ -337,15 +337,15 @@ buggy(tratio, stage(1), X, Y, Flags) :-
 
 feedback(s_t0, [S, S_T0], Col, F)
  => F = [ "The result matches the ", nowrap([\mmlm(Col, t), "-ratio"]), 
-	      " with the standard deviation for T0 ", \mmlm(Col, color(s_t0, S_T0)),
+	      " with the standard deviation for the pretest ", \mmlm(Col, color(s_t0, S_T0)),
 	      " instead of the standard deviation of the change score ", 
 	      \mmlm(Col, [color(s_t0, S), "."]), " Please insert the standard deviation of the", 
 	      " change score ", \mmlm(Col, color(s_t0, S)), " into the ", nowrap([\mmlm(Col, t), "-ratio"]), "."
 	      ].
 
 hint(s_t0, [_S, S_T0], Col, F)
- => F = [ "Do not insert the standard deviation for ",
-          "T0 ", \mmlm(Col, color(s_t0, S_T0)), " into the ", nowrap([\mmlm(Col, t), "-ratio"]), 
+ => F = [ "Do not insert the standard deviation for the pretest",
+          \mmlm(Col, color(s_t0, S_T0)), " into the ", nowrap([\mmlm(Col, t), "-ratio"]), 
           ". Use the change scores instead." 
 	      ].
 
@@ -357,7 +357,7 @@ buggy(tratio, stage(1), X, Y, [step(buggy, eot, [d, eot]),
 
 feedback(eot, [D, EOT], Col, F)
  => F = [ "The result matches the ", nowrap([\mmlm(Col, t), "-ratio"]), 
-          " with the EOT average ", \mmlm(Col, color(eot, EOT)),
+          " with the posttest average ", \mmlm(Col, color(eot, EOT)),
 	        " instead of the average change score ",
           nowrap( [\mmlm(Col, color(eot, D)), "."]), " ",
           "Please insert the average change score ", 
@@ -365,7 +365,7 @@ feedback(eot, [D, EOT], Col, F)
 	      ].
 
 hint(eot, [_D, EOT], Col, F)
- => F = [ "Do not insert the EOT average ", \mmlm(Col, color(eot, EOT)), "into the ", 
+ => F = [ "Do not insert the posttest average ", \mmlm(Col, color(eot, EOT)), "into the ", 
           nowrap([\mmlm(Col, t), "-ratio"]), ". Use the change scores instead." 
 	      ].
 
@@ -377,7 +377,7 @@ buggy(tratio, stage(1), X, Y, Flags) :-
 
 feedback(s_eot, [S, S_EOT], Col, F)
  => F = [ "The result matches the ", nowrap([\mmlm(Col, t), "-ratio"]), " with the standard deviation for ",
-          "EOT ", \mmlm(Col, color(s_eot, S_EOT)), 
+          "the posttest ", \mmlm(Col, color(s_eot, S_EOT)), 
           " instead of the standard deviation of the change score ", 
 	        nowrap([\mmlm(Col, color(s_eot, S)), "."]),
           " Please insert the standard deviation of the change score ", 
@@ -385,7 +385,7 @@ feedback(s_eot, [S, S_EOT], Col, F)
 	      ].
 
 hint(s_eot, [_S, S_EOT], Col, F)
- => F = [ "Do not insert the standard deviation for EOT ", 
+ => F = [ "Do not insert the standard deviation for the posttest ", 
           \mmlm(Col, color(s_eot, S_EOT)), " into the ", nowrap([\mmlm(Col, t), "-ratio"]), 
           ". Use the change scores instead." 
         ].
