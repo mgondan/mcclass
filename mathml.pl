@@ -129,8 +129,8 @@ math(chi2ratio(A), X, Flags, Flags1)
     A = X.
 
 % Hyphen
-math(hyph(L, R), X)
- => X = list(&('#8209'), [L, R]).
+mathml:math_hook(hyph(L, R), X) :-
+    X = list("\u2011", [L, R]).
 
 % Box
 %
