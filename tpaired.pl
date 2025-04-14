@@ -30,7 +30,7 @@ math_hook(s_t0, subscript(s, "T0")).
 math_hook(eot, overline("EOT")).
 math_hook(s_eot, subscript(s, "EOT")).
 math_hook(s2p, subscript(s, "pool")^2).
-math_hook(paired(_D, _Mu, _S_D, _N), list('', ["a paired ", t, "\u2011test"])).
+math_hook(paired(_D, _Mu, _S_D, _N), ["a paired", hyph(t, "test")]).
 math_hook(alpha, greek("alpha")).
 math_hook(var_pool(V1, N1, V2, N2), X) :-
     X = dfrac((N1 - 1)*V1 + (N2 - 1)*V2, N1 + N2 - 2).
