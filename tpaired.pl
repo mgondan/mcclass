@@ -51,8 +51,6 @@ r_hook(lo).
 r_hook(var_pool/4). 
 mono((var_pool)/4, [+, /, +, /]).
 
-r_hook(tail/1).
-
 % Task description
 render(Flags)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, N, _Mu, _Alpha)) },
@@ -215,7 +213,7 @@ intermediate(tratio, indep).
 buggy(tratio, stage(2), X, Y, [step(buggy, indep, [])]) :-
     X = item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu, _Alpha),
     Y = { '<-'(t, instead(indep, indep(T0, S_T0, N, EOT, S_EOT, N), 
-            paired(D, Mu, S_D, N))) 
+            dfrac(D - Mu, S_D / sqrt(N)))) 
         }.
 
 feedback(indep, [], Col, F)
@@ -440,9 +438,9 @@ hint(s_eot, [_S, S_EOT], Col, F)
         ].
 
 % Buggy-Rule: Use of n instead of sqrt(n)
-buggy(tratio, stage(2), X, Y, [step(buggy, sqrt1, [N])]) :-
-    X = sqrt(N),
-    Y = omit_right(sqrt1, N^(1/2)).
+buggy(tratio, stage(2), X, Y, [step(buggy, sqrt1, [n])]) :-
+    X = sqrt(n),
+    Y = omit_right(sqrt1, n^(1/2)).
 
 feedback(sqrt1, [N], Col, F)
  => F = [ "The result matches ",
@@ -459,21 +457,22 @@ hint(sqrt1, [N], Col, F)
         ].
 
 % Buggy-Rule: Forget square root around pooled variance
-buggy(tratio, stage(2), X, Y, [step(buggy, sqrt2, [S2P * Ns])]) :-
-    X = sqrt(S2P * Ns),
-    Y = omit_right(sqrt2, (S2P * Ns)^(1/2)).
+buggy(tratio, stage(2), X, Y, [step(buggy, sqrt2, [S_T0, S_EOT, N])]) :-
+    P = denote(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
+    X = sqrt(P * (1/N + 1/N)),
+    Y = omit_right(sqrt2, (P * (1/N + 1/N))^(1/2)).
 
-feedback(sqrt2, [V], Col, F)
+feedback(sqrt2, [S_T0, S_EOT, N], Col, F)
  => F = [ "The result matches ",
           "the ", nowrap([\mmlm(Col, t), "-ratio"]), " ",
           "without the square root in the denominator. Please do not forget ",
 	  "to take the square root of the error variance ",
-          nowrap([\mmlm(Col, color(sqrt2, sqrt(V))), "."])
+          nowrap([\mmlm(Col, color(sqrt2, sqrt(s2p * (1/N + 1/N)))), "."])
         ].
 
-hint(sqrt2, [V], Col, F)
- => F = [ "Do not forget the square root around ",
-          nowrap([\mmlm(Col, color(sqrt2, sqrt(V))), "."])
+hint(sqrt2, [N], Col, F)
+ => F = [ "Do not forget the square root around the error variance",
+          nowrap([\mmlm(Col, color(sqrt2, sqrt(s2p * (1/N + 1/N)))), "."])
         ].
 
 %
