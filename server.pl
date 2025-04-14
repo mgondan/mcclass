@@ -42,7 +42,7 @@ http:location(mcclass, root(mcclass), []).
 
 :- http_handler(mcclass(tpaired), handler(tpaired), []).
 :- http_handler(mcclass(tpairedupper), handler(tpairedupper), []).
-:- http_handler(mcclass(tpaired1tlow), handler(tpaired1tlow), []).
+:- http_handler(mcclass(tpairedlower), handler(tpairedlower), []).
 :- http_handler(mcclass(baseline), handler(baseline), []).
 :- http_handler(mcclass(oddsratio), handler(oddsratio), []).
 :- http_handler(mcclass(oddsratio2), handler(oddsratio2), []).

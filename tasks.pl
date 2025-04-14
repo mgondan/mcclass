@@ -21,7 +21,7 @@ use_task(T) :-
 
 :- use_task(tpaired).
 :- use_task(tpairedupper).
-:- use_task(tpaired1tlow).
+:- use_task(tpairedlower).
 :- use_task(baseline).
 :- use_task(oddsratio).
 :- use_task(oddsratio2).
