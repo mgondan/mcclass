@@ -30,7 +30,7 @@ math_hook(s_t0, subscript(s, "T0")).
 math_hook(eot, overline("EOT")).
 math_hook(s_eot, subscript(s, "EOT")).
 math_hook(s2p, subscript(s, "pool")^2).
-math_hook(paired(D, Mu, S_D, N), fn("paired", [D, Mu, S_D, N])).
+math_hook(paired(_D, _Mu, _S_D, _N), ["a paired ", t, "-test"]).
 math_hook(alpha, greek("alpha")).
 math_hook(var_pool(V1, N1, V2, N2), X) :-
     X = dfrac((N1 - 1)*V1 + (N2 - 1)*V2, N1 + N2 - 2).
@@ -213,7 +213,7 @@ intermediate(tratio, indep).
 buggy(tratio, stage(2), X, Y, [step(buggy, indep, [])]) :-
     X = item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu, _Alpha),
     Y = { '<-'(t, instead(indep, indep(T0, S_T0, N, EOT, S_EOT, N), 
-            dfrac(D - Mu, S_D / sqrt(N)))) 
+            paired(D, Mu, S_D, N))) 
         }.
 
 feedback(indep, [], Col, F)
@@ -462,7 +462,7 @@ buggy(tratio, stage(2), X, Y, [step(buggy, sqrt2, [S_T0, S_EOT, N])]) :-
     X = sqrt(P * (1/N + 1/N)),
     Y = omit_right(sqrt2, (P * (1/N + 1/N))^(1/2)).
 
-feedback(sqrt2, [S_T0, S_EOT, N], Col, F)
+feedback(sqrt2, [_S_T0, _S_EOT, N], Col, F)
  => F = [ "The result matches ",
           "the ", nowrap([\mmlm(Col, t), "-ratio"]), " ",
           "without the square root in the denominator. Please do not forget ",
@@ -470,7 +470,7 @@ feedback(sqrt2, [S_T0, S_EOT, N], Col, F)
           nowrap([\mmlm(Col, color(sqrt2, sqrt(s2p * (1/N + 1/N)))), "."])
         ].
 
-hint(sqrt2, [N], Col, F)
+hint(sqrt2, [_S_T0, _S_EOT, N], Col, F)
  => F = [ "Do not forget the square root around the error variance",
           nowrap([\mmlm(Col, color(sqrt2, sqrt(s2p * (1/N + 1/N)))), "."])
         ].
