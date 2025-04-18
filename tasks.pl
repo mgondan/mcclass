@@ -31,7 +31,6 @@ use_task(T) :-
 :- use_task(ztrans).
 :- use_task(ztrans2).
 :- use_task(dbinom).
-:- use_task(qbinom).
 :- use_task(testbinom).
 :- use_task(chisq).
 :- use_task(power).
