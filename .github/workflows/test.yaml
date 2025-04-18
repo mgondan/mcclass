@@ -54,8 +54,12 @@ jobs:
       - name: Install mcclass
         run: |
           export R_LIBS_USER=$HOME/Rlibs
-          REPO_URL="https://github.com/$GITHUB_REPOSITORY.git"
-          git clone $REPO_URL ~/.local/share/swi-prolog/pack/mcclass
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            REPO_URL="https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git"
+          else
+            REPO_URL="https://github.com/${{ github.repository }}.git"
+          fi
+          git clone "$REPO_URL" ~/.local/share/swi-prolog/pack/mcclass
         shell: bash
 
       - name: Run tests mcclass interval 
