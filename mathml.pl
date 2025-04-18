@@ -506,9 +506,8 @@ mathml:math_hook(ci(A, B), M) :-
 mathml:math_hook(pwbinom(_K, N, Pi, Tail), M) :-
     M = fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])).
 
-
-%
 % Empty list
-%
-mathml:math_hook([], M) :-
-    M = "".
+mathml:math_hook([], "").
+
+% Round
+mathml:math_hook(round(A), A).
