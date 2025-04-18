@@ -36,11 +36,11 @@ test(subgroups_cibase) :-
 test(dbinom_exactprob) :-
     tasks:tasks(dbinom, exactprob).
 
-test(powbinom_powbinom) :-
+test(testbinom_powbinom) :-
     tasks:tasks(testbinom, powbinom).
-
-test(qbinom_critical) :-
-    tasks:tasks(qbinom, critical).
+    
+test(testbinom_critical) :-
+    tasks:tasks(testbinom, critical).
 
 test(power_power) :-
     tasks:tasks(power, power).

@@ -1,4 +1,3 @@
-
 :- module(testbinom, []).
 
 :- use_module(library(http/html_write)).
