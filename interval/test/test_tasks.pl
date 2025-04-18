@@ -37,7 +37,7 @@ test(dbinom_exactprob) :-
     tasks:tasks(dbinom, exactprob).
 
 test(powbinom_powbinom) :-
-    tasks:tasks(powbinom, powbinom).
+    tasks:tasks(testbinom, powbinom).
 
 test(qbinom_critical) :-
     tasks:tasks(qbinom, critical).

@@ -1,5 +1,5 @@
-% Binomial test (power)
-:- module(powbinom, []).
+
+:- module(testbinom, []).
 
 :- use_module(library(http/html_write)).
 :- use_module(table).
@@ -7,7 +7,7 @@
 :- use_module(mathml).
 :- use_module(navbar).
 
-navbar:page(powbinom, "Binomial test").
+navbar:page(testbinom, "Binomial test").
 label(critical, "Critical value").
 label(powbinom, "Power").
 
@@ -59,7 +59,7 @@ render(Flags)
 % Question for the critical value
 task(Flags, critical)
 --> { start(item(Alpha, _N, _P0, _P1)),
-      session_data(resp(powbinom, critical, Resp), resp(powbinom, critical, '#'))
+      session_data(resp(testbinom, critical, Resp), resp(testbinom, critical, '#'))
     },
     html(\htmlform([ "How many successes are needed to rule out the null ",
       "hypothesis at the one-tailed significance level ",
@@ -68,7 +68,7 @@ task(Flags, critical)
 % Question for the power   
 task(Flags, powbinom)
 --> { start(item(Alpha, _N, _P0, _P1)),
-      session_data(resp(powbinom, powbinom, Resp), resp(powbinom, powbinom, '#.##'))
+      session_data(resp(testbinom, powbinom, Resp), resp(testbinom, powbinom, '#.##'))
     },
     html(\htmlform([ "What is the power of the test at the one-tailed ",
         "significance level of ",
