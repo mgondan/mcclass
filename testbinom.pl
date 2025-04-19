@@ -35,7 +35,7 @@ r_hook(c).
 % Task description
 render(Flags)
 --> { start(item(Alpha, N, P0, P1)),
-      binomtable(Alpha, N, P0, P1, Caption, Rows, Cols, Cells)
+      binomtable(Flags, Alpha, N, P0, P1, Caption, Rows, Cols, Cells)
     },
     html(
         div(class(card), div(class('card-body'),
@@ -320,24 +320,24 @@ hint(dens2, [_], _Col, H)
         ].
 
 % Helper function(s)
-binomtable(Alpha, N, P0, P1, Caption, Rows, Cols, Cells) :-
+binomtable(Flags, Alpha, N, P0, P1, Caption, Rows, Cols, Cells) :-
     interval(r('as.integer'(qbinom(Alpha, N, P0, true))) - 1, L),
     interval(r('as.integer'(qbinom(Alpha, N, P1, false))) + 1, H),
     Caption = [em("Table 1. "), "Binomial probabilities"],
-    Cols = [\mmlm(k), \mmlm(dbinom(k, N = r(N), p0 = r(P0))), \mmlm(dbinom(k, N = r(N), p1 = r(P1)))],
+    Cols = [\mmlm(Flags, k), \mmlm(Flags, dbinom(k, N = r(N), p0 = r(P0))), \mmlm(Flags, dbinom(k, N = r(N), p1 = r(P1)))],
     % lower tail
     L0 is L - 1,
-    FirstRow = \mmlm([0, "...", L0]),
-    FirstCell0 = \mmlm([digits=3], r(pbinom(L0, N, P0))),
-    FirstCell1 = \mmlm([digits=3], r(pbinom(L0, N, P1))),
+    FirstRow = \mmlm(Flags, [0, "...", L0]),
+    FirstCell0 = \mmlm([digits=3 | Flags], r(pbinom(L0, N, P0))),
+    FirstCell1 = \mmlm([digits=3 | Flags], r(pbinom(L0, N, P1))),
     % middle range
-    findall(\mmlm(R), between(L, H, R), MiddleRows),
-    findall([\mmlm([digits=3], r(dbinom(D, N, P0))), \mmlm([digits=3], r(dbinom(D, N, P1)))], between(L, H, D), MiddleCells),
+    findall(\mmlm(Flags, R), between(L, H, R), MiddleRows),
+    findall([\mmlm([digits=3 | Flags], r(dbinom(D, N, P0))), \mmlm([digits=3], r(dbinom(D, N, P1)))], between(L, H, D), MiddleCells),
     % upper tail
     HN is H + 1,
-    LastRow = \mmlm([HN, "...", N]),
-    LastCell0 = \mmlm([digits=3], r(pbinom(H, N, P0, 'lower.tail'=false))), % H not HN
-    LastCell1 = \mmlm([digits=3], r(pbinom(H, N, P1, 'lower.tail'=false))),
+    LastRow = \mmlm(Flags, [HN, "...", N]),
+    LastCell0 = \mmlm([digits=3 | Flags], r(pbinom(H, N, P0, 'lower.tail'=false))), % H not HN
+    LastCell1 = \mmlm([digits=3 | Flags], r(pbinom(H, N, P1, 'lower.tail'=false))),
     append([[FirstRow], MiddleRows, [LastRow]], Rows),
     append([[[FirstCell0, FirstCell1]], MiddleCells, [[LastCell0, LastCell1]]], Cells).
 
