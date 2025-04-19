@@ -1,14 +1,8 @@
 alpha = 0.05
-n     = 26L
-p0    = 0.6
-p1    = 0.8
+n     = sample(20:30, 1)
+p0    = sample(c(0.4,0.5,0.6), 1)
+p1    = p0 + sample(c(0.1,0.2,0.3), 1)
 k     = NA
-
-uqbinom <- function(...)
-  as.integer(qbinom(..., lower.tail=FALSE) + 1)
-
-lqbinom <- function(...)
-  as.integer(qbinom(..., lower.tail=TRUE) - 1)
 
 udbinom <- function(Alpha, N, Pi)
 {

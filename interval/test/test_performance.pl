@@ -125,7 +125,7 @@ test10 :-
     test_('test10', Call, Opt).
 
 test11 :-
-    Topic = powbinom,
+    Topic = testbinom,
     Task = powbinom,
     Call = tasks:tasks(Topic, Task),
     open_null_stream(Null),
