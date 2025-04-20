@@ -56,8 +56,6 @@ render(Flags)
                 "patients. Under the alternative hypothesis, we hope ",
                 "that the success probability is ",
                 span(class('text-nowrap'), [\mmlm(Flags, p1 = r(P1)), "."]), 
-                " At the end of the treatment, ", \mmlm(Flags, k = r(K)), 
-                " successes are reported among the patients.",
                 " The binomial probabilities are given in the tables below."
               ]),
             div(class(container),
@@ -89,10 +87,12 @@ task(Flags, pval)
 --> { start(item(Alpha, _N, _P0, _P1, _K)),
       session_data(resp(testbinom, pval, Resp), resp(testbinom, pval, '#.##'))
     },
-    html(\htmlform([ "What is the ", nowrap([\mmlm(Flags, p), "-value"]), " of the test at the one-tailed ",
-        "significance level of ",
-        nowrap([\mmlm(Flags, alpha = r(Alpha)), "?"])],
-        pval, Resp)).
+    html(\htmlform([ "At the end of the ",
+        "study, ", \mmlm(Flags, r(K)), " successes are reported among the ",
+        "patients. What is the ", nowrap([\mmlm(Flags, p), "-value"]), " of ",
+        "the test at the one-tailed significance level ",
+        "of ", nowrap([\mmlm(Flags, alpha = r(Alpha)), "?"])],
+      pval, Resp)).
 
 start(item(alpha, n, p0, p1, k)).
 
@@ -347,9 +347,7 @@ hint(dens2, [_], _Col, H)
 intermediate(pval, item).
 expert(pval, stage(2), From, To, [step(expert, pbinom, [])]) :-
     From = item(Alpha, N, P0, P1, K),
-    To =  { '<-'(p, pbinom0(Alpha, N, P0, P1, K)) ;
-           pval(p) 
-          }.
+    To = { pbinom0(Alpha, N, P0, P1, K) }.
 
 feedback(pbinom, [], _Col, F)
  => F = [ "Correctly recognized the problem as involving a binomial distribution."
@@ -416,21 +414,6 @@ feedback(alternative, [P1], Col, F)
 hint(alternative, [_P1], _Col, H)
  => H = [ "Do not use the success probability under the alternative hypothesis." 
         ].
-
-% Buggy rule: use alpha instead of success probability
-buggy(pval, stage(2), From, To, [step(buggy, alpha, [alpha])]) :-
-    From = p0,
-    To = { instead(alpha, alpha, p0) }.
-
-feedback(alpha, [Alpha], Col, F)
- => F = [ "The result matches the probability using the significance level ", \mmlm(Col, alpha = r(Alpha)), 
-          " as the success probability."
-        ].
-
-hint(alpha, [_Alpha], Col, H)
- => H = [ "Do not use ", \mmlm(Col, alpha), " as the success probability." 
-        ].
-
 
 % Helper function(s)
 binomtable(Flags, Alpha, N, P0, P1, Caption, Rows, Cols, Cells) :-

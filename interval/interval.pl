@@ -383,7 +383,7 @@ rint:pbinom1(K, N, Pi, atomic("lower"), Res, Flags) :-
     rint:interval_(pbinom(K, N, Pi, atomic(true)), Res, Flags).
 
 rint:pbinom1(K, N, Pi, atomic("upper"), Res, Flags) :-
-    rint:interval_(pbinom(K, N, Pi, atomic(false)), Res, Flags).
+	rint:interval_(pbinom(K - atomic(1), N, Pi, atomic(false)), Res, Flags).
 
 rint:pbinom1(K, N, Pi, atomic("densi"), Res, Flags) :-
     rint:interval_(dbinom(K, N, Pi), Res, Flags).
