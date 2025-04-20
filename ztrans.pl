@@ -9,7 +9,7 @@
 
 :- use_module(navbar).
 navbar:page(ztrans, [i(z), "-transform (1)"]).
-task(ztrans).
+task(prob).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
@@ -33,20 +33,20 @@ render(Flags)
               "normal distribution is found below."
             ])]))]).
 
-task(Flags, ztrans)
+task(Flags, prob)
 --> { start(item(_X, _Mu, _Sigma)),
-      session_data(resp(ztrans, ztrans, Resp), resp(ztrans, ztrans, '.##'))
+      session_data(resp(ztrans, prob, Resp), resp(ztrans, prob, '.##'))
 	},
 	html(\htmlform([ "How many realizations are ",
-        "below ", \mmlm([digits(0) | Flags], [r(x), "?"])], ztrans, Resp)).
+        "below ", \mmlm([digits(0) | Flags], [r(x), "?"])], prob, Resp)).
       
 % z-transformation and normal distribution
-intermediate(ztrans, item).
+intermediate(prob, item).
 start(item(x, mu, sigma)).
 
-intermediate(ztrans, pnorm_).
-intermediate(ztrans, zcalc).
-expert(ztrans, stage(1), From, To, [step(expert, allinone, [])]) :-
+intermediate(prob, pnorm_).
+intermediate(prob, zcalc).
+expert(prob, stage(1), From, To, [step(expert, allinone, [])]) :-
     From = item(X, Mu, Sigma),
     To = { '<-'(z, zcalc(X, Mu, Sigma)) ;
            '<-'(p, pnorm_(z)) 
@@ -60,7 +60,7 @@ hint(allinone, [], Col, FB) =>
 
 
 % Expert rule (zcalc)
-expert(ztrans, stage(1), From, To, [step(expert, zcalc, [X, Mu, Sigma])]) :-
+expert(prob, stage(1), From, To, [step(expert, zcalc, [X, Mu, Sigma])]) :-
     From = zcalc(X, Mu, Sigma),
     To = dfrac(X - Mu, Sigma).
 
@@ -71,7 +71,7 @@ hint(zcalc, [X, Mu, Sigma], Col, FB) =>
     FB = [ "To calculate the z-value, use " , \mmlm(Col, [dfrac(X - Mu, Sigma), "."]) ].
 
 % Expert rule (correct tail)
-expert(ztrans, stage(2), From, To, [step(expert, correct_tail, [Z])]) :-
+expert(prob, stage(2), From, To, [step(expert, correct_tail, [Z])]) :-
     From = pnorm_(Z),
     To = pnorm(Z).
 
@@ -83,7 +83,7 @@ hint(correct_tail, [_Z], _Col, FB) =>
 
 
 % Buggy rule (wrong tail) The wrong tail of the normal distribution was selected.
-buggy(ztrans, stage(2), From, To, [step(buggy, wrong_tail, [Z])]) :-
+buggy(prob, stage(2), From, To, [step(buggy, wrong_tail, [Z])]) :-
     From = pnorm_(Z),
     To = instead(wrong_tail, 1 - pnorm(Z), pnorm(Z)).
 
@@ -94,7 +94,7 @@ hint(wrong_tail, [_Z], _Col, FB) =>
     FB = [ "Do not use the upper tail of the normal distribution." ].
 
 % Buggy Rule (plus) Mu was added to X, not subtracted.
-buggy(ztrans, stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
+buggy(prob, stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
     From = dfrac(X - Mu, Sigma),
     To = dfrac(instead(plus, X + Mu, X - Mu), Sigma).
 
@@ -107,7 +107,7 @@ hint(plus, [X, Mu], Col, FB) =>
            \mmlm(Col, [color(plus, X + Mu), "."]) ].
 
 % Buggy Rule (swap) Mu and Sigma were swapped.
-buggy(ztrans, stage(1), From, To, [step(buggy, swap, [mu, sigma])]) :-
+buggy(prob, stage(1), From, To, [step(buggy, swap, [mu, sigma])]) :-
     From = item(x, mu, sigma),
     To = item(x, instead(swap, sigma, mu), instead(swap, mu, sigma));
     From = item(x, mu, sigma^2),
@@ -122,7 +122,7 @@ hint(swap, [Mu, Sigma], Col, FB) =>
 	   \mmlm(Col, color(swap, Sigma)), " in a different configuration." ].
 
 % Buggy Rule (vardev swap) standard deviation was mistaken with variance.
-buggy(ztrans, stage(1), From, To, [step(buggy, vardev_swap, [sigma])]) :-
+buggy(prob, stage(1), From, To, [step(buggy, vardev_swap, [sigma])]) :-
     From = item(x, mu, sigma),
     To = item(x, mu, instead(vardev_swap, sigma^2, sigma)).
 
@@ -133,7 +133,7 @@ hint(vardev_swap, [sigma], Col, FB) =>
     FB = [ "Use ", \mmlm(Col, color(vardev_swap, sigma)), " instead of ", \mmlm(Col, [color(vardev_swap, sigma^2), "."]) ].
 
 % Buggy Rule (xp) (x - mu)/sigma was skipped.
-buggy(ztrans, stage(2), From, To, [step(buggy, xp, []), depends(xp2)]) :-
+buggy(prob, stage(2), From, To, [step(buggy, xp, []), depends(xp2)]) :-
    From = dfrac(x - mu, sigma),
    To = omit_right(xp, dfrac(omit_right(xp, x - mu), sigma)).
 
@@ -144,7 +144,7 @@ hint(xp, [], _Col, FB) =>
     FB = [ "Remember to calculate the z-value." ].
 
 % Buggy Rule (xp2) x/100 was taken to be phi(z).
-buggy(ztrans, stage(2), From, To, [step(buggy, xp2, []), depends(xp)]) :-
+buggy(prob, stage(2), From, To, [step(buggy, xp2, []), depends(xp)]) :-
     From = pnorm_(z),
     To = instead(xp2, z/100, pnorm(z)).
 
