@@ -9,9 +9,11 @@
 navbar:page(testbinom, "Binomial test").
 label(critical, "Critical value").
 label(powbinom, "Power").
+label(pval, [math(mi(p)), "-value"]).
 
 task(critical).
 task(powbinom).
+task(pval).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
@@ -24,6 +26,11 @@ math_hook(tail("lower", K), 'X' =< K).
 math_hook(tail("densi", K), 'X' = K).
 math_hook(cbinom(Alpha, N, Pi, Tail, MinArg), M) :-
     M = (nodot(MinArg, fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])) =< Alpha)).
+math_hook(pbinom1(_K, N, Pi, Tail), M) :-
+    M = (fn(subscript('P', "Bi"), ([Tail] ; [N, Pi]))).
+math_hook(tail("upper"), 'X' >= k).
+math_hook(tail("lower"), 'X' =< k).
+math_hook(tail("densi"), 'X' = k).
 
 % R definitions
 r_hook(alpha).
@@ -31,10 +38,11 @@ r_hook(n).
 r_hook(p0).
 r_hook(p1).
 r_hook(c).
+r_hook(k).
 
 % Task description
 render(Flags)
---> { start(item(Alpha, N, P0, P1)),
+--> { start(item(Alpha, N, P0, P1, K)),
       binomtable(Flags, Alpha, N, P0, P1, Caption, Rows, Cols, Cells)
     },
     html(
@@ -47,8 +55,10 @@ render(Flags)
                 "hypothesis, and that successes occur independently in all ",
                 "patients. Under the alternative hypothesis, we hope ",
                 "that the success probability is ",
-                span(class('text-nowrap'), [\mmlm(Flags, p1 = r(P1)), "."]), " The ",
-                "binomial probabilities are given in the tables below."
+                span(class('text-nowrap'), [\mmlm(Flags, p1 = r(P1)), "."]), 
+                " At the end of the treatment, ", \mmlm(Flags, k = r(K)), 
+                " successes are reported among the patients.",
+                " The binomial probabilities are given in the tables below."
               ]),
             div(class(container),
               div(class("row justify-content-md-center"),
@@ -57,7 +67,7 @@ render(Flags)
 
 % Question for the critical value
 task(Flags, critical)
---> { start(item(Alpha, _N, _P0, _P1)),
+--> { start(item(Alpha, _N, _P0, _P1, _K)),
       session_data(resp(testbinom, critical, Resp), resp(testbinom, critical, '#'))
     },
     html(\htmlform([ "How many successes are needed to rule out the null ",
@@ -66,7 +76,7 @@ task(Flags, critical)
 
 % Question for the power   
 task(Flags, powbinom)
---> { start(item(Alpha, _N, _P0, _P1)),
+--> { start(item(Alpha, _N, _P0, _P1, _K)),
       session_data(resp(testbinom, powbinom, Resp), resp(testbinom, powbinom, '#.##'))
     },
     html(\htmlform([ "What is the power of the test at the one-tailed ",
@@ -74,7 +84,17 @@ task(Flags, powbinom)
         nowrap([\mmlm(Flags, alpha = r(Alpha)), "?"])],
         powbinom, Resp)).
 
-start(item(alpha, n, p0, p1)).
+% Question for the p-value  
+task(Flags, pval)
+--> { start(item(Alpha, _N, _P0, _P1, _K)),
+      session_data(resp(testbinom, pval, Resp), resp(testbinom, pval, '#.##'))
+    },
+    html(\htmlform([ "What is the ", nowrap([\mmlm(Flags, p), "-value"]), " of the test at the one-tailed ",
+        "significance level of ",
+        nowrap([\mmlm(Flags, alpha = r(Alpha)), "?"])],
+        pval, Resp)).
+
+start(item(alpha, n, p0, p1, k)).
 
 %
 % Expert rules for the critical value task 
@@ -84,7 +104,7 @@ intermediate(critical, item).
 % First step: identify as a binomial test  
 intermediate(critical, binom).
 expert(critical, stage(2), From, To, [step(expert, binom, [])]) :-
-    From = item(Alpha, N, P0, _P1),
+    From = item(Alpha, N, P0, _P1, _K),
     To   = { round(binom(Alpha, N, P0)) }.
 
 feedback(binom, [], _Col, F) =>
@@ -169,7 +189,7 @@ intermediate(powbinom, item).
 intermediate(powbinom, crit).
 
 expert(powbinom, stage(1), From, To, [step(expert, problem, [])]) :-
-    From = item(Alpha, N, P0, P1),
+    From = item(Alpha, N, P0, P1, _K),
     To = { '<-'(c, crit(Alpha, N, P0)) ;
            power(c, N, P1) }.
 
@@ -318,6 +338,99 @@ hint(dens2, [_], _Col, H)
  => H = [ "Make sure to use the cumulative binomial distribution to ",
           "determine the power."
         ].
+
+
+%
+% Expert rules for the p-value task
+%
+% First step: recognise the problem as involving a binomial distribution
+intermediate(pval, item).
+expert(pval, stage(2), From, To, [step(expert, pbinom, [])]) :-
+    From = item(Alpha, N, P0, P1, K),
+    To =  { '<-'(p, pbinom0(Alpha, N, P0, P1, K)) ;
+           pval(p) 
+          }.
+
+feedback(pbinom, [], _Col, F)
+ => F = [ "Correctly recognized the problem as involving a binomial distribution."
+        ].
+
+hint(pbinom, [], _Col, H)
+ => H = [ "The problem involves a binomial distribution." ].
+
+% Second step: determine the upper tail of the binomial distribution
+intermediate(pval, pbinom0).
+expert(pval, stage(2), From, To, [step(expert, tail, [K, P0])]) :-
+  From = pbinom0(_Alpha, N, P0, _P1, K),
+  To = { pbinom1(K, N, P0, tail("upper")) }.
+
+feedback(tail, [K, P0], Col, F)
+ => F = [ "Correctly calculated the probability of having ", \mmlm(Col, k = r(K)),
+          " or more successes under the null hypothesis of ", \mmlm(Col, p0 = r(P0)), "."
+        ].
+
+hint(tail, [_K, _P0], _Col, H)
+ => H = [ "The upper tail of the binomial distribution is needed." ]. 
+
+
+%
+% Buggy rules for the p-value task
+%
+% Buggy rule: use lower tail instead of upper tail
+buggy(pval, stage(2), From, To, [step(buggy, lowertail, [K])]) :-
+    From = pbinom0(_Alpha, N, P0, _P1, K),
+    To = { pbinom1(K, N, P0, instead(lowertail, tail("lower"), tail("upper"))) }.
+
+feedback(lowertail, [K], Col, F)
+ => F = [ "The result matches the probability of having ", \mmlm(Col, k = r(K)),
+          " or less successes."
+        ].
+
+hint(lowertail, [_K], _Col, H)
+ => H = [ "Do not select the lower tail of the binomial distribution." 
+        ].
+
+% Buggy rule: use density instead of upper tail
+buggy(pval, stage(2), From, To, [step(buggy, density, [K])]) :-
+    From = pbinom0(_Alpha, N, P0, _P1, K),
+    To = { pbinom1(K, N, P0, instead(lowertail, tail("densi"), tail("upper"))) }.
+
+feedback(density, [K], Col, F)
+ => F = [ "The result matches the probability of having exactly ", \mmlm(Col, k = r(K)),
+          " successes."
+        ].
+
+hint(density, [_K], _Col, H)
+ => H = [ "Do not use the density." 
+        ].
+
+% Buggy rule: use success probability of alternative instead of null hypothesis
+buggy(pval, stage(2), From, To, [step(buggy, alternative, [p1])]) :-
+    From = p0,
+    To = { instead(alternative, p1, p0) }.
+
+feedback(alternative, [P1], Col, F)
+ => F = [ "The result matches the probability under the alternative hypothesis of ", \mmlm(Col, p1 = r(P1)), "."
+        ].
+
+hint(alternative, [_P1], _Col, H)
+ => H = [ "Do not use the success probability under the alternative hypothesis." 
+        ].
+
+% Buggy rule: use alpha instead of success probability
+buggy(pval, stage(2), From, To, [step(buggy, alpha, [alpha])]) :-
+    From = p0,
+    To = { instead(alpha, alpha, p0) }.
+
+feedback(alpha, [Alpha], Col, F)
+ => F = [ "The result matches the probability using the significance level ", \mmlm(Col, alpha = r(Alpha)), 
+          " as the success probability."
+        ].
+
+hint(alpha, [_Alpha], Col, H)
+ => H = [ "Do not use ", \mmlm(Col, alpha), " as the success probability." 
+        ].
+
 
 % Helper function(s)
 binomtable(Flags, Alpha, N, P0, P1, Caption, Rows, Cols, Cells) :-

@@ -42,6 +42,9 @@ test(testbinom_powbinom) :-
 test(testbinom_critical) :-
     tasks:tasks(testbinom, critical).
 
+test(testbinom_pvalue) :-
+    tasks:tasks(testbinom, pval).
+
 test(power_power) :-
     tasks:tasks(power, power).
 
