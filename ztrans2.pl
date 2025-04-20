@@ -9,7 +9,7 @@
 
 :- use_module(navbar).
 navbar:page(ztrans2, [i(z), "-transform (2)"]).
-task(ztrans).
+task(quantile).
 
 :- multifile intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
@@ -34,17 +34,17 @@ render(Flags)
               "normal distribution is found below."
             ])]))]).
 
-task(Flags, ztrans)
+task(Flags, quantile)
 --> { start(item(P, _Mu, _Sigma)),
-      session_data(resp(ztrans2, ztrans, Resp), resp(ztrans2, ztrans, '##.#'))
+      session_data(resp(ztrans2, quantile, Resp), resp(ztrans2, quantile, '##.#'))
 	},
-	html(\htmlform([ "In which area do the upper ", \mmlm([digits(0) | Flags], [r(P), "% fall?"])], ztrans, Resp)).
+	html(\htmlform([ "In which area do the upper ", \mmlm([digits(0) | Flags], [r(P), "% fall?"])], quantile, Resp)).
 
-intermediate(ztrans, item).
+intermediate(quantile, item).
 start(item(p, mu, sigma)).
 
-intermediate(ztrans, qnorm_).
-expert(ztrans, stage(2), From, To, [step(expert, steps, [])]) :-
+intermediate(quantile, qnorm_).
+expert(quantile, stage(2), From, To, [step(expert, steps, [])]) :-
     From = item(P, Mu, Sigma),
     To = { '<-'( z, qnorm_(1 - dfrac(P, 100))) ;
            '<-'(x, z * Sigma + Mu)
@@ -59,7 +59,7 @@ hint(steps, [], Col, FB) =>
            "it to the original scale." ].
 
 % Expert rule (correct tail)
-expert(ztrans, stage(2), From, To, [step(expert, correct_tail, [])]) :-
+expert(quantile, stage(2), From, To, [step(expert, correct_tail, [])]) :-
     From = qnorm_(P),
     To = qnorm(P).
 
@@ -74,7 +74,7 @@ hint(correct_tail, [], _Col, FB) =>
 %
 % The wrong tail of the Normal distribution was selected.
 %
-buggy(ztrans, stage(2), From, To, [step(buggy, wrong_tail, [])]) :-
+buggy(quantile, stage(2), From, To, [step(buggy, wrong_tail, [])]) :-
     From = qnorm_(1 - P),
     To = qnorm(instead(wrong_tail, P, 1 - P)).
 
@@ -87,7 +87,7 @@ hint(wrong_tail, [], _Col, FB) =>
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % Buggy Rule (swap) Mu and Sigma were swapped.
-buggy(ztrans, stage(2), From, To, [step(buggy, swap, [mu, Sigma])]) :-
+buggy(quantile, stage(2), From, To, [step(buggy, swap, [mu, Sigma])]) :-
     From = z * Sigma + mu,
     To = instead(swap, z * mu + Sigma, From).
 
@@ -101,7 +101,7 @@ hint(swap, [Mu, Sigma], Col, FB) =>
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % Buggy Rule (vardev swap) standard deviation was mistaken with variance.
-buggy(ztrans, stage(2), From, To, [step(buggy, vardev_swap, [sigma])]) :-
+buggy(quantile, stage(2), From, To, [step(buggy, vardev_swap, [sigma])]) :-
     From = Z * sigma + Mu,
     To = Z * add_right(vardev_swap, sigma^2) + Mu.
 
@@ -118,7 +118,7 @@ hint(vardev_swap, [_Sigma], _Col, FB) =>
 % students divide by 1000 instead of 100 when translating percentages to
 % proportions.
 %
-buggy(ztrans, stage(2), From, To, [step(buggy, perc1000, [1000])]) :-
+buggy(quantile, stage(2), From, To, [step(buggy, perc1000, [1000])]) :-
     From = dfrac(P, 100),
     To = dfrac(P, instead(perc1000, 1000, 100)).
 
@@ -133,7 +133,7 @@ hint(perc1000, [_P], _Col, FB) =>
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % Buggy Rule (pdecimal2) p was taken to be ten times its true value (5% -/-> 0,05. 5% --> 0,5).
-buggy(ztrans, stage(2), From, To, [step(buggy, pdecimal2, [P])]) :-
+buggy(quantile, stage(2), From, To, [step(buggy, pdecimal2, [P])]) :-
     From = dfrac( P , 100 ),
     To = instead(pdecimal2, dfrac( P , 10 ), From).
 
@@ -145,7 +145,7 @@ hint(pdecimal2, [P], Col, FB) =>
 
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%
 % Buggy Rule (zx) The z value was calculated but taken to be the endresult.
-buggy(ztrans, stage(2), From, To, [step(buggy, zx, [z, sigma, mu])]) :-
+buggy(quantile, stage(2), From, To, [step(buggy, zx, [z, sigma, mu])]) :-
     From = z * sigma + mu,
     To = instead(zx, z , From).
 
