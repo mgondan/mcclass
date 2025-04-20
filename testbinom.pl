@@ -418,7 +418,7 @@ hint(alternative, [_P1], _Col, H)
 % Helper function(s)
 binomtable(Flags, Alpha, N, P0, P1, Caption, Rows, Cols, Cells) :-
     interval(r('as.integer'(qbinom(Alpha, N, P0, true))) - 1, L),
-    interval(r('as.integer'(qbinom(Alpha, N, P1, false))) + 1, H),
+    interval(r('as.integer'(min(N - 2, qbinom(Alpha, N, P1, false) + 1))), H),
     Caption = [em("Table 1. "), "Binomial probabilities"],
     Cols = [\mmlm(Flags, k), \mmlm(Flags, dbinom(k, N, P0)), \mmlm(Flags, dbinom(k, N, P1))],
     % lower tail
@@ -430,9 +430,8 @@ binomtable(Flags, Alpha, N, P0, P1, Caption, Rows, Cols, Cells) :-
     findall(\mmlm(Flags, R), between(L, H, R), MiddleRows),
     findall([\mmlm([digits=3 | Flags], r(dbinom(D, N, P0))), \mmlm([digits=3], r(dbinom(D, N, P1)))], between(L, H, D), MiddleCells),
     % upper tail
-    HN is H + 1,
-    LastRow = \mmlm(Flags, [HN, "...", N]),
-    LastCell0 = \mmlm([digits=3 | Flags], r(pbinom(H, N, P0, 'lower.tail'=false))), % H not HN
+    LastRow = \mmlm(Flags, [r(H + 1), "...", N]),
+    LastCell0 = \mmlm([digits=3 | Flags], r(pbinom(H, N, P0, 'lower.tail'=false))),
     LastCell1 = \mmlm([digits=3 | Flags], r(pbinom(H, N, P1, 'lower.tail'=false))),
     append([[FirstRow], MiddleRows, [LastRow]], Rows),
     append([[[FirstCell0, FirstCell1]], MiddleCells, [[LastCell0, LastCell1]]], Cells).
