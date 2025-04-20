@@ -130,10 +130,10 @@ test(tpaired1tlow_cipaired) :-
 % z-transformation
 :- begin_tests(ztrans).
 
-test(ztrans_ztrans) :-
-    tasks:tasks(ztrans, ztrans).
+test(ztrans_prob) :-
+    tasks:tasks(ztrans, prob).
 
-test(ztrans2_ztrans) :-
-    tasks:tasks(ztrans2, ztrans).
+test(ztrans_quantile) :-
+    tasks:tasks(ztrans, quantile).
 
 :- end_tests(ztrans).

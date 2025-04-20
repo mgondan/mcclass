@@ -29,7 +29,6 @@ use_task(T) :-
 :- use_task(tgroups).
 :- use_task(tgroupsdf).
 :- use_task(ztrans).
-:- use_task(ztrans2).
 :- use_task(dbinom).
 :- use_task(testbinom).
 :- use_task(chisq).

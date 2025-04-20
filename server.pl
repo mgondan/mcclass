@@ -49,7 +49,6 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(easyodds), handler(easyodds), []).
 :- http_handler(mcclass(subgroups), handler(subgroups), []).
 :- http_handler(mcclass(ztrans), handler(ztrans), []).
-:- http_handler(mcclass(ztrans2), handler(ztrans2), []).
 :- http_handler(mcclass(tgroups), handler(tgroups), []).
 :- http_handler(mcclass(tgroupsdf), handler(tgroupsdf), []).
 :- http_handler(mcclass(dbinom), handler(dbinom), []).
