@@ -374,3 +374,16 @@ rint:pwbinom0(Crit, N, Pi, atomic("upper"), Res, Flags) :-
 
 rint:pwbinom0(Crit, N, Pi, atomic("densi"), Res, Flags) :-
     rint:interval_(dbinom(Crit, N, Pi), Res, Flags).
+
+%
+% pbinom wrapper
+%
+rint:int_hook(pbinom1, pbinom1(_, _, _, atomic), _, []).
+rint:pbinom1(K, N, Pi, atomic("lower"), Res, Flags) :-
+    rint:interval_(pbinom(K, N, Pi, atomic(true)), Res, Flags).
+
+rint:pbinom1(K, N, Pi, atomic("upper"), Res, Flags) :-
+    rint:interval_(pbinom(K, N, Pi, atomic(false)), Res, Flags).
+
+rint:pbinom1(K, N, Pi, atomic("densi"), Res, Flags) :-
+    rint:interval_(dbinom(K, N, Pi), Res, Flags).
