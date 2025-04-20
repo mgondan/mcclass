@@ -42,7 +42,7 @@ r_hook(k).
 
 % Task description
 render(Flags)
---> { start(item(Alpha, N, P0, P1, K)),
+--> { start(item(Alpha, N, P0, P1, _K)),
       binomtable(Flags, Alpha, N, P0, P1, Caption, Rows, Cols, Cells)
     },
     html(
@@ -84,7 +84,7 @@ task(Flags, powbinom)
 
 % Question for the p-value  
 task(Flags, pval)
---> { start(item(Alpha, _N, _P0, _P1, _K)),
+--> { start(item(Alpha, _N, _P0, _P1, K)),
       session_data(resp(testbinom, pval, Resp), resp(testbinom, pval, '#.##'))
     },
     html(\htmlform([ "At the end of the ",
