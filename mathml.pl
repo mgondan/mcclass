@@ -124,8 +124,8 @@ mathml:math_hook(hdrs(A), X, Flags, Flags1) :-
     Flags1 = [digits(1) | Flags],
     A = X.
 
-math(chi2ratio(A), X, Flags, Flags1)
- => Flags1 = [digits(2) | Flags],
+mathml:math_hook(chi2ratio(A), X, Flags, Flags1) :-
+    Flags1 = [digits(2) | Flags],
     A = X.
 
 % Hyphen

@@ -44,10 +44,10 @@ render(Flags)
               [ "Surgeons need special motor skills, especially for ",
                 "endoscopic surgery through the belly. Nickel et al. (2015) ",
                 "report the results of a study with two learning methods for ",
-                "motor skill training. One group underwent a virtual reality ",
-                "training (VR group), the other group participated in a ",
-                "mixture of online courses and classical training of motor ",
-                "skill with the so-called Box-trainer (Box group). "
+                "motor skill training. The VR group underwent a virtual ",
+                "reality training (VR group), the Box group participated in ",
+                "a mixture of online courses and classical training of motor ",
+                "skill with the so-called Box-trainer. "
               ]),
             p(class("card-text"),
               [ "The primary dependent variable was the result on the OSATS ",
@@ -64,17 +64,18 @@ render(Flags)
             div(class("border-start border-4 rounded"), 
               div(class("card-body border"), p(class("card-text"),
                 [ "“Laparoscopy-naïve medical students were randomized into ",
-                  "two groups. (...) The VR group completed the operation more ",
-                  "often within 80 min than the Box ",
-                  "group ", \mmlm([digits(0) | Flags], ["(", (r(P_VR*100)), "%"]), " ",
-                  "vs. ", \mmlm([digits(0) | Flags], [(r(P_Box*100)), "%)."]), " The ",
-                  "percentages correspond to ", \mmlm(Flags, r(S_VR)), " ",
-                  "people (out of ", \mmlm(Flags, [r(N_VR), ")"]), " in ",
-                  "the VR group and ", \mmlm(Flags, r(S_Box)), " people ",
-                  "(out of ", \mmlm(Flags, [r(N_Box), ")"]), " in the Box ",
+                  "two groups. (...) The VR group completed the operation ",
+                  "more often within 80 min than the Box ",
+                  "group ", nowrap(["(", \mmlm(Flags, percent(r(P_VR)))]), " ",
+                  "vs. ", nowrap([\mmlm(Flags, percent(r(P_Box))), ")."]), " ",
+                  "The percentages correspond to ", \mmlm(Flags, r(S_VR)), " ",
+                  "successes (out ",
+                  "of ", nowrap([\mmlm(Flags, r(N_VR)), ")"]), " in the VR ",
+                  "group and ", \mmlm(Flags, r(S_Box)), " successes (out ",
+                  "(of ", nowrap([\mmlm(Flags, r(N_Box)), ")"]), " in the Box ",
                   "group.”"
-              ])))
-	      ]))).
+                ])))
+	  ]))).
 
 task(Flags, chisq)
 --> { start(item(_P_VR, _S_VR, _N_VR, _P_Box, _S_Box, _N_Box)),
@@ -89,7 +90,7 @@ task(Flags, chisq)
 intermediate(chisq, item).
 start(item(p_VR, s_VR, n_VR, p_Box, s_Box, n_Box)).
 
-% First step: Extract the correct information for the pooled proportion of 
+% Extract the correct information for the pooled proportion of 
 % successes and the z-statistic. Calculation of chi-square, by squaring z.
 intermediate(chisq, ppool).
 intermediate(chisq, zstat).
@@ -97,88 +98,82 @@ expert(chisq, stage(1), From, To, [step(expert, steps, [])]) :-
     From = item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box),
     To = { '<-'(p_pool, ppool(S_VR, S_Box, N_VR, N_Box)) ;
            '<-'(z, zstat(P_VR, P_Box, p_pool, N_VR, N_Box)) ;
-           '<-'(chi2, chi2ratio(z^2)) ;
-           chi2
+	   '<-'(chi2, chi2ratio(z^2))
          }.
 
-feedback(steps, [], _Col, FB) =>
-    FB = [ "Correctly identified the main steps of the calculation." ].
+feedback(steps, [], _Col, F)
+ => F = "Correctly identified the main steps of the calculation.".
 
-hint(steps, [], Col, FB) =>
-    FB = [ "First determine the pooled success proportion, then ",
-           "the ", nowrap([\mmlm(Col, z), "-statistic,"]), " lastly, square ",
-           "it to obtain ", \mmlm(Col, chi^2)
+hint(steps, [], Col, H)
+ => H = [ "First determine the pooled success proportion, then ",
+           "the ", nowrap([\mmlm(Col, z), "-statistic."]), " Finally, ",
+           "raise ", \mmlm(Col, z), " to the square to ",
+           "obtain ", \mmlm(Col, chi^2)
          ].
 
-% Second Step: Calculate the pooled proportion of successes
+% Calculate the pooled proportion of successes
 expert(chisq, stage(1), From, To, [step(expert, ppool, [S_VR, S_Box, N_VR, N_Box])]) :-
     From = ppool(S_VR, S_Box, N_VR, N_Box),
     To = dfrac(S_VR + S_Box, N_VR + N_Box).
 
-feedback(ppool, [_S_VR, _S_Box, _N_VR, _N_Box], _Col, FB) =>
-    FB = "Correctly determined the pooled proportion of successes.".
+feedback(ppool, [_S_VR, _S_Box, _N_VR, _N_Box], _Col, F)
+ => F = "Correctly determined the pooled proportion of successes.".
 
-hint(ppool, [S_VR, S_Box, N_VR, N_Box], Col, FB) =>
-    FB = [ "The pooled proportion of successes ",
-           "is ", \mmlm(Col, dfrac(S_VR + S_Box, N_VR + N_Box))
-         ].
+hint(ppool, [S_VR, S_Box, N_VR, N_Box], Col, H)
+ => H = [ "The pooled proportion of successes is ",
+          nowrap([\mmlm(Col, ppool = dfrac(S_VR + S_Box, N_VR + N_Box)), "."])
+        ].
 
-% Third Step: Determine the z-statistic
+% Determine the z-statistic
 expert(chisq, stage(2), From, To, [step(expert, zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box])]) :-
     From = zstat(P_VR, P_Box, P_Pool, N_VR, N_Box),
     To = dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box)))).
 
-feedback(zstat, [_P_VR, _P_Box, _P_Pool, _N_VR, _N_Box], Col, FB) =>
-    FB = [ "Correctly determined the ", nowrap([\mmlm(Col, z), "-statistic."]) ].
+feedback(zstat, [_P_VR, _P_Box, _P_Pool, _N_VR, _N_Box], Col, F)
+ => F = [ "Correctly determined ",
+          "the ", nowrap([\mmlm(Col, z), "-statistic."]) 
+        ].
 
-hint(zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box], Col, FB) =>
-    FB = [ "The ", nowrap([\mmlm(Col, z), "-statistic"]), " is ",
-           \mmlm(Col, dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box))))) 
-         ].
+hint(zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box], Col, H)
+ => H = [ "The ", nowrap([\mmlm(Col, z), "-statistic"]), " is ",
+          \mmlm(Col, dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box))))) 
+        ].
 
-
-
-% Buggy-Rule: - instead of + for both parts of p_pool.
-% Appeared 1-2 times in the 2018 exams.
+% - instead of + for both parts of p_pool. Appeared 1-2x in 2018 exams.
+% @Jeremy, please check if this works
 %
-% Matthias, todo: unclear why abs is needed. Mistake in interval?
-% Vincent: Feedback doesn't show, no version with only this bug.
-%buggy(chisq, stage(1), From, To, [step(buggy, pdiff, [])]) :-
-%    From = ppool(S_VR, S_Box, N_VR, N_Box),
-%    To = dfrac(instead(pdiff, S_VR - S_Box, S_VR + S_Box),
-%               instead(pdiff, N_VR - N_Box, N_VR + N_Box)).
+% buggy(chisq, stage(1), From, To, [step(buggy, pdiff, [])]) :-
+%     From = ppool(S_VR, S_Box, N_VR, N_Box),
+%     To = dfrac(instead(pdiff, S_VR - S_Box, S_VR + S_Box),
+%                instead(pdiff, N_VR - N_Box, N_VR + N_Box)).
 %
-%feedback(pdiff, [], Col, FB) =>
-%    FB = [ "The result matches the pooled proportion of successes with a ",
-%	   "difference instead of a sum in both the numerator and the denominator of ",
-%	   \mmlm(Col, color(pdiff, p_pool)), ". Please add the numbers in both the ",
+% feedback(pdiff, [], Col, F)
+%  => F = [ "The result matches the pooled proportion of successes with a ",
+%           "difference instead of a sum in both the numerator and the denominator of ",
+%           \mmlm(Col, color(pdiff, p_pool)), ". Please add the numbers in both the ",
 %           "numerator and the denominator of ", \mmlm(Col, color(pdiff, p_pool))
 %         ].
 %
-%hint(pdiff, [], Col, FB) =>
-%    FB = [ "Remember to add the numbers in both the numerator and the ",
+% hint(pdiff, [], Col, H)
+%  => H = [ "Remember to add the numbers in both the numerator and the ",
 %           "denominator when calculating the pooled proportion of successes ", 
-%	   \mmlm(Col, color(pdiff, p_pool))
+%           \mmlm(Col, color(pdiff, p_pool))
 %         ].
 
-
 % Buggy-Rule: Forget to square z. 
-% Appeared 41-49 times in the 2018 exams (upper end of interval represents results
-% that could be caused by the listed error but erroneously rounded, 
-% lower end is number of exact matches).
 buggy(chisq, stage(2), From, To, [step(buggy, square, [])]) :-
     From = chi2ratio(Z^2),
     To = chi2ratio(omit_right(square, Z^2)).
 
-feedback(square, [], Col, FB) =>
-    FB = [ "The result matches ",
-           "the ", nowrap([\mmlm(Col, color(square, z)), "-statistic"]), " instead ",
-           "of ", \mmlm(Col, [color(square, chi2)]), ". Please do not forget to ",
-	   "square the ", nowrap([\mmlm(Col, z), "-statistic."])
+feedback(square, [], Col, F)
+ => F = [ "The result matches ",
+          "the ", nowrap([\mmlm(Col, color(square, z)), "-statistic"]), " ",
+          "instead of ", nowrap([\mmlm(Col, [color(square, chi2)]), "."]), " ",
+          "Please do not forget to raise ", \mmlm(Col, z), " to the square."
          ].
 
-hint(square, [], Col, FB) =>
-    FB = [ "Do not forget to raise ",
+hint(square, [], Col, H) 
+ => H = [ "Do not forget to raise ",
            "the ", nowrap([\mmlm(Col, color(square, z)), "-value"]), " ",
            "to the square to obtain ",
            "the ", nowrap([\mmlm(Col, color(square, chi2)), "-statistic."])
@@ -188,23 +183,24 @@ hint(square, [], Col, FB) =>
 % Appeared 3-8 times in the 2018 exams.
 buggy(chisq, stage(2), From, To, [step(buggy, zadd, [P_VR, P_Box])]) :-
     From = zstat(P_VR, P_Box, P_Pool, N_VR, N_Box),
-    To = dfrac(instead(zadd, P_VR + P_Box, P_VR - P_Box), sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box)))).
+    To = dfrac(instead(zadd, P_VR + P_Box, P_VR - P_Box), 
+           sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box)))).
 
-feedback(zadd, [P_VR, P_Box], Col, FB) =>
-    FB = [ "The results matches the ", nowrap([\mmlm(Col, z), "-statistic"]), " where ",
-	   \mmlm(Col, color(zadd, P_Box)), " was added to ", 
-           \mmlm(Col, color(zadd, P_VR)), ", rather than subtracted from it.",
-	   " Please use the difference of ", \mmlm(Col, color(zadd, P_Box)), " and ",
-	   \mmlm(Col, color(zadd, P_VR)), " in the numerator of the ",
-	   nowrap([\mmlm(Col, z), "-statistic."])
-         ].
+feedback(zadd, [P_VR, P_Box], Col, F)
+ => F = [ "The results matches the ", nowrap([\mmlm(Col, z), "-statistic"]), " where ",
+          \mmlm(Col, color(zadd, P_Box)), " was added to ", 
+          \mmlm(Col, color(zadd, P_VR)), ", rather than subtracted from it.",
+          " Please use the difference of ", \mmlm(Col, color(zadd, P_Box)), " and ",
+          \mmlm(Col, color(zadd, P_VR)), " in the numerator of the ",
+          nowrap([\mmlm(Col, z), "-statistic."])
+        ].
 
-hint(zadd, [P_VR, P_Box], Col, FB) =>
-    FB = [ "The numerator of the test statistic includes the difference ",
-           "between the success ",
-           "proportions ", \mmlm(Col, color(zadd, P_VR)), " ",
-           "and ", \mmlm(Col, color(zadd, P_Box))
-         ].
+hint(zadd, [P_VR, P_Box], Col, H)
+ => H = [ "The numerator of the test statistic includes the difference ",
+          "between the success ",
+          "proportions ", \mmlm(Col, color(zadd, P_VR)), " ",
+          "and ", \mmlm(Col, color(zadd, P_Box))
+        ].
 
 % Buggy-Rule_ Forgot parentheses around (1/N_VR + 1/N_Box). 
 % Appeared 3-7 times in the 2018 exams.
