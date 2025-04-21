@@ -253,7 +253,8 @@ mathml:math_hook(omit_right(_Bug, Base^_Pwr), M, Flags) :-
 mathml:math_hook(omit_right(Bug, Base^Pwr), M, Flags) :-
     option(error(fix), Flags, fix),
     !,
-    M = Base^color(Bug, box(color("#000000", Pwr))).
+    M = Base^color(Bug, Pwr).
+%    M = Base^color(Bug, box(color("#000000", Pwr))).
 
 mathml:math_hook(omit_right(Bug, Base^Pwr), M, Flags) :-
     option(error(highlight), Flags, fix),

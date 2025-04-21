@@ -25,9 +25,11 @@ math_hook(p_pool, subscript(p, "pool")).
 
 % R constants
 r_hook(p_VR).
+r_hook(p_VRx).
 r_hook(s_VR).
 r_hook(n_VR).
 r_hook(p_Box).
+r_hook(p_Boxx).
 r_hook(s_Box).
 r_hook(n_Box).
 r_hook(z).
@@ -36,9 +38,9 @@ r_hook(p_pool).
 
 % Task description
 render(Flags)
--->  {start(item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box)) },
+--> { start(item(N_VR, S_VR, _P_VR, P_VRx, N_Box, S_Box, _P_Box, P_Boxx)) },
       html(
-         div(class(card), div(class("card-body"),
+        div(class(card), div(class("card-body"),
           [ h1(class("card-title"), "Training of surgical skills"),
             p(class("card-text"),
               [ "Surgeons need special motor skills, especially for ",
@@ -66,36 +68,35 @@ render(Flags)
                 [ "“Laparoscopy-naïve medical students were randomized into ",
                   "two groups. (...) The VR group completed the operation ",
                   "more often within 80 min than the Box ",
-                  "group ", nowrap(["(", \mmlm(Flags, percent(r(P_VR)))]), " ",
-                  "vs. ", nowrap([\mmlm(Flags, percent(r(P_Box))), ")."]), " ",
+                  "group ", nowrap(["(", \mmlm(Flags, percent(r(P_VRx)))]), " ",
+                  "vs. ", nowrap([\mmlm(Flags, percent(r(P_Boxx))), ")."]), " ",
                   "The percentages correspond to ", \mmlm(Flags, r(S_VR)), " ",
                   "successes (out ",
                   "of ", nowrap([\mmlm(Flags, r(N_VR)), ")"]), " in the VR ",
                   "group and ", \mmlm(Flags, r(S_Box)), " successes (out ",
-                  "(of ", nowrap([\mmlm(Flags, r(N_Box)), ")"]), " in the Box ",
+                  "of ", nowrap([\mmlm(Flags, r(N_Box)), ")"]), " in the Box ",
                   "group.”"
                 ])))
 	  ]))).
 
 task(Flags, chisq)
---> { start(item(_P_VR, _S_VR, _N_VR, _P_Box, _S_Box, _N_Box)),
+--> { start(item(_N_VR, _S_VR, _P_VR, _P_VRx, _N_Box, _S_Box, _P_Box, _P_Boxx)),
       session_data(resp(chisq, chisq, Resp), resp(chisq, chisq, '#.##'))
     },
     html(\htmlform([ "Does VR training lead to faster surgery times than ",
         "traditional Box training? Please ",
         "determine the ", nowrap([\mmlm(Flags, chi^2), "-statistic."]) ], chisq, Resp)).
 
-
 % Chi-square Test
 intermediate(chisq, item).
-start(item(p_VR, s_VR, n_VR, p_Box, s_Box, n_Box)).
+start(item(n_VR, s_VR, p_VR, p_VRx, n_Box, s_Box, p_Box, p_Boxx)).
 
 % Extract the correct information for the pooled proportion of 
 % successes and the z-statistic. Calculation of chi-square, by squaring z.
 intermediate(chisq, ppool).
 intermediate(chisq, zstat).
 expert(chisq, stage(1), From, To, [step(expert, steps, [])]) :-
-    From = item(P_VR, S_VR, N_VR, P_Box, S_Box, N_Box),
+    From = item(N_VR, S_VR, P_VR, _, N_Box, S_Box, P_Box, _),
     To = { '<-'(p_pool, ppool(S_VR, S_Box, N_VR, N_Box)) ;
            '<-'(z, zstat(P_VR, P_Box, p_pool, N_VR, N_Box)) ;
 	   '<-'(chi2, chi2ratio(z^2))
@@ -108,7 +109,7 @@ hint(steps, [], Col, H)
  => H = [ "First determine the pooled success proportion, then ",
            "the ", nowrap([\mmlm(Col, z), "-statistic."]), " Finally, ",
            "raise ", \mmlm(Col, z), " to the square to ",
-           "obtain ", \mmlm(Col, chi^2)
+           "obtain ", nowrap([\mmlm(Col, chi^2), "."])
          ].
 
 % Calculate the pooled proportion of successes
@@ -121,7 +122,7 @@ feedback(ppool, [_S_VR, _S_Box, _N_VR, _N_Box], _Col, F)
 
 hint(ppool, [S_VR, S_Box, N_VR, N_Box], Col, H)
  => H = [ "The pooled proportion of successes is ",
-          nowrap([\mmlm(Col, ppool = dfrac(S_VR + S_Box, N_VR + N_Box)), "."])
+          nowrap([\mmlm(Col, p_pool = dfrac(S_VR + S_Box, N_VR + N_Box)), "."])
         ].
 
 % Determine the z-statistic
@@ -170,17 +171,35 @@ feedback(square, [], Col, F)
           "the ", nowrap([\mmlm(Col, color(square, z)), "-statistic"]), " ",
           "instead of ", nowrap([\mmlm(Col, [color(square, chi2)]), "."]), " ",
           "Please do not forget to raise ", \mmlm(Col, z), " to the square."
-         ].
+        ].
 
 hint(square, [], Col, H) 
  => H = [ "Do not forget to raise ",
            "the ", nowrap([\mmlm(Col, color(square, z)), "-value"]), " ",
            "to the square to obtain ",
            "the ", nowrap([\mmlm(Col, color(square, chi2)), "-statistic."])
-         ].
+        ].
 
-% Buggy-Rule: Add probabilities instead of subtracting them. 
-% Appeared 3-8 times in the 2018 exams.
+% Buggy-Rule: Forget to square z.
+buggy(chisq, stage(2), From, To, [step(buggy, square2, [Z])]) :-
+    From = chi2ratio(Z^2),
+    To = chi2ratio(omit_right(square2, abs(Z)^2)).
+
+feedback(square2, [Z], Col, F)
+ => F = [ "The result matches ",
+          "the ", nowrap([\mmlm(Col, color(square, Z)), "-statistic"]), " ",
+          "instead of ", nowrap([\mmlm(Col, [color(square2, chi2)]), "."]), " ",
+          "Please do not forget to raise ", \mmlm(Col, Z), " to the square."
+        ].
+
+hint(square2, [Z], Col, H)
+ => H = [ "Do not forget to raise ",
+           "the ", nowrap([\mmlm(Col, color(square2, Z)), "-value"]), " ",
+           "to the square to obtain ",
+           "the ", nowrap([\mmlm(Col, color(square2, chi2)), "-statistic."])
+        ].
+
+% Add probabilities instead of subtracting them. 
 buggy(chisq, stage(2), From, To, [step(buggy, zadd, [P_VR, P_Box])]) :-
     From = zstat(P_VR, P_Box, P_Pool, N_VR, N_Box),
     To = dfrac(instead(zadd, P_VR + P_Box, P_VR - P_Box), 
@@ -202,8 +221,7 @@ hint(zadd, [P_VR, P_Box], Col, H)
           "and ", \mmlm(Col, color(zadd, P_Box))
         ].
 
-% Buggy-Rule_ Forgot parentheses around (1/N_VR + 1/N_Box). 
-% Appeared 3-7 times in the 2018 exams.
+% Forgot parentheses around (1/N_VR + 1/N_Box). 
 buggy(chisq, stage(2), From, To, [step(buggy, paren2, [N_VR, N_Box])]) :-
     From = A * B * (1 / N_VR + 1 / N_Box),
     To = A * B * color(paren2, 1) / color(paren2, N_VR) + color(paren2, 1) / color(paren2, N_Box).
