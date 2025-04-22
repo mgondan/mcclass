@@ -1,4 +1,4 @@
-:- module(util, [expression_to_list/3, \nowrap//1]).
+:- module(util, [expression_to_list/3, nowrap//1]).
 
 %
 % Used to render multiple expressions separated by semicolon as a list to be displayed as feedback.
