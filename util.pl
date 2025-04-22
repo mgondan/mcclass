@@ -1,6 +1,7 @@
 :- module(util, [expression_to_list/3, nowrap//1]).
 
 :- use_module(library(http/html_write)).
+:- use_module(mathml).
 
 %
 % Used to render multiple expressions separated by semicolon as a list to be displayed as feedback.
