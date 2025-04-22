@@ -2,6 +2,7 @@
 
 :- use_module(library(http/html_write)).
 :- use_module(table).
+:- use_module(util).
 :- use_module(interval/interval).
 :- use_module(mathml).
 :- use_module(navbar).

@@ -3,10 +3,10 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
+:- use_module(util).
 :- use_module(r_session).
 :- use_module(interval/interval).
 :- use_module(mathml).
-:- use_module(util).
 
 :- use_module(navbar).
 navbar:page(tpaired, ["paired ", i(t), "-test"]).

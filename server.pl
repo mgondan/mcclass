@@ -12,6 +12,7 @@
 :- use_module(login).
 :- use_module(users).
 :- use_module(table).
+:- use_module(util).
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
