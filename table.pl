@@ -9,6 +9,7 @@ header and at the bottom.
 :- use_module(library(http/html_write)).
 :- use_module(library(dcg/high_order)).
 :- use_module(mathml).
+:- use_module(util).
 
 %! htmltable(+Caption:string, +RowNames:list, +ColNames:list, +Data:list) is det
 %

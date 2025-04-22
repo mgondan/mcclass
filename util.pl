@@ -32,6 +32,6 @@ wrap_in_mmlm(Flags, Expr, \mmlm(Flags, Term)) :-
 
 % Shortcuts 
 nowrap(List) 
- --> [ span(class('text-nowrap'), List) ].
+ --> html(span(class('text-nowrap'), List)).
 
 

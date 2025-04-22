@@ -3,6 +3,7 @@
 :- use_module(library(http/html_write)).
 :- use_module(session).
 :- use_module(table).
+:- use_module(util).
 :- use_module(r_session).
 :- use_module(interval/interval).
 :- use_module(mathml).
@@ -68,13 +69,13 @@ render(Flags)
                 [ "“Laparoscopy-naïve medical students were randomized into ",
                   "two groups. (...) The VR group completed the operation ",
                   "more often within 80 min than the Box ",
-                  "group ", nowrap(["(", \mmlm(Flags, percent(r(P_VRx)))]), " ",
-                  "vs. ", nowrap([\mmlm(Flags, percent(r(P_Boxx))), ")."]), " ",
+                  "group ", \nowrap(["(", \mmlm(Flags, percent(r(P_VRx)))]), " ",
+                  "vs. ", \nowrap([\mmlm(Flags, percent(r(P_Boxx))), ")."]), " ",
                   "The percentages correspond to ", \mmlm(Flags, r(S_VR)), " ",
                   "successes (out ",
-                  "of ", nowrap([\mmlm(Flags, r(N_VR)), ")"]), " in the VR ",
+                  "of ", \nowrap([\mmlm(Flags, r(N_VR)), ")"]), " in the VR ",
                   "group and ", \mmlm(Flags, r(S_Box)), " successes (out ",
-                  "of ", nowrap([\mmlm(Flags, r(N_Box)), ")"]), " in the Box ",
+                  "of ", \nowrap([\mmlm(Flags, r(N_Box)), ")"]), " in the Box ",
                   "group.”"
                 ])))
 	  ]))).
@@ -85,7 +86,7 @@ task(Flags, chisq)
     },
     html(\htmlform([ "Does VR training lead to faster surgery times than ",
         "traditional Box training? Please ",
-        "determine the ", nowrap([\mmlm(Flags, chi^2), "-statistic."]) ], chisq, Resp)).
+        "determine the ", \nowrap([\mmlm(Flags, chi^2), "-statistic."]) ], chisq, Resp)).
 
 % Chi-square Test
 intermediate(chisq, item).
@@ -107,9 +108,9 @@ feedback(steps, [], _Col, F)
 
 hint(steps, [], Col, H)
  => H = [ "First determine the pooled success proportion, then ",
-           "the ", nowrap([\mmlm(Col, z), "-statistic."]), " Finally, ",
+           "the ", \nowrap([\mmlm(Col, z), "-statistic."]), " Finally, ",
            "raise ", \mmlm(Col, z), " to the square to ",
-           "obtain ", nowrap([\mmlm(Col, chi^2), "."])
+           "obtain ", \nowrap([\mmlm(Col, chi^2), "."])
          ].
 
 % Calculate the pooled proportion of successes
@@ -122,7 +123,7 @@ feedback(ppool, [_S_VR, _S_Box, _N_VR, _N_Box], _Col, F)
 
 hint(ppool, [S_VR, S_Box, N_VR, N_Box], Col, H)
  => H = [ "The pooled proportion of successes is ",
-          nowrap([\mmlm(Col, p_pool = dfrac(S_VR + S_Box, N_VR + N_Box)), "."])
+          \nowrap([\mmlm(Col, p_pool = dfrac(S_VR + S_Box, N_VR + N_Box)), "."])
         ].
 
 % Determine the z-statistic
@@ -132,11 +133,11 @@ expert(chisq, stage(2), From, To, [step(expert, zstat, [P_VR, P_Box, P_Pool, N_V
 
 feedback(zstat, [_P_VR, _P_Box, _P_Pool, _N_VR, _N_Box], Col, F)
  => F = [ "Correctly determined ",
-          "the ", nowrap([\mmlm(Col, z), "-statistic."]) 
+          "the ", \nowrap([\mmlm(Col, z), "-statistic."]) 
         ].
 
 hint(zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box], Col, H)
- => H = [ "The ", nowrap([\mmlm(Col, z), "-statistic"]), " is ",
+ => H = [ "The ", \nowrap([\mmlm(Col, z), "-statistic"]), " is ",
           \mmlm(Col, dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box))))) 
         ].
 
@@ -168,16 +169,16 @@ buggy(chisq, stage(2), From, To, [step(buggy, square, [])]) :-
 
 feedback(square, [], Col, F)
  => F = [ "The result matches ",
-          "the ", nowrap([\mmlm(Col, color(square, z)), "-statistic"]), " ",
-          "instead of ", nowrap([\mmlm(Col, [color(square, chi2)]), "."]), " ",
+          "the ", \nowrap([\mmlm(Col, color(square, z)), "-statistic"]), " ",
+          "instead of ", \nowrap([\mmlm(Col, [color(square, chi2)]), "."]), " ",
           "Please do not forget to raise ", \mmlm(Col, z), " to the square."
         ].
 
 hint(square, [], Col, H) 
  => H = [ "Do not forget to raise ",
-           "the ", nowrap([\mmlm(Col, color(square, z)), "-value"]), " ",
+           "the ", \nowrap([\mmlm(Col, color(square, z)), "-value"]), " ",
            "to the square to obtain ",
-           "the ", nowrap([\mmlm(Col, color(square, chi2)), "-statistic."])
+           "the ", \nowrap([\mmlm(Col, color(square, chi2)), "-statistic."])
         ].
 
 % Buggy-Rule: Forget to square z.
@@ -187,16 +188,16 @@ buggy(chisq, stage(2), From, To, [step(buggy, square2, [Z])]) :-
 
 feedback(square2, [Z], Col, F)
  => F = [ "The result matches ",
-          "the ", nowrap([\mmlm(Col, color(square, Z)), "-statistic"]), " ",
-          "instead of ", nowrap([\mmlm(Col, [color(square2, chi2)]), "."]), " ",
+          "the ", \nowrap([\mmlm(Col, color(square, Z)), "-statistic"]), " ",
+          "instead of ", \nowrap([\mmlm(Col, [color(square2, chi2)]), "."]), " ",
           "Please do not forget to raise ", \mmlm(Col, Z), " to the square."
         ].
 
 hint(square2, [Z], Col, H)
  => H = [ "Do not forget to raise ",
-           "the ", nowrap([\mmlm(Col, color(square2, Z)), "-value"]), " ",
+           "the ", \nowrap([\mmlm(Col, color(square2, Z)), "-value"]), " ",
            "to the square to obtain ",
-           "the ", nowrap([\mmlm(Col, color(square2, chi2)), "-statistic."])
+           "the ", \nowrap([\mmlm(Col, color(square2, chi2)), "-statistic."])
         ].
 
 % Add probabilities instead of subtracting them. 
