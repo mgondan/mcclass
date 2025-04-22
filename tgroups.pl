@@ -117,7 +117,7 @@ task(Flags, tratio)
     },
     html(\htmlform(
       [ "Is VR training superior to traditional Box training? ",
-        "Please report the ", nowrap([\mmlm(Flags, t), "-ratio"]), " using the Box training",
+        "Please report the ", \nowrap([\mmlm(Flags, t), "-ratio"]), " using the Box training",
         "as the control intervention." 
       ], tratio, Resp)).
 
@@ -206,11 +206,11 @@ expert(tratio, stage(1), From, To, [step(expert, problem, [])]) :-
 
 feedback(problem, [], Col, FB)
  => FB = [ "Correctly identified the problem as a ",
-           nowrap([\mmlm(Col, t), "-test"]), " for independent samples."
+           \nowrap([\mmlm(Col, t), "-test"]), " for independent samples."
          ].
 
 hint(problem, [], Col, FB)
- => FB = [ "This is a ", nowrap([\mmlm(Col, t), "-test"]), " for independent ",
+ => FB = [ "This is a ", \nowrap([\mmlm(Col, t), "-test"]), " for independent ",
            "samples." 
          ].
 
@@ -236,10 +236,10 @@ expert(tratio, stage(2), From, Fmt, [step(expert, tratio, [To])]) :-
     Fmt = tstat(To).
 
 feedback(tratio, [_T], Col, FB) =>
-    FB = [ "Correctly determined the ",  nowrap([\mmlm(Col, t), "-statistic."]) ].
+    FB = [ "Correctly determined the ",  \nowrap([\mmlm(Col, t), "-statistic."]) ].
 
 hint(tratio, [T], Col, FB) =>
-    FB = [ "The ", nowrap([\mmlm(Col, t), "-statistic"]), " must be determined: ", 
+    FB = [ "The ", \nowrap([\mmlm(Col, t), "-statistic"]), " must be determined: ", 
            \mmlm(Col, [T, "."]) 
          ].
 
@@ -253,7 +253,7 @@ buggy(tratio, stage(1), From, To, [step(buggy, control, [vr, box])]) :-
 
 feedback(control, [VR, Box], Col, FB)
  => FB = [ "The sign of the result matches the ",
-           "negative ", nowrap([\mmlm(Col, t), "-ratio,"]), " ",
+           "negative ", \nowrap([\mmlm(Col, t), "-ratio,"]), " ",
            "with ", \mmlm(Col, color(control, VR)), " subtracted ",
            "from ", \mmlm(Col, [color(control, Box), "."]), " Please keep in mind ",
 	   "that the control intervention must be subtracted from the tested ",
@@ -264,7 +264,7 @@ hint(control, [VR, Box], Col, FB)
  => FB = [ "The control intervention ", \mmlm(Col, [color(control, Box)]),
 	   " must be subtracted from the tested intervention ",
 	   \mmlm(Col, color(control, VR)), " in the numerator of the ",
-	   nowrap([\mmlm(Col, t), "-ratio."])
+	   \nowrap([\mmlm(Col, t), "-ratio."])
          ].
 
 % Buggy-Rule: Forgot to use square of standard deviation in pooled variance
@@ -292,7 +292,7 @@ buggy(tratio, stage(2), From, To, [step(buggy, school, [N_A, N_B])]) :-
 
 feedback(school, [A, B], Col, FB)
  => FB = [ "The result matches the expression for the ", 
-	   nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples with ",
+	   \nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples with ",
 	   \mmlm(Col, [frac(1, color(school, color("black", A) + color("black", B))), "."]),
 	   " Please keep in mind that ", \mmlm(Col, [color(school, 
 		color("black", frac(1, A)) + color("black", frac(1, B)))
@@ -312,7 +312,7 @@ hint(school, [A, B], Col, FB)
 %
 %feedback(bug1, [_VR, _BOX, S2P, N_VR, N_BOX], Col, FB) =>
 %    FB = [ "The result matches the expression for the ", 
-%	    nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples without the ",
+%	    \nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples without the ",
 %	    "parentheses around the numerator of ", 
 %	    \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", overline("VR") - overline("BOX")))), sqrt(S2P * (1/N_VR + 1/N_BOX)))), 
 %	    ". Please do not forget the parenthesis",
@@ -321,7 +321,7 @@ hint(school, [A, B], Col, FB)
 %
 %hint(bug1, [VR, BOX, S2P, N_VR, N_BOX], Col, FB) =>
 %    FB = [ "Remember to use parenthesis around the numerator. ",
-%	    "The correct formula for the ", nowrap([\mmlm(Col, t), "-ratio"]), "is ", 
+%	    "The correct formula for the ", \nowrap([\mmlm(Col, t), "-ratio"]), "is ", 
 %	    \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", VR - BOX))), sqrt(S2P * (1/N_VR + 1/N_BOX)))), "."
 %	 ].
 
@@ -332,14 +332,14 @@ buggy(tratio, stage(2), From, To, [step(buggy, sqrt1, [S2P * Ns])]) :-
 
 feedback(sqrt1, [S2P_Ns], Col, FB)
  => FB = [ "The result matches the expression for the ", 
-	   nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples without the square",
+	   \nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples without the square",
 	   " root around ", \mmlm(Col, [color(sqrt1, S2P_Ns), "."]), " Please do not forget",
 	   " the square root around the denominator."
          ].
 
 hint(sqrt1, [_], Col, FB)
  => FB = [ "Do not forget the square root around the denominator of ",
-           "the ", nowrap([\mmlm(Col, t), "-ratio."])
+           "the ", \nowrap([\mmlm(Col, t), "-ratio."])
          ].
 
 % Buggy-Rule: Forget square root around sample size
@@ -350,18 +350,18 @@ buggy(tratio, stage(2), From, To, [step(buggy, sqrt2, [Ns])]) :-
 
 feedback(sqrt2, [Ns], Col, FB)
  => FB = [ "The result matches the expression for the ", 
-	   nowrap([\mmlm(Col, t), "-ratio"]), " with the square root stopping before ",
+	   \nowrap([\mmlm(Col, t), "-ratio"]), " with the square root stopping before ",
 	   \mmlm(Col, [paren(color(sqrt2, Ns)), "."]), " Please do not forget to take the ",
 	   "square root of the whole denominator."
          ].
 % Alternative Rückmeldung (hierfür müsste die Variable in der eckigen Klammer geändert werden): 
-% "The result matches the expression for the ", nowrap([\mmlm(Col, t), "-ratio"]),
+% "The result matches the expression for the ", \nowrap([\mmlm(Col, t), "-ratio"]),
 % " with the square root only around ", \mmlm(Col, [paren(color(sqrt2, S2P)),
 % ". Please do not forget to take the square root of the whole denominator."
 
 hint(sqrt2, [_Ns], Col, FB)
  => FB = [ "You need to take the square root of the whole denomiator in the formula for the ",
-            nowrap([\mmlm(Col, t), "-ratio."])
+            \nowrap([\mmlm(Col, t), "-ratio."])
          ].
 
 
@@ -384,12 +384,12 @@ expert(cigroups, stage(1), X, Y, [step(expert, problem, [])]) :-
 
 feedback(problem, [], Col, F)
  => F = [ "Correctly recognised the problem as ",
-          "a ", nowrap([\mmlm(Col, t), "-test"]), " for independent samples and that ",
+          "a ", \nowrap([\mmlm(Col, t), "-test"]), " for independent samples and that ",
           "a confidence interval for the difference of group means has to be calculated." 
         ].
 
 hint(problem, [], Col, H)
- => H = [ "This is a ", nowrap([\mmlm(Col, t), "-test"]), " for independent",
+ => H = [ "This is a ", \nowrap([\mmlm(Col, t), "-test"]), " for independent",
           "samples. Calculate the confidence interval for the difference of group means." 
         ].
 
@@ -436,13 +436,13 @@ expert(cigroups, stage(2), X, Y, [step(expert, tquant, [Alpha])]) :-
     Y = qt(1 - Alpha/2, N_VR + N_Box - 2).
 
 feedback(tquant, [Alpha], Col, F)
- => F = [ "Correctly used the ", nowrap([\mmlm(Col, 1 - Alpha/2), "-quantile"]),
-          "of the ", nowrap([\mmlm(Col, t), "-distribution."])
+ => F = [ "Correctly used the ", \nowrap([\mmlm(Col, 1 - Alpha/2), "-quantile"]),
+          "of the ", \nowrap([\mmlm(Col, t), "-distribution."])
         ].
 
 hint(tquant, [Alpha], Col, H)
- => H = [ "Make sure to use the ", nowrap([\mmlm(Col, 1 - Alpha/2), "-quantile"]),
-          "of the ", nowrap([\mmlm(Col, t), "-distribution."])
+ => H = [ "Make sure to use the ", \nowrap([\mmlm(Col, 1 - Alpha/2), "-quantile"]),
+          "of the ", \nowrap([\mmlm(Col, t), "-distribution."])
         ].
 
 %
@@ -456,15 +456,15 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, tstat, [N_VR, N_Box, Alpha])]) :-
 
 feedback(tstat, [N_VR, N_Box, Alpha], Col, F)
  => F = [ "The result matches the confidence interval based on the observed ",
-          nowrap([\mmlm(Col, t), "-statistic."]), " Please use the quantile ",
-           "of the ", nowrap([\mmlm(Col, t), "-distribution "]), 
+          \nowrap([\mmlm(Col, t), "-statistic."]), " Please use the quantile ",
+           "of the ", \nowrap([\mmlm(Col, t), "-distribution "]), 
 	   \mmlm(Col, color(qt, qt(1 - Alpha/2, N_VR + N_Box - 2))), " instead."
         ].
 
 hint(tstat, [_N_VR, _N_Box, _Alpha], Col, H)
- => H = [ "Do not insert the observed ", nowrap([\mmlm(Col, t), "-statistic "]),
+ => H = [ "Do not insert the observed ", \nowrap([\mmlm(Col, t), "-statistic "]),
           "into the formula for the confidence interval. Use the quantile of ", 
-	  "the ", nowrap([\mmlm(Col, t), "-distribution"]), " instead."
+	  "the ", \nowrap([\mmlm(Col, t), "-distribution"]), " instead."
         ].
 
 
@@ -475,7 +475,7 @@ buggy(cigroups, stage(1), X, Y, [step(buggy, control, [vr, box])]) :-
 
 feedback(control, [VR, Box], Col, FB)
  => FB = [ "The sign of the result matches the ",
-           "negative ", nowrap([\mmlm(Col, t), "-ratio,"]), " ",
+           "negative ", \nowrap([\mmlm(Col, t), "-ratio,"]), " ",
            "with ", \mmlm(Col, color(control, VR)), " subtracted ",
            "from ", \mmlm(Col, [color(control, Box), "."]), " Please keep in mind ",
 	   "that the control intervention must be subtracted from the tested ",
@@ -535,7 +535,7 @@ buggy(cigroups, stage(2), From, To, [step(buggy, school_2, [N_A, N_B])]) :-
 
 feedback(school_2, [A, B], Col, FB)
  => FB = [ "The result matches the expression for the ", 
-	   nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples with ",
+	   \nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples with ",
 	   \mmlm(Col, [frac(1, color(school_2, color("black", A) + color("black", B))), "."]),
 	   " Please keep in mind that ", \mmlm(Col, [color(school_2, 
 		color("black", frac(1, A)) + color("black", frac(1, B)))
@@ -573,7 +573,7 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt2, [S2P, N_VR, N_Box])]) :-
 
 
 feedback(sqrt2, [S2P, N_VR, N_Box], Col, FB)
- => FB = [ "The result matches the ", nowrap([\mmlm(Col, t), "-ratio"]), " without ",
+ => FB = [ "The result matches the ", \nowrap([\mmlm(Col, t), "-ratio"]), " without ",
 	   "square root around ", 
            \mmlm(Col, [color(sqrt2, dot(S2P, frac(1, N_VR) + frac(1, N_Box))), "."]), " Please do not forget the square root",
            " around the denominator."
@@ -612,12 +612,12 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt4, [Ns])]) :-
 
 feedback(sqrt4, [Ns], Col, FB)
  => FB = [ "The result matches the expression for the ", 
-	   nowrap([\mmlm(Col, t), "-ratio"]), " with the square root stopping before ",
+	   \nowrap([\mmlm(Col, t), "-ratio"]), " with the square root stopping before ",
 	   \mmlm(Col, [paren(color(sqrt4, Ns)), "."]), " Please do not forget to take the ",
 	   "square root of the whole denominator."
 	 ].
 % Alternative Rückmeldung (hierfür müsste die Variable in der eckigen Klammer geändert werden): 
-% "The result matches the expression for the ", nowrap([\mmlm(Col, t), "-ratio"]),
+% "The result matches the expression for the ", \nowrap([\mmlm(Col, t), "-ratio"]),
 % " with the square root only around ", \mmlm(Col, paren(color(sqrt4, S2P)),
 % ". Please do not forget to take the square root of the whole denominator."
 

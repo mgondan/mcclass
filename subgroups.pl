@@ -97,7 +97,7 @@ task(Flags, fratio)
       session_data(resp(baseline, fratio, Resp), resp(baseline, fratio, '#.##'))
     },
 	html(\htmlform([ "Does the therapy effect differ between boys and girls? ",
-	"Include the interaction and analyze its impact. Please report the ", nowrap([\mmlm(Flags, 'F'), "-ratio"]), " for the interaction." ], fratio, Resp)).
+	"Include the interaction and analyze its impact. Please report the ", \nowrap([\mmlm(Flags, 'F'), "-ratio"]), " for the interaction." ], fratio, Resp)).
 
 % Question for p-value
 task(Flags, pvalue)
@@ -105,7 +105,7 @@ task(Flags, pvalue)
       session_data(resp(baseline, pvalue, Resp), resp(baseline, pvalue, '.###'))
     },
 	html(\htmlform([ "Does the therapy effect differ between boys and girls? Include the interaction and analyze its impact. ",
-	"Please report the ", nowrap([\mmlm(Flags, p), "-value"]), " for the interaction." ], pvalue, Resp)).
+	"Please report the ", \nowrap([\mmlm(Flags, p), "-value"]), " for the interaction." ], pvalue, Resp)).
 
 % Question for CI
 task(_Flags, cibase)

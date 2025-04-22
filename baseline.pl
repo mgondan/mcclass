@@ -90,7 +90,7 @@ task(Flags, fratio)
     },
 	html(\htmlform([ "Does the Lidcombe therapy lead to a relevant reduction ",
 	"in stutterd syllables compared to TAU? ",
-	"Please report the ", nowrap([\mmlm(Flags, 'F'), "-ratio."]) ], fratio, Resp)).
+	"Please report the ", \nowrap([\mmlm(Flags, 'F'), "-ratio."]) ], fratio, Resp)).
 
 % Question for p-value
 task(Flags, pvalue)
@@ -99,7 +99,7 @@ task(Flags, pvalue)
     },
 	html(\htmlform([ "Does the Lidcombe therapy lead to a relevant reduction ",
 	"in stutterd syllables compared to TAU? ",
-	"Please report the ", nowrap([\mmlm(Flags, p), "-value."]) ], pvalue, Resp)).
+	"Please report the ", \nowrap([\mmlm(Flags, p), "-value."]) ], pvalue, Resp)).
 
 % Question for CI
 task(_Flags, cibase)

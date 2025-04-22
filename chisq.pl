@@ -207,12 +207,12 @@ buggy(chisq, stage(2), From, To, [step(buggy, zadd, [P_VR, P_Box])]) :-
            sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box)))).
 
 feedback(zadd, [P_VR, P_Box], Col, F)
- => F = [ "The results matches the ", nowrap([\mmlm(Col, z), "-statistic"]), " where ",
+ => F = [ "The results matches the ", \nowrap([\mmlm(Col, z), "-statistic"]), " where ",
           \mmlm(Col, color(zadd, P_Box)), " was added to ", 
           \mmlm(Col, color(zadd, P_VR)), ", rather than subtracted from it.",
           " Please use the difference of ", \mmlm(Col, color(zadd, P_Box)), " and ",
           \mmlm(Col, color(zadd, P_VR)), " in the numerator of the ",
-          nowrap([\mmlm(Col, z), "-statistic."])
+          \nowrap([\mmlm(Col, z), "-statistic."])
         ].
 
 hint(zadd, [P_VR, P_Box], Col, H)
@@ -228,7 +228,7 @@ buggy(chisq, stage(2), From, To, [step(buggy, paren2, [N_VR, N_Box])]) :-
     To = A * B * color(paren2, 1) / color(paren2, N_VR) + color(paren2, 1) / color(paren2, N_Box).
 
 feedback(paren2, [N_VR, N_Box], Col, FB) =>
-    FB = [ "The results matches the ", nowrap([\mmlm(Col, z), "-statistic"]), " without ",
+    FB = [ "The results matches the ", \nowrap([\mmlm(Col, z), "-statistic"]), " without ",
 	   "the parenthesis around ", 
 	   \mmlm(Col, color(paren2, paren(color("#000000", frac(1, N_VR) + frac(1, N_Box))))),
 	   ". Please do not forget the paranthesis around ",
@@ -268,7 +268,7 @@ hint(school1, [N_VR, N_Box], Col, F)
     To = instead(paren3, P_Pool * 1 - P_Pool * 1 / N_VR + 1 / N_Box, From).
 
 feedback(paren3, [From], Col, FB) =>
-    FB = [ "The results matches the ", nowrap([\mmlm(Col, z), "-statistic"]), " without ",
+    FB = [ "The results matches the ", \nowrap([\mmlm(Col, z), "-statistic"]), " without ",
 	   "the parenthesis around the different elements in ", 
 	   \mmlm(Col, color(paren3, From)), ". Please do not forget the paranthesis ",
 	   " in the denominator of ", \mmlm(Col, color(paren3, From))

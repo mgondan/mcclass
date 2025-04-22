@@ -55,7 +55,7 @@ render(Flags)
                 "hypothesis, and that successes occur independently in all ",
                 "patients. Under the alternative hypothesis, we hope ",
                 "that the success probability is ",
-                span(class('text-nowrap'), [\mmlm(Flags, p1 = r(P1)), "."]), 
+                span(class('text-\nowrap'), [\mmlm(Flags, p1 = r(P1)), "."]), 
                 " The binomial probabilities are given in the tables below."
               ]),
             div(class(container),
@@ -79,7 +79,7 @@ task(Flags, powbinom)
     },
     html(\htmlform([ "What is the power of the test at the one-tailed ",
         "significance level of ",
-        nowrap([\mmlm(Flags, alpha = r(Alpha)), "?"])],
+        \nowrap([\mmlm(Flags, alpha = r(Alpha)), "?"])],
         powbinom, Resp)).
 
 % Question for the p-value  
@@ -89,9 +89,9 @@ task(Flags, pval)
     },
     html(\htmlform([ "At the end of the ",
         "study, ", \mmlm(Flags, r(K)), " successes are reported among the ",
-        "patients. What is the ", nowrap([\mmlm(Flags, p), "-value"]), " of ",
+        "patients. What is the ", \nowrap([\mmlm(Flags, p), "-value"]), " of ",
         "the test at the one-tailed significance level ",
-        "of ", nowrap([\mmlm(Flags, alpha = r(Alpha)), "?"])],
+        "of ", \nowrap([\mmlm(Flags, alpha = r(Alpha)), "?"])],
       pval, Resp)).
 
 start(item(alpha, n, p0, p1, k)).
@@ -168,10 +168,10 @@ buggy(critical, stage(2), From, To, [step(buggy, dens1, [Tail, K])]) :-
 feedback(dens1, [Tail, K], Col, F)
  => F = [ "The result matches the critical value based on the binomial ",
           "probability, ", 
-	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail("densi", K))])), "."]), " ",
+	  span(class('text-\nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail("densi", K))])), "."]), " ",
           "Please report the critical value based on the cumulative ",
           "distribution, ", 
-	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail(Tail, K)])), "."])
+	  span(class('text-\nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail(Tail, K)])), "."])
         ].
 
 hint(dens1, [_Tail, _K], _Col, H)
@@ -294,10 +294,10 @@ buggy(powbinom, stage(2), From, To, [step(buggy, dens1, [K])]) :-
 feedback(dens1, [K], Col, F)
  => F = [ "The result matches the critical value based on the binomial ",
           "probability, ", 
-	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail("densi", K))])), "."]),
+	  span(class('text-\nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail("densi", K))])), "."]),
           " Please calculate the critical value based on the cumulative ",
           "distribution, ", 
-	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail("upper", K)])), "."])
+	  span(class('text-\nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail("upper", K)])), "."])
         ].
 
 hint(dens1, [_K], _Col, H)
@@ -328,10 +328,10 @@ buggy(powbinom, stage(3), From, To, [step(buggy, dens2, [C])]) :-
 
 feedback(dens2, [C], Col, F)
  => F = [ "The result matches the power based on the binomial probability, ",
-          span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens2, tail("densi", C))])), "."]),
+          span(class('text-\nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens2, tail("densi", C))])), "."]),
           " Please determine the power based on the cumulative ",
           "distribution, ", 
-	  span(class('text-nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail("upper", C)])), "."])
+	  span(class('text-\nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail("upper", C)])), "."])
         ].
 
 hint(dens2, [_], _Col, H)

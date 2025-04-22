@@ -95,12 +95,12 @@ expert(cigroups, stage(1), X, Y, [step(expert, problem, [])]) :-
 
 feedback(problem, [], Col, F)
  => F = [ "Correctly recognised the problem as ",
-          "a ", nowrap([\mmlm(Col, t), "-test"]), " for independent samples and that ",
+          "a ", \nowrap([\mmlm(Col, t), "-test"]), " for independent samples and that ",
           "a confidence interval for the difference of group means has to be calculated." 
         ].
 
 hint(problem, [], Col, H)
- => H = [ "This is a ", nowrap([\mmlm(Col, t), "-test"]), " for independent",
+ => H = [ "This is a ", \nowrap([\mmlm(Col, t), "-test"]), " for independent",
           "samples. Calculate the confidence interval for the difference of group means." 
         ].
 
@@ -147,13 +147,13 @@ expert(cigroups, stage(2), X, Y, [step(expert, tquant, [Alpha])]) :-
     Y = qt(1 - Alpha/2, N_RC + N_MC - 2).
 
 feedback(tquant, [Alpha], Col, F)
- => F = [ "Correctly used the ", nowrap([\mmlm(Col, 1 - Alpha/2), "-quantile"]),
-          " of the ", nowrap([\mmlm(Col, t), "-distribution."])
+ => F = [ "Correctly used the ", \nowrap([\mmlm(Col, 1 - Alpha/2), "-quantile"]),
+          " of the ", \nowrap([\mmlm(Col, t), "-distribution."])
         ].
 
 hint(tquant, [Alpha], Col, H)
- => H = [ "Make sure to use the ", nowrap([\mmlm(Col, 1 - Alpha/2), "-quantile"]),
-          " of the ", nowrap([\mmlm(Col, t), "-distribution."])
+ => H = [ "Make sure to use the ", \nowrap([\mmlm(Col, 1 - Alpha/2), "-quantile"]),
+          " of the ", \nowrap([\mmlm(Col, t), "-distribution."])
         ].
 
 
@@ -167,15 +167,15 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, tstat, [N_RC, N_MC, Alpha])]) :-
 
 feedback(tstat, [N_RC, N_MC, Alpha], Col, F)
  => F = [ "The result matches the confidence interval based on the observed ",
-          nowrap([\mmlm(Col, t), "-statistic."]), " Please use the quantile ",
-           "of the ", nowrap([\mmlm(Col, t), "-distribution "]), " ",
+          \nowrap([\mmlm(Col, t), "-statistic."]), " Please use the quantile ",
+           "of the ", \nowrap([\mmlm(Col, t), "-distribution "]), " ",
 	   \mmlm(Col, color(qt, qt(1 - Alpha/2, N_RC + N_MC - 2))), " instead."
         ].
 
 hint(tstat, [_N_RC, _N_MC, _Alpha], Col, H)
- => H = [ "Do not insert the observed ", nowrap([\mmlm(Col, t), "-statistic "]),
+ => H = [ "Do not insert the observed ", \nowrap([\mmlm(Col, t), "-statistic "]),
           "into the formula for the confidence interval. Use the quantile of ", 
-	  "the ", nowrap([\mmlm(Col, t), "-distribution"]), " instead."
+	  "the ", \nowrap([\mmlm(Col, t), "-distribution"]), " instead."
         ].
 
 
@@ -188,15 +188,15 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, qt, [N_RC, N_MC, Alpha])]) :-
 feedback(qt, [N_RC, N_MC, Alpha], Col, F)
  => F = [ "The result matches the confidence interval based on the standard ",
           "normal distribution. ",
-          "Please insert the quantile of the ", nowrap([\mmlm(Col, t), "-distribution"]), " ", 
+          "Please insert the quantile of the ", \nowrap([\mmlm(Col, t), "-distribution"]), " ", 
           \mmlm(Col, color(qt, qt(1 - Alpha/2, N_RC + N_MC - 2))), " into ",
           "the formula for the confidence interval."
         ].
 
 hint(qt, [_N_RC, _N_MC, _Alpha], Col, H)
- => H = [ "Do not insert the quantile of the ", nowrap([\mmlm(Col, z), "-distribution "]), 
+ => H = [ "Do not insert the quantile of the ", \nowrap([\mmlm(Col, z), "-distribution "]), 
           "into the formula for the confidence interval. Use the quantile of the ", 			
-	  nowrap([\mmlm(Col, t), "-distribution"]), "instead."
+	  \nowrap([\mmlm(Col, t), "-distribution"]), "instead."
         ].
 
 
@@ -207,7 +207,7 @@ buggy(cigroups, stage(1), X, Y, [step(buggy, control, [rc, mc])]) :-
 
 feedback(control, [RC, MC], Col, FB)
  => FB = [ "The sign of the result matches the ",
-           "negative ", nowrap([\mmlm(Col, t), "-ratio,"]), " ",
+           "negative ", \nowrap([\mmlm(Col, t), "-ratio,"]), " ",
            "with ", \mmlm(Col, color(control, RC)), " subtracted ",
            "from ", \mmlm(Col, [color(control, MC)]), ". Please keep in mind ",
 	   "that the control intervention must be subtracted from the tested ",
@@ -267,7 +267,7 @@ buggy(cigroups, stage(2), From, To, [step(buggy, school_2, [N_A, N_B])]) :-
 
 feedback(school_2, [A, B], Col, FB)
  => FB = [ "The result matches the expression for the ", 
-	   nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples with ",
+	   \nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples with ",
 	   \mmlm(Col, frac(1, color(school_2, color("black", A) + color("black", B)))),
 	   ". Please keep in mind that ", \mmlm(Col, color(school_2, 
 		color("black", frac(1, A)) + color("black", frac(1, B)))
@@ -306,7 +306,7 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt2, [S2P, N_RC, N_MC])]) :-
 
 
 feedback(sqrt2, [S2P, N_RC, N_MC], Col, FB)
- => FB = [ "The result matches the ", nowrap([\mmlm(Col, t), "-ratio"]), " without ",
+ => FB = [ "The result matches the ", \nowrap([\mmlm(Col, t), "-ratio"]), " without ",
 	   "square root around ", 
            \mmlm(Col, color(sqrt2, dot(S2P, frac(1, N_RC) + frac(1, N_MC)))), ". Please do not forget the square root",
            " around the denominator."
@@ -346,12 +346,12 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt4, [Ns])]) :-
 
 feedback(sqrt4, [Ns], Col, FB)
  => FB = [ "The result matches the expression for the ", 
-	   nowrap([\mmlm(Col, t), "-ratio"]), " with the square root stopping before ",
+	   \nowrap([\mmlm(Col, t), "-ratio"]), " with the square root stopping before ",
 	   \mmlm(Col, paren(color(sqrt4, Ns))), ". Please do not forget to take the ",
 	   "square root of the whole denominator."
 	 ].
 % Alternative Rückmeldung (hierfür müsste die Variable in der eckigen Klammer geändert werden): 
-% "The result matches the expression for the ", nowrap([\mmlm(Col, t), "-ratio"]),
+% "The result matches the expression for the ", \nowrap([\mmlm(Col, t), "-ratio"]),
 % " with the square root only around ", \mmlm(Col, paren(color(sqrt4, S2P)),
 % ". Please do not forget to take the square root of the whole denominator."
 

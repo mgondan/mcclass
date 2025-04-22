@@ -61,7 +61,7 @@ task(Flags, pvalue)
 --> { start(item(_N, _Y, _X)),
       session_data(resp(regression, pvalue, Resp), resp(regression, pvalue, '#.##'))
     },
-	html(\htmlform(["What is the ", span(class('text-nowrap'), [\mmlm(Flags, p), "-value"]), " of the estimate?"], pvalue, Resp)).
+	html(\htmlform(["What is the ", span(class('text-\nowrap'), [\mmlm(Flags, p), "-value"]), " of the estimate?"], pvalue, Resp)).
 
 %
 % Expert rule for b-coefficient
@@ -88,7 +88,7 @@ expert(bcoef, stage(1), From, To, [step(expert, linearmodel, [Y, X])]) :-
     To = lm0(Y, X, "coef").
 
 feedback(linearmodel, [_,_], _Col, F)
- => F = ["Correctly extracted the ", span(class('text-nowrap'), [\mmlm(b), "-coefficient for the sleep duration."])].
+ => F = ["Correctly extracted the ", span(class('text-\nowrap'), [\mmlm(b), "-coefficient for the sleep duration."])].
 
 hint(linearmodel, [_,_], _Col, F)
  => F = ["Report the coefficient for the sleep duration."].
@@ -145,10 +145,10 @@ expert(pvalue, stage(2), From, To, [step(expert, getpvalue, [Y, X])]) :-
     To = lm0(Y, X, "pval:coef").
 
 feedback(getpvalue, [_Y, _X], _Col, F)
- => F = ["Correctly extracted the ", span(class('text-nowrap'), [\mmlm(p), "-value"]), " for the estimate of the sleep duration."].
+ => F = ["Correctly extracted the ", span(class('text-\nowrap'), [\mmlm(p), "-value"]), " for the estimate of the sleep duration."].
 
 hint(getpvalue, [_Y, _X], _Col, F)
- => F = ["Report the ", span(class('text-nowrap'), [\mmlm(p), "-value"]), " for the estimate of the sleep duration."].
+ => F = ["Report the ", span(class('text-\nowrap'), [\mmlm(p), "-value"]), " for the estimate of the sleep duration."].
 
 %
 % Buggy-Rules for p-value task
@@ -171,7 +171,7 @@ buggy(pvalue, stage(2), From, To, [step(buggy, intercept1, [Y, X])]) :-
     To = lm0(Y, X, "pval:intercept").
 
 feedback(intercept1, [_, _], _, F)
- => F = ["The ", span(class('text-nowrap'), [\mmlm(p), "-value"]), " of the intercept was reported."].
+ => F = ["The ", span(class('text-\nowrap'), [\mmlm(p), "-value"]), " of the intercept was reported."].
 
 hint(intercept1, [_,_], _, F)
- => F = ["Make sure to report the ", span(class('text-nowrap'), [\mmlm(p), "-value"]), " for predictor and not for the intercept."].
+ => F = ["Make sure to report the ", span(class('text-\nowrap'), [\mmlm(p), "-value"]), " for predictor and not for the intercept."].

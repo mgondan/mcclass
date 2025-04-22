@@ -111,10 +111,10 @@ expert(power, stage(2), From, To, [step(expert, indep, [])]) :-
 	 }.
 
 feedback(indep, [], Col, FB) =>
-    FB = [ "Correctly identified the problem as a ", nowrap([\mmlm(Col, t), "-test"]),
+    FB = [ "Correctly identified the problem as a ", \nowrap([\mmlm(Col, t), "-test"]),
 	   " for independent samples and solved it correctly." ].
 
 hint(indep, [], Col, FB) =>
-    FB = [ "This is a ", nowrap([\mmlm(Col, t), "-test"]), " for independent ",
+    FB = [ "This is a ", \nowrap([\mmlm(Col, t), "-test"]), " for independent ",
            "samples." ].
 

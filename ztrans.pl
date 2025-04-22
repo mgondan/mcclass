@@ -71,8 +71,8 @@ feedback(allinone, [], _Col, F)
  => F = [ "You correctly identified the main steps of the calculation."].
 
 hint(allinone, [], Col, H) 
- => H = [ "Calculate the ", nowrap([\mmlm(Col, z), "-value"]), 
-          " and look up the corresponding ", nowrap([\mmlm(Col, phi), "-value."]) 
+ => H = [ "Calculate the ", \nowrap([\mmlm(Col, z), "-value"]), 
+          " and look up the corresponding ", \nowrap([\mmlm(Col, phi), "-value."]) 
         ].
 
 % Second step: correctly converted to a z-value
@@ -81,10 +81,10 @@ expert(prob, stage(1), From, To, [step(expert, zcalc, [X, Mu, Sigma])]) :-
     To = dfrac(X - Mu, Sigma).
 
 feedback(zcalc, [_X, _Mu, _Sigma], Col, F) 
- => F = [ "You correctly calculated the ", nowrap([\mmlm(Col, z), "-value."]) ].
+ => F = [ "You correctly calculated the ", \nowrap([\mmlm(Col, z), "-value."]) ].
 
 hint(zcalc, [X, Mu, Sigma], Col, H) 
- => H = [ "To calculate the ", nowrap([\mmlm(Col, z), "-value"]), 
+ => H = [ "To calculate the ", \nowrap([\mmlm(Col, z), "-value"]), 
           ", use " , \mmlm(Col, [dfrac(X - Mu, Sigma), "."]) 
         ].
 
@@ -98,7 +98,7 @@ feedback(correct_tail, [_Z], _Col, F)
 
 hint(correct_tail, [_Z], Col, H) 
  => H = [ "Use the lower tail of the normal distribution and select the value corresponding to the ",
-          nowrap([\mmlm(Col, z), "-value."])
+          \nowrap([\mmlm(Col, z), "-value."])
         ].
 
 
@@ -165,12 +165,12 @@ buggy(prob, stage(2), From, To, [step(buggy, xp, []), depends(xp2)]) :-
    To = omit_right(xp, dfrac(omit_right(xp, x - mu), sigma)).
 
 feedback(xp, [], Col, F)
- => F = [ "The ", nowrap([\mmlm(Col, z), "-value"]), " is calculated by using the formula ", 
+ => F = [ "The ", \nowrap([\mmlm(Col, z), "-value"]), " is calculated by using the formula ", 
           \mmlm(Col, [dfrac(x - mu, sigma), "."]) 
         ].
 
 hint(xp, [], Col, H)
- => H = [ "Remember to calculate the ", nowrap([\mmlm(Col, z), "-value."])].
+ => H = [ "Remember to calculate the ", \nowrap([\mmlm(Col, z), "-value."])].
 
 % Buggy rule: x/100 was taken to be phi(z).
 buggy(prob, stage(2), From, To, [step(buggy, xp2, []), depends(xp)]) :-
@@ -178,12 +178,12 @@ buggy(prob, stage(2), From, To, [step(buggy, xp2, []), depends(xp)]) :-
     To = instead(xp2, z/100, pnorm(z)).
 
 feedback(xp2, [], Col, F)
- => F = [ "You mistakenly divided the ", nowrap([\mmlm(Col, z), "-value"]), 
+ => F = [ "You mistakenly divided the ", \nowrap([\mmlm(Col, z), "-value"]), 
           " by 100 instead of retrieving the value from the normal distribution." 
         ].
 
 hint(xp2, [], Col, H)
- => H = [ "Do not divide the ", nowrap([\mmlm(Col, z), "-value"]), 
+ => H = [ "Do not divide the ", \nowrap([\mmlm(Col, z), "-value"]), 
           " by 100, use the normal distribution instead." 
         ].
 
@@ -200,12 +200,12 @@ expert(quantile, stage(2), From, To, [step(expert, steps, [])]) :-
          }.
 
 feedback(steps, [], Col, F)
- => F = [ "Correctly determined the ", nowrap([\mmlm(Col, z), "-statistic"]), " and translated it ",
+ => F = [ "Correctly determined the ", \nowrap([\mmlm(Col, z), "-statistic"]), " and translated it ",
            "to the original scale." 
         ].
 
 hint(steps, [], Col, H)
- => H = [ "First determine the ", nowrap([\mmlm(Col, z), "-statistic,"]), " then translate ",
+ => H = [ "First determine the ", \nowrap([\mmlm(Col, z), "-statistic,"]), " then translate ",
            "it to the original scale." ].
 
 % Second step: selected the correct tail from the normal distribution
@@ -295,9 +295,9 @@ buggy(quantile, stage(2), From, To, [step(buggy, only_z, [z, sigma, mu])]) :-
     To = instead(only_z, z , From).
 
 feedback(only_z, [z, sigma, mu], Col, F)
- => F = [ "You only calculated the ", nowrap([\mmlm(Col, z), "-value."]) ].
+ => F = [ "You only calculated the ", \nowrap([\mmlm(Col, z), "-value."]) ].
 
 hint(only_z, [z, sigma, mu], Col, H)
- => H = [ "Translate the ", nowrap([\mmlm(Col, z), "-value"]),  
+ => H = [ "Translate the ", \nowrap([\mmlm(Col, z), "-value"]),  
            " back to the original scale." 
         ].
