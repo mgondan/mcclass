@@ -12,7 +12,7 @@
 :- use_module(login).
 :- use_module(users).
 :- use_module(table).
-:- use_module(util).
+:- use_module(hints).
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
@@ -115,17 +115,17 @@ handle(Topic, Form),
             ->  html(div([class('tab-pane fade show active'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
                   div([
                     \(Topic:task([topic(Topic)], T)),
+		    \pp_hints(Topic, T, Data),
                     \feedback(Topic, T, Data, Form),
                     \pp_solutions(Topic, T, Data),
-                    \pp_hints(Topic, T, Data),
                     \pp_wrongs(Topic, T, Data),
                     \pp_traps(Topic, T, Data)])))
             ;   html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
                   div([
                     \(Topic:task([topic(Topic)], T)),
+		    \pp_hints(Topic, T, Data),
                     \feedback(Topic, T, Data, Form),
                     \pp_solutions(Topic, T, Data),
-                    \pp_hints(Topic, T, Data),
                     \pp_wrongs(Topic, T, Data),
                     \pp_traps(Topic, T, Data)])))))),
         script(src('bootstrap.bundle.min.js'), '')
@@ -160,19 +160,18 @@ handle(Topic, Form)
              -> html(div([class('tab-pane fade show active'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)], 
                   div([
                     \(Topic:task([topic(Topic)], T)),
+		    \pp_hints(Topic, T, Data),
                     \feedback(Topic, T, Data, Form),
                     \pp_solutions(Topic, T, Data),
-                    \pp_hints(Topic, T, Data),
                     \pp_wrongs(Topic, T, Data),
                     \pp_traps(Topic, T, Data)])))
             ;   html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
                   div([
                     \(Topic:task([topic(Topic)], T)),
+		    \pp_hints(Topic, T, Data),
                     \feedback(Topic, T, Data, Form),
                     \pp_solutions(Topic, T, Data),
-                    \pp_hints(Topic, T, Data),
                     \pp_wrongs(Topic, T, Data),
                     \pp_traps(Topic, T, Data)])))))),
         script(src('bootstrap.bundle.min.js'), '')
       ]).
-

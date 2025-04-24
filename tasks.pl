@@ -1,5 +1,5 @@
-:- module(tasks, [task/3, feedback//4, pp_solutions//3, pp_hints//3, 
-    pp_wrongs//3, pp_traps//3, download/1, hints/3
+:- module(tasks, [task/3, feedback//4, solutions/3, pp_solutions//3,  
+    pp_wrongs//3, pp_traps//3, download/1
   ]).
 
 :- use_module(library(http/html_write)).
@@ -11,6 +11,7 @@
 :- use_module(interval/interval).
 :- use_module(session).
 :- use_module(library(quantity)).
+:- use_module(hints).
 
 user:term_expansion(mono(A, B), rint:mono(A, B)).
 user:term_expansion(r_hook(A), rint:r_hook(r_session:r_topic, A)).
@@ -256,46 +257,6 @@ pp_solutions(Topic, Task, Data)
           ])
       ])).
 
-% Codes for correct steps    
-hint(_Expr-_Res/Flags, Hint) :-
-    findall(H, member(step(expert, H, _), Flags), Hint).
-
-% Cycle through all solutions of a given task
-hints(Topic, Task, Hints) :-
-    solutions(Topic, Task, Sol),
-    maplist(hint, Sol, Hints).
-
-% Pretty print
-pp_hint(Topic, Task, _Data, Expr-Result/Flags)
---> { colors(Expr, Col),
-      hint(Expr-Result/Flags, Hints),
-      findall(li(H),
-        ( member(step(expert, Name, Arg), Flags), 
-          memberchk(Name, Hints), 
-          Topic:hint(Name, Arg, [topic(Topic), task(Task) | Col], H)
-        ), Items)
-    },
-    html(div(class('accordion-item'),
-      [ h2(class('accordion-header'),
-          button([class('accordion-button'), type(button)],
-            \mmlm([topic(Topic), task(Task) | Col], Result))),
-        div(class('accordion-collapse collapse show'),
-          div(class('accordion-body'),
-           ul(Items)))
-      ])).
-
-pp_hints(Topic, Task, Data)
---> { member(solutions(Expr_Res_Flags), Data) },
-    html(div(class(card),
-      [ div(class('card-header text-white bg-info'), "Hints"),
-        div(class('card-body'),
-          [ p(class('card-text'), "Steps to the solution(s)"),
-            div(class('accordion accordion-flush'), 
-              html(\foreach(member(ERF, Expr_Res_Flags), 
-                html(\pp_hint(Topic, Task, Data, ERF)))))
-          ])
-      ])).
-
 % The incorrect response alternatives
 wrong(Topic, Task, Expr_Res_Flags) :-
     searchdep(Topic, Task, ERF),
@@ -433,4 +394,3 @@ tasks(Topic, Task) :-
     format("Traps: ~w~n", [T]),
     html(\pp_traps(Topic, Task, Data), Traps, []),
     writeln(Traps).
-
