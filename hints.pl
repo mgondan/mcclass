@@ -1,6 +1,7 @@
 :- module(hints, [hints/3, pp_hints//3]).
 
 :- use_module(library(http/html_write)).
+:- use_module(library(dcg/high_order)).
 :- use_module(tasks).
 :- use_module(util).
 :- use_module(mathml).
