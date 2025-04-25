@@ -2,6 +2,7 @@
 
 :- use_module(library(http/html_write)).
 :- use_module(tasks).
+:- use_module(util).
 
 % return codes of correct steps
 hints(_Expr-_Res/Flags, Hints) :-
