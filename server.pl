@@ -148,7 +148,9 @@ handle(Topic, Form)
             ".table thead tr:first-child { border-top: 2px solid black; border-bottom: 1px solid black; }",
             ".table tbody tr td { border: none; padding-top: 0.1rem; padding-bottom: 0.1rem; }",
             ".table tbody tr th { border: none; padding-top: 0.1rem; padding-bottom: 0.1rem; }",
-            ".table tbody tr:last-child { border-bottom: 2px solid black; }"
+            ".table tbody tr:last-child { border-bottom: 2px solid black; }",
+            ".accordion-button.hint { --bs-accordion-active-bg: var(--bs-warning-bg-subtle);
+               --bs-accordion-active-color: var(--bs-warning-text-emphasis); }"
           ])
       ],
       [ \navbar,
