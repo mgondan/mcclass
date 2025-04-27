@@ -1,4 +1,4 @@
-:- module(tpaired, []).
+:- module(tpaired, [sol/3]).
 
 :- use_module(library(http/html_write)).
 :- use_module(session).
@@ -7,6 +7,8 @@
 :- use_module(r_session).
 :- use_module(interval/interval).
 :- use_module(mathml).
+:- use_module(steps).
+:- dynamic(sol/3).
 
 :- use_module(navbar).
 navbar:page(tpaired, ["paired ", i(t), "-test"]).
@@ -522,7 +524,7 @@ hint(tratio, [D, Mu, S_D, N], Col, F)
         ].
 
 % Third step: Determine the two-tailed p-value
-expert(pvalue, stage(2), X, Y, [step(expert, pvalue, [])]) :-
+expert(pvalue, stage(3), X, Y, [step(expert, pvalue, [])]) :-
     X = twotailed(T, DF),
     Y = pt(dist('T', T, "two.sided"), DF, tail("two.sided")).
 
@@ -541,7 +543,7 @@ hint(pvalue, [], Col, F)
 % Buggy-Rules for the p-value task
 %
 % Lower tail
-buggy(pvalue, stage(2), X, Y, [step(buggy, lower, [])]) :-
+buggy(pvalue, stage(3), X, Y, [step(buggy, lower, [])]) :-
     X = twotailed(T, DF),
     Y = pt(instead(lower, dist('T', T, "lower"), dist('T', T, "two.sided")),
           DF, instead(lower, tail("lower"), tail("two.sided"))).
@@ -557,7 +559,7 @@ hint(lower, [], Col, F)
         ].
 
 % Upper tail
-buggy(pvalue, stage(2), X, Y, [step(buggy, upper, [])]) :-
+buggy(pvalue, stage(3), X, Y, [step(buggy, upper, [])]) :-
     X = twotailed(T, DF),
     Y = pt(instead(upper, dist('T', T, "upper"), dist('T', T, "two.sided")),
           DF, instead(upper, tail("upper"), tail("two.sided"))).
@@ -573,7 +575,7 @@ hint(upper, [], Col, F)
         ].
 
 % Density instead of distribution
-buggy(pvalue, stage(2), X, Y, [step(buggy, density, [])]) :-
+buggy(pvalue, stage(3), X, Y, [step(buggy, density, [])]) :-
     X = twotailed(T, DF),
     Y = pt(instead(density, dist('T', T, "density"), dist('T', T, "two.sided")),
           DF, instead(density, tail("density"), tail("two.sided"))).

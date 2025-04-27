@@ -1,17 +1,48 @@
-:- module(steps, [step/6]).
+:- module(steps, [search/4, search/5]).
 
 :- use_module(tasks).
+:- use_module(intermediate).
+:- use_module(depends).
 
-step(Topic, Task, Stage, X, Y, Flags) :-
-    step([expert, buggy], Topic, Task, Stage, X, Y, Flags).
+% Return a solution for a given task
+%
+% Search is done in three stages to avoid redundancies. Typical buggy rules for
+% stage(1) are mix-up of parameters (see examples in tpaired.pl). At stage(2),
+% bugs refer to wrong steps in the calculation method. In the end, we check
+% if the solution is complete (not intermediate). The flags are sorted to allow
+% elimination of redundant solutions that occur within stages (e.g.,
+% permutations)
+search(Topic, Task, Expr, Path) :-
+    search([expert, buggy], Topic, Task, Expr, Path).
 
-step(Type, Topic, Task, Stage, X, Y, Flags) :-
+search(Type, Topic, Task, Expr, Path) :-
+    Topic:start(X),
+    search(Type, Topic, Task, stage(1), X, Y, Path1),
+    search(Type, Topic, Task, stage(2), Y, Z, Path2),
+    search(Type, Topic, Task, stage(3), Z, Expr, Path3),
+    % discard intermediate solutions
+    complete(Topic, Task, Expr),
+    % discard incompatible bugs
+    compatible(Expr),
+    append([Path1, Path2, Path3], Path).
+
+% Reached the goal
+search(_, _, _, _, Y, Y, []).
+
+% Continue search
+search(Type, Topic, Task, Stage, X, Y, Path) :-
+    step(Type, Topic, Task, Stage, X, Z, Step),
+    search(Type, Topic, Task, Stage, Z, Y, Steps),
+    append(Step, Steps, Path).
+
+% Unclear why list and member/2 is needed
+step(Type, Topic, Task, Stage, X, Y, Step) :-
     member(expert, Type),
-    Topic:expert(Task, Stage, X, Y, Flags).
+    Topic:expert(Task, Stage, X, Y, Step).
 
-step(Type, Topic, Task, Stage, X, Y, Flags) :-
+step(Type, Topic, Task, Stage, X, Y, Step) :-
     member(buggy, Type),
-    Topic:buggy(Task, Stage, X, Y, Flags).
+    Topic:buggy(Task, Stage, X, Y, Step).
 
 % Handle special compounds
 step(Type, Topic, Task, Stage, instead(Bug, X, Of), Y, Flags) :-

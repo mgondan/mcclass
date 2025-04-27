@@ -7,37 +7,43 @@
 :- use_module(library(dcg/high_order)).
 :- use_module(mathml).
 :- use_module(search).
+:- use_module(steps).
 :- use_module(r_session).
 :- use_module(interval/interval).
 :- use_module(session).
 :- use_module(library(quantity)).
 :- use_module(hints).
+:- use_module(util).
 
 user:term_expansion(mono(A, B), rint:mono(A, B)).
 user:term_expansion(r_hook(A), rint:r_hook(r_session:r_topic, A)).
 
-use_task(T) :-
+use_topic(T) :-
     use_module(T),
-    dynamic(T:math_hook/2).
+    dynamic(T:math_hook/2),
+    foreach(init_topic(T), true).
 
-:- use_task(tpaired).
-:- use_task(tpairedupper).
-:- use_task(tpairedlower).
-:- use_task(baseline).
-:- use_task(oddsratio).
-:- use_task(oddsratio2).
-:- use_task(easyodds).
-:- use_task(tgroups).
-:- use_task(tgroupsdf).
-:- use_task(ztrans).
-:- use_task(dbinom).
-:- use_task(testbinom).
-:- use_task(chisq).
-:- use_task(power).
-:- use_task(cigroups).
-:- use_task(subgroups).
-:- use_task(util).
-:- use_task(regression).
+init_topic(Topic) :-
+    Topic:task(Task),
+    search([expert], Topic, Task, Expr, Steps),
+    assert(Topic:sol(Task, Expr, Steps)).
+
+:- use_topic(tpaired).
+:- use_topic(tpairedupper).
+:- use_topic(tpairedlower).
+:- use_topic(baseline).
+:- use_topic(oddsratio).
+:- use_topic(oddsratio2).
+:- use_topic(easyodds).
+:- use_topic(tgroups).
+:- use_topic(ztrans).
+:- use_topic(dbinom).
+:- use_topic(testbinom).
+:- use_topic(chisq).
+:- use_topic(power).
+:- use_topic(cigroups).
+:- use_topic(subgroups).
+:- use_topic(regression).
 
 % Render R result
 mathml:math_hook(r(Expr), Res) :-
@@ -211,8 +217,9 @@ feedback(_Topic, _Task, _Data, _Form) -->
 
 % Solution and correct numerical result
 solution(Topic, Task, Expr-Res/Flags) :-
-    search(Topic, Task, Expr, Flags),
-    findall(Bug, member(step(buggy, Bug, _), Flags), []),
+    Topic:sol(Task, Expr, Flags),
+    % search(Topic, Task, Expr, Flags),
+    % findall(Bug, member(step(buggy, Bug, _), Flags), []),
     interval(Expr, Res, [topic(Topic)]).
 
 solutions(Topic, Task, List) :-
