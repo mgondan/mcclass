@@ -7,6 +7,7 @@
 :- use_module(library(dcg/high_order)).
 :- use_module(mathml).
 :- use_module(search).
+:- use_module(depends).
 :- use_module(steps).
 :- use_module(r_session).
 :- use_module(interval/interval).
@@ -18,15 +19,24 @@
 user:term_expansion(mono(A, B), rint:mono(A, B)).
 user:term_expansion(r_hook(A), rint:r_hook(r_session:r_topic, A)).
 
-use_topic(T) :-
-    use_module(T),
-    dynamic(T:math_hook/2),
-    foreach(init_topic(T), true).
+use_topic(Topic) :-
+    use_module(Topic),
+    dynamic(Topic:math_hook/2),
+    foreach(init_sol(Topic), true),
+    foreach(init_wrong(Topic), true).
 
-init_topic(Topic) :-
+% Determine solutions at module startup
+init_sol(Topic) :-
     Topic:task(Task),
     search([expert], Topic, Task, Expr, Steps),
     assert(Topic:sol(Task, Expr, Steps)).
+
+% Same for incorrect results
+init_wrong(Topic) :-
+    Topic:task(Task),
+    search([expert, buggy], Topic, Task, Expr, Steps),
+    memberchk(step(buggy, _, _), Steps),
+    assert(Topic:wrong(Task, Expr, Steps)).
 
 :- use_topic(tpaired).
 :- use_topic(tpairedupper).
@@ -67,7 +77,7 @@ task(Topic, Task, Data) :-
     r_session_source(Topic),
     solutions(Topic, Task, Solutions),
     hints(Topic, Task, Hints),
-    wrong(Topic, Task, E_R_F),
+    wrongs(Topic, Task, E_R_F),
     wrongall(Topic, Task, E_R_F_All),
     traps(E_R_F_All, Traps),
     Data = task(Topic, Task, 
@@ -112,12 +122,10 @@ feedback(Topic, Task, Data, _Form)
       member(Expr-Res/Flags, Wrongs),
       colors(Expr, Col),
       interval(Num =@= Res, true, [topic(Topic), task(Task) | Col]),
-      http_log("Num-Res = ~w-~w~n", [Num, Res]),
       member(traps(Traps), Data),
       member(hints(Hints0), Data),
       append(Hints0, Hints1),
       sort(Hints1, Hints),
-      http_log("relevant Num-Res = ~w-~w~n", [Num, Res]),
       % relevant feedback
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
@@ -131,7 +139,6 @@ feedback(Topic, Task, Data, _Form)
                          ul(class('card-text'), ul(Correct0))
                        ])
       ),
-http_log("xx Num-Res = ~w-~w~n", [Num, Res]),
       findall(li(FB),
         ( member(step(buggy, Name, Args), Flags),
           memberchk(Name, Traps),
@@ -144,7 +151,6 @@ http_log("xx Num-Res = ~w-~w~n", [Num, Res]),
                          ul(class('card-text'), ul(Wrong0))
                        ])
       ),
-http_log("irrelevant Num-Res = ~w-~w~n", [Num, Res]),
       % irrelevant feedback
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
@@ -158,7 +164,6 @@ http_log("irrelevant Num-Res = ~w-~w~n", [Num, Res]),
                          ul(class('card-text'), ul(Praise0))
                        ])
       ),
-http_log("blame Num-Res = ~w-~w~n", [Num, Res]),
       findall(li(FB),
         ( member(step(buggy, Name, Args), Flags),
           \+ memberchk(Name, Traps),
@@ -171,10 +176,8 @@ http_log("blame Num-Res = ~w-~w~n", [Num, Res]),
                          ul(class('card-text'), ul(Blame0))
                        ])
       ),
-http_log("util = ~w-~w~n~w~n", [Num, Res, Expr]),
       util:expression_to_list(Expr, [topic(Topic), task(Task), error(fix) | Col], M1),
-      util:expression_to_list(Expr, [topic(Topic), task(Task), error(highlight) | Col], M2),
-http_log("done = ~w-~w~n", [Num, Res])
+      util:expression_to_list(Expr, [topic(Topic), task(Task), error(highlight) | Col], M2)
     },
     html(div(class(card),
       [ div(class('card-header text-white bg-warning'), "Careful"),
@@ -217,7 +220,7 @@ feedback(_Topic, _Task, _Data, _Form) -->
 
 % Solutions with numerical results
 solutions(Topic, Task, List) :-
-    findall(sol(Expr, Res-Codes, Flags),
+    findall(s(Expr, Res-Codes, Flags),
       ( Topic:sol(Task, Expr, Flags),
         interval(Expr, Res, [topic(Topic)]),
         sort(Flags, Sorted),
@@ -225,7 +228,23 @@ solutions(Topic, Task, List) :-
       ), List1),
     % avoid duplicates by permutations
     sort(2, @<, List1, List2),
-    findall(Expr-Res/Flags, member(sol(Expr, Res-_, Flags), List2), List).
+    findall(Expr-Res/Flags, member(s(Expr, Res-_, Flags), List2), List).
+
+% Incorrect results
+wrongs(Topic, Task, List) :-
+    findall(s(Expr, Res-Codes, Flags),
+      ( Topic:wrong(Task, Expr, Flags),
+        interval(Expr, Res, [topic(Topic)]),
+        sort(Flags, Sorted),
+	dependencies(Sorted),
+	exclusive(Sorted),
+        codes(Sorted, Codes)
+      ), List1),
+    % avoid duplicates by permutations
+    sort(2, @<, List1, List2),
+    findall(Expr-Res/Flags, member(s(Expr, Res-_, Flags), List2), List).
+
+% Todo: prepare traps at module initialization
 
 % Pretty print
 pp_solution(Topic, Task, Expr-Result/Flags)
@@ -257,14 +276,6 @@ pp_solutions(Topic, Task, Data)
               \foreach(member(ERF, Expr_Res_Flags), html(\pp_solution(Topic, Task, ERF))))
           ])
       ])).
-
-% The incorrect response alternatives
-wrong(Topic, Task, Expr_Res_Flags) :-
-    searchdep(Topic, Task, ERF),
-    findall(E-R/F, 
-      ( member(E-R/F, ERF), 
-        memberchk(step(buggy, _, _), F)
-      ), Expr_Res_Flags).
 
 % Pretty print
 pp_wrong(Topic, Task, Data, Expr-_Res/Flags, Items) :-

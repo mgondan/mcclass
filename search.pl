@@ -20,28 +20,27 @@ codes(Steps, Codes) :-
 %
 % Moreover, solutions with NA as numerical result are eliminated.
 searchdep(Topic, Task, Expr_Res_Flags) :-
-    findall(res(E, R/C, F), 
-      ( search(Topic, Task, E, F),
-        sort(F, S),
-        dependencies(S),
-        exclusive(S),
-        codes(S, C),
-        interval_ex(E, R, [topic(Topic), task(Task)]),
-%       interval(E, R, [topic(Topic), task(Task)]),
-        interval(available(R), true)
+    findall(res(Expr, Res-Codes, Flags), 
+      ( Topic:res(Task, Expr, Flags),
+        sort(Flags, Sorted),
+	dependencies(Sorted),
+        exclusive(Sorted),
+        codes(Sorted, Codes),
+        interval_ex(Expr, Res, [topic(Topic), task(Task)]),
+        interval(available(Res), true)
       ), Results),
-    sort(2, @<, Results, Sorted),
-    findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
+    sort(2, @<, Results, Unique),
+    findall(Expr-Res/Flags, member(res(Expr, Res-_, Flags), Unique), Expr_Res_Flags).
 
 searchall(Topic, Task, Expr_Res_Flags) :-
-    findall(res(E, R/S, F),
-      ( search(Topic, Task, E, F),
-        sort(F, S),
-        % dependencies(S), % do not check dependencies (needed for the traps)
-        interval(E, R, [topic(Topic), task(Task)])
+    findall(res(Expr, Res-Sorted, Flags),
+      ( search(Topic, Task, Expr, Flags),
+        sort(Flags, Sorted),
+        % do not check dependencies (needed for the traps)
+        interval(Expr, Res, [topic(Topic), task(Task)])
       ), Results),
-    sort(2, @<, Results, Sorted),
-    findall(E-R/F, member(res(E, R/_, F), Sorted), Expr_Res_Flags).
+    sort(2, @<, Results, Unique),
+    findall(Expr-Res/Flags, member(res(Expr, Res-_, Flags), Unique), Expr_Res_Flags).
 
 interval_ex(E, R, Flags) :-
     interval(E, R, Flags),
