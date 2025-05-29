@@ -23,6 +23,7 @@ use_topic(Topic) :-
     use_module(Topic),
     dynamic(Topic:math_hook/2),
     foreach(init_sol(Topic), true),
+    foreach(init_hints(Topic), true),
     foreach(init_wrong(Topic), true).
 
 % Determine solutions at module startup
@@ -76,13 +77,11 @@ task(Topic, Task, Data) :-
     r_init_session,
     r_session_source(Topic),
     solutions(Topic, Task, Solutions),
-    hints(Topic, Task, Hints),
     wrongs(Topic, Task, E_R_F),
     wrongall(Topic, Task, E_R_F_All),
     traps(E_R_F_All, Traps),
     Data = task(Topic, Task, 
       [ solutions(Solutions), 
-        hints(Hints), 
         wrong(E_R_F),
         wrongall(E_R_F_All), % this needs a better solution
         traps(Traps)
@@ -378,7 +377,7 @@ tasks(Topic, Task) :-
     solutions(Topic, Task, AllSolutions),
     writeln(AllSolutions),
     writeln("All hints"),
-    hints(Topic, Task, AllHints),
+    findall(Hints, Topic:hints(_Task, _Expr, Hints), AllHints),
     writeln(AllHints),
     task(Topic, Task, TaskData),
     TaskData = task(Topic, Task, Data),
@@ -393,10 +392,6 @@ tasks(Topic, Task) :-
     writeln(S),
     html(\pp_solutions(Topic, Task, Data), Sol, []),
     writeln(Sol),
-    memberchk(hints(H), Data),
-    format("Hints: ~w~n", [H]),
-    html(\pp_hints(Topic, Task, Data), Hints, []),
-    writeln(Hints),
     memberchk(wrong(W), Data), 
     length(W, L), 
     format("Wrong alternatives: ~w~n", [L]),

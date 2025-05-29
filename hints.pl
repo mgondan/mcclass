@@ -1,68 +1,80 @@
-:- module(hints, [hints/3, pp_hints//3]).
+:- module(hints, [init_hints/1, init_hints/2, pp_hints//2]).
 
 :- use_module(library(http/html_write)).
 :- use_module(library(dcg/high_order)).
-:- use_module(tasks).
 :- use_module(util).
 :- use_module(mathml).
 
-% return codes of correct steps
-hints(_Expr-_Res/Flags, Hints) :-
-    findall(H, member(step(expert, H, _), Flags), Hints).
+pp_hints(Topic, Task)
+--> { Topic:hints(Task, Accordion) },
+    html(Accordion).
 
-% extract hints from multiple solutions of a given task
-hints(Topic, Task, Hints) :-
-    solutions(Topic, Task, Solutions),
-    maplist(hints, Solutions, Hints).
+% Codes of correct steps
+init_hints(Topic, Task) :-
+    findall(sol(Task, Expr, Steps), Topic:sol(Task, Expr, Steps), Solutions),
+    nth1(Id, Solutions, sol(Task, Expr, Steps)),
+    init_hint(Topic, Task, Expr, Steps, Id).
+
+init_hint(Topic, Task, Expr, Steps, 1) :-
+    colors(Expr, Col),
+    findall(H, member(step(expert, H, _), Steps), Hints),
+    findall(li(Hint),
+      ( member(step(expert, H, Arg), Steps),
+        Topic:hint(H, Arg, [topic(Topic), task(Task) | Col], Hint)
+      ), List),
+    AccItem = div(class('accordion-item'),
+      [ h2(class('accordion-header'),
+          button([class('accordion-button hint'), type(button),
+              'data-bs-toggle'(collapse),
+              'data-bs-target'('#collapse-~w-~w-1'-[Topic, Task]),
+              'aria-expanded'(true),
+              'aria-controls'('collapse-~w-~w-1'-[Topic, Task])],
+            "Result 1")),
+        div([class('accordion-collapse collapse show'),
+            id('collapse-~w-~w-1'-[Topic, Task]),
+            'data-bs-parent'('#accordion-~w-~w'-[Topic, Task])],
+          div(class('accordion-body'), ul(List)))
+      ]),
+    assert(Topic:hints(Task, Expr, Hints, AccItem)).
+
+init_hint(Topic, Task, Expr, Steps, Id) :-
+    Id > 1,
+    colors(Expr, Col),
+    findall(H, member(step(expert, H, _), Steps), Hints),
+    findall(li(Hint),
+      ( member(step(expert, H, Arg), Steps),
+        Topic:hint(H, Arg, [topic(Topic), task(Task) | Col], Hint)
+      ), List),
+    AccItem = div(class('accordion-item'),
+      [ h2(class('accordion-header'),
+          button([class('accordion-button collapsed hint'), type(button),
+              'data-bs-toggle'(collapse),
+              'data-bs-target'('#collapse-~w-~w-~w'-[Topic, Task, Id]),
+              'aria-expanded'(false),
+              'aria-controls'('collapse-~w-~w-~w'-[Topic, Task, Id])],
+            "Result ~w"-[Id])),
+        div([class('accordion-collapse collapse'),
+            id('collapse-~w-~w-~w'-[Topic, Task, Id]),
+            'data-bs-parent'('#accordion-~w-~w'-[Topic, Task])],
+          div(class('accordion-body'), ul(List)))
+      ]),
+    assert(Topic:hints(Task, Expr, Hints, AccItem)).
 
 % pretty print the set of hints for one given result
-pp_hint(Topic, Task, _Data, Expr-Result/Flags, 1)
---> { colors(Expr, Col),
-      hints(Expr-Result/Flags, Hints),
-      findall(li(H),
-        ( member(step(expert, Name, Arg), Flags),
-          memberchk(Name, Hints),
-          Topic:hint(Name, Arg, [topic(Topic), task(Task) | Col], H)
-        ), List)
-    },
-    html(div(class('accordion-item'),
-      [ h2(class('accordion-header'),
-          button([class('accordion-button hint'), type(button), 'data-bs-toggle'(collapse),
-            'data-bs-target'('#collapse-~w-~w-1'-[Topic, Task]), 'aria-expanded'(true), 'aria-controls'('collapse-~w-~w-1'-[Topic, Task])],
-            "Result 1")),
-        div([class('accordion-collapse collapse show'), id('collapse-~w-~w-1'-[Topic, Task]), 'data-bs-parent'('#accordion-~w-~w'-[Topic, Task])],
-          div(class('accordion-body'), ul(List)))
-      ])).
-
-pp_hint(Topic, Task, _Data, Expr-Result/Flags, Id)
---> { colors(Expr, Col),
-      hints(Expr-Result/Flags, Hints),
-      findall(li(H),
-        ( member(step(expert, Name, Arg), Flags),
-          memberchk(Name, Hints),
-          Topic:hint(Name, Arg, [topic(Topic), task(Task) | Col], H)
-        ), List)
-    },
-    html(div(class('accordion-item'),
-      [ h2(class('accordion-header'),
-          button([class('accordion-button collapsed hint'), type(button), 'data-bs-toggle'(collapse),
-            'data-bs-target'('#collapse-~w-~w-~w'-[Topic, Task, Id]), 'aria-expanded'(false), 'aria-controls'('collapse-~w-~w-~w'-[Topic, Task, Id])],
-            "Result ~w"-[Id])),
-        div([class('accordion-collapse collapse'), id('collapse-~w-~w-~w'-[Topic, Task, Id]), 'data-bs-parent'('#accordion-~w-~w'-[Topic, Task])],
-          div(class('accordion-body'), ul(List)))
-      ])).
-
-pp_hints(Topic, Task, Data)
---> { member(solutions(Solutions), Data),
-      findall(I-S, nth1(I, Solutions, S), Enum)
-    },
-    html(div(class('card card-body'),
+init_hints(Topic) :-
+    Topic:task(Task),
+    foreach(init_hints(Topic, Task), true),
+    findall(AccItem, Topic:hints(Task, _Expr, _Hints, AccItem), AccItems),
+    Accordion = div(class('card card-body'),
       [ p(button([class('btn btn-warning'), type(button),
-          'data-bs-toggle'(collapse), 'data-bs-target'('#hint-~w-~w'-[Topic, Task]), 
-          'aria-expanded'(false), 'aria-controls'('hint-~w-~w'-[Topic, Task])],
+            'data-bs-toggle'(collapse),
+            'data-bs-target'('#hint-~w-~w'-[Topic, Task]),
+            'aria-expanded'(false),
+            'aria-controls'('hint-~w-~w'-[Topic, Task])],
           "Show hints")),
         div([class('card collapse'), id('hint-~w-~w'-[Topic, Task])],
           div([class(accordion), id('accordion-~w-~w'-[Topic, Task])],
-            \foreach(member(I-S, Enum),
-              html(\pp_hint(Topic, Task, Data, S, I)))))
-      ])).
+            AccItems))
+      ]),
+    assert(Topic:hints(Task, Accordion)).
+
