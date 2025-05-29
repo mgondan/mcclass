@@ -367,7 +367,7 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(tpaired, pvalue).
+    tasks(power, power).
 
 tasks(Topic, Task) :-
     r_init_session,

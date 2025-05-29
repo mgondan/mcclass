@@ -7,8 +7,10 @@
 :- use_module(r_session).
 :- use_module(interval/interval).
 :- use_module(mathml).
-
 :- use_module(navbar).
+
+:- dynamic sol/3, wrong/3.
+
 navbar:page(power, "Power").
 task(power).
 
