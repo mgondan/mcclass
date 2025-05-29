@@ -215,23 +215,17 @@ feedback(_Topic, _Task, _Data, _Form) -->
           p(class('card-text'), "Waiting for response..."))
       ])).
 
-% Solution and correct numerical result
-solution(Topic, Task, Expr-Res/Flags) :-
-    Topic:sol(Task, Expr, Flags),
-    % search(Topic, Task, Expr, Flags),
-    % findall(Bug, member(step(buggy, Bug, _), Flags), []),
-    interval(Expr, Res, [topic(Topic)]).
-
+% Solutions with numerical results
 solutions(Topic, Task, List) :-
-    findall(ERF, solution(Topic, Task, ERF), List0),
-    % avoid duplicates by permutations, see search.pl
-    findall(sol(Expr, Res/Codes, Flags),
-      ( member(Expr-Res/Flags, List0),
+    findall(sol(Expr, Res-Codes, Flags),
+      ( Topic:sol(Task, Expr, Flags),
+        interval(Expr, Res, [topic(Topic)]),
         sort(Flags, Sorted),
         codes(Sorted, Codes)
       ), List1),
+    % avoid duplicates by permutations
     sort(2, @<, List1, List2),
-    findall(Expr-Res/Flags, member(sol(Expr, Res/_, Flags), List2), List).
+    findall(Expr-Res/Flags, member(sol(Expr, Res-_, Flags), List2), List).
 
 % Pretty print
 pp_solution(Topic, Task, Expr-Result/Flags)
