@@ -6,7 +6,7 @@
 :- use_module(mathml).
 
 pp_hints(Topic, Task)
---> { Topic:hints(Task, Accordion) },
+--> { Topic:hints(Task, _, Accordion) },
     html(Accordion).
 
 % Codes of correct steps
@@ -64,7 +64,8 @@ init_hint(Topic, Task, Expr, Steps, Id) :-
 init_hints(Topic) :-
     Topic:task(Task),
     foreach(init_hints(Topic, Task), true),
-    findall(AccItem, Topic:hints(Task, _Expr, _Hints, AccItem), AccItems),
+    findall(Hint-Item, Topic:hints(Task, _Expr, Hint, Item), Pairs),
+    pairs_keys_values(Pairs, Hints, AccItems),
     Accordion = div(class('card card-body'),
       [ p(button([class('btn btn-warning'), type(button),
             'data-bs-toggle'(collapse),
@@ -76,5 +77,5 @@ init_hints(Topic) :-
           div([class(accordion), id('accordion-~w-~w'-[Topic, Task])],
             AccItems))
       ]),
-    assert(Topic:hints(Task, Accordion)).
+    assert(Topic:hints(Task, Hints, Accordion)).
 
