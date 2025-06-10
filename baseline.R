@@ -1,43 +1,43 @@
 baseline_data = function(seed)
 {
   set.seed(seed)
-  N = sample(100:150, size=1)
-  pFem = 0.3
-  Sex = factor(rbinom(N, size=1, prob=pFem), levels=c(0, 1), labels=c("M", "F"))
-  AgeMo = round(runif(N, min=30, max=80))
-  Ill = rnorm(N, mean=6 - as.numeric(Sex) + 0.05*AgeMo, sd=2)
-  T0 = round(rnorm(N, mean=Ill, sd=2), 1)
-  d = data.frame(ID=1:N, Sex, AgeMo, T0)
+  n <- sample(100:150, size=1)
+  p_fem <- 0.3
+  sex <- factor(rbinom(n, size=1, prob=p_fem), levels=c(0, 1), labels=c("M", "F"))
+  age <- round(runif(n, min=30, max=80))
+  inclusion <- rnorm(n, mean=6 - as.numeric(sex) + 0.05*age, sd=2)
+  T0 <- round(rnorm(n, mean=inclusion, sd=2), 1)
+  d <- data.frame(ID=1:n, sex, age, T0)
   
   # Inclusion criteria
-  Ill = Ill[d$T0 > 2 & d$T0 < 10]
-  d = d[d$T0 > 2 & d$T0 < 10, ]
-  N = nrow(d)
+  inclusion <- inclusion[d$T0 > 2 & d$T0 < 10]
+  d <- d[d$T0 > 2 & d$T0 < 10, ]
+  n <- nrow(d)
   
   # Randomization
-  d$Therapy = factor(rbinom(N, size=1, prob=0.5), levels=c(0, 1), labels=c("Lidcombe", "TAU"))
+  d$therapy <- factor(rbinom(n, size=1, prob=0.5), levels=c(0, 1), labels=c("Lidcombe", "TAU"))
   
   # Treatment fidelity
-  d$Fidel = pmin(100, pmax(20, round(rnorm(N, mean=70, sd=15))))
+  d$fidel <- pmin(100, pmax(20, round(rnorm(n, mean=70, sd=15))))
   
   # EOT depends on therapy and fidelity
-  d$EOT = pmax(0, pmin(10, round(digits=1, rnorm(N,
-                                                 mean=Ill-5.1-d$Fidel*0.03+1.2*as.numeric(d$Therapy), sd=2))))
-  d$FU = pmax(0, pmin(10, round(digits=1, rnorm(N,
-                                                mean=Ill-6.3-d$Fidel*0.02+1.5*as.numeric(d$Therapy), sd=2))))
+  d$EOT = pmax(0, pmin(10, round(digits=1, rnorm(n,
+                                                 mean=inclusion-5.1-d$fidel*0.03+1.2*as.numeric(d$therapy), sd=2))))
+  d$FU <- pmax(0, pmin(10, round(digits=1, rnorm(n,
+                                                mean=inclusion-6.3-d$fidel*0.02+1.5*as.numeric(d$therapy), sd=2))))
   
-  d$Therapy = as.character(d$Therapy)
+  d$therapy <- as.character(d$therapy)
   return(d)
 }
 
 data  <- baseline_data(seed=4711)
-N     <- nrow(data)
-m_T0  <- by(data$T0, data$Therapy, mean)
-s_T0  <- by(data$T0, data$Therapy, sd)
-m_EOT <- by(data$EOT, data$Therapy, mean)
-s_EOT <- by(data$EOT, data$Therapy, sd)
-m_FU  <- by(data$FU, data$Therapy, mean)
-s_FU  <- by(data$FU, data$Therapy, sd)
+n     <- nrow(data)
+m_T0  <- by(data$T0, data$therapy, mean)
+s_T0  <- by(data$T0, data$therapy, sd)
+m_EOT <- by(data$EOT, data$therapy, mean)
+s_EOT <- by(data$EOT, data$therapy, sd)
+m_FU  <- by(data$FU, data$therapy, mean)
+s_FU  <- by(data$FU, data$therapy, sd)
 alpha <- 0.05
 tails <- "two-tailed"
 
@@ -58,29 +58,29 @@ TAU_EOT           <- sprintf("%.1f (%.1f)", TAU_EOT_Mean, TAU_EOT_SD)
 download <- function(fname)
   write.csv2(data, fname, row.names=FALSE)
 
-ancova_f = function(Prim, Cov, Strata, Other, Int, Ex, Main)
+ancova_f <- function(outcome, cov, strata, other, interaction, exclude, therapy)
 {
-  Predictors = paste(c(Cov, Strata, list(Main)), collapse="+")
-  formula = sprintf("%s ~ %s", Prim, Predictors)
-  m = lm(formula, data=data)
-  anova(m)[Main, "F value"]
+  predictors <- paste(c(cov, strata, list(therapy)), collapse="+")
+  formula <- sprintf("%s ~ %s", outcome, predictors)
+  m <- lm(formula, data=data)
+  anova(m)[therapy, "F value"]
 }
 
-ancova_p = function(Prim, Cov, Strata, Other, Int, Ex, Main)
+ancova_p <- function(outcome, cov, strata, other, interaction, exclude, therapy)
 {
-  Predictors = paste(c(Cov, Strata, list(Main)), collapse="+")
-  formula = sprintf("%s ~ %s", Prim, Predictors)
-  m = lm(formula, data=data)
-  anova(m)[Main, "Pr(>F)"]
+  predictors <- paste(c(cov, strata, list(therapy)), collapse="+")
+  formula <- sprintf("%s ~ %s", outcome, predictors)
+  m <- lm(formula, data=data)
+  anova(m)[therapy, "Pr(>F)"]
 }
 
 library(emmeans)
-ancova_ci = function(Prim, Cov, Strata, Other, Int, Ex, Main)
+ancova_ci <- function(outcome, cov, strata, other, interaction, exclude, therapy)
 {
-  Predictors = paste(c(Cov, Strata, list(Main)), collapse="+")
-  formula = sprintf("%s ~ %s", Prim, Predictors)
+  predictors <- paste(c(cov, strata, list(therapy)), collapse="+")
+  formula <- sprintf("%s ~ %s", outcome, predictors)
   m <- lm(formula, data=data)
-  emm <- emmeans(m, Main, contr="trt.vs.ctrl1")
+  emm <- emmeans(m, therapy, contr="trt.vs.ctrl1")
   ci <- confint(emm)$contrasts
   lower <- ci[1, "lower.CL"]
   upper <- ci[1, "upper.CL"]

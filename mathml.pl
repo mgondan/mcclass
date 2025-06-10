@@ -6,6 +6,7 @@
 :- use_module(library(http/html_write)).
 :- reexport(library(mathml)).
 :- reexport(library(pval)).
+:- reexport(library(lm)).
 
 % Legacy code from mcclass
 mmlm(A) -->
