@@ -20,12 +20,21 @@
 :- use_module(library(http/http_log)).
 :- use_module(library(http/html_write)).
 :- use_module(library(http/http_files)).
-:- use_module(library(http/http_unix_daemon)).
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/http_wrapper)).
+:- use_module(library(http/http_server)).
+:- use_module(library(http/http_session)).
 
 :- set_prolog_flag(backtrace_goal_depth, 10).
 :- debug.
+
+:- initialization(main, main).
+
+main(_Argv) :-
+    stream_property(S, alias(user_error)),
+    debug(_ > S),
+    http_server([port(8001)]),
+    thread_get_message(quit).
 
 :- dynamic http:location/3.
 http:location(mcclass, root(mcclass), []).

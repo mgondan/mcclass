@@ -10,7 +10,8 @@
 
 % Initialize R, load some code into the base environment.
 r_init_session :-
-    r_initialize,
+    session_id(S),
+    r_initialize(S),
     r_session_begin.
 
 % Evaluate R expression and render it as html
@@ -29,23 +30,21 @@ r_session_begin,
 
 r_session_begin
  => session_id(Session),
-    r('<-'(Session, 'new.env'())),
+    r_initialize(Session),
     session_assert(r_session).
 
 :- listen(http_session(end(_Session, _Peer)), r_session_end).
 
 r_session_end
  => session_id(Session),
-    r(rm(Session)).
+    r_close(Session).
 
 % Evaluate R expression in the current http_session for the current topic
 r_session(Expr)
- => session_id(Session),
-    r(with(Session, Expr)).
+ => r(Expr).
 
 r_session(Expr, Res)
- => session_id(Session),
-    r(with(Session, Expr), Res).
+ => r(Expr, Res).
 
 r_session(Expr) -->
     { r_session(Expr, Res) },
@@ -72,7 +71,8 @@ r_session_source(Topic),
 
 r_session_source(Topic)
  => format(string(S), "~w.R", [Topic]),
-    session_id(Session),
-    r(with(Session, '<-'(Topic, 'new.env'()))),
-    r(with(Session, with(Topic, source(S, local=true)))),
+    absolute_file_name(S, Abs),
+    atom_string(Abs, String),
+    r('<-'(Topic, 'new.env'())),
+    r(with(Topic, source(String, local=true))),
     session_assert(topic(Topic)).
