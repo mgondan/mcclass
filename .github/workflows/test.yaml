@@ -23,9 +23,9 @@ jobs:
           sudo apt install -y r-base
           sudo apt install -y r-base libtirpc-dev libfontconfig1-dev libfreetype6-dev pkg-config
           mkdir -p $HOME/Rlibs 
-          R -e "install.packages(c('RInside', 'Rcpp', 'emmeans', 'ggplot2', 'svglite'), lib='$HOME/Rlibs')"
+          R -e "install.packages(c('emmeans', 'ggplot2', 'svglite', 'Rserve', 'RSclient'), lib='$HOME/Rlibs')"
           echo "R_LIBS=$HOME/Rlibs" >> ~/.Renviron
-          R -e "library(RInside); library(Rcpp)"
+          R -e "Rserve::Rserve()"
           echo "R_LIBS_USER=$HOME/Rlibs" >> $GITHUB_ENV
 
       - name: Install SWI-Prolog on Linux
