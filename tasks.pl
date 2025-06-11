@@ -58,6 +58,13 @@ init_wrong(Topic) :-
 
 % Render R result
 mathml:math_hook(r(Expr), Res) :-
+    session_id(Session),
+    thread_self(Me),
+    http_log("math_hook: session id ~w thread id ~w~n", [Session, Me]),
+    r_topic(Expr, Res).
+
+mathml:math_hook(r(Expr), Res) :-
+    http_log("math_hook: no session id~n", []),
     r_topic(Expr, Res).
 
 % Gather useful information
