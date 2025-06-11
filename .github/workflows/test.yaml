@@ -25,7 +25,6 @@ jobs:
           mkdir -p $HOME/Rlibs 
           R -e "install.packages(c('RInside', 'Rcpp', 'emmeans', 'ggplot2', 'svglite', 'Rserve', 'RSclient'), lib='$HOME/Rlibs')"
           echo "R_LIBS=$HOME/Rlibs" >> ~/.Renviron
-          R -e "Rserve::Rserve()"
           echo "R_LIBS_USER=$HOME/Rlibs" >> $GITHUB_ENV
 
       - name: Install SWI-Prolog on Linux
@@ -65,11 +64,13 @@ jobs:
       - name: Run tests mcclass interval 
         run: |
           export R_LIBS_USER=$HOME/Rlibs
+          R -e "Rserve::Rserve()"
           swipl -g "test_mcclass." "$HOME/.local/share/swi-prolog/pack/mcclass/interval/test/test_mcclass.pl"
         shell: bash
 
       - name: Run tests mcclass tasks 
         run: |
           export R_LIBS_USER=$HOME/Rlibs
+          R -e "Rserve::Rserve()"
           swipl -g "test_tasks." "$HOME/.local/share/swi-prolog/pack/mcclass/interval/test/test_tasks.pl"
         shell: bash
