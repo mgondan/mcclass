@@ -12,7 +12,7 @@ navbar -->
     html(nav(class('navbar navbar-expand-lg sticky-top bg-light'), 
       div(class('container-fluid'),
         [ a([class('navbar-brand'), href('/mcclass')],
-            [ img([src('owl.svg'), width(48), height(40), class('d-inline-block align-text-top')], ''),
+            [ img([src('owl.svg'), width(48), height(40), class('d-inline-block align-text-top')]),
               'McCLASS'
             ]),
           button(
