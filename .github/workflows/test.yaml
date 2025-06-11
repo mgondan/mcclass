@@ -43,9 +43,9 @@ jobs:
         run: |
           export R_LIBS_USER=$HOME/Rlibs
           swipl -t "pack_install(rolog, [interactive(false)])"
-          swipl -t "pack_install('interval', [interactive(false), link(false)])"
-          swipl -t "pack_install('mathml', [interactive(false), link(false)])"
-          swipl -t "pack_install('quantity', [interactive(false), link(false)])"
+          swipl -t "pack_install(interval, [interactive(false), link(false)])"
+          swipl -t "pack_install(mathml, [interactive(false), link(false)])"
+          swipl -t "pack_install(quantity, [interactive(false), link(false)])"
           mkdir -p ~/.local/share/swi-prolog/pack/rolog/foreign
           cp ~/.local/share/swi-prolog/pack/rolog/lib/x86_64-linux/rolog.so ~/.local/share/swi-prolog/pack/rolog/foreign/
         shell: bash
@@ -65,11 +65,12 @@ jobs:
         run: |
           export R_LIBS_USER=$HOME/Rlibs
           R --vanilla -e "Rserve::Rserve()"
-          swipl -g "test_mcclass." "$HOME/.local/share/swi-prolog/pack/mcclass/interval/test/test_mcclass.pl"
+          swipl -g "test_mcclass" "$HOME/.local/share/swi-prolog/pack/mcclass/interval/test/test_mcclass.pl"
         shell: bash
 
       - name: Run tests mcclass tasks 
         run: |
           export R_LIBS_USER=$HOME/Rlibs
-          swipl -g "test_tasks." "$HOME/.local/share/swi-prolog/pack/mcclass/interval/test/test_tasks.pl"
+          R --vanilla -e "Rserve::Rserve()"
+          swipl -g "test_tasks" "$HOME/.local/share/swi-prolog/pack/mcclass/interval/test/test_tasks.pl"
         shell: bash
