@@ -64,13 +64,13 @@ jobs:
       - name: Run tests mcclass interval 
         run: |
           export R_LIBS_USER=$HOME/Rlibs
-          R -e "Rserve::Rserve()"
+          R --vanilla -e "Rserve::Rserve()"
           swipl -g "test_mcclass." "$HOME/.local/share/swi-prolog/pack/mcclass/interval/test/test_mcclass.pl"
         shell: bash
 
       - name: Run tests mcclass tasks 
         run: |
           export R_LIBS_USER=$HOME/Rlibs
-          R -e "Rserve::Rserve()"
+          R --vanilla -e "Rserve::Rserve()"
           swipl -g "test_tasks." "$HOME/.local/share/swi-prolog/pack/mcclass/interval/test/test_tasks.pl"
         shell: bash
