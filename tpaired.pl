@@ -5,7 +5,7 @@
 :- use_module(table).
 :- use_module(util).
 :- use_module(r_session).
-:- use_module(interval/interval).
+:- use_module(interval).
 :- use_module(mathml).
 :- use_module(steps).
 
