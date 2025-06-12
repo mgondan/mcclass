@@ -1,7 +1,7 @@
 :- module(test_performance, [test_performance/0, test_performance/1, clear_log/0]).
 
 :- use_module('../interval.pl').
-:- use_module('../../tasks.pl').
+:- use_module('../tasks.pl').
 :- use_module(library(date)). 
 
 :- initialization(init).

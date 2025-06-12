@@ -2,7 +2,7 @@
 
 :- use_module(library(plunit)).
 :- use_module(library(debug)).
-:- use_module('../../tasks').
+:- use_module('../tasks').
 
 test_tasks :-
     run_tests([anova, binomial, chisq, odds, regression, t, ztrans]).

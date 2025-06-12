@@ -65,12 +65,12 @@ jobs:
         run: |
           export R_LIBS_USER=$HOME/Rlibs
           R --vanilla -e "Rserve::Rserve(args='--no-save')"
-          swipl -g "test_mcclass" "$HOME/.local/share/swi-prolog/pack/mcclass/interval/test/test_mcclass.pl"
+          swipl -g "test_mcclass" "$HOME/.local/share/swi-prolog/pack/mcclass/test/test_mcclass.pl"
         shell: bash
 
       - name: Run tests mcclass tasks 
         run: |
           export R_LIBS_USER=$HOME/Rlibs
           R --vanilla -e "Rserve::Rserve(args='--no-save')"
-          swipl -g "test_tasks" "$HOME/.local/share/swi-prolog/pack/mcclass/interval/test/test_tasks.pl"
+          swipl -g "test_tasks" "$HOME/.local/share/swi-prolog/pack/mcclass/test/test_tasks.pl"
         shell: bash
