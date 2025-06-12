@@ -1,7 +1,6 @@
 :- module(search, [searchall/3, searchdep/3, codes/2]).
 
-:- use_module(interval/interval).
-% :- use_module(interval).
+:- use_module(interval).
 :- use_module(tasks).
 :- use_module(steps).
 :- use_module(intermediate).

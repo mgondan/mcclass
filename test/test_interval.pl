@@ -1,10 +1,10 @@
-:- module(test_mcclass, [test_mcclass/0]).
+:- module(test_interval, [test_interval/0]).
 
 :- use_module(library(plunit)).
 :- use_module(library(debug)).
 :- use_module('../interval').
 
-test_mcclass :-
+test_interval :-
     run_tests([fractions, number_digit, bugs, multiply, available, equality, plus, ci, pm, denote, color, semicolon, curly, cbinom, pwbinom]).
 
 :- begin_tests(fractions).
@@ -290,8 +290,8 @@ test(cidiv) :-
 
 test(ciexp) :-
     interval(exp(ci(1, 2)), ci(A, B)),
-    test_mcclass:equal(A, A1),
-    test_mcclass:equal(B, B1),
+    test_interval:equal(A, A1),
+    test_interval:equal(B, B1),
     A1 = 2.7182...2.7183,
     B1 = 7.389...7.3891.
 

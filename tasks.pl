@@ -10,7 +10,7 @@
 :- use_module(depends).
 :- use_module(steps).
 :- use_module(r_session).
-:- use_module(interval/interval).
+:- use_module(interval).
 :- use_module(session).
 :- use_module(library(quantity)).
 :- use_module(hints).

@@ -5,7 +5,7 @@
 :- use_module(table).
 :- use_module(util).
 :- use_module(r_session).
-:- use_module(interval/interval).
+:- use_module(interval).
 :- use_module(mathml).
 
 :- use_module(navbar).
@@ -380,8 +380,8 @@ intermediate(cigroups, indep).
 expert(cigroups, stage(1), X, Y, [step(expert, problem, [])]) :-
     X = item(VR, S_VR, N_VR, Box, S_Box, N_Box, Alpha),
     Y = { '<-'(s2p, var_pool(S_VR^2, N_VR, S_Box^2, N_Box)) ;
-          '<-'(ci, indep(VR, Box, s2p, N_VR, N_Box, Alpha))
-         }.
+          indep(VR, Box, s2p, N_VR, N_Box, Alpha)
+        }.
 
 feedback(problem, [], Col, F)
  => F = [ "Correctly recognised the problem as ",
