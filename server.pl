@@ -24,7 +24,7 @@
 :- use_module(library(http/http_wrapper)).
 :- use_module(library(http/http_server)).
 :- use_module(library(http/http_session)).
-:- use_module(library(http/http_unix_deamon)).
+:- use_module(library(http/http_unix_daemon)).
 
 :- set_prolog_flag(backtrace_goal_depth, 10).
 :- debug.
