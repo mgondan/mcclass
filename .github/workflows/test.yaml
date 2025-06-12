@@ -61,14 +61,14 @@ jobs:
           git clone "$REPO_URL" ~/.local/share/swi-prolog/pack/mcclass
         shell: bash
 
-      - name: Run tests mcclass interval 
+      - name: Run tests interval mcclass
         run: |
           export R_LIBS_USER=$HOME/Rlibs
           R --vanilla -e "Rserve::Rserve(args='--no-save')"
-          swipl -g "test_mcclass" "$HOME/.local/share/swi-prolog/pack/mcclass/test/test_mcclass.pl"
+          swipl -g "test_interval" "$HOME/.local/share/swi-prolog/pack/mcclass/test/test_interval.pl"
         shell: bash
 
-      - name: Run tests mcclass tasks 
+      - name: Run tests tasks mcclass
         run: |
           export R_LIBS_USER=$HOME/Rlibs
           R --vanilla -e "Rserve::Rserve(args='--no-save')"
