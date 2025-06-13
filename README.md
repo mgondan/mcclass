@@ -1,4 +1,5 @@
 # McClass
+
 MisConception-aware Competence Learning and Assessment Smart System
 
 If you wish, try it at https://mcclass.vps.webdock.cloud/mcclass
@@ -16,6 +17,8 @@ Invoke R, and then
 * `install.packages("ggplot2")`
 * `install.packages("svglite")`
 * `install.packages("emmeans")`
+* `install.packages("Rserve")`
+* `install.packages("RSclient")`
 * `quit()`
 
 ## Step 2: install postgresql
@@ -41,6 +44,7 @@ Invoke swipl, and then
 * `halt.`
 
 ## Start the server
+
 To serve incoming connections at 8001 under linux, enter the folder mcclass and call 
 
 `swipl server.pl --port=8001 --pidfile=http.pid`
