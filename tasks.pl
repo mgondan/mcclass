@@ -378,6 +378,7 @@ tasks :-
     tasks(tpaired, tratio).
 
 tasks(Topic, Task) :-
+    b_setval(http_session_id, default_session),
     r_init_session,
     r('set.seed'(4711)),
     r_session_source(Topic),
