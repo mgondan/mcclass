@@ -1,4 +1,4 @@
-:- module(tpaired, [sol/4, hints/3, wrong/3]).
+:- module(tpaired, [sol/4, hints/4, wrong/3]).
 
 :- use_module(library(http/html_write)).
 :- use_module(session).
