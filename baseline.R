@@ -84,5 +84,5 @@ ancova_ci <- function(outcome, cov, strata, other, interaction, exclude, therapy
   ci <- confint(emm)$contrasts
   lower <- ci[1, "lower.CL"]
   upper <- ci[1, "upper.CL"]
-  call("ci", lower, upper)
+  substitute(call("ci", lower, upper), list(lower = lower, upper = upper))
 }

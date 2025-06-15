@@ -17,6 +17,7 @@ rint:interval_hook(atomic(A), Res, _Flags) :-
 %
 % Confidence intervals
 %
+rint:r_hook(substitute/1).
 rint:interval_hook(ci(A, B), Res, Flags) :- 
     rint:interval_(A, A1, Flags),
     rint:interval_(B, B1, Flags),
@@ -24,11 +25,11 @@ rint:interval_hook(ci(A, B), Res, Flags) :-
 
 rint:int_hook(assign, assign3(atomic, ci), ci, []).
 rint:assign3(atomic(Var), ci(atomic(A), atomic(B)), Res, _Flags) :-
-    rint:eval(Var <- call("ci", A, B), Res1),
+    rint:eval(substitute(Var <- call("ci", A, B)), Res1),
     rint:clean(Res1, Res).
 
 rint:assign3(atomic(Var), ci(L1...U1, L2...U2), Res, _Flags) :-
-    rint:eval(Var <- call("ci", call("...", L1, U1), call("...", L2, U2)), Res1),
+    rint:eval(substitute(Var <- call("ci", call("...", L1, U1), call("...", L2, U2))), Res1),
     rint:clean(Res1, Res). 
 
 %
