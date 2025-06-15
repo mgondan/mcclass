@@ -1,11 +1,11 @@
-:- module(hints, [init_hints/1, hints//2]).
+:- module(hints, [init_hints/1, show_hints//2]).
 
 :- use_module(library(http/html_write)).
 :- use_module(library(dcg/high_order)).
 :- use_module(util).
 :- use_module(mathml).
 
-hints(Topic, Task)
+show_hints(Topic, Task)
 --> { Topic:hints(Task, Accordion) },
     html(Accordion).
 
