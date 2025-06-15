@@ -5,7 +5,12 @@
 :- use_module('../interval').
 
 test_interval :-
+    use_rs_rolog,
     run_tests([fractions, number_digit, bugs, multiply, available, equality, plus, ci, pm, denote, color, semicolon, curly, cbinom, pwbinom]).
+
+use_rs_rolog :-
+    b_setval(http_session_id, default_session), 
+    rint:r_initialize(default_session). 
 
 :- begin_tests(fractions).
 
@@ -308,12 +313,12 @@ test(onetailed_ninfpos) :-
 test(assign_ci1) :-
     A = ci(5.1, 5.6),
     interval(<-(ci,A), Res),
-    interval(r(ci), Res).
+    interval(r(substitute(ci)), Res).
 
 test(assign_ci2) :-
     A = ci(5.1...5.6, 5.9...6.5),
     interval(<-(ci,A), Res),
-    interval(r(ci), Res).
+    interval(r(substitute(ci)), Res).
 
 :- end_tests(ci).
 
