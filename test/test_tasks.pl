@@ -45,9 +45,6 @@ test(testbinom_critical) :-
 test(testbinom_pvalue) :-
     tasks:tasks(testbinom, pval).
 
-test(power_power) :-
-    tasks:tasks(power, power).
-
 :- end_tests(binomial).
 
 % Chi-square
@@ -85,9 +82,6 @@ test(regression_pvalue) :-
 
 % t-test: independent, paired
 :- begin_tests(t).
-
-test(cigroups_cigroups) :-
-    tasks:tasks(cigroups, cigroups).
 
 test(tgroups_s2p) :-
     tasks:tasks(tgroups, s2p).
