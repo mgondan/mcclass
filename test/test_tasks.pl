@@ -86,9 +86,6 @@ test(regression_pvalue) :-
 % t-test: independent, paired
 :- begin_tests(t).
 
-test(cigroups_cigroups) :-
-    tasks:tasks(cigroups, cigroups).
-
 test(tgroups_s2p) :-
     tasks:tasks(tgroups, s2p).
 

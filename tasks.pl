@@ -52,7 +52,6 @@ init_wrong(Topic) :-
 :- use_topic(testbinom).
 :- use_topic(chisq).
 :- use_topic(power).
-:- use_topic(cigroups).
 :- use_topic(subgroups).
 :- use_topic(regression).
 
