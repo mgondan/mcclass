@@ -374,7 +374,7 @@ tasks(Topic, Task) :-
     solutions(Topic, Task, AllSolutions),
     writeln(AllSolutions),
     writeln("All hints"),
-    findall(Task-Hints, Topic:hints(Task, Hints, _), AllHints),
+    findall(Task-Hints, Topic:hints(Task, Hints, _, _), AllHints),
     writeln(AllHints),
     task(Topic, Task, TaskData),
     TaskData = task(Topic, Task, Data),
