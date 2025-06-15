@@ -1,4 +1,4 @@
-:- module(tpaired, [sol/4, hints/4, wrong/3]).
+:- module(tpaired, [sol/4, hints/4, wrong/4]).
 
 :- use_module(library(http/html_write)).
 :- use_module(session).
@@ -9,7 +9,7 @@
 :- use_module(mathml).
 :- use_module(steps).
 
-:- dynamic sol/4, hints/4, wrong/3.
+:- dynamic sol/4, hints/4, wrong/4.
 
 :- use_module(navbar).
 navbar:page(tpaired, ["paired ", i(t), "-test"]).

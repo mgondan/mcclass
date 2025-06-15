@@ -38,7 +38,8 @@ init_wrong(Topic) :-
     Topic:task(Task),
     search([expert, buggy], Topic, Task, Expr, Steps),
     memberchk(step(buggy, _, _), Steps),
-    assert(Topic:wrong(Task, Expr, Steps)).
+    colors(Expr, Colors),
+    assert(Topic:wrong(Task, Expr, Steps, Colors)).
 
 :- use_topic(tpaired).
 :- use_topic(tpairedupper).
@@ -233,8 +234,8 @@ solutions(Topic, Task, List) :-
 
 % Incorrect results
 wrongs(Topic, Task, List) :-
-    findall(s(Expr, Res-Codes, Flags),
-      ( Topic:wrong(Task, Expr, Flags),
+    findall(s(Expr, Res-Codes, Flags, Colors),
+      ( Topic:wrong(Task, Expr, Flags, Colors),
         interval(Expr, Res, [topic(Topic)]),
         sort(Flags, Sorted),
 	dependencies(Sorted),
@@ -243,7 +244,7 @@ wrongs(Topic, Task, List) :-
       ), List1),
     % avoid duplicates by permutations
     sort(2, @<, List1, List2),
-    findall(Expr-Res/Flags, member(s(Expr, Res-_, Flags), List2), List).
+    findall(wrong(Expr, Res, Flags, Colors), member(s(Expr, Res-_, Flags, Colors), List2), List).
 
 % Todo: prepare traps at module initialization
 
@@ -278,9 +279,8 @@ pp_solutions(Topic, Task, Data)
       ])).
 
 % Pretty print
-pp_wrong(Topic, Task, Data, Expr-_Res/Flags, Items) :-
+pp_wrong(Topic, Task, Data, wrong(_Expr, _Res, Flags, Col), Items) :-
     member(traps(Traps), Data),
-    colors(Expr, Col),
     findall(li(FB), 
       ( member(step(_, Name, Args), Flags),
         memberchk(Name, Traps), % show only relevant feedback
@@ -291,9 +291,8 @@ pp_wrongs(Topic, Task, Data)
 --> { member(wrong(Expr_Res_Flags), Data),
       findall(
         li([ \mmlm([topic(Topic), task(Task), error(highlight) | Col], E = R), ul(FB) ]), 
-        ( member(E-R/F, Expr_Res_Flags),
-          colors(E, Col),
-          pp_wrong(Topic, Task, Data, E-R/F, FB)
+        ( member(wrong(E, R, F, Col), Expr_Res_Flags),
+          pp_wrong(Topic, Task, Data, wrong(E, R, F, Col), FB)
         ), List)
     },
     html(div(class(card),
