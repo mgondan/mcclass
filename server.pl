@@ -57,7 +57,6 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(dbinom), handler(dbinom), []).
 :- http_handler(mcclass(testbinom), handler(testbinom), []).
 :- http_handler(mcclass(chisq), handler(chisq), []).
-:- http_handler(mcclass(power), handler(power), []).
 :- http_handler(mcclass(regression), handler(regression), []).
 
 

@@ -51,7 +51,6 @@ init_wrong(Topic) :-
 :- use_topic(dbinom).
 :- use_topic(testbinom).
 :- use_topic(chisq).
-:- use_topic(power).
 :- use_topic(subgroups).
 :- use_topic(regression).
 

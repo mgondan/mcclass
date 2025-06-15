@@ -45,9 +45,6 @@ test(testbinom_critical) :-
 test(testbinom_pvalue) :-
     tasks:tasks(testbinom, pval).
 
-test(power_power) :-
-    tasks:tasks(power, power).
-
 :- end_tests(binomial).
 
 % Chi-square
