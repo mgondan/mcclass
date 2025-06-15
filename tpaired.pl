@@ -9,7 +9,7 @@
 :- use_module(mathml).
 :- use_module(steps).
 
-:- dynamic sol/4, hints/3, wrong/3.
+:- dynamic sol/4, hints/4, wrong/3.
 
 :- use_module(navbar).
 navbar:page(tpaired, ["paired ", i(t), "-test"]).
