@@ -1,12 +1,12 @@
-:- module(hints, [init_hints/1, init_hints/2, pp_hints//2]).
+:- module(hints, [init_hints/1, hints//2]).
 
 :- use_module(library(http/html_write)).
 :- use_module(library(dcg/high_order)).
 :- use_module(util).
 :- use_module(mathml).
 
-pp_hints(Topic, Task)
---> { Topic:hints(Task, _, Accordion) },
+hints(Topic, Task)
+--> { Topic:hints(Task, Accordion) },
     html(Accordion).
 
 % Codes of correct steps
@@ -63,7 +63,7 @@ init_hints(Topic) :-
     Topic:task(Task),
     foreach(init_hints(Topic, Task), true),
     findall(Hint-Item, Topic:hints(Task, _Expr, Hint, Item), Pairs),
-    pairs_keys_values(Pairs, Hints, AccItems),
+    pairs_keys_values(Pairs, _Hints, AccItems),
     Accordion = div(class('card card-body'),
       [ p(button([class('btn btn-warning'), type(button),
             'data-bs-toggle'(collapse),
@@ -75,5 +75,5 @@ init_hints(Topic) :-
           div([class(accordion), id('accordion-~w-~w'-[Topic, Task])],
             AccItems))
       ]),
-    assert(Topic:hints(Task, Hints, Accordion)).
+    assert(Topic:hints(Task, Accordion)).
 
