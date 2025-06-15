@@ -16,6 +16,8 @@ task(pvalue).
 label(bcoef, "Estimate").
 label(pvalue, [math(mi(p)), "-value"]).
 
+:- dynamic sol/4.
+
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
 
 % Prettier symbols for mathematical rendering

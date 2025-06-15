@@ -11,16 +11,15 @@ pp_hints(Topic, Task)
 
 % Codes of correct steps
 init_hints(Topic, Task) :-
-    findall(sol(Task, Expr, Steps), Topic:sol(Task, Expr, Steps), Solutions),
-    nth1(Id, Solutions, sol(Task, Expr, Steps)),
-    init_hint(Topic, Task, Expr, Steps, Id).
+    findall(sol(Task, Expr, Steps, Colors), Topic:sol(Task, Expr, Steps, Colors), Solutions),
+    nth1(Id, Solutions, sol(Task, Expr, Steps, Colors)),
+    init_hint(Topic, Task, Expr, Steps, Colors, Id).
 
-init_hint(Topic, Task, Expr, Steps, 1) :-
-    colors(Expr, Col),
+init_hint(Topic, Task, Expr, Steps, Colors, 1) :-
     findall(H, member(step(expert, H, _), Steps), Hints),
     findall(li(Hint),
       ( member(step(expert, H, Arg), Steps),
-        Topic:hint(H, Arg, [topic(Topic), task(Task) | Col], Hint)
+        Topic:hint(H, Arg, [topic(Topic), task(Task) | Colors], Hint)
       ), List),
     AccItem = div(class('accordion-item'),
       [ h2(class('accordion-header'),
@@ -37,13 +36,12 @@ init_hint(Topic, Task, Expr, Steps, 1) :-
       ]),
     assert(Topic:hints(Task, Expr, Hints, AccItem)).
 
-init_hint(Topic, Task, Expr, Steps, Id) :-
+init_hint(Topic, Task, Expr, Steps, Colors, Id) :-
     Id > 1,
-    colors(Expr, Col),
     findall(H, member(step(expert, H, _), Steps), Hints),
     findall(li(Hint),
       ( member(step(expert, H, Arg), Steps),
-        Topic:hint(H, Arg, [topic(Topic), task(Task) | Col], Hint)
+        Topic:hint(H, Arg, [topic(Topic), task(Task) | Colors], Hint)
       ), List),
     AccItem = div(class('accordion-item'),
       [ h2(class('accordion-header'),
