@@ -492,8 +492,7 @@ intermediate(pvalue, twotailed).
 expert(pvalue, stage(2), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu, _Alpha),
     Y = { '<-'(t, paired(D, Mu, S_D, N)) ;
-          '<-'(p, twotailed(t, N-1)) ;
-	  pval(p)
+          pval('<-'(p, twotailed(t, N-1)))
         }.
 
 feedback(paired, [], Col, F)

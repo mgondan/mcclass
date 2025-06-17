@@ -9,11 +9,24 @@
 :- reexport(library(lm)).
 
 % Legacy code from mcclass
-mmlm(A) -->
-    mmlm([], A).
+mmlm(A)
+--> mmlm([], A).
 
-mmlm(Flags, A) -->
-    { member(denote(false), Flags),
+semicolon_list((A; B), L) :-
+    !,
+    semicolon_list(B, L0),
+    L = [A | L0].
+
+semicolon_list(A, [A]).
+
+mmlm(Flags, {A; B})
+--> { semicolon_list((A; B), L0),
+      http_log("Semi: ~w, List: ~w~n", [(A; B), L0])
+    },
+    html(ul(\foreach(member(Expr, L0), html(li(\mmlm(Flags, Expr)))))).
+
+mmlm(Flags, A)
+--> { member(denote(false), Flags),
       pl_mathml(A, M, Flags)
     },
     html(\M).
