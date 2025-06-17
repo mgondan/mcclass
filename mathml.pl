@@ -20,9 +20,7 @@ semicolon_list((A; B), L) :-
 semicolon_list(A, [A]).
 
 mmlm(Flags, {A; B})
---> { semicolon_list((A; B), L0),
-      http_log("Semi: ~w, List: ~w~n", [(A; B), L0])
-    },
+--> { semicolon_list((A; B), L0) },
     html(ul(\foreach(member(Expr, L0), html(li(\mmlm(Flags, Expr)))))).
 
 mmlm(Flags, A)
