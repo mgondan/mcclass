@@ -4,6 +4,7 @@
 :- discontiguous type/3, denoting/3, ml/3, jax/3.
 
 :- use_module(library(http/html_write)).
+:- use_module(library(dcg/high_order)).
 :- reexport(library(mathml)).
 :- reexport(library(pval)).
 :- reexport(library(lm)).
