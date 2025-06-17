@@ -22,6 +22,7 @@ user:term_expansion(r_hook(A), rint:r_hook(r_session:r_topic, A)).
 use_topic(Topic) :-
     use_module(Topic),
     dynamic(Topic:math_hook/2),
+    dynamic(Topic:sol/5),
     foreach(init_sol(Topic), true),
     foreach(init_hints(Topic), true),
     foreach(init_wrong(Topic), true).
@@ -31,7 +32,21 @@ init_sol(Topic) :-
     Topic:task(Task),
     search([expert], Topic, Task, Expr, Steps),
     colors(Expr, Colors),
-    assert(Topic:sol(Task, Expr, Steps, Colors)).
+    findall(li(F),
+      ( member(step(expert, Name, Args), Steps),
+        Topic:feedback(Name, Args, [topic(Topic), task(Task) | Colors], F)
+      ), Feedback),
+    AccItem = html(div(class('accordion-item'),
+      [ h2(class('accordion-header'),
+          button([class('accordion-button'), type(button)], "~w")),
+        div(class('accordion-collapse collapse show'),
+          div(class('accordion-body'),
+           [ p(\mmlm([topic(Topic), task(Task) | Colors], Expr)), ul(Feedback)
+           ]))
+      ])),
+    phrase(AccItem, HTML),
+    with_output_to(string(S), print_html(HTML)),
+    assert(Topic:sol(Task, Expr, Steps, Colors, S)).
 
 % Same for incorrect results
 init_wrong(Topic) :-
@@ -95,7 +110,7 @@ feedback(Topic, Task, Data, _Form)
       quantity(N0, Opt, R),
       interval(input(N0), Num, [topic(Topic), task(Task) | Opt]),
       memberchk(solutions(Solutions), Data),
-      member(sol(_Expr, Res, Flags, Colors), Solutions),
+      member(sol(_Expr, Res, Flags, Colors, _S), Solutions),
       interval(Num =@= Res, true, [topic(Topic), task(Task) | Colors]),
       findall(li(FB),
         ( member(step(expert, Name, Args), Flags),
@@ -216,15 +231,15 @@ feedback(_Topic, _Task, _Data, _Form) -->
 
 % Solutions with numerical results
 solutions(Topic, Task, List) :-
-    findall(s(Expr, Res-Codes, Flags, Colors),
-      ( Topic:sol(Task, Expr, Flags, Colors),
+    findall(s(Expr, Res-Codes, Flags, Colors, String),
+      ( Topic:sol(Task, Expr, Flags, Colors, String),
         interval(Expr, Res, [topic(Topic)]),
         sort(Flags, Sorted),
         codes(Sorted, Codes)
       ), List1),
     % avoid duplicates by permutations
     sort(2, @<, List1, List2),
-    findall(sol(Expr, Res, Flags, Colors), member(s(Expr, Res-_, Flags, Colors), List2), List).
+    findall(sol(Expr, Res, Flags, Colors, String), member(s(Expr, Res-_, Flags, Colors, String), List2), List).
 
 % Incorrect results
 wrongs(Topic, Task, List) :-
@@ -243,22 +258,11 @@ wrongs(Topic, Task, List) :-
 % Todo: prepare traps at module initialization
 
 % Pretty print
-pp_solution(Topic, Task, sol(Expr, Result, Flags, Colors))
---> { findall(li(FB),
-      ( member(step(expert, Name, Args), Flags),
-        Topic:feedback(Name, Args, [topic(Topic), task(Task) | Colors], FB)
-      ), Items)
+pp_solution(Topic, Task, sol(_Expr, Result, _Flags, Colors, String))
+--> { phrase(html(\mmlm([topic(Topic), task(Task) | Colors], Result)), HTML),
+      with_output_to(string(Res), print_html(HTML)) 
     },
-    html(div(class('accordion-item'),
-      [ h2(class('accordion-header'),
-          button([class('accordion-button'), type(button)], 
-            \mmlm([topic(Topic), task(Task) | Colors], Result))),
-        div(class('accordion-collapse collapse show'),
-          div(class('accordion-body'), 
-           [ p(\mmlm([topic(Topic), task(Task) | Colors], Expr)), 
-             ul(Items)
-           ]))
-      ])).
+    html(\[String-Res]).
 
 pp_solutions(Topic, Task, Data)
 --> { member(solutions(Expr_Res_Flags), Data) },

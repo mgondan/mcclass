@@ -73,7 +73,7 @@ init_hint(Topic, Task, Expr, Steps, Colors, Id, [_, _ | _]) :-
 % pretty print the set of hints for one given result
 init_hints(Topic) :-
     Topic:task(Task),
-    findall(sol(Task, Expr, Steps, Colors), Topic:sol(Task, Expr, Steps, Colors), Solutions),
+    findall(sol(Task, Expr, Steps, Colors), Topic:sol(Task, Expr, Steps, Colors, _S), Solutions),
     foreach(init_hints(Topic, Task, Solutions), true),
     findall(Hint-Item, Topic:hints(Task, _Expr, Hint, Item), Pairs),
     pairs_keys_values(Pairs, _Hints, AccItems),
