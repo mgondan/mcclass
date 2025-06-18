@@ -23,31 +23,9 @@ user:term_expansion(r_hook(A), rint:r_hook(r_session:r_topic, A)).
 use_topic(Topic) :-
     use_module(Topic),
     dynamic(Topic:math_hook/2),
-    dynamic(Topic:sol/5),
-    foreach(init_sol(Topic), true),
+    init_solutions(Topic),
     foreach(init_hints(Topic), true),
     foreach(init_wrong(Topic), true).
-
-% Determine solutions at module startup
-init_sol(Topic) :-
-    Topic:task(Task),
-    search([expert], Topic, Task, Expr, Steps),
-    colors(Expr, Colors),
-    findall(li(F),
-      ( member(step(expert, Name, Args), Steps),
-        Topic:feedback(Name, Args, [topic(Topic), task(Task) | Colors], F)
-      ), Feedback),
-    AccItem = html(div(class('accordion-item'),
-      [ h2(class('accordion-header'),
-          button([class('accordion-button'), type(button)], "~w")),
-        div(class('accordion-collapse collapse show'),
-          div(class('accordion-body'),
-           [ p(\mmlm([topic(Topic), task(Task) | Colors], Expr)), ul(Feedback)
-           ]))
-      ])),
-    phrase(AccItem, HTML),
-    with_output_to(string(S), print_html(HTML)),
-    assert(Topic:sol(Task, Expr, Steps, Colors, S)).
 
 % Same for incorrect results
 init_wrong(Topic) :-
