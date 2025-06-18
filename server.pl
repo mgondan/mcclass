@@ -13,6 +13,7 @@
 :- use_module(users).
 :- use_module(table).
 :- use_module(hints).
+:- use_module(solutions).
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
@@ -119,7 +120,7 @@ handle(Topic, Form),
                     \(Topic:task([topic(Topic)], T)),
 		    \show_hints(Topic, T),
                     \feedback(Topic, T, Data, Form),
-                    \pp_solutions(Topic, T, Data),
+                    \show_solutions(Topic, T, Data),
                     \pp_wrongs(Topic, T, Data),
                     \pp_traps(Topic, T, Data)])))
             ;   html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
@@ -127,7 +128,7 @@ handle(Topic, Form),
                     \(Topic:task([topic(Topic)], T)),
 		    \show_hints(Topic, T),
                     \feedback(Topic, T, Data, Form),
-                    \pp_solutions(Topic, T, Data),
+                    \show_solutions(Topic, T, Data),
                     \pp_wrongs(Topic, T, Data),
                     \pp_traps(Topic, T, Data)])))))),
         script(src('bootstrap.bundle.min.js'), '')
@@ -166,7 +167,7 @@ handle(Topic, Form)
                     \(Topic:task([topic(Topic)], T)),
 		    \show_hints(Topic, T),
                     \feedback(Topic, T, Data, Form),
-                    \pp_solutions(Topic, T, Data),
+                    \show_solutions(Topic, T, Data),
                     \pp_wrongs(Topic, T, Data),
                     \pp_traps(Topic, T, Data)])))
             ;   html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
@@ -174,7 +175,7 @@ handle(Topic, Form)
                     \(Topic:task([topic(Topic)], T)),
 		    \show_hints(Topic, T),
                     \feedback(Topic, T, Data, Form),
-                    \pp_solutions(Topic, T, Data),
+                    \show_solutions(Topic, T, Data),
                     \pp_wrongs(Topic, T, Data),
                     \pp_traps(Topic, T, Data)])))))),
         script(src('bootstrap.bundle.min.js'), '')

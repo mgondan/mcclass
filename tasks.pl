@@ -1,4 +1,4 @@
-:- module(tasks, [task/3, feedback//4, solutions/3, pp_solutions//3,  
+:- module(tasks, [task/3, feedback//4, solutions/3,
     pp_wrongs//3, pp_traps//3, download/1
   ]).
 
@@ -14,6 +14,7 @@
 :- use_module(session).
 :- use_module(library(quantity)).
 :- use_module(hints).
+:- use_module(solutions).
 :- use_module(util).
 
 user:term_expansion(mono(A, B), rint:mono(A, B)).
@@ -258,24 +259,6 @@ wrongs(Topic, Task, List) :-
 % Todo: prepare traps at module initialization
 
 % Pretty print
-pp_solution(Topic, Task, sol(_Expr, Result, _Flags, Colors, String))
---> { phrase(html(\mmlm([topic(Topic), task(Task) | Colors], Result)), HTML),
-      with_output_to(string(Res), print_html(HTML)) 
-    },
-    html(\[String-Res]).
-
-pp_solutions(Topic, Task, Data)
---> { member(solutions(Expr_Res_Flags), Data) },
-    html(div(class(card),
-      [ div(class('card-header text-white bg-success'), "Solution(s)"),
-        div(class('card-body'),
-          [ p(class('card-text'), "The system accepts the following correct response(s)"),
-            div(class('accordion accordion-flush'), 
-              \foreach(member(ERF, Expr_Res_Flags), html(\pp_solution(Topic, Task, ERF))))
-          ])
-      ])).
-
-% Pretty print
 pp_wrong(Topic, Task, Data, wrong(_Expr, _Res, Flags, Col), Items) :-
     member(traps(Traps), Data),
     findall(li(FB), 
@@ -388,7 +371,7 @@ tasks(Topic, Task) :-
     memberchk(solutions(S), Data), 
     writeln("Solutions"),
     writeln(S),
-    html(\pp_solutions(Topic, Task, Data), Sol, []),
+    html(\pp_solutions(Topic, Task, S), Sol, []),
     writeln(Sol),
     memberchk(wrong(W), Data), 
     length(W, L), 
