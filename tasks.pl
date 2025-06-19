@@ -349,7 +349,7 @@ tasks(Topic, Task) :-
     memberchk(solutions(S), Data), 
     writeln("Solutions"),
     writeln(S),
-    html(\pp_solutions(Topic, Task, S), Sol, []),
+    html(\show_solutions(Topic, Task, S), Sol, []),
     writeln(Sol),
     memberchk(wrong(W), Data), 
     length(W, L), 
