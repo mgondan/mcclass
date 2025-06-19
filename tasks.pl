@@ -1,6 +1,4 @@
-:- module(tasks, [task/3, feedback//4, solutions/3,
-    pp_wrongs//3, pp_traps//3, download/1
-  ]).
+:- module(tasks, [task/3, feedback//4, solutions/3, pp_traps//3, download/1 ]).
 
 :- use_module(library(http/html_write)).
 :- use_module(library(http/http_log)).
@@ -15,6 +13,7 @@
 :- use_module(library(quantity)).
 :- use_module(hints).
 :- use_module(solutions).
+:- use_module(mistakes).
 :- use_module(util).
 
 user:term_expansion(mono(A, B), rint:mono(A, B)).
@@ -24,16 +23,8 @@ use_topic(Topic) :-
     use_module(Topic),
     dynamic(Topic:math_hook/2),
     init_solutions(Topic),
-    foreach(init_hints(Topic), true),
-    foreach(init_wrong(Topic), true).
-
-% Same for incorrect results
-init_wrong(Topic) :-
-    Topic:task(Task),
-    search([expert, buggy], Topic, Task, Expr, Steps),
-    memberchk(step(buggy, _, _), Steps),
-    colors(Expr, Colors),
-    assert(Topic:wrong(Task, Expr, Steps, Colors)).
+    init_hints(Topic),
+    init_mistakes(Topic).
 
 :- use_topic(tpaired).
 :- use_topic(tpairedupper).
@@ -71,12 +62,12 @@ task(Topic, Task, Data) :-
     r_init_session,
     r_session_source(Topic),
     solutions(Topic, Task, Solutions),
-    wrongs(Topic, Task, E_R_F),
+    mistakes(Topic, Task, Mistakes),
     wrongall(Topic, Task, E_R_F_All),
     traps(E_R_F_All, Traps),
     Data = task(Topic, Task, 
       [ solutions(Solutions), 
-        wrong(E_R_F),
+        mistakes(Mistakes),
         wrongall(E_R_F_All), % this needs a better solution
         traps(Traps)
       ]),
@@ -221,9 +212,9 @@ solutions(Topic, Task, List) :-
     findall(sol(Expr, Res, Flags, Colors, String), member(s(Expr, Res-_, Flags, Colors, String), List2), List).
 
 % Incorrect results
-wrongs(Topic, Task, List) :-
-    findall(s(Expr, Res-Codes, Flags, Colors),
-      ( Topic:wrong(Task, Expr, Flags, Colors),
+mistakes(Topic, Task, List) :-
+    findall(s(Expr, Res-Codes, Flags, Colors, String),
+      ( Topic:wrong(Task, Expr, Flags, Colors, String),
         interval(Expr, Res, [topic(Topic)]),
         sort(Flags, Sorted),
 	dependencies(Sorted),
@@ -232,34 +223,9 @@ wrongs(Topic, Task, List) :-
       ), List1),
     % avoid duplicates by permutations
     sort(2, @<, List1, List2),
-    findall(wrong(Expr, Res, Flags, Colors), member(s(Expr, Res-_, Flags, Colors), List2), List).
+    findall(wrong(Expr, Res, Flags, Colors, String), member(s(Expr, Res-_, Flags, Colors, String), List2), List).
 
 % Todo: prepare traps at module initialization
-
-% Pretty print
-pp_wrong(Topic, Task, Data, wrong(_Expr, _Res, Flags, Col), Items) :-
-    member(traps(Traps), Data),
-    findall(li(FB), 
-      ( member(step(_, Name, Args), Flags),
-        memberchk(Name, Traps), % show only relevant feedback
-        Topic:feedback(Name, Args, [topic(Topic), task(Task) | Col], FB)
-      ), Items).
-
-pp_wrongs(Topic, Task, Data)
---> { member(wrong(Expr_Res_Flags), Data),
-      findall(
-        li([ \mmlm([topic(Topic), task(Task), error(highlight) | Col], E = R), ul(FB) ]), 
-        ( member(wrong(E, R, F, Col), Expr_Res_Flags),
-          pp_wrong(Topic, Task, Data, wrong(E, R, F, Col), FB)
-        ), List)
-    },
-    html(div(class(card),
-      [ div(class('card-header text-white bg-danger'), "Wrong alternatives"),
-        div(class('card-body'),
-          [ p(class('card-text'), "These wrong responses are recognized by the system"),
-            p(class('card-text'), ol(List))
-          ])
-      ])).
 
 % Succeeds if Flags include exactly one (critical) bug
 %
@@ -351,10 +317,10 @@ tasks(Topic, Task) :-
     writeln(S),
     html(\show_solutions(Topic, Task, S), Sol, []),
     writeln(Sol),
-    memberchk(wrong(W), Data), 
+    memberchk(mistakes(W), Data), 
     length(W, L), 
     format("Wrong alternatives: ~w~n", [L]),
-    html(\pp_wrongs(Topic, Task, Data), Wrong, []),
+    html(\show_mistakes(Topic, Task, L), Wrong, []),
     writeln(Wrong),
     memberchk(traps(T), Data),
     format("Traps: ~w~n", [T]),

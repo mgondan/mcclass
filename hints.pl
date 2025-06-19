@@ -70,8 +70,13 @@ init_hint(Topic, Task, Expr, Steps, Colors, Id, [_, _ | _]) :-
       ]),
     assert(Topic:hints(Task, Expr, Hints, AccItem)).
 
-% pretty print the set of hints for one given result
 init_hints(Topic) :-
+    dynamic(Topic:hints/4),
+    dynamic(Topic:hints/2),
+    forall(init_hints1(Topic), true).
+
+% pretty print the set of hints for one given result
+init_hints1(Topic) :-
     Topic:task(Task),
     findall(sol(Task, Expr, Steps, Colors), Topic:sol(Task, Expr, Steps, Colors, _S), Solutions),
     foreach(init_hints(Topic, Task, Solutions), true),

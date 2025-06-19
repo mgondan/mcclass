@@ -14,6 +14,7 @@
 :- use_module(table).
 :- use_module(hints).
 :- use_module(solutions).
+:- use_module(mistakes).
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
@@ -121,7 +122,7 @@ handle(Topic, Form),
 		    \show_hints(Topic, T),
                     \feedback(Topic, T, Data, Form),
                     \show_solutions(Topic, T, Data),
-                    \pp_wrongs(Topic, T, Data),
+                    \show_mistakes(Topic, T, Data),
                     \pp_traps(Topic, T, Data)])))
             ;   html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
                   div([
@@ -129,7 +130,7 @@ handle(Topic, Form),
 		    \show_hints(Topic, T),
                     \feedback(Topic, T, Data, Form),
                     \show_solutions(Topic, T, Data),
-                    \pp_wrongs(Topic, T, Data),
+                    \show_mistakes(Topic, T, Data),
                     \pp_traps(Topic, T, Data)])))))),
         script(src('bootstrap.bundle.min.js'), '')
       ]).
@@ -153,7 +154,9 @@ handle(Topic, Form)
             ".table tbody tr th { border: none; padding-top: 0.1rem; padding-bottom: 0.1rem; }",
             ".table tbody tr:last-child { border-bottom: 2px solid black; }",
             ".accordion-button.hint { --bs-accordion-active-bg: var(--bs-warning-bg-subtle);
-               --bs-accordion-active-color: var(--bs-warning-text-emphasis); }"
+               --bs-accordion-active-color: var(--bs-warning-text-emphasis); }",
+            ".accordion-button.mistake { --bs-accordion-active-bg: var(--bs-danger-bg-subtle);
+               --bs-accordion-active-color: var(--bs-danger-text-emphasis); }"
           ])
       ],
       [ \navbar,
@@ -168,7 +171,7 @@ handle(Topic, Form)
 		    \show_hints(Topic, T),
                     \feedback(Topic, T, Data, Form),
                     \show_solutions(Topic, T, Data),
-                    \pp_wrongs(Topic, T, Data),
+                    \show_mistakes(Topic, T, Data),
                     \pp_traps(Topic, T, Data)])))
             ;   html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
                   div([
@@ -176,7 +179,7 @@ handle(Topic, Form)
 		    \show_hints(Topic, T),
                     \feedback(Topic, T, Data, Form),
                     \show_solutions(Topic, T, Data),
-                    \pp_wrongs(Topic, T, Data),
+                    \show_mistakes(Topic, T, Data),
                     \pp_traps(Topic, T, Data)])))))),
         script(src('bootstrap.bundle.min.js'), '')
       ]).
