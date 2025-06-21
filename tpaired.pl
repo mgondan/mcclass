@@ -362,7 +362,7 @@ feedback(t0, [D, T0], Col, F)
 
 hint(t0, [_D, T0], Col, F)
  => F = [ "Do not insert the T0 average ", \mmlm(Col, color(t0, T0)), " ",
-          "into the ", \nowrap([\mmlm(Col, t), "-ratio."]),
+          "into the ", \nowrap([\mmlm(Col, t), "-ratio."]), " ",
           "Use the change scores instead." 
 	].
 
