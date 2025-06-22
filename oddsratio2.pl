@@ -12,7 +12,7 @@
 navbar:page(oddsratio2, "OR (2)").
 task(oratio).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/3.
 
 % Prettier symbols for mathematical rendering
 math_hook(pi_A, subscript(pi, "A")).
@@ -63,8 +63,8 @@ expert(oratio, stage(1), From, To, [step(expert, problem, [])]) :-
 feedback(problem, [], _Col, FB)
  => FB = "Correctly identified the problem and the main steps of the calculation.".
 
-hint(problem, [], _Col, FB)
- => FB = "This is an odds ratio.".
+hint(problem, _Col, F)
+ => F = "This is an odds ratio.".
 
 % Determine the odds for A and B
 intermediate(oratio, odds).
@@ -75,10 +75,10 @@ expert(oratio, stage(1), From, To, [step(expert, odds, [Pi, Odds])]) :-
 feedback(odds, [Pi, _], Col, FB)
  => FB = [ "Correctly determined the odds ", "from ", \mmlm(Col, [Pi, "."]) ].
 
-hint(odds, [Pi, Odds], Col, FB)
- => FB = [ "Convert ", \mmlm(Col, Pi), " to the respective ",
-           "odds, ", \mmlm(Col, [Odds = dfrac(Pi, 1 - Pi), "."])
-         ].
+hint(odds, Col, F)
+ => F = [ "Convert ", \mmlm(Col, pi), " to the respective ",
+          "odds, ", \mmlm(Col, [odds = dfrac(pi, 1 - pi), "."])
+        ].
 
 % Calculate OR
 intermediate(oratio, odds_ratio).
@@ -89,10 +89,10 @@ expert(oratio, stage(2), From, To, [step(expert, odds_ratio, [Odds_B, Odds_A])])
 feedback(odds_ratio, [Odds_B, Odds_A], Col, FB)
  => FB = [ "Sucessfully calculated ", \mmlm(Col, [Odds_B / Odds_A, "."]) ].
 
-hint(odds_ratio, [Odds_B, Odds_A], Col, FB)
- => FB = [ "Divide ", \mmlm(Col, Odds_B), " by ", \mmlm(Col, Odds_A), " to ",
-           "determine the OR."
-         ].
+hint(odds_ratio, Col, F)
+ => F = [ "Divide ", \mmlm(Col, odds_b), " by ", \mmlm(Col, odds_a), " to ",
+          "determine the OR."
+        ].
 
 % Forgot conversion of pi to odds
 buggy(oratio, stage(1), From, To, [step(buggy, forget_odds, [Pi, Odds])]) :-
@@ -105,11 +105,11 @@ feedback(forget_odds, [Pi, Odds], Col, FB)
            "to ", \mmlm(Col, [color(forget_odds, Odds = frac(Pi, 1 - Pi)), "."])
          ].
 
-hint(forget_odds, [Pi, _Odds], Col, FB)
- => FB = [ "Do not forget to ",
-           "convert ", \mmlm(Col, color(forget_odds, Pi)), " to the ",
-           "respective odds."
-         ].
+hint(forget_odds, Col, F)
+ => F = [ "Do not forget to ",
+          "convert ", \mmlm(Col, color(forget_odds, pi)), " to the ",
+          "respective odds."
+        ].
 
 % Confuse odds_A and odds_B
 buggy(oratio, stage(2), From, To, [step(buggy, inverse, [Odds_B, Odds_A])]) :-
@@ -123,8 +123,8 @@ feedback(inverse, [Odds_B, Odds_A], Col, FB)
            "of ", \mmlm(Col, [color(inverse, Odds_B / Odds_A), "."]) 
          ].
 
-hint(inverse, [_Odds_B, _Odds_A], _Col, FB)
- => FB = "Make sure to put the correct odds into the denominator.".
+hint(inverse, _Col, F)
+ => F = "Make sure to put the correct odds into the denominator.".
 
 % Product instead of ratio
 buggy(oratio, stage(2), From, To, [step(buggy, product, [Odds_B, Odds_A])]) :-
@@ -136,6 +136,6 @@ feedback(product, [Odds_B, Odds_A], Col, FB)
            "of the ratio, ", \mmlm(Col, [color(product, Odds_B / Odds_A), "."])
          ].
 
-hint(product, [_Odds_B, _Odds_A], _Col, FB)
- => FB = "Make sure to calculate the ratio (not the product).".
+hint(product, _Col, F)
+ => F = "Make sure to calculate the ratio (not the product).".
 

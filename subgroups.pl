@@ -20,7 +20,7 @@ label(fratio, [math(mi('F')), "-ratio"]).
 label(pvalue, [math(mi(p)), "-value"]).
 label(cibase, "Confidence interval").
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/3.
 
 % Prettier symbols for mathematical rendering
 math_hook(m_T0, overline("T0")).
@@ -134,8 +134,8 @@ feedback(baseline, [], _Col, F)
           "covariate adjustment."
         ].
 
-hint(baseline, [], _Col, H)
- => H = [ "This is a group comparison with covariate adjustment." ].
+hint(baseline, _Col, H)
+ => H = "This is a group comparison with covariate adjustment.".
 
 % Step 2: Use the correct covariate(s)
 intermediate(fratio, baseline2).
@@ -148,10 +148,11 @@ feedback(covariates, [Cov], Col, F)
           "in the model."
         ].
 
-hint(covariates, [Cov], Col, H)
- => H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
-          "in the statistical model."
-        ].
+hint(covariates, Col, H)
+ => start(item(_, Cov, _, _, _, _, _)),
+ H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
+       "in the statistical model."
+     ].
 
 % Omit relevant covariates (ex. forget to include baseline (T0))
 buggy(fratio, stage(2), X, Y, [step(buggy, covariates, [Cov, [R | Removed]])]) :-
@@ -166,8 +167,9 @@ feedback(covariates, [_Cov, Removed], Col, F)
           "in the model."
         ].
 
-hint(covariates, [Cov, _Removed], Col, H)
- => H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
+hint(covariates, Col, H)
+ => start(item(_, Cov, _, _, _, _, _)),
+    H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
           "in the statistical model."
         ].
 
@@ -182,8 +184,9 @@ feedback(stratification, [Strata], Col, F)
           "in the model."
         ].
 
-hint(stratification, [Strata], Col, H)
- => H = [ "The strata ", \mmlm(Col, list(+, Strata)), " should be included ",
+hint(stratification, Col, H)
+ => start(item(_, _, Strata, _, _, _, _)),
+    H = [ "The strata ", \mmlm(Col, list(+, Strata)), " should be included ",
           "in the statistical model."
         ].
 
@@ -200,9 +203,11 @@ feedback(misstrata, [_Strata, Removed], Col, F)
           "in the statistical model."].
 
 
-hint(misstrata, [Strata, _Removed], Col, H)
- => H = [ "The stratification variable(s) ", \mmlm(Col, list(+, Strata)), " should be included ",
-          "in the statistical model."].
+hint(misstrata, Col, H)
+ => start(item(_, _, Strata, _, _, _, _)),
+    H = [ "The stratification variable(s) ", \mmlm(Col, list(+, Strata)), " ",
+          "should be included in the statistical model."
+        ].
 
 % Step 4: Ignore distractors
 intermediate(fratio, baseline4).
@@ -215,9 +220,11 @@ feedback(ignore, [Other], Col, F)
           "correctly excluded from the statistical model."
         ].
 
-hint(ignore, [Other], Col, H)
- => H = [ "Do not include the post-randomization ",
-          "variables ", \mmlm(Col, list(+, Other)), " in the statistical model."
+hint(ignore, Col, H)
+ => start(item(_, _, _, Other, _, _, _)),
+    H = [ "Do not include the post-randomization ",
+          "variables ", \mmlm(Col, list(+, Other)), " in the statistical ",
+          "model."
         ].
 
 % Step 4: Potential Misconception: add distractor variables to the model
@@ -233,8 +240,9 @@ feedback(distractors, [_Other, Dist], Col, F)
           "included in the model."
         ].
 
-hint(distractors, [Other, _Dist], Col, H)
- => H = [ "Do not include the distractor variable(s) ", \mmlm(Col, list(+, Other)),
+hint(distractors, Col, H)
+ => start(item(_, _, _, Other, _, _, _)),
+    H = [ "Do not include the distractor variable(s) ", \mmlm(Col, list(+, Other)),
           "in the statistical model."
         ].
 
@@ -249,7 +257,7 @@ feedback(noint, [_Int], _Col, F)
           "the analysis."
         ].
 
-hint(noint, [_Int], _Col, H)
+hint(noint, _Col, H)
  => H = [ "Do not put any treatment-by-covariate interactions in the ",
           "statistical model."
         ].
@@ -283,7 +291,7 @@ feedback(interactions, [Int], Col, F)
           "interactions", \mmlm(Col, [list(+, Int), "."])
         ].
 
-hint(interactions, [_Int], _Col, H)
+hint(interactions, _Col, H)
  => H = [ "The statistical model should not include any ",
           "treatment-by-covariate interactions."
         ].
@@ -299,15 +307,9 @@ feedback(ancova, [Therapy], Col, F)
  => F = [ "The main effect for ", \mmlm(Col, Therapy), " has been reported."
         ].
 
-hint(ancova, [Therapy], Col, H)
- => H = [ "Report the main effect for ", \mmlm(Col, [Therapy, "."])
-        ].
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Rules for the p-value task
-% Copy of fratio code above
-
+hint(ancova, Col, H)
+ => start(item(_, _, _, _, _, _, Therapy)),
+    H = [ "Report the main effect for ", \mmlm(Col, [Therapy, "."]) ].
 
 intermediate(pvalue, item).
 
@@ -323,8 +325,8 @@ feedback(baseline, [], _Col, F)
           "covariate adjustment."
         ].
 
-hint(baseline, [], _Col, H)
- => H = [ "This is a group comparison with covariate adjustment." ].
+hint(baseline, _Col, H)
+ => H = "This is a group comparison with covariate adjustment.".
 
 % Step 2: Use the correct covariate(s)
 intermediate(pvalue, baseline2).
@@ -338,7 +340,8 @@ feedback(covariates, [Cov], Col, F)
         ].
 
 hint(covariates, [Cov], Col, H)
- => H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
+ => start(item(_, Cov, _, _, _, _, _)),
+    H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
           "in the statistical model."
         ].
 
@@ -355,8 +358,9 @@ feedback(covariates, [_Cov, Removed], Col, F)
           "in the model."
         ].
 
-hint(covariates, [Cov, _Removed], Col, H)
- => H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
+hint(covariates, Col, H)
+ => start(item(_, Cov, _, _, _, _, _)),
+    H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
           "in the statistical model."
         ].
 
@@ -371,8 +375,9 @@ feedback(stratification, [Strata], Col, F)
           "in the model."
         ].
 
-hint(stratification, [Strata], Col, H)
- => H = [ "The strata ", \mmlm(Col, list(+, Strata)), " should be included ",
+hint(stratification, Col, H)
+ => start(item(_, _, Strata, _, _, _, _)),
+    H = [ "The strata ", \mmlm(Col, list(+, Strata)), " should be included ",
           "in the statistical model."
         ].
 
@@ -388,9 +393,11 @@ feedback(misstrata, [_Strata, Removed], Col, F)
  => F = [ "The relevant stratification variable(s) ", \mmlm(Col, list(+, Removed)), " were excluded ",
           "in the statistical model."].
 
-hint(misstrata, [Strata, _Removed], Col, H)
- => H = [ "The stratification variable(s) ", \mmlm(Col, list(+, Strata)), " should be included ",
-          "in the statistical model."].
+hint(misstrata, Col, H)
+ => start(item(_, _, Strata, _, _, _, _)),
+    H = [ "The stratification variable(s) ", \mmlm(Col, list(+, Strata)), " should be included ",
+          "in the statistical model."
+	].
 
 % Step 4: Ignore distractors
 intermediate(pvalue, baseline4).
@@ -403,8 +410,9 @@ feedback(ignore, [Other], Col, F)
           "correctly excluded from the statistical model."
         ].
 
-hint(ignore, [Other], Col, H)
- => H = [ "Do not include the post-randomization ",
+hint(ignore, Col, H)
+ => start(item(_, _, _, Other, _, _, _)),
+    H = [ "Do not include the post-randomization ",
           "variables ", \mmlm(Col, list(+, Other)), " in the statistical model."
         ].
 
@@ -421,8 +429,9 @@ feedback(distractors, [_Other, Dist], Col, F)
           "included in the model."
         ].
 
-hint(distractors, [Other, _Dist], Col, H)
- => H = [ "Do not include the distractor variable(s) ", \mmlm(Col, list(+, Other)),
+hint(distractors, Col, H)
+ => start(item(_, _, _, Other, _, _, _)),
+    H = [ "Do not include the distractor variable(s) ", \mmlm(Col, list(+, Other)),
           "in the statistical model."
         ].
 
@@ -437,7 +446,7 @@ feedback(noint, [_Int], _Col, F)
           "the analysis."
         ].
 
-hint(noint, [_Int], _Col, H)
+hint(noint, _Col, H)
  => H = [ "Do not put any treatment-by-covariate interactions in the ",
           "statistical model."
         ].
@@ -466,38 +475,29 @@ feedback(interactions, [Int], Col, F)
           "interactions", \mmlm(Col, [list(+, Int), "."])
         ].
 
-hint(interactions, [_Int], _Col, H)
+hint(interactions, _Col, H)
  => H = [ "The statistical model should not include any ",
           "treatment-by-covariate interactions."
         ].
 
-
-
-
-
-
-
-
-%step 6 / calculating the model
+% Step 6 / calculating the model
 intermediate(pvalue, ancova). 
 expert(pvalue, stage(2), X, Y, [step(expert, ancova, [Therapy])]) :-
     X = baseline5(Prim, Cov, Strata, Other, Int, Exclude, Therapy),
     Y = ancova_p(Prim, Cov, Strata, Other, Int, Exclude, Therapy).
 
 feedback(ancova, [Therapy], Col, F)
- => F = [ "The main peffect for ", \mmlm(Col, Therapy), " has been reported."
+ => F = [ "The main effect for ", \mmlm(Col, Therapy), " has been reported."
         ].
 
-hint(ancova, [Therapy], Col, H)
- => H = [ "Report the main peffect for ", \mmlm(Col, [Therapy, "."])
-        ].
+hint(ancova, Col, H)
+ => start(item(_, _, _, _, _, _, Therapy)),
+    H = [ "Report the main effect for ", \mmlm(Col, [Therapy, "."]) ].
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Rules for the ci task
 % Copy of fratio code above
-
 
 intermediate(cibase, item).
 
@@ -513,8 +513,8 @@ feedback(baseline, [], _Col, F)
           "covariate adjustment."
         ].
 
-hint(baseline, [], _Col, H)
- => H = [ "This is a group comparison with covariate adjustment." ].
+hint(baseline, _Col, H)
+ => H = "This is a group comparison with covariate adjustment.".
 
 % Step 2: Use the correct covariate(s)
 intermediate(cibase, baseline2).
@@ -527,8 +527,9 @@ feedback(covariates, [Cov], Col, F)
           "in the model."
         ].
 
-hint(covariates, [Cov], Col, H)
- => H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
+hint(covariates, Col, H)
+ => start(item(_, Cov, _, _, _, _, _)),
+    H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
           "in the statistical model."
         ].
 
@@ -545,8 +546,9 @@ feedback(covariates, [_Cov, Removed], Col, F)
           "in the model."
         ].
 
-hint(covariates, [Cov, _Removed], Col, H)
- => H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
+hint(covariates, Col, H)
+ => start(item(_, Cov, _, _, _, _, _)),
+    H = [ "The covariate(s) ", \mmlm(Col, list(+, Cov)), " should be included ",
           "in the statistical model."
         ].
 
@@ -561,8 +563,9 @@ feedback(stratification, [Strata], Col, F)
           "in the model."
         ].
 
-hint(stratification, [Strata], Col, H)
- => H = [ "The strata ", \mmlm(Col, list(+, Strata)), " should be included ",
+hint(stratification, Col, H)
+ => start(item(_, _, Strata, _, _, _, _)),
+    H = [ "The strata ", \mmlm(Col, list(+, Strata)), " should be included ",
           "in the statistical model."
         ].
 
@@ -578,9 +581,11 @@ hint(stratification, [Strata], Col, H)
 % => F = [ "The relevant stratification variable(s) ", \mmlm(Col, list(+, Removed)), " were excluded ",
 %          "in the statistical model."].
 %
-%hint(misstrata, [Strata, _Removed], Col, H)
-% => H = [ "The stratification variable(s) ", \mmlm(Col, list(+, Strata)), " should be included ",
-%          "in the statistical model."].
+%hint(misstrata, Col, H)
+% => start(item(_, _, Strata, _, _, _, _)),
+%    H = [ "The stratification variable(s) ", \mmlm(Col, list(+, Strata)), " should be included ",
+%          "in the statistical model."
+%        ].
 
 % Step 4: Ignore distractors
 intermediate(cibase, baseline4).
@@ -593,8 +598,9 @@ feedback(ignore, [Other], Col, F)
           "correctly excluded from the statistical model."
         ].
 
-hint(ignore, [Other], Col, H)
- => H = [ "Do not include the post-randomization ",
+hint(ignore, Col, H)
+ => start(item(_, _, _, Other, _, _, _)),
+    H = [ "Do not include the post-randomization ",
           "variables ", \mmlm(Col, list(+, Other)), " in the statistical model."
         ].
 
@@ -611,8 +617,9 @@ hint(ignore, [Other], Col, H)
 %          "included in the model."
 %        ].
 %
-%hint(distractors, [Other, _Dist], Col, H)
-% => H = [ "Do not include the distractor variable(s) ", \mmlm(Col, list(+, Other)),
+%hint(distractors, Col, H)
+% => start(item(_, _, _, Other, _, _, _)),
+%    H = [ "Do not include the distractor variable(s) ", \mmlm(Col, list(+, Other)),
 %          "in the statistical model."
 %        ].
 
@@ -627,7 +634,7 @@ feedback(noint, [_Int], _Col, F)
           "the analysis."
         ].
 
-hint(noint, [_Int], _Col, H)
+hint(noint, _Col, H)
  => H = [ "Do not put any treatment-by-covariate interactions in the ",
           "statistical model."
         ].
@@ -654,7 +661,7 @@ hint(noint, [_Int], _Col, H)
 %          "interactions", \mmlm(Col, [list(+, Int), "."])
 %        ].
 %
-%hint(interactions, [_Int], _Col, H)
+%hint(interactions, _Col, H)
 % => H = [ "The statistical model should not include any ",
 %          "treatment-by-covariate interactions."
 %        ].
@@ -668,6 +675,6 @@ feedback(ancova, [Therapy], Col, F)
  => F = [ "The main peffect for ", \mmlm(Col, Therapy), " has been reported."
         ].
 
-hint(ancova, [Therapy], Col, H)
- => H = [ "Report the main peffect for ", \mmlm(Col, [Therapy, "."])
-        ].
+hint(ancova, Col, H)
+ => start(item(_, _, _, _, _, _, Therapy)),
+    H = [ "Report the main peffect for ", \mmlm(Col, [Therapy, "."]) ].

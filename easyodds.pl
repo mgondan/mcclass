@@ -10,7 +10,7 @@
 navbar:page(easyodds, "OR (3)").
 task(oratio).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/3.
 
 % Prettier symbols for mathematical rendering
 math_hook(pi_A, subscript(pi, "A")).
@@ -56,8 +56,8 @@ feedback(odd, [], _Col, FB) =>
     FB = [ "Correctly calculated the success probability from ", \mmlm([odds_A, "."]) ].
            
 
-hint(odd, [], _Col, FB) =>
-    FB = [ "This is an odds ratio."].
+hint(odd, _Col, F)
+ => F = "This is an odds ratio.".
 
 % 1) Tried conversion from odds to odds, as if starting with 
 %    a probability.
@@ -69,8 +69,8 @@ feedback(subscript, [Odds_A], Col, FB) =>
     FB = [ "Please use the correct formula to convert ", \mmlm(Col, color(subscript, Odds_A)), " to ", 
 	   \mmlm(Col, [color(subscript, pi_A), "."]) ].
 
-hint(subscript, [_Odds_A], _Col, FB) =>
-    FB = [ "Do not apply the formula to calculate the odds from the success probability." ].
+hint(subscript, _Col, F)
+ => F = "Do not apply the formula to calculate the odds from the success probability.".
 
 % 2) Used pi_B rather than odds_A.
 buggy(oratio, stage(1), From, To, [step(buggy, pi, [])]) :-
@@ -80,8 +80,8 @@ buggy(oratio, stage(1), From, To, [step(buggy, pi, [])]) :-
 feedback(pi, [], Col, FB) =>
     FB = [ "Please use ", \mmlm(Col, color(pi, odds_A)), " instead of ", \mmlm(Col, [color(pi, pi_B), "."]) ].
 
-hint(pi, [], Col, FB) =>
-    FB = [ "Do not use the success probability for therapy B ", \mmlm(Col, [color(pi,  pi_B), "."]) ].
+hint(pi, Col, F)
+ => F = [ "Do not use the success probability for therapy B ", \mmlm(Col, [color(pi,  pi_B), "."]) ].
 
 % 3) Used OR rather than odds_A.
 buggy(oratio, stage(1), From, To, [step(buggy, ratio, [])]) :-
@@ -91,6 +91,6 @@ buggy(oratio, stage(1), From, To, [step(buggy, ratio, [])]) :-
 feedback(ratio, [], Col, FB) =>
     FB = [ "Please use ", \mmlm(Col, color(ratio, odds_A)), " instead of ", \mmlm(Col, [color(ratio, or), "."]) ].
 
-hint(ratio, [], Col, FB) =>
-    FB = [ "Do not use the odds ratio ", \mmlm(Col, [color(ratio, or), "."]) ].
+hint(ratio, Col, F)
+ => F = [ "Do not use the odds ratio ", \mmlm(Col, [color(ratio, or), "."]) ].
 

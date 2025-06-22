@@ -14,7 +14,7 @@
 navbar:page(dbinom, "Binomial probability").
 task(exactprob).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/3.
 
 math_hook(n, 'N').
 math_hook(p0, pi).
@@ -65,8 +65,8 @@ expert(exactprob, stage(2), From, To, [step(expert, dbinom, [])]) :-
 feedback(dbinom, [], _Col, F)
  => F = [ "Correctly recognised the problem as a binomial probability." ].
 
-hint(dbinom, [], _Col, H)
- => H = [ "This is a binomial probability." ].
+hint(dbinom, _Col, H)
+ => H = "This is a binomial probability.".
 
 % Convert to product
 intermediate(exactprob, bernoulli).
@@ -77,9 +77,9 @@ expert(exactprob, stage(2), From, To, [step(expert, prod, [K, N, P0])]) :-
 feedback(prod, [_K, _N, _P0], _Col, F)
  => F = [ "Correctly identified the formula for the binomial probability." ].
 
-hint(prod, [K, N, P0], Col, H)
+hint(prod, Col, H)
  => H = [ "The formula for the binomial probability ",
-          "is ", \mmlm(Col, choose(N, K) * P0^K * (1 - P0)^(N - K)), "."
+          "is ", \mmlm(Col, choose(n, k) * p0^k * (1 - p0)^(n - k)), "."
         ].
 
 % Successes and failures
@@ -95,10 +95,10 @@ feedback(bern, [K, N, _P0], Col, F)
           "and ", \mmlm(Col, N - K), " failures."
         ].
 
-hint(bern, [K, N, _P0], Col, H)
+hint(bern, Col, H)
  => H = [ "Determine the probability for a sequence ",
-          "of ", \mmlm(Col, K), " successes ",
-          "and ", \mmlm(Col, N - K), " failures."
+          "of ", \mmlm(Col, k), " successes ",
+          "and ", \mmlm(Col, n - k), " failures."
         ].
 
 % Successes
@@ -111,8 +111,8 @@ feedback(success, [K, _P0], Col, F)
           "independent successes."
         ].
 
-hint(success, [K, _P0], Col, H)
- => H = [ "Determine the probability for ", \mmlm(Col, K), " independent ",
+hint(success, Col, H)
+ => H = [ "Determine the probability for ", \mmlm(Col, k), " independent ",
           "successes."
         ].
 
@@ -126,8 +126,8 @@ feedback(failure, [K, _P0], Col, F)
           "independent failures."
         ].
 
-hint(failure, [K, _P0], Col, H)
- => H = [ "Determine the probability for ", \mmlm(Col, K), " independent ",
+hint(failure, Col, H)
+ => H = [ "Determine the probability for ", \mmlm(Col, k), " independent ",
           "failures."
         ].
 
@@ -141,9 +141,9 @@ feedback(nochoose, [_K, _N], _Col, F)
           "omitted."
         ].
 
-hint(nochoose, [K, N], Col, H)
+hint(nochoose, Col, H)
  => H = [ "Do not forget to multiply everything with the number of ",
-          "permutations ", \mmlm(Col, choose(N, K)), "."
+          "permutations ", \mmlm(Col, choose(n, k)), "."
         ].
 
 % Treat binomial coefficient like a fraction
@@ -158,10 +158,10 @@ feedback(choosefrac, [K, N], Col, F)
             dfrac(factorial(N), factorial(K)*factorial(N-K))), "." 
 	].
 
-hint(choosefrac, [K, N], Col, H)
+hint(choosefrac, Col, H)
  => H = [ "The number of permutations is determined using the binomial ",
-          "coefficient ", \mmlm(Col, choose(N, K) =
-          dfrac(factorial(N), factorial(K)*factorial(N-K))), "."
+          "coefficient ", \mmlm(Col, choose(n, k) =
+          dfrac(factorial(n), factorial(k) * factorial(n - k))), "."
         ].
 
 % Omit (N-k)! in the denominator of the binomial coefficient
@@ -176,10 +176,10 @@ feedback(choosefail, [K, N], Col, F)
             dfrac(factorial(N), factorial(K) * color(choosefail, factorial(N - K)))), "."
         ].
 
-hint(choosefail, [K, N], Col, H)
+hint(choosefail, Col, H)
  => H = [ "The number of permutations is determined using the binomial ",
-          "coefficient ", \mmlm(Col, choose(N, K) =
-          dfrac(factorial(N), factorial(K)*factorial(N-K))), "."
+          "coefficient ", \mmlm(Col, choose(n, k) =
+          dfrac(factorial(n), factorial(k) * factorial(n - k))), "."
         ].
 
 % Confuse successes and failures
@@ -194,10 +194,9 @@ feedback(succfail, [_K, _N, P0], Col, F)
           "failure were confused."
         ].
 
-hint(succfail, [_K, _N, P0], Col, H)
- => H = [ "Make sure not to confuse the ",
-          "probabilities ", \mmlm(Col, P0), " for success ",
-          "and ", \mmlm(Col, 1 - P0), " for failure."
+hint(succfail, Col, H)
+ => H = [ "Make sure not to confuse the probabilities ", \mmlm(Col, p0), " ",
+          "for success and ", \mmlm(Col, 1 - p0), " for failure."
         ]. 
 
 % Forget failures
@@ -210,8 +209,8 @@ feedback(nofail, [K, N, _P0], Col, F)
           "failures was omitted."
         ].
 
-hint(nofail, [K, N, _P0], Col, H)
+hint(nofail, Col, H)
  => H = [ "Make sure not to forget the ",
-          "probability for the ", \mmlm(Col, N - K), " failures."
+          "probability for the ", \mmlm(Col, n - k), " failures."
         ].
 

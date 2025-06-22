@@ -253,12 +253,11 @@ traps(E_R_F, Sorted) :-
     sort(Traps, Sorted).
 
 % Pretty print
-pp_trap(Topic, Task, Data, Expr-_Res/Flags, li(Trap)) :-
-    findall(N-A, member(step(buggy, N, A), Flags), [Name-Args]),
-    colors(Expr, Col),
+pp_trap(Topic, Task, Data, _Expr-_Res/Flags, li(Trap)) :-
+    findall(N, member(step(buggy, N, _A), Flags), [Name]),
     member(traps(Traps), Data),
     memberchk(Name, Traps),
-    Topic:hint(Name, Args, [topic(Topic), task(Task) | Col], Trap).
+    Topic:hint(Name, [topic(Topic), task(Task)], Trap).
 
 pp_traps(Topic, Task, Data)
 --> { member(wrongall(E_R_F), Data),

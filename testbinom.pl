@@ -16,7 +16,7 @@ task(critical).
 task(powbinom).
 task(pval).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/3.
 
 % Prettier symbols for mathematical rendering
 math_hook(p0, subscript(pi, 0)).
@@ -56,7 +56,7 @@ render(Flags)
                 "hypothesis, and that successes occur independently in all ",
                 "patients. Under the alternative hypothesis, we hope ",
                 "that the success probability is ",
-                span(class('text-\nowrap'), [\mmlm(Flags, p1 = r(P1)), "."]), 
+                \nowrap([\mmlm(Flags, p1 = r(P1)), "."]), 
                 " The binomial probabilities are given in the tables below."
               ]),
             div(class(container),
@@ -111,8 +111,8 @@ expert(critical, stage(2), From, To, [step(expert, binom, [])]) :-
 feedback(binom, [], _Col, F) =>
     F = [ "Correctly identified the problem as a binomial test." ].
 
-hint(binom, [], _Col, H) =>
-    H = [ "This problem is solved with a binomial test." ].
+hint(binom, _Col, H) =>
+    H = "This problem is solved with a binomial test.".
 
 % Second step: upper tail of the binomial distribution
 expert(critical, stage(2), From, To, [step(expert, upper, [])]) :-
@@ -122,8 +122,8 @@ expert(critical, stage(2), From, To, [step(expert, upper, [])]) :-
 feedback(upper, [], _Col, F)
  => F = [ "Correctly selected the upper tail of the binomial distribution." ].
 
-hint(upper, [], _Col, H)
- => H = [ "The upper tail of the binomial distribution is needed." ].
+hint(upper, _Col, H)
+ => H = "The upper tail of the binomial distribution is needed.".
 
 
 %
@@ -140,7 +140,7 @@ feedback(lower, [], _Col, F)
           "distribution." 
        ].
 
-hint(lower, [], _Col, H)
+hint(lower, _Col, H)
  => H = [ "Select the upper tail of the binomial distribution, ",
           "not the lower tail."
         ].
@@ -155,7 +155,7 @@ feedback(dist, [], _Col, F)
           "distribution."
         ].
 
-hint(dist, [], _Col, H)
+hint(dist, _Col, H)
  => H = [ "The critical value is determined with help of the cumulative ",
           "distribution."
         ].
@@ -169,13 +169,13 @@ buggy(critical, stage(2), From, To, [step(buggy, dens1, [Tail, K])]) :-
 feedback(dens1, [Tail, K], Col, F)
  => F = [ "The result matches the critical value based on the binomial ",
           "probability, ", 
-	  span(class('text-\nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail("densi", K))])), "."]), " ",
+	  \nowrap([\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail("densi", K))])), "."]), " ",
           "Please report the critical value based on the cumulative ",
           "distribution, ", 
-	  span(class('text-\nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail(Tail, K)])), "."])
+	  \nowrap([\mmlm(Col, fn(subscript('P', "Bi"), [tail(Tail, K)])), "."])
         ].
 
-hint(dens1, [_Tail, _K], _Col, H)
+hint(dens1, _Col, H)
  => H = [ "Use the cumulative distribution to determine the critical value, ",
           "not the density."
         ].
@@ -197,7 +197,7 @@ expert(powbinom, stage(1), From, To, [step(expert, problem, [])]) :-
 feedback(problem, [], _Col, F)
  => F = [ "Correctly identified the two steps of the solution." ].
 
-hint(problem, [], _Col, H)
+hint(problem, _Col, H)
  => H = [ "First, the critical value is determined under the null hypothesis. ",
           "Then, the probability for a significant result is calculated under ",
           "the alternative."
@@ -214,7 +214,7 @@ feedback(upper1, [], _Col, F)
           "the binomial distribution." 
         ].
 
-hint(upper1, [], _Col, H)
+hint(upper1, _Col, H)
  => H = [ "The critical value is determined from the upper tail of the ",
           "binomial distribution." 
         ].
@@ -229,7 +229,7 @@ feedback(dist1, [], _Col, F)
           "distribution."
         ].
 
-hint(dist1, [], _Col, H)
+hint(dist1, _Col, H)
  => H = [ "The critical value should be determined from the cumulative ",
           "distribution."
         ].
@@ -245,7 +245,7 @@ feedback(upper2, [], _Col, F)
           "distribution."
         ].
 
-hint(upper2, [], _Col, H)
+hint(upper2, _Col, H)
  => H = [ "The power is determined from the upper tail of the binomial ",
           "distribution."
         ].
@@ -260,7 +260,7 @@ feedback(dist2, [], _Col, F)
           "distribution."
         ].
 
-hint(dist2, [], _Col, H)
+hint(dist2, _Col, H)
  => H = [ "The power should be determined using the cumulative ",
           "distribution."
         ].
@@ -281,7 +281,7 @@ feedback(lower1, [], _Col, F)
           "critical value."
         ].
 
-hint(lower1, [], _Col, H)
+hint(lower1, _Col, H)
  => H = [ "Make sure to determine the critical value from the upper tail ",
           "of the binomial distribution."
         ].
@@ -295,13 +295,13 @@ buggy(powbinom, stage(2), From, To, [step(buggy, dens1, [K])]) :-
 feedback(dens1, [K], Col, F)
  => F = [ "The result matches the critical value based on the binomial ",
           "probability, ", 
-	  span(class('text-\nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail("densi", K))])), "."]),
+	  \nowrap([\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail("densi", K))])), "."]),
           " Please calculate the critical value based on the cumulative ",
           "distribution, ", 
-	  span(class('text-\nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail("upper", K)])), "."])
+	  \nowrap([\mmlm(Col, fn(subscript('P', "Bi"), [tail("upper", K)])), "."])
         ].
 
-hint(dens1, [_K], _Col, H)
+hint(dens1, _Col, H)
  => H = [ "Make sure to use the cumulative binomial distribution to ",
           "determine the critical value."
         ].
@@ -317,7 +317,7 @@ feedback(lower2, [], _Col, F)
           "the power."
         ].
 
-hint(lower2, [], _Col, H)
+hint(lower2, _Col, H)
  => H = [ "The power is determined from the upper tail of the binomial ",
           "distribution. Don\u0027t select the lower tail of the binomial distribution."
         ].
@@ -329,13 +329,13 @@ buggy(powbinom, stage(3), From, To, [step(buggy, dens2, [C])]) :-
 
 feedback(dens2, [C], Col, F)
  => F = [ "The result matches the power based on the binomial probability, ",
-          span(class('text-\nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [color(dens2, tail("densi", C))])), "."]),
+          \nowrap([\mmlm(Col, fn(subscript('P', "Bi"), [color(dens2, tail("densi", C))])), "."]),
           " Please determine the power based on the cumulative ",
           "distribution, ", 
-	  span(class('text-\nowrap'), [\mmlm(Col, fn(subscript('P', "Bi"), [tail("upper", C)])), "."])
+	  \nowrap([\mmlm(Col, fn(subscript('P', "Bi"), [tail("upper", C)])), "."])
         ].
 
-hint(dens2, [_], _Col, H)
+hint(dens2, _Col, H)
  => H = [ "Make sure to use the cumulative binomial distribution to ",
           "determine the power."
         ].
@@ -354,8 +354,8 @@ feedback(pbinom, [], _Col, F)
  => F = [ "Correctly recognized the problem as involving a binomial distribution."
         ].
 
-hint(pbinom, [], _Col, H)
- => H = [ "The problem involves a binomial distribution." ].
+hint(pbinom, _Col, H)
+ => H = "The problem involves a binomial distribution.".
 
 % Second step: determine the upper tail of the binomial distribution
 intermediate(pval, pbinom0).
@@ -368,8 +368,8 @@ feedback(tail, [K, P0], Col, F)
           " or more successes under the null hypothesis of ", \mmlm(Col, p0 = r(P0)), "."
         ].
 
-hint(tail, [_K, _P0], _Col, H)
- => H = [ "The upper tail of the binomial distribution is needed." ]. 
+hint(tail, _Col, H)
+ => H = "The upper tail of the binomial distribution is needed.". 
 
 
 %
@@ -385,9 +385,8 @@ feedback(lowertail, [K], Col, F)
           " or less successes."
         ].
 
-hint(lowertail, [_K], _Col, H)
- => H = [ "Do not select the lower tail of the binomial distribution." 
-        ].
+hint(lowertail, _Col, H)
+ => H = "Do not select the lower tail of the binomial distribution.".
 
 % Buggy rule: use density instead of upper tail
 buggy(pval, stage(2), From, To, [step(buggy, density, [K])]) :-
@@ -399,9 +398,8 @@ feedback(density, [K], Col, F)
           " successes."
         ].
 
-hint(density, [_K], _Col, H)
- => H = [ "Do not use the density." 
-        ].
+hint(density, _Col, H)
+ => H = "Do not use the density.".
 
 % Buggy rule: use success probability of alternative instead of null hypothesis
 buggy(pval, stage(2), From, To, [step(buggy, alternative, [p1])]) :-
@@ -412,9 +410,8 @@ feedback(alternative, [P1], Col, F)
  => F = [ "The result matches the probability under the alternative hypothesis of ", \mmlm(Col, p1 = r(P1)), "."
         ].
 
-hint(alternative, [_P1], _Col, H)
- => H = [ "Do not use the success probability under the alternative hypothesis." 
-        ].
+hint(alternative, _Col, H)
+ => H = "Do not use the success probability under the alternative hypothesis.".
 
 % Helper function(s)
 binomtable(Flags, Alpha, N, P0, P1, Caption, Rows, Cols, Cells) :-

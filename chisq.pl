@@ -12,7 +12,7 @@
 navbar:page(chisq, "chi-square").
 task(chisq).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/3.
 
 % Prettier symbols for mathematical rendering
 math_hook(p_VR, subscript(p, "VR")).
@@ -106,7 +106,7 @@ expert(chisq, stage(1), From, To, [step(expert, steps, [])]) :-
 feedback(steps, [], _Col, F)
  => F = "Correctly identified the main steps of the calculation.".
 
-hint(steps, [], Col, H)
+hint(steps, Col, H)
  => H = [ "First determine the pooled success proportion, then ",
            "the ", \nowrap([\mmlm(Col, z), "-statistic."]), " Finally, ",
            "raise ", \mmlm(Col, z), " to the square to ",
@@ -121,9 +121,9 @@ expert(chisq, stage(1), From, To, [step(expert, ppool, [S_VR, S_Box, N_VR, N_Box
 feedback(ppool, [_S_VR, _S_Box, _N_VR, _N_Box], _Col, F)
  => F = "Correctly determined the pooled proportion of successes.".
 
-hint(ppool, [S_VR, S_Box, N_VR, N_Box], Col, H)
+hint(ppool, Col, H)
  => H = [ "The pooled proportion of successes is ",
-          \nowrap([\mmlm(Col, p_pool = dfrac(S_VR + S_Box, N_VR + N_Box)), "."])
+          \nowrap([\mmlm(Col, p_pool = dfrac(s_vr + s_box, n_vr + n_box)), "."])
         ].
 
 % Determine the z-statistic
@@ -136,9 +136,9 @@ feedback(zstat, [_P_VR, _P_Box, _P_Pool, _N_VR, _N_Box], Col, F)
           "the ", \nowrap([\mmlm(Col, z), "-statistic."]) 
         ].
 
-hint(zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box], Col, H)
+hint(zstat, Col, H)
  => H = [ "The ", \nowrap([\mmlm(Col, z), "-statistic"]), " is ",
-          \mmlm(Col, dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box))))) 
+          \mmlm(Col, dfrac(p_vr - p_box, sqrt(p_pool * (1 - p_pool) * (frac(1, n_vr) + frac(1, n_box))))) 
         ].
 
 % - instead of + for both parts of p_pool. Appeared 1-2x in 2018 exams.
@@ -156,7 +156,7 @@ hint(zstat, [P_VR, P_Box, P_Pool, N_VR, N_Box], Col, H)
 %           "numerator and the denominator of ", \mmlm(Col, color(pdiff, p_pool))
 %         ].
 %
-% hint(pdiff, [], Col, H)
+% hint(pdiff, Col, H)
 %  => H = [ "Remember to add the numbers in both the numerator and the ",
 %           "denominator when calculating the pooled proportion of successes ", 
 %           \mmlm(Col, color(pdiff, p_pool))
@@ -174,7 +174,7 @@ feedback(square, [], Col, F)
           "Please do not forget to raise ", \mmlm(Col, z), " to the square."
         ].
 
-hint(square, [], Col, H) 
+hint(square, Col, H) 
  => H = [ "Do not forget to raise ",
            "the ", \nowrap([\mmlm(Col, color(square, z)), "-value"]), " ",
            "to the square to obtain ",
@@ -193,9 +193,9 @@ feedback(square2, [Z], Col, F)
           "Please do not forget to raise ", \mmlm(Col, Z), " to the square."
         ].
 
-hint(square2, [Z], Col, H)
+hint(square2, Col, H)
  => H = [ "Do not forget to raise ",
-           "the ", \nowrap([\mmlm(Col, color(square2, Z)), "-value"]), " ",
+           "the ", \nowrap([\mmlm(Col, color(square2, z)), "-value"]), " ",
            "to the square to obtain ",
            "the ", \nowrap([\mmlm(Col, color(square2, chi2)), "-statistic."])
         ].
@@ -215,11 +215,11 @@ feedback(zadd, [P_VR, P_Box], Col, F)
           \nowrap([\mmlm(Col, z), "-statistic."])
         ].
 
-hint(zadd, [P_VR, P_Box], Col, H)
+hint(zadd, Col, H)
  => H = [ "The numerator of the test statistic includes the difference ",
           "between the success ",
-          "proportions ", \mmlm(Col, color(zadd, P_VR)), " ",
-          "and ", \mmlm(Col, color(zadd, P_Box))
+          "proportions ", \mmlm(Col, color(zadd, p_vr)), " ",
+          "and ", \mmlm(Col, color(zadd, p_box))
         ].
 
 % Forgot parentheses around (1/N_VR + 1/N_Box). 
@@ -236,11 +236,11 @@ feedback(paren2, [N_VR, N_Box], Col, FB) =>
            "." 
          ].
 
-hint(paren2, [N_VR, N_Box], Col, FB) =>
-    FB = [ "Do not forget to add parentheses around ", 
-           \mmlm(Col, color(paren2,
-             paren(color("#000000", frac(1, N_VR) + frac(1, N_Box)))))
-         ].
+hint(paren2, Col, F)
+ => F = [ "Do not forget to add parentheses around ", 
+          \mmlm(Col, color(paren2,
+            paren(color("#000000", frac(1, n_vr) + frac(1, n_box)))))
+        ].
 
 % Buggy-Rule: Forgot school math
 buggy(chisq, stage(2), From, To, [step(buggy, school1, [N_VR, N_Box])]) :-
@@ -250,16 +250,16 @@ buggy(chisq, stage(2), From, To, [step(buggy, school1, [N_VR, N_Box])]) :-
            1 / N_VR + 1 / N_Box, frac(1, N_VR) + frac(1, N_Box)).
 
 feedback(school1, [A, B], Col, F)
-=> F = [" Please keep in mind that ", 
-   \mmlm(Col, [color(school, color("black", frac(1, A)) + color("black", frac(1, B)))
-   =\= frac(1, color(school, color("black", A) + color("black", B))), "."])
-      ].
+ => F = [ " Please keep in mind that ", 
+          \mmlm(Col, [color(school, color("black", frac(1, A)) + color("black", frac(1, B)))
+            =\= frac(1, color(school, color("black", A) + color("black", B))), "."])
+        ].
 
-hint(school1, [N_VR, N_Box], Col, F)
-=> F = [ "Please do not forget school ",
-        "math, ", \mmlm(Col, [=\=(frac(1, color(school1, N_VR)) +
-          frac(1, color(school1, N_Box)), frac(1, color(school1, N_VR+N_Box))), "."])
-      ].
+hint(school1, Col, F)
+ => F = [ "Please do not forget school ",
+          "math, ", \mmlm(Col, [frac(1, color(school1, n_vr)) +
+          frac(1, color(school1, n_box)) =\= frac(1, color(school1, n_vr + n_box)), "."])
+        ].
 
 % Buggy-Rule: Forgot parentheses around denominator in main formula. 
 % Appeared 1-4 times in the 2018 exams.
@@ -274,9 +274,11 @@ feedback(paren3, [From], Col, FB) =>
 	   " in the denominator of ", \mmlm(Col, color(paren3, From))
 	 ].
 
-hint(paren3, [From], Col, FB) =>
-    FB = [ "Remember the parentheses around the different ",
-	   " elements in ", \mmlm(Col, color(paren3, From)) ]. */
+hint(paren3, Col, FB)
+ => F = [ "Remember the parentheses around the different ",
+          " elements in the denominator."
+	]. 
+*/
 
 % Buggy-Rule: flipped nominator and denominator in main equation. 
 % Appeared 3-5 times in the 2018 exams.
@@ -290,5 +292,6 @@ feedback(flip, [], Col, FB) =>
 	  ". Please double check the nominator and denominator of the test statistic." 
 	 ].
 
-hint(flip, [], _Col, FB) =>
-    FB = "Do not flip the numerator and denominator of the test statistic.". */
+hint(flip, _Col, FB)
+ => F = "Do not flip the numerator and denominator of the test statistic.".
+*/

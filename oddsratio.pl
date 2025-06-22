@@ -12,7 +12,7 @@
 navbar:page(oddsratio, "OR (1)").
 task(oratio).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/3.
 
 % Prettier symbols for mathematical rendering
 math_hook(pi_A, subscript(pi, "A")).
@@ -61,8 +61,8 @@ expert(oratio, stage(1), From, To, [step(expert, problem, [])]) :-
 feedback(problem, [], _Col, FB)
  => FB = "Correctly identified the problem and the main steps of the calculation.".
 
-hint(problem, [], _Col, FB)
- => FB = "This is an odds ratio.".
+hint(problem, _Col, F)
+ => F = "This is an odds ratio.".
 
 % Determine the odds for A
 intermediate(oratio, odds).
@@ -75,11 +75,11 @@ feedback(odds, [Pi_A, _], Col, FB)
            "from ", \mmlm(Col, [Pi_A, "."])
          ].
 
-hint(odds, [Pi_A, Odds_A], Col, FB)
- => FB = [ "Convert the success probability of therapy A, ", 
-            \mmlm(Col, [Pi_A, ","]), " to the respective ",
-            "odds, ", \mmlm(Col, [Odds_A = dfrac(Pi_A, 1 - Pi_A), "."])
-         ].
+hint(odds, Col, F)
+ => F = [ "Convert the success probability of therapy A, ", 
+          \mmlm(Col, [pi_A, ","]), " to the respective ",
+          "odds, ", \mmlm(Col, [odds_A = dfrac(pi_A, 1 - pi_A), "."])
+        ].
 
 % Calculate the odds for B
 intermediate(oratio, odds_ratio).
@@ -92,10 +92,10 @@ feedback(odds_ratio, [_Odds_A, Odds_B], Col, FB)
            "calculated ", \mmlm(Col, [Odds_B, "."])
          ].
 
-hint(odds_ratio, [Odds_A, Odds_B], Col, FB)
- => FB = [ "Multiply ", \mmlm(Col, Odds_A), " by the odds ratio to ",
-           "obtain ", \mmlm(Col, [Odds_B, "."])
-         ].
+hint(odds_ratio, Col, F)
+ => F = [ "Multiply ", \mmlm(Col, odds_A), " by the odds ratio to ",
+          "obtain ", \mmlm(Col, [odds_B, "."])
+        ].
 
 % Determine the probability for B
 intermediate(oratio, inv_odds).
@@ -106,11 +106,10 @@ expert(oratio, stage(3), From, To, [step(expert, inv_odds, [Odds_B, pi_B])]) :-
 feedback(inv_odds, [Odds_B, _], Col, FB)
  => FB = ["Correctly determined the success probability from ", \mmlm(Col, [Odds_B, "."])].
 
-hint(inv_odds, [Odds_B, Pi_B], Col, FB)
- => FB = [ "Back-transform ", \mmlm(Col, Odds_B), " to the respective success ",
-           "probability, ", \mmlm(Col, [Pi_B = dfrac(Odds_B, 1 + Odds_B), "."])
-         ].
-
+hint(inv_odds, Col, F)
+ => F = [ "Back-transform ", \mmlm(Col, odds_B), " to the respective success ",
+          "probability, ", \mmlm(Col, [pi_B = dfrac(odds_B, 1 + odds_B), "."])
+        ].
 
 %%Buggy rules
 % Forgot conversion of pi_A to odds_A
@@ -124,11 +123,11 @@ feedback(forget_odds, [Pi_A, Odds_A], Col, FB)
            "to ", \mmlm(Col, [color(forget_odds, Odds_A = frac(Pi_A, 1 - Pi_A)), "."])
          ].
 
-hint(forget_odds, [Pi_A, _Odds_A], Col, FB)
- => FB = [ "Do not forget to ",
-           "convert ", \mmlm(Col, color(forget_odds, Pi_A)), " to the ",
-           "respective odds."
-         ].
+hint(forget_odds, Col, F)
+ => F = [ "Do not forget to ",
+          "convert ", \mmlm(Col, color(forget_odds, pi_A)), " to the ",
+          "respective odds."
+        ].
 
 % Divided odds_A and OR rather then multiplying them.
 buggy(oratio, stage(2), From, To, [step(buggy, divide, [Odds_A, OR])]) :-
@@ -141,10 +140,10 @@ feedback(divide, [Odds_A, OR], Col, FB)
            "the ", \mmlm(Col, color(divide, OR)), " rather than multiplied."
          ].
 
-hint(divide, [_Odds_A, OR], Col, FB)
- => FB = [ "Make sure to multiply by ", \mmlm(Col, color(divide, OR)), " ",
-           "instead of dividing by it."
-         ].
+hint(divide, Col, F)
+ => F = [ "Make sure to multiply by ", \mmlm(Col, color(divide, or)), " ",
+          "instead of dividing by it."
+        ].
 
 % Forgot to convert odds_B to pi_B
 buggy(oratio, stage(3), From, To, [step(buggy, forget_prob, [Odds_B, pi_B])]) :-
@@ -157,11 +156,11 @@ feedback(forget_prob, [Odds_B, Pi_B], Col, FB)
            \mmlm(Col, [color(forget_prob, Pi_B = frac(Odds_B, 1 + Odds_B)), "."])
          ].
 
-hint(forget_prob, [Odds_B, _Pi_B], Col, FB)
- => FB = [ "Do not forget to ",
-           "back-transform ", \mmlm(Col, color(forget_prob, Odds_B)), " to ",
-           "the respective probability."
-         ].
+hint(forget_prob, Col, F)
+ => F = [ "Do not forget to ",
+          "back-transform ", \mmlm(Col, color(forget_prob, odds_B)), " to ",
+          "the respective probability."
+        ].
 
 % Used OR instead of Pi_A: Needs to be fixed, because causes stack overflow
 /* buggy(oratio, stage(1), From, To, [step(buggy, wrong_pi_A, [Pi_A, OR])]) :-
@@ -175,9 +174,10 @@ feedback(wrong_pi_A, [Pi_A, OR, Odds_A], Col, FB)
            \mmlm(Col, [color(wrong_pi_A, OR), "."])
          ].
 
-hint(wrong_pi_A, [Pi_A, OR, Odds_A], Col, FB)
- => FB = [ "Don't use the odds ratio ", \mmlm(Col, color(wrong_pi_A, OR)),
-           "to calculate ", \mmlm(Col, [color(wrong_pi_A, Odds_A), "."]),
-           " Use the the success probability ", \mmlm(Col, color(wrong_pi_A, Pi_A)),
-           " instead."
-         ].  */
+hint(wrong_pi_A, Col, F)
+ => F = [ "Don't use the odds ratio ", \mmlm(Col, color(wrong_pi_A, or)),
+          "to calculate ", \mmlm(Col, [color(wrong_pi_A, odds_A), "."]),
+          " Use the the success probability ", \mmlm(Col, color(wrong_pi_A, pi_A)),
+          " instead."
+        ].
+*/

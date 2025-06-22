@@ -14,11 +14,11 @@ init_hints(Topic, Task, Solutions) :-
     nth1(Id, Solutions, sol(Task, Expr, Steps, Colors)),
     init_hint(Topic, Task, Expr, Steps, Colors, Id, Solutions).
 
-init_hint(Topic, Task, Expr, Steps, Colors, _, [_]) :-
+init_hint(Topic, Task, Expr, Steps, _Colors, _, [_]) :-
     findall(H, member(step(expert, H, _), Steps), Hints),
     findall(li(Hint),
-      ( member(step(expert, H, Arg), Steps),
-        Topic:hint(H, Arg, [topic(Topic), task(Task) | Colors], Hint)
+      ( member(step(expert, H, _Arg), Steps),
+        Topic:hint(H, [topic(Topic), task(Task)], Hint)
       ), List),
     AccItem = div(class('accordion-item'),
       div([class('accordion-collapse collapse show'),
@@ -27,11 +27,11 @@ init_hint(Topic, Task, Expr, Steps, Colors, _, [_]) :-
         div(class('accordion-body'), ul(List)))),
     assert(Topic:hints(Task, Expr, Hints, AccItem)).
 
-init_hint(Topic, Task, Expr, Steps, Colors, 1, [_, _ | _]) :-
+init_hint(Topic, Task, Expr, Steps, _Colors, 1, [_, _ | _]) :-
     findall(H, member(step(expert, H, _), Steps), Hints),
     findall(li(Hint),
-      ( member(step(expert, H, Arg), Steps),
-        Topic:hint(H, Arg, [topic(Topic), task(Task) | Colors], Hint)
+      ( member(step(expert, H, _Arg), Steps),
+        Topic:hint(H, [topic(Topic), task(Task)], Hint)
       ), List),
     AccItem = div(class('accordion-item'),
       [ h2(class('accordion-header'),
@@ -48,12 +48,12 @@ init_hint(Topic, Task, Expr, Steps, Colors, 1, [_, _ | _]) :-
       ]),
     assert(Topic:hints(Task, Expr, Hints, AccItem)).
 
-init_hint(Topic, Task, Expr, Steps, Colors, Id, [_, _ | _]) :-
+init_hint(Topic, Task, Expr, Steps, _Colors, Id, [_, _ | _]) :-
     Id > 1,
     findall(H, member(step(expert, H, _), Steps), Hints),
     findall(li(Hint),
-      ( member(step(expert, H, Arg), Steps),
-        Topic:hint(H, Arg, [topic(Topic), task(Task) | Colors], Hint)
+      ( member(step(expert, H, _Arg), Steps),
+        Topic:hint(H, [topic(Topic), task(Task)], Hint)
       ), List),
     AccItem = div(class('accordion-item'),
       [ h2(class('accordion-header'),

@@ -14,7 +14,7 @@ label(quantile, "Quantile").
 task(prob).
 task(quantile).
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/3.
 
 % Prettier symbols for mathematical rendering
 math_hook(x, 'X').
@@ -71,7 +71,7 @@ expert(prob, stage(1), From, To, [step(expert, allinone, [])]) :-
 feedback(allinone, [], _Col, F) 
  => F = [ "You correctly identified the main steps of the calculation."].
 
-hint(allinone, [], Col, H) 
+hint(allinone, Col, H) 
  => H = [ "Calculate the ", \nowrap([\mmlm(Col, z), "-value"]), 
           " and look up the corresponding ", \nowrap([\mmlm(Col, phi), "-value."]) 
         ].
@@ -84,9 +84,9 @@ expert(prob, stage(1), From, To, [step(expert, zcalc, [X, Mu, Sigma])]) :-
 feedback(zcalc, [_X, _Mu, _Sigma], Col, F) 
  => F = [ "You correctly calculated the ", \nowrap([\mmlm(Col, z), "-value."]) ].
 
-hint(zcalc, [X, Mu, Sigma], Col, H) 
+hint(zcalc, Col, H) 
  => H = [ "To calculate the ", \nowrap([\mmlm(Col, z), "-value"]), 
-          ", use " , \mmlm(Col, [dfrac(X - Mu, Sigma), "."]) 
+          ", use " , \mmlm(Col, [dfrac(x - mu, sigma), "."]) 
         ].
 
 % Third step: selected the correct tail from the normal distribution
@@ -97,7 +97,7 @@ expert(prob, stage(2), From, To, [step(expert, correct_tail, [Z])]) :-
 feedback(correct_tail, [_Z], _Col, F) 
  => F = [ "You calculated the correct tail of the distribution." ].
 
-hint(correct_tail, [_Z], Col, H) 
+hint(correct_tail, Col, H) 
  => H = [ "Use the lower tail of the normal distribution and select the value corresponding to the ",
           \nowrap([\mmlm(Col, z), "-value."])
         ].
@@ -114,8 +114,8 @@ buggy(prob, stage(2), From, To, [step(buggy, wrong_tail, [Z])]) :-
 feedback(wrong_tail, [_Z], Col, F) 
  => F = [ "Your answer matches the ", \mmlm(Col, color(wrong_tail, "wrong tail" )), " of the normal distribution." ].
 
-hint(wrong_tail, [_Z], _Col, H) 
- => H = [ "Do not use the upper tail of the normal distribution." ].
+hint(wrong_tail, _Col, H) 
+ => H = "Do not use the upper tail of the normal distribution.".
 
 % Buggy rule: mu was added to x, not subtracted.
 buggy(prob, stage(2), From, To, [step(buggy, plus, [X, Mu])]) :-
@@ -127,9 +127,9 @@ feedback(plus, [X, Mu], Col, F)
           " instead of adding them up." 
         ].
 
-hint(plus, [X, Mu], Col, H) 
+hint(plus, Col, H) 
  => H = [ "Try using subtraction rather than addition in ", 
-            \mmlm(Col, [color(plus, X + Mu), "."]) 
+          \mmlm(Col, [color(plus, x + mu), "."]) 
         ].
 
 % Buggy rule: mu and sigma were swapped.
@@ -144,9 +144,9 @@ feedback(swap1, [Mu, Sigma], Col, F)
 	      \mmlm(Col, [color(swap1, Sigma), "."]) 
         ].
 
-hint(swap1, [Mu, Sigma], Col, H)
- => H = [ "Try using ", \mmlm(Col, color(swap1, Mu)), " and ", 
-	      \mmlm(Col, color(swap1, Sigma)), " in a different configuration." 
+hint(swap1, Col, H)
+ => H = [ "Try using ", \mmlm(Col, color(swap1, mu)), " and ", 
+          \mmlm(Col, color(swap1, sigma)), " in a different configuration." 
         ].
 
 % Buggy rule: standard deviation was mistaken with variance.
@@ -157,8 +157,10 @@ buggy(prob, stage(1), From, To, [step(buggy, vardev_swap, [sigma])]) :-
 feedback(vardev_swap, [sigma], Col, F)
  => F = [ "You squared ", \mmlm(Col, color(vardev_swap, sigma)), " by mistake." ].
 
-hint(vardev_swap, [sigma], Col, H)
- => H = [ "Use ", \mmlm(Col, color(vardev_swap, sigma)), " instead of ", \mmlm(Col, [color(vardev_swap, sigma^2), "."]) ].
+hint(vardev_swap, Col, H)
+ => H = [ "Use ", \mmlm(Col, color(vardev_swap, sigma)), " instead ",
+          "of ", \mmlm(Col, [color(vardev_swap, sigma^2), "."]) 
+        ].
 
 % Buggy rule: (x - mu)/sigma was skipped.
 buggy(prob, stage(2), From, To, [step(buggy, xp, []), depends(xp2)]) :-
@@ -170,7 +172,7 @@ feedback(xp, [], Col, F)
           \mmlm(Col, [dfrac(x - mu, sigma), "."]) 
         ].
 
-hint(xp, [], Col, H)
+hint(xp, Col, H)
  => H = [ "Remember to calculate the ", \nowrap([\mmlm(Col, z), "-value."])].
 
 % Buggy rule: x/100 was taken to be phi(z).
@@ -183,7 +185,7 @@ feedback(xp2, [], Col, F)
           " by 100 instead of retrieving the value from the normal distribution." 
         ].
 
-hint(xp2, [], Col, H)
+hint(xp2, Col, H)
  => H = [ "Do not divide the ", \nowrap([\mmlm(Col, z), "-value"]), 
           " by 100, use the normal distribution instead." 
         ].
@@ -205,9 +207,10 @@ feedback(steps, [], Col, F)
            "to the original scale." 
         ].
 
-hint(steps, [], Col, H)
+hint(steps, Col, H)
  => H = [ "First determine the ", \nowrap([\mmlm(Col, z), "-statistic,"]), " then translate ",
-           "it to the original scale." ].
+           "it to the original scale." 
+        ].
 
 % Second step: selected the correct tail from the normal distribution
 expert(quantile, stage(2), From, To, [step(expert, correct_tail, [])]) :-
@@ -217,8 +220,8 @@ expert(quantile, stage(2), From, To, [step(expert, correct_tail, [])]) :-
 feedback(correct_tail, [], _Col, F)
  => F = [ "Correctly used the lower tail of the normal distribution." ].
 
-hint(correct_tail, [], _Col, H)
- => H = [ "The upper tail of the normal distribution is needed." ].
+hint(correct_tail, _Col, H)
+ => H = "The upper tail of the normal distribution is needed.".
 
 %
 % Buggy rules for the quantile task
@@ -234,8 +237,8 @@ feedback(lowertail, [], _Col, F)
           "distribution." 
         ].
 
-hint(lowertail, [], _Col, H)
- => H = [ "Do not select the upper tail of the normal distribution." ].
+hint(lowertail, _Col, H)
+ => H = "Do not select the upper tail of the normal distribution.".
 
 % Buggy rule: Mu and Sigma were swapped.
 buggy(quantile, stage(2), From, To, [step(buggy, swap2, [mu, Sigma])]) :-
@@ -247,9 +250,9 @@ feedback(swap2, [Mu, Sigma], Col, F)
 	      \mmlm(Col, [color(swap2, Sigma), "."]) 
         ].
 
-hint(swap2, [Mu, Sigma], Col, H)
- => H = [ "Try using ", \mmlm(Col, color(swap2, Mu)), " and ", 
-	      \mmlm(Col, color(swap2, Sigma)), " in a different configuration." 
+hint(swap2, Col, H)
+ => H = [ "Try using ", \mmlm(Col, color(swap2, mu)), " and ", 
+          \mmlm(Col, color(swap2, sigma)), " in a different configuration." 
         ].
 
 % Buggy rule: standard deviation was mistaken with variance.
@@ -260,8 +263,8 @@ buggy(quantile, stage(2), From, To, [step(buggy, vardev_swap, [sigma])]) :-
 feedback(vardev_swap, [Sigma], Col, F)
  => F = [ "You squared ", \mmlm(Col, color(vardev_swap, Sigma)), " by mistake." ].
 
-hint(vardev_swap, [_Sigma], _Col, H)
- => H = [ "Use the standard deviation instead of the variance." ].
+hint(vardev_swap, _Col, H)
+ => H = "Use the standard deviation instead of the variance.".
 
 % Buggy rule: divide percentage by 1000 instead of 100 to translate to proportion
 % Probably due to confusion with the omitted 0 in p-values like .05
@@ -274,8 +277,8 @@ feedback(perc1000, [Div], Col, F)
           \mmlm(Col, color(perc1000, Div)), " instead of 100 to obtain a proportion."
         ].
 
-hint(perc1000, [_Div], _Col, H)
- => H = [ "Make sure to divide by 100 when translating a percentage to a proportion." ].
+hint(perc1000, _Col, H)
+ => H = "Make sure to divide by 100 when translating a percentage to a proportion.".
 
 % Buggy rule: divide percentage by 10 instead of 100 to translate to proportion
 buggy(quantile, stage(2), From, To, [step(buggy, perc10, [10])]) :-
@@ -287,8 +290,8 @@ feedback(perc10, [Div], Col, F)
           \mmlm(Col, color(perc10, Div)), " instead of 100 to obtain a proportion." 
         ].
 
-hint(perc10, [_Div], _Col, H)
- => H = [ "Make sure to divide by 100 when translating a percentage to a proportion." ].
+hint(perc10, _Col, H)
+ => H = "Make sure to divide by 100 when translating a percentage to a proportion.".
 
 % Buggy rule: z-value taken as result
 buggy(quantile, stage(2), From, To, [step(buggy, only_z, [z, sigma, mu])]) :-
@@ -298,7 +301,7 @@ buggy(quantile, stage(2), From, To, [step(buggy, only_z, [z, sigma, mu])]) :-
 feedback(only_z, [z, sigma, mu], Col, F)
  => F = [ "You only calculated the ", \nowrap([\mmlm(Col, z), "-value."]) ].
 
-hint(only_z, [z, sigma, mu], Col, H)
+hint(only_z, Col, H)
  => H = [ "Translate the ", \nowrap([\mmlm(Col, z), "-value"]),  
-           " back to the original scale." 
+          " back to the original scale." 
         ].

@@ -22,7 +22,7 @@ label(tratio, [math(mi(t)), "-ratio"]).
 label(pvalue, [math(mi(p)), "-value"]).
 label(cipaired, "Confidence interval").
 
-:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/4.
+:- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/3.
 
 % Prettier symbols for mathematical rendering
 math_hook(d, overline('D')).
@@ -138,7 +138,7 @@ feedback(paired, [], Col, F)
 	  "paired samples." 
         ].
 
-hint(paired, [], Col, F)
+hint(paired, Col, F)
  => F = [ "This is a ", \nowrap([\mmlm(Col, t), "-test"]), 
           " for paired samples." 
         ].
@@ -155,9 +155,9 @@ feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
 	  "for paired samples." 
         ].
 
-hint(tratio, [D, Mu, S_D, N], Col, F)
+hint(tratio, Col, F)
  => F = [ "The ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
-          "is ", \mmlm(Col, [dfrac(D - Mu, S_D / sqrt(N)), "."])
+          "is ", \mmlm(Col, [dfrac(d - mu, s_d / sqrt(n)), "."])
         ].
 
 % Another correct result
@@ -171,9 +171,9 @@ feedback(abs_tratio, [_D, _Mu, _S_D, _N], Col, F)
 	  "for paired samples." 
         ].
 
-hint(abs_tratio, [D, Mu, S_D, N], Col, F)
+hint(abs_tratio, Col, F)
  => F = [ "The ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
-          "is ", \mmlm(Col, [abs(dfrac(D - Mu, S_D / sqrt(N))), "."])
+          "is ", \mmlm(Col, [abs(dfrac(d - mu, s_d / sqrt(n))), "."])
         ].
 
 %
@@ -201,8 +201,8 @@ feedback(mu, [Mu], Col, F)
           "the ", \nowrap([\mmlm(Col, t), "-ratio."])
         ].
 
-hint(mu, [Mu], Col, F)
- => F = [ "Do not omit the null hypothesis ", \mmlm(Col, color(mu, Mu)), " ",
+hint(mu, Col, F)
+ => F = [ "Do not omit the null hypothesis ", \mmlm(Col, color(mu, mu)), " ",
           "in the ", \nowrap([\mmlm(Col, t), "-ratio."]) 
         ].
 
@@ -225,7 +225,7 @@ feedback(indep, [], Col, F)
 	  "independent samples." 
         ].
 
-hint(indep, [], Col, F)
+hint(indep, Col, F)
  => F = [ "Do not calculate ",
           "a ", \nowrap([\mmlm(Col, t), "-test"]), " for ",
           "independent samples here." 
@@ -247,11 +247,11 @@ feedback(tratio_indep, [_T0, _S_T0, _N, _EOT, _S_EOT], Col, F)
           "independent samples." 
         ].
 
-hint(tratio_indep, [T0, S_T0, N, EOT, S_EOT], Col, F)
- => P = denote(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
+hint(tratio_indep, Col, F)
+ => P = denote(s2p, var_pool(s_t0^2, n, s_eot^2, n), "the pooled variance"),
     F = [ "The ", \nowrap([\mmlm(Col, t), "-ratio"]), " for ",
           "independent samples ",
-          "would be ", \mmlm(Col, [dfrac(T0 - EOT, sqrt(P * (1/N + 1/N))), "."]) ].
+          "would be ", \mmlm(Col, [dfrac(t0 - eot, sqrt(P * (1/n + 1/n))), "."]) ].
 
 % The following mistake cannot occur in the paired t-test, but is again only
 % possible if the student has already made the wrong decision to calculate the
@@ -273,16 +273,16 @@ feedback(school1, [A, B], Col, F)
 	  "for independent samples with ", 
 	  \mmlm(Col, frac(1, color(school, color("black", A) + color("black", B)))), 
 	  " under the square root. Please keep in mind that ", 
-	  span(class('text-\nowrap'), 
+	  \nowrap( 
 	    [\mmlm(Col, color(school, color("black", frac(1, A)) + color("black", frac(1, B)))
               =\= frac(1, color(school, color("black", A) + color("black", B)))), "."])
         ].
 
-hint(school1, [N1, N2], Col, F)
+hint(school1, Col, F)
  => F = [ "Please do not forget school math, ", 
-          span(class('text-\nowrap'), 
-            [\mmlm(Col, frac(1, color(school1, N1)) + frac(1, color(school1, N2))
-              =\= frac(1, color(school1, N1+N2))), "."]) 
+          \nowrap( 
+            [\mmlm(Col, frac(1, color(school1, n1)) + frac(1, color(school1, n2))
+              =\= frac(1, color(school1, n1 + n2))), "."]) 
         ].
 
 % Buggy-Rule: Forgot school math (Same for N1 = N2)
@@ -296,16 +296,16 @@ feedback(school2, [N], Col, F)
 	  "for independent samples ",
           "with ", \mmlm(Col, frac(1, color(school2, 2*N))), " under the ",
 	  "square root. Please keep in mind that ",
-          span(class('text-\nowrap'), 
+          \nowrap(
             [\mmlm(Col, frac(1, color(school2, N)) + frac(1, color(school2, N))
               =\= frac(1, color(school2, 2*N))), "."]) 
         ].
 
-hint(school2, [N], Col, F)
+hint(school2, Col, F)
  => F = [ "Please do not forget school math, ",
-          span(class('text-\nowrap'),
-            [\mmlm(Col, frac(1, color(school2, N)) + frac(1, color(school2, N))
-              =\= frac(1, color(school2, 2*N))), "."])
+          \nowrap(
+            [\mmlm(Col, frac(1, color(school2, n)) + frac(1, color(school2, n))
+              =\= frac(1, color(school2, 2 * n))), "."])
         ].
 
 % Buggy-Rule: Forgot parentheses
@@ -330,12 +330,12 @@ feedback(bug1, [D, Mu, S, SQRT_N], Col, F)
 	   "denominator of a fraction."
         ].
 
-hint(bug1, [D, Mu, S, SQRT_N], Col, F)
+hint(bug1, Col, F)
  => F = [ "Do not forget the parentheses around the numerator and ",
           "the denominator of a fraction, ",
-          \mmlm([error(correct) | Col],
-            [dfrac(color(bug1, paren(color("#000000", D - Mu))), 
-              color(bug1, paren(color("#000000", S / SQRT_N)))), "."]) 
+          \nowrap([\mmlm([error(correct) | Col],
+             dfrac(color(bug1, paren(color("#000000", d - mu))), 
+               color(bug1, paren(color("#000000", s / sqrt(n)))))), "."]) 
         ].
 
 % One challenging aspect of word problems ("Textaufgaben") is that students
@@ -360,8 +360,8 @@ feedback(t0, [D, T0], Col, F)
           "the ", \nowrap([\mmlm(Col, t), "-ratio."])
 	].
 
-hint(t0, [_D, T0], Col, F)
- => F = [ "Do not insert the T0 average ", \mmlm(Col, color(t0, T0)), " ",
+hint(t0, Col, F)
+ => F = [ "Do not insert the T0 average ", \mmlm(Col, color(t0, t0)), " ",
           "into the ", \nowrap([\mmlm(Col, t), "-ratio."]), " ",
           "Use the change scores instead." 
 	].
@@ -384,9 +384,9 @@ feedback(s_t0, [S, S_T0], Col, F)
           "the ", \nowrap([\mmlm(Col, t), "-ratio."])
 	].
 
-hint(s_t0, [_S, S_T0], Col, F)
+hint(s_t0, Col, F)
  => F = [ "Do not insert the standard deviation for ",
-          "T0 ", \mmlm(Col, color(s_t0, S_T0)), " into ",
+          "T0 ", \mmlm(Col, color(s_t0, s_t0)), " into ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio."]), " ",
           "Use the change scores instead." 
 	].
@@ -408,8 +408,8 @@ feedback(eot, [D, EOT], Col, F)
           "the ", \nowrap([\mmlm(Col, t), "-ratio."])
 	].
 
-hint(eot, [_D, EOT], Col, F)
- => F = [ "Do not insert the EOT average ", \mmlm(Col, color(eot, EOT)), " ",
+hint(eot, Col, F)
+ => F = [ "Do not insert the EOT average ", \mmlm(Col, color(eot, eot)), " ",
           "into ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio."]), " ",
 	  "Use the change scores instead." 
@@ -433,9 +433,9 @@ feedback(s_eot, [S, S_EOT], Col, F)
           "the ", \nowrap([\mmlm(Col, t), "-ratio."])
 	].
 
-hint(s_eot, [_S, S_EOT], Col, F)
+hint(s_eot, Col, F)
  => F = [ "Do not insert the standard deviation for ",
-          "EOT ", \mmlm(Col, color(s_eot, S_EOT)), " into ",
+          "EOT ", \mmlm(Col, color(s_eot, s_eot)), " into ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio."]), " ",
           "Use the change scores instead." 
         ].
@@ -454,9 +454,9 @@ feedback(sqrt1, [N], Col, F)
           \nowrap([\mmlm(Col, color(sqrt1, N)), "."])
         ].
 
-hint(sqrt1, [N], Col, F)
+hint(sqrt1, Col, F)
  => F = [ "Do not forget the square root around ",
-          \nowrap([\mmlm(Col, color(sqrt1, N)), "."])
+          \nowrap([\mmlm(Col, color(sqrt1, n)), "."])
         ].
 
 % Buggy-Rule: Forget square root around pooled variance
@@ -473,9 +473,9 @@ feedback(sqrt2, [_S_T0, _S_EOT, N], Col, F)
           \nowrap([\mmlm(Col, color(sqrt2, sqrt(s2p * (1/N + 1/N)))), "."])
         ].
 
-hint(sqrt2, [_S_T0, _S_EOT, N], Col, F)
+hint(sqrt2, Col, F)
  => F = [ "Do not forget the square root around the error variance",
-          \nowrap([\mmlm(Col, color(sqrt2, sqrt(s2p * (1/N + 1/N)))), "."])
+          \nowrap([\mmlm(Col, color(sqrt2, sqrt(s2p * (1/n + 1/n)))), "."])
         ].
 
 %
@@ -500,7 +500,7 @@ feedback(paired, [], Col, F)
           "a ", \nowrap([\mmlm(Col, t, "test")]), " for paired samples."
         ].
 
-hint(paired, [], Col, F)
+hint(paired, Col, F)
  => F = [ "This is a ", \nowrap([\mmlm(Col, t), "-test"]), " for paired ",
           "samples."
         ].
@@ -518,9 +518,9 @@ feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
           "paired samples."
         ].
 
-hint(tratio, [D, Mu, S_D, N], Col, F)
+hint(tratio, Col, F)
  => F = [ "The ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
-          "is ", \nowrap([\mmlm(Col, dfrac(D - Mu, S_D / sqrt(N))), "."])
+          "is ", \nowrap([\mmlm(Col, dfrac(d - mu, s_d / sqrt(n))), "."])
         ].
 
 % Third step: Determine the two-tailed p-value
@@ -533,9 +533,8 @@ feedback(pvalue, [], Col, F)
            \nowrap([\mmlm(Col, p), "-value."])
         ].
 
-hint(pvalue, [], Col, F)
- => F = [ "The two-tailed ", 
-          \nowrap([\mmlm(Col, p), "-value"]),
+hint(pvalue, Col, F)
+ => F = [ "The two-tailed ", \nowrap([\mmlm(Col, p), "-value"]),
           " must be determined." 
         ].
 
@@ -553,7 +552,7 @@ feedback(lower, [], Col, F)
           "one-tailed ", \nowrap([\mmlm(Col, p), "-value."])
         ].
 
-hint(lower, [], Col, F)
+hint(lower, Col, F)
  => F = [ "Do not report the lower one-tailed ",
           \nowrap([\mmlm(Col, p), "-value."])
         ].
@@ -569,7 +568,7 @@ feedback(upper, [], Col, F)
           "one-tailed ", \nowrap([\mmlm(Col, p), "-value."])
         ].
 
-hint(upper, [], Col, F)
+hint(upper, Col, F)
  => F = [ "Do not report the upper one-tailed ",
           \nowrap([\mmlm(Col, p), "-value."])
         ].
@@ -585,7 +584,7 @@ feedback(density, [], Col, F)
           "the ", \nowrap([\mmlm(Col, t), "-distribution."])
         ].
 
-hint(density, [], Col, F)
+hint(density, Col, F)
  => F = [ "Do not report the density of the ",
           \nowrap([\mmlm(Col, t), "-distribution."])
         ].
@@ -608,7 +607,7 @@ feedback(paired, [], Col, F)
           "a confidence interval for the mean value has to be calculated." 
         ].
 
-hint(paired, [], Col, H)
+hint(paired, Col, H)
  => H = [ "This is a ", \nowrap([\mmlm(Col, t), "-test"]), " for paired ",
           "samples. Calculate the confidence interval for the mean difference." 
         ].
@@ -624,11 +623,11 @@ feedback(ci_lower, [_D, _S_D, _N, _Alpha], _Col, F)
            "the confidence interval for a mean value." 
         ].
 
-hint(ci_lower, [D, S_D, N, Alpha], Col, H)
+hint(ci_lower, Col, H)
  => H = [ "The formula to calculate the lower and upper bound of the ",
           "confidence interval is ",
-	  span(class('text-\nowrap'), 
-	    [\mmlm(Col, pm(D, qt(1 - Alpha/2, N-1) * S_D / sqrt(N))), "."])
+	  \nowrap( 
+	    [\mmlm(Col, pm(d, qt(1 - alpha/2, n-1) * s_d / sqrt(n))), "."])
         ].
 
 % Third step: Choose the correct quantile of the t-distribution
@@ -643,11 +642,10 @@ feedback(tquant, [_N, Alpha], Col, F)
           \nowrap([\mmlm(Col, t), "-distribution."])
         ].
 
-hint(tquant, [_N, Alpha], Col, H)
+hint(tquant, Col, H)
  => H = [ "Make sure to use the ", 
-          \nowrap([\mmlm(Col, 1 - Alpha/2), "-quantile"]),
-          " of the ", 
-          \nowrap([\mmlm(Col, t), "-distribution."])
+          \nowrap([\mmlm(Col, 1 - alpha/2), "-quantile"]), " of ",
+          "the ", \nowrap([\mmlm(Col, t), "-distribution."])
         ].
 
 %
@@ -666,12 +664,11 @@ feedback(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, F)
           \nowrap([\mmlm(Col, t), "-distribution"]), " instead."
         ].
 
-hint(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, H)
+hint(tstat, Col, H)
  => H = [ "Do not insert the observed ", 
           \nowrap([\mmlm(Col, t), "-statistic"]), " ",
           "into the formula for the confidence interval. Use the quantile of ", 
-          "the ", \nowrap([\mmlm(Col, t), "-distribution"]),
-          " instead."
+          "the ", \nowrap([\mmlm(Col, t), "-distribution"]), " instead."
         ].
 
 % Buggy-Rule: Use z-quantile instead of t-quantile. 
@@ -687,7 +684,7 @@ feedback(qnorm, [], Col, F)
           "into the formula for the confidence interval."
         ].
 
-hint(qnorm, [], Col, H)
+hint(qnorm, Col, H)
  => H = [ "Determine the confidence interval based on the quantiles of ",
           "the ", \nowrap([\mmlm(Col, t), "-distribution."])
         ].
@@ -704,9 +701,9 @@ feedback(spss, [Mu], Col, F)
 	  "bound of the confidence interval, if you calculate it with SPSS."
         ].
 
-hint(spss, [Mu], Col, H)
+hint(spss, Col, H)
  => H = [ "If you calculate the confindence interval with SPSS, keep in mind",
-	  " that SPSS subtracts ", \mmlm(Col, Mu), " from the two bounds of",
+	  " that SPSS subtracts ", \mmlm(Col, mu), " from the two bounds of",
           " the CI (which must be undone)."
         ].
 
@@ -721,9 +718,9 @@ feedback(sqrt3, [N], Col, F)
           "around ", \nowrap([\mmlm(Col, color(sqrt3, N)), "."])
         ].
 
-hint(sqrt3, [N], Col, F)
+hint(sqrt3, Col, F)
  => F = [ "Do not forget the square root around ",
-          \nowrap([\mmlm(Col, color(sqrt3, N)), "."])
+          \nowrap([\mmlm(Col, color(sqrt3, n)), "."])
         ].
 
 % Buggy-Rule: Use of N instead of sqrt(N)
@@ -738,8 +735,8 @@ feedback(sqrt4, [N], Col, F)
           " around ", \nowrap([\mmlm(Col, color(sqrt4, N)), "."])
         ].
 
-hint(sqrt4, [N], Col, H)
+hint(sqrt4, Col, H)
  => H = [ "Do not forget the square root around ",
-          \nowrap([\mmlm(Col, color(sqrt4, N)), "."])
+          \nowrap([\mmlm(Col, color(sqrt4, n)), "."])
         ].
 
