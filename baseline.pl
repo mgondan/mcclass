@@ -43,13 +43,6 @@ mono(ancova_f/7, [/, /, /, /, /, /, /]).
 mono(ancova_p/7, [/, /, /, /, /, /, /]).
 mono(ancova_ci/7, [/, /, /, /, /, /, /]).
 
-% my_subset(+List, -Subset, -Difference)
-my_subset([], [], []).
-my_subset([X | L], [X | S], D) :-
-    my_subset(L, S, D).
-my_subset(L, [H | S], [H | D]) :-
-    my_subset(L, S, D).
-
 % Task description
 render(Flags)
 --> { start(item(_Outcome, _Cov, _Strata, _Other, _Interaction, _Exclude, _Therapy)) },

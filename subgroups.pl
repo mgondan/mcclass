@@ -41,14 +41,6 @@ mono(ancova_ci/7, [/, /, /, /, /, /, /]).
 %
 %r:pl2r_hook(omit(_, _), 'NULL').
 
-% my_subset(+List, -Subset, -Difference)
-my_subset([], [], []).
-my_subset([X | L], [X | S], D) :-
-    my_subset(L, S, D).
-my_subset(L, [H | S], [H | D]) :-
-    my_subset(L, S, D).
-
-
 render(Flags)
 --> { start(item(_Prim, _Cov, _Strata, _Other, _Int, _Exclude, _Therapy)) },
     html(
