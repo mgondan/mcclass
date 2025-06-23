@@ -27,11 +27,13 @@ math_hook(m_EOT, overline("EOT")).
 math_hook(s_T0, subscript(s, "T0")).
 math_hook(s_EOT, subscript(s, "EOT")).
 math_hook(ancova_f(Outcome, Cov, Strata, Other, Interaction, Exclude, Therapy), M) :-
-    M = fn('ANCOVA', ([lm(~(Outcome, Therapy + Cov + Strata + Other + Interaction + Exclude))])).
-math_hook(f, 'F').
+    M = { subscript('H', 0) := lm(~(Outcome, Cov + Strata + Other + Interaction + Exclude)) ;
+          subscript('H', 1) := lm(~(Outcome, Therapy + Cov + Strata + Other + Interaction + Exclude)) ;
+	  fn('F', [subscript('H', 1) - subscript('H', 0)])
+	}.
+math_hook(X := Y, list(:, [X, Y])).
 math_hook("age", "Age").
 math_hook("sex", "Sex").
-math_hook("therapy", "Therapy").
 
 r_hook(ancova_f/7).
 r_hook(ancova_p/7).
@@ -96,34 +98,34 @@ task(Flags, fratio)
 --> { start(item(_Outcome, _Cov, _Strata, _Other, _Interaction, _Exclude, _Therapy)),
       session_data(resp(baseline, fratio, Resp), resp(baseline, fratio, '#.##'))
     },
-	html(\htmlform([ "Does the Lidcombe therapy lead to a relevant reduction ",
-	"in stutterd syllables compared to TAU? ",
-	"Please report the ", \nowrap([\mmlm(Flags, 'F'), "-ratio."]) ], fratio, Resp)).
+    html(\htmlform([ "Does the Lidcombe therapy lead to a relevant reduction ",
+      "in stutterd syllables compared to TAU? ",
+      "Please report the ", \nowrap([\mmlm(Flags, 'F'), "-ratio."]) ], fratio, Resp)).
 
 % Question for p-value
 task(Flags, pvalue)
 --> { start(item(_Outcome, _Cov, _Strata, _Other, _Interaction, _Exclude, _Therapy)),
       session_data(resp(baseline, pvalue, Resp), resp(baseline, pvalue, '.###'))
     },
-	html(\htmlform([ "Does the Lidcombe therapy lead to a relevant reduction ",
-	"in stutterd syllables compared to TAU? ",
-	"Please report the ", \nowrap([\mmlm(Flags, p), "-value."]) ], pvalue, Resp)).
+    html(\htmlform([ "Does the Lidcombe therapy lead to a relevant reduction ",
+      "in stutterd syllables compared to TAU? ",
+      "Please report the ", \nowrap([\mmlm(Flags, p), "-value."]) ], pvalue, Resp)).
 
 % Question for CI
 task(_Flags, cibase)
 --> { start(item(_Outcome, _Cov, _Strata, _Other, _Interaction, _Exclude, _Therapy)),
       session_data(resp(baseline, cibase, Resp), resp(baseline, cibase, '.###-.###'))
     },
-	html(\htmlform([ "Does the Lidcombe therapy lead to a relevant reduction ",
-	"in stutterd syllables compared to TAU? ",
-	"Please report the confidence interval"], cibase, Resp)).
+    html(\htmlform([ "Does the Lidcombe therapy lead to a relevant reduction ",
+      "in stutterd syllables compared to TAU? ",
+      "Please report the confidence interval"], cibase, Resp)).
 
 %
 % Expert rules for the F-ratio task
 %
 % baseline adjusted ANCOVA
 intermediate(fratio, item).
-start(item("EOT", ["T0", "age"], ["sex"], ["FU"], [], [], "therapy")).
+start(item("EOT", ["T0", "age"], ["sex"], ["FU"], [], [], "Therapy")).
 
 % Step 1: Extract the correct information for an ANCOVA from the
 % task description
@@ -170,8 +172,8 @@ feedback(stratification, [Strata], Col, F)
 
 hint(stratification, Col, H)
  => start(item(_Outcome, _Cov, Strata, _Other, _Interaction, _Exclude, _Therapy)),
-    H = [ "The strata ", \mmlm(Col, list(+, Strata)), " should be included ",
-          "in the statistical model."
+    H = [ "The stratification variable(s) ", \mmlm(Col, list(+, Strata)), " ",
+          "should be included in the statistical model."
         ].
 
 % Step 4: Ignore distractors
@@ -187,7 +189,7 @@ feedback(ignore, [Other], Col, F)
 
 hint(ignore, Col, H)
  => start(item(_Outcome, _Cov, _Strata, Other, _Interaction, _Exclude, _Therapy)),
-    H = [ "Do not include the post-randomization ",
+    H = [ "Do not include any post-randomization ",
           "variables ", \mmlm(Col, list(+, Other)), " in the statistical model."
         ].
 
@@ -210,7 +212,7 @@ hint(noint, _Col, H)
 % Step 6: Calculating the model
 expert(fratio, stage(2), X, Y, [step(expert, ancova, [Therapy])]) :-
     X = baseline5(Outcome, Cov, Strata, Other, Interaction, Exclude, Therapy),
-    Y = { f <- ancova_f(Outcome, Cov, Strata, Other, Interaction, Exclude, Therapy) }.
+    Y = { ancova_f(Outcome, Cov, Strata, Other, Interaction, Exclude, Therapy) }.
 
 feedback(ancova, [Therapy], Col, F)
  => F = [ "The ", \nowrap([\mmlm(Col, 'F'), "-ratio"]), " for ", \mmlm(Col, Therapy), " has been reported."
@@ -218,8 +220,8 @@ feedback(ancova, [Therapy], Col, F)
 
 hint(ancova, Col, H)
  => start(item(_Outcome, _Cov, _Strata, _Other, _Interaction, _Exclude, Therapy)),
-    H = [ "Report the", \nowrap([\mmlm(Col, 'F'), "-ratio"]), " ",
-          "for ", \mmlm(Col, [Therapy, "."])
+    H = [ "Report the ", \nowrap([\mmlm(Col, 'F'), "-ratio"]), " ",
+          "for ", \nowrap([\mmlm(Col, Therapy), "."])
         ].
 
 %
@@ -259,8 +261,9 @@ feedback(misstrata, [_Strata, Removed], Col, F)
 
 hint(misstrata, Col, H)
  => start(item(_Outcome, _Cov, Strata, _Other, _Interaction, _Exclude, _Therapy)),
-    H = [ "The stratification variable(s) ", \mmlm(Col, list(+, Strata)), " should be included ",
-          "in the statistical model."
+    H = [ "Do not forget to include the stratification ",
+          "variable(s) ", \mmlm(Col, list(+, Strata)), " in the statistical ",
+          "model."
         ].
 
 % Buggy-Rule: add distractor variables to the model
@@ -278,8 +281,8 @@ feedback(distractors, [_Other, Dist], Col, F)
 
 hint(distractors, Col, H)
  => start(item(_Outcome, _Cov, _Strata, Other, _Interaction, _Exclude, _Therapy)),
-    H = [ "Do not include the distractor variable(s) ", \mmlm(Col, list(+, Other)),
-          "in the statistical model."
+    H = [ "Do not include other outcomes ", \mmlm(Col, list(+, Other)), " as ",
+          "covariates in the statistical model."
         ].
 
 % Allow for treatment-by-covariate-interactions
@@ -306,7 +309,7 @@ buggy(fratio, stage(2), X, Y, [step(buggy, interactions, [Colon])]) :-
 
 feedback(interactions, [Interaction], Col, F)
  => F = [ "The statistical model should not include the treatment-by-covariate ",
-          "interactions", \mmlm(Col, [list(+, Interaction), "."])
+          "interaction(s) ", \nowrap([\mmlm(Col, list(+, Interaction)), "."])
         ].
 
 hint(interactions, _Col, H)
@@ -364,8 +367,9 @@ feedback(stratification, [Strata], Col, F)
 
 hint(stratification, Col, H)
  => start(item(_Outcome, _Cov, Strata, _Other, _Interaction, _Exclude, _Therapy)),
-    H = [ "The strata ", \mmlm(Col, list(+, Strata)), " should be included ",
-          "in the statistical model."
+    H = [ "Do not forget to include the stratification ",
+          "variable(s) ", \mmlm(Col, list(+, Strata)), " in the statistical ",
+          "model."
         ].
 
 % Step 4: Ignore distractors
