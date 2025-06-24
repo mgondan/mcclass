@@ -307,21 +307,24 @@ math(expert(Flags, _, B), X, Flags)
 math(buggy(Flags, _, B), X, Flags)
  => X = B.
 
-math(omit(_Bug, Expr), M, Flags),
-    option(error(correct), Flags, fix)
- => M = Expr.
+mathml:math_hook(omit(_Bug, Expr), M, Flags) :-
+    option(error(correct), Flags, fix),
+    !,
+    M = Expr.
 
-math(omit(_Bug, _Expr), M, Flags),
-    option(error(show), Flags, fix)
- => M = "omitted".
+mathml:math_hook(omit(_Bug, _Expr), M, Flags) :-
+    option(error(show), Flags, fix),
+    !,
+    M = "omitted".
 
-math(omit(Bug, Expr), M, Flags),
-    option(error(fix), Flags, fix)
- => M = color(Bug, box(color("#000000", Expr))).
+mathml:math_hook(omit(Bug, Expr), M, Flags) :-
+    option(error(fix), Flags, fix),
+    !,
+    M = color(Bug, box(color("#000000", Expr))).
 
-math(omit(Bug, Expr), M, Flags),
-    option(error(highlight), Flags, fix)
- => M = color(Bug, cancel(color("#000000", Expr))).
+mathml:math_hook(omit(Bug, Expr), M, Flags) :-
+    option(error(highlight), Flags, fix),
+    M = color(Bug, cancel(color("#000000", Expr))).
 
 mathml:math_hook(add_left(_Bug, Expr), M, Flags) :-
     option(error(correct), Flags, fix),
@@ -383,17 +386,24 @@ mathml:math_hook(add_right(Bug, Expr), M, Flags) :-
 %     option(error(highlight), Flags, fix)
 %  => prec(Flags, Expr, Prec).
 
-math(add(_Bug, Expr), M, Flags),
-    option(error(correct), Flags, fix)
-=>  M = Expr.
+mathml:math_hook(add(_Bug, Expr), M, Flags) :-
+    option(error(correct), Flags, fix),
+    !,
+    M = Expr.
 
-math(add(_Bug, _Expr), M, Flags),
-    option(error(show), Flags, fix)
- => M = "invented".
+mathml:math_hook(add(_Bug, _Expr), M, Flags) :-
+    option(error(show), Flags, fix),
+    !,
+    M = "invented".
 
-math(add(Bug, Expr), M, Flags),
-    option(error(highlight), Flags, fix)
- => M = color(Bug, box(color("#000000", Expr))). 
+mathml:math_hook(add(Bug, Expr), M, Flags) :-
+    option(error(highlight), Flags, fix),
+    !,
+    M = color(Bug, box(color("#000000", Expr))). 
+
+mathml:math_hook(add(Bug, Expr), M, Flags) :-
+    option(error(fix), Flags, fix),
+    M = color(Bug, cancel(color("#000000", Expr))).
 
 mathml:math_hook(drop_left(_Bug, Expr), M, Flags) :-
     option(error(correct), Flags, fix),
