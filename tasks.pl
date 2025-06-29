@@ -14,6 +14,7 @@
 :- use_module(hints).
 :- use_module(solutions).
 :- use_module(mistakes).
+:- use_module(traps).
 :- use_module(util).
 
 user:term_expansion(mono(A, B), rint:mono(A, B)).
@@ -24,7 +25,8 @@ use_topic(Topic) :-
     dynamic(Topic:math_hook/2),
     init_solutions(Topic),
     init_hints(Topic),
-    init_mistakes(Topic).
+    init_mistakes(Topic),
+    init_traps(Topic).
 
 :- use_topic(tpaired).
 :- use_topic(tpairedupper).
@@ -105,7 +107,6 @@ feedback(Topic, Task, Data, _Form)
       member(Expr-Res/Flags, Wrongs),
       colors(Expr, Col),
       interval(Num =@= Res, true, [topic(Topic), task(Task) | Col]),
-      member(traps(Traps), Data),
       findall(H, Topic:hints(Task, _, H, _), Hints0),
       append(Hints0, Hints1),
       sort(Hints1, Hints),
@@ -124,7 +125,7 @@ feedback(Topic, Task, Data, _Form)
       ),
       findall(li(FB),
         ( member(step(buggy, Name, Args), Flags),
-          memberchk(Name, Traps),
+          Topic:trap(Task, _, Name, _),
           Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Col], FB)
         ), Wrong0),
       ( Wrong0 = []
@@ -149,7 +150,7 @@ feedback(Topic, Task, Data, _Form)
       ),
       findall(li(FB),
         ( member(step(buggy, Name, Args), Flags),
-          \+ memberchk(Name, Traps),
+          \+ Topic:trap(Task, _, Name, _),
           Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Col], FB)
         ), Blame0),
       ( Blame0 = []
@@ -253,17 +254,16 @@ traps(E_R_F, Sorted) :-
     sort(Traps, Sorted).
 
 % Pretty print
-pp_trap(Topic, Task, Data, _Expr-_Res/Flags, li(Trap)) :-
+pp_trap(Topic, Task, _Expr-_Res/Flags, li(Trap)) :-
     findall(N, member(step(buggy, N, _A), Flags), [Name]),
-    member(traps(Traps), Data),
-    memberchk(Name, Traps),
+    Topic:trap(Task, _, Name, _),
     Topic:hint(Name, [topic(Topic), task(Task)], Trap).
 
 pp_traps(Topic, Task, Data)
 --> { member(wrongall(E_R_F), Data),
       findall(L, 
         ( member(Wrong, E_R_F), 
-          pp_trap(Topic, Task, Data, Wrong, L)
+          pp_trap(Topic, Task, Wrong, L)
         ), Traps),
       sort(Traps, Sorted) % Duplicates due to multiple solutions
     },
