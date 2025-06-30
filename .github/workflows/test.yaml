@@ -70,5 +70,6 @@ jobs:
       - name: Run tests tasks mcclass
         run: |
           export R_LIBS_USER=$HOME/Rlibs
+          R --vanilla -e "Rserve::Rserve(args='--no-save')"
           swipl -g "test_tasks" "$HOME/.local/share/swi-prolog/pack/mcclass/test/test_tasks.pl"
         shell: bash
