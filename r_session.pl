@@ -1,9 +1,12 @@
-:- module(r_session, 
-  [ r_init_session/0, r//1, r_session/1, r_session/2, r_session//1, r_session_source/1,
-    r_topic/1, r_topic/2, r_topic//1
-  ]).
+:-  module(r_session, 
+      [ r_init_session/0, r//1, r_session/1, r_session/2, r_session//1, 
+        r_session_source/1, r_topic/1, r_topic/2, r_topic//1
+      ]).
 
-:- reexport(library(r)).
+:-  reexport(library(r)).
+:-  r(library('Rserve')),
+    r('Rserve'()).
+
 :- use_module(session).
 :- use_module(library(http/http_session)).
 :- use_module(library(http/http_log)).
