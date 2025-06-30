@@ -64,6 +64,7 @@ jobs:
       - name: Run tests interval mcclass
         run: |
           export R_LIBS_USER=$HOME/Rlibs
+          R --vanilla -e "Rserve::Rserve(args='--no-save')"
           swipl -g "test_interval" "$HOME/.local/share/swi-prolog/pack/mcclass/test/test_interval.pl"
         shell: bash
 
