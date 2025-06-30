@@ -5,10 +5,6 @@
 :- use_module(util).
 :- use_module(mathml).
 
-show_hints(Topic, Task)
---> { Topic:hints(Task, Accordion) },
-    html(Accordion).
-
 % Codes of correct steps
 init_hints(Topic, Task, Solutions) :-
     nth1(Id, Solutions, sol(Task, Expr, Steps, Colors)),
@@ -93,5 +89,10 @@ init_hints1(Topic) :-
           div([class(accordion), id('accordion-~w-~w'-[Topic, Task])],
             AccItems))
       ]),
-    assert(Topic:hints(Task, Accordion)).
+    phrase(html(Accordion), HTML),
+    with_output_to(string(S), print_html(HTML)),
+    assert(Topic:hints(Task, S)).
 
+show_hints(Topic, Task)
+--> { Topic:hints(Task, S) },
+    html(\[S]).
