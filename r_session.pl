@@ -5,7 +5,7 @@
 
 :-  reexport(library(r)).
 :-  r(library('Rserve')),
-    r('Rserve'()).
+    r('Rserve'(args="--no-save")).
 
 :- use_module(session).
 :- use_module(library(http/http_session)).
