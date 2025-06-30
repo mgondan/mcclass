@@ -65,11 +65,9 @@ task(Topic, Task, Data) :-
     r_session_source(Topic),
     solutions(Topic, Task, Solutions),
     mistakes(Topic, Task, Mistakes),
-    wrongall(Topic, Task, E_R_F_All),
     Data = task(Topic, Task, 
       [ solutions(Solutions), 
-        mistakes(Mistakes),
-        wrongall(E_R_F_All) % this needs a better solution
+        mistakes(Mistakes)
       ]),
     session_assert(taskdata(Topic, Task, Data)).
 
@@ -82,9 +80,9 @@ feedback(Topic, Task, Data, _Form)
       memberchk(solutions(Solutions), Data),
       member(sol(_Expr, Res, Flags, Colors, _S), Solutions),
       interval(Num =@= Res, true, [topic(Topic), task(Task) | Colors]),
-      findall(li(FB),
+      findall(li(F),
         ( member(step(expert, Name, Args), Flags),
-          Topic:feedback(Name, Args, [topic(Topic), task(Task) | Colors], FB)
+          Topic:feedback(Name, Args, [topic(Topic), task(Task) | Colors], F)
         ), Items)
     },
     html(div(class(card),
@@ -101,71 +99,63 @@ feedback(Topic, Task, Data, _Form)
       session_data(resp(Topic, Task, R)),
       quantity(N0, Opt, R),
       interval(input(N0), Num, [topic(Topic), task(Task) | Opt]),
-      memberchk(wrongall(Wrongs), Data),
-      member(Expr-Res/Flags, Wrongs),
-      colors(Expr, Col),
-      interval(Num =@= Res, true, [topic(Topic), task(Task) | Col]),
+      memberchk(mistakes(Mistakes), Data),
+      member(wrong(Expr, Res, Flags, Colors, _S), Mistakes),
+      interval(Num =@= Res, true, [topic(Topic), task(Task) | Colors]),
+      % This can be prepared on module initialization
       findall(H, Topic:hints(Task, _, H, _), Hints0),
       append(Hints0, Hints1),
       sort(Hints1, Hints),
-      % relevant feedback
-      findall(li(FB),
+      % Relevant feedback
+      findall(li(F),
         ( member(step(expert, Name, Args), Flags),
           memberchk(Name, Hints),
-          Topic:feedback(Name, Args, [topic(Topic), task(Task) | Col], FB)
+          Topic:feedback(Name, Args, [topic(Topic), task(Task) | Colors], F)
         ), Correct0),
       ( Correct0 = []
         -> Correct = p(class('card-text'), "")
          ; Correct = p(class('card-text'), 
-                       [ "Correct steps",
-                         ul(class('card-text'), ul(Correct0))
-                       ])
+                       [ "Correct steps", ul(class('card-text'), ul(Correct0)) ])
       ),
-      findall(li(FB),
+      findall(li(F),
         ( member(step(buggy, Name, Args), Flags),
           Topic:trap(Task, _, Name, _),
-          Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Col], FB)
+          Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Colors], F)
         ), Wrong0),
       ( Wrong0 = []
         -> Wrong = p(class('card-text'), "")
          ; Wrong = p(class('card-text'),
-                       [ "Wrong steps",
-                         ul(class('card-text'), ul(Wrong0))
-                       ])
+                       [ "Wrong steps", ul(class('card-text'), ul(Wrong0)) ])
       ),
-      % irrelevant feedback
-      findall(li(FB),
+      % Irrelevant feedback
+      findall(li(F),
         ( member(step(expert, Name, Args), Flags),
           \+ memberchk(Name, Hints),
-          Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Col], FB)
+          Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Colors], F)
         ), Praise0),
       ( Praise0 = []
         -> Praise = p(class('card-text'), "")
          ; Praise = p(class('card-text'),
-                       [ "Other praise",
-                         ul(class('card-text'), ul(Praise0))
-                       ])
+                       [ "Other praise", ul(class('card-text'), ul(Praise0)) ])
       ),
-      findall(li(FB),
+      findall(li(F),
         ( member(step(buggy, Name, Args), Flags),
           \+ Topic:trap(Task, _, Name, _),
-          Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Col], FB)
+          Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Colors], F)
         ), Blame0),
       ( Blame0 = []
         -> Blame = p(class('card-text'), "")
          ; Blame = p(class('card-text'),
-                       [ "Other mistakes",
-                         ul(class('card-text'), ul(Blame0))
-                       ])
+                       [ "Other mistakes", ul(class('card-text'), ul(Blame0)) ])
       )
     },
     html(div(class(card),
       [ div(class('card-header text-white bg-warning'), "Careful"),
         div(class('card-body'),
           [ p(class('card-text'), "This is the correct expression:"),
-            p(class('card-text'), \mmlm([topic(Topic), task(Task), error(fix) | Col], Expr)),
+            p(class('card-text'), \mmlm([topic(Topic), task(Task), error(fix) | Colors], Expr)),
             p(class('card-text'), "Your response matches the following expression:"),
-            p(class('card-text'), \mmlm([topic(Topic), task(Task), error(highlight) | Col], Expr)),
+            p(class('card-text'), \mmlm([topic(Topic), task(Task), error(highlight) | Colors], Expr)),
             Correct, Wrong, Praise, Blame
           ])
       ])).
@@ -223,14 +213,6 @@ mistakes(Topic, Task, List) :-
     % avoid duplicates by permutations
     sort(2, @<, List1, List2),
     findall(wrong(Expr, Res, Flags, Colors, String), member(s(Expr, Res-_, Flags, Colors, String), List2), List).
-
-% The incorrect response alternatives (without check for dependencies)
-wrongall(Topic, Task, Expr_Res_Flags) :-
-    searchall(Topic, Task, E_R_F),
-    findall(E-R/F,
-      ( member(E-R/F, E_R_F),
-        memberchk(step(buggy, _, _), F)
-      ), Expr_Res_Flags).
 
 % Download task data
 download(File) :-
