@@ -1,4 +1,4 @@
-:- module(tasks, [task/3, feedback//4, solutions/3, pp_traps//3, download/1 ]).
+:- module(tasks, [task/3, feedback//4, solutions/3, download/1 ]).
 
 :- use_module(library(http/html_write)).
 :- use_module(library(http/http_log)).
@@ -66,12 +66,10 @@ task(Topic, Task, Data) :-
     solutions(Topic, Task, Solutions),
     mistakes(Topic, Task, Mistakes),
     wrongall(Topic, Task, E_R_F_All),
-    traps(E_R_F_All, Traps),
     Data = task(Topic, Task, 
       [ solutions(Solutions), 
         mistakes(Mistakes),
-        wrongall(E_R_F_All), % this needs a better solution
-        traps(Traps)
+        wrongall(E_R_F_All) % this needs a better solution
       ]),
     session_assert(taskdata(Topic, Task, Data)).
 
@@ -226,16 +224,6 @@ mistakes(Topic, Task, List) :-
     sort(2, @<, List1, List2),
     findall(wrong(Expr, Res, Flags, Colors, String), member(s(Expr, Res-_, Flags, Colors, String), List2), List).
 
-% Todo: prepare traps at module initialization
-
-% Succeeds if Flags include exactly one (critical) bug
-%
-% These bugs are critical in the sense that if you commit them, you lost the
-% path to the correct solution. Any other bugs that occur downstream (e.g., in
-% tpaired, the school bug that may occur in the formula of the independent 
-% t-test) are less relevant for feedback, we only use them to understand what 
-% the user is doing.
-
 % The incorrect response alternatives (without check for dependencies)
 wrongall(Topic, Task, Expr_Res_Flags) :-
     searchall(Topic, Task, E_R_F),
@@ -243,37 +231,6 @@ wrongall(Topic, Task, Expr_Res_Flags) :-
       ( member(E-R/F, E_R_F),
         memberchk(step(buggy, _, _), F)
       ), Expr_Res_Flags).
-
-trap(Flags, Trap) :-
-    findall(T, member(step(buggy, T, _), Flags), [Trap]).
-
-% Codes for wrong steps
-traps(E_R_F, Sorted) :-
-    findall(T, (member(_E-_R/Flags, E_R_F), trap(Flags, T)), Traps),
-    % Duplicates occur if there are multiple solutions
-    sort(Traps, Sorted).
-
-% Pretty print
-pp_trap(Topic, Task, _Expr-_Res/Flags, li(Trap)) :-
-    findall(N, member(step(buggy, N, _A), Flags), [Name]),
-    Topic:trap(Task, _, Name, _),
-    Topic:hint(Name, [topic(Topic), task(Task)], Trap).
-
-pp_traps(Topic, Task, Data)
---> { member(wrongall(E_R_F), Data),
-      findall(L, 
-        ( member(Wrong, E_R_F), 
-          pp_trap(Topic, Task, Wrong, L)
-        ), Traps),
-      sort(Traps, Sorted) % Duplicates due to multiple solutions
-    },
-    html(div(class(card),
-      [ div(class('card-header text-white bg-warning'), "Traps"),
-        div(class('card-body'),
-          [ p(class('card-text'), "Avoid these traps"),
-            p(class('card-text'), ul(Sorted))
-          ])
-      ])).
 
 % Download task data
 download(File) :-
@@ -321,7 +278,7 @@ tasks(Topic, Task) :-
     format("Wrong alternatives: ~w~n", [L]),
     html(\show_mistakes(Topic, Task, L), Wrong, []),
     writeln(Wrong),
-    memberchk(traps(T), Data),
+    findall(Name, Topic:trap(Task, _, Name, _), T),
     format("Traps: ~w~n", [T]),
-    html(\pp_traps(Topic, Task, Data), Traps, []),
+    html(\show_traps(Topic, Task), Traps, []),
     writeln(Traps).

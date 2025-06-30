@@ -15,6 +15,7 @@
 :- use_module(hints).
 :- use_module(solutions).
 :- use_module(mistakes).
+:- use_module(traps).
 
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
@@ -60,8 +61,6 @@ http:location(mcclass, root(mcclass), []).
 :- http_handler(mcclass(testbinom), handler(testbinom), []).
 :- http_handler(mcclass(chisq), handler(chisq), []).
 :- http_handler(mcclass(regression), handler(regression), []).
-
-
 
 handler(Topic, Request) :-
     member(method(post), Request),
@@ -123,7 +122,7 @@ handle(Topic, Form),
                     \feedback(Topic, T, Data, Form),
                     \show_solutions(Topic, T, Data),
                     \show_mistakes(Topic, T, Data),
-                    \pp_traps(Topic, T, Data)])))
+                    \show_traps(Topic, T)])))
             ;   html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
                   div([
                     \(Topic:task([topic(Topic)], T)),
@@ -131,7 +130,7 @@ handle(Topic, Form),
                     \feedback(Topic, T, Data, Form),
                     \show_solutions(Topic, T, Data),
                     \show_mistakes(Topic, T, Data),
-                    \pp_traps(Topic, T, Data)])))))),
+                    \show_traps(Topic, T)])))))),
         script(src('bootstrap.bundle.min.js'), '')
       ]).
 
@@ -172,7 +171,7 @@ handle(Topic, Form)
                     \feedback(Topic, T, Data, Form),
                     \show_solutions(Topic, T, Data),
                     \show_mistakes(Topic, T, Data),
-                    \pp_traps(Topic, T, Data)])))
+                    \show_traps(Topic, T)])))
             ;   html(div([class('tab-pane fade'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
                   div([
                     \(Topic:task([topic(Topic)], T)),
@@ -180,6 +179,6 @@ handle(Topic, Form)
                     \feedback(Topic, T, Data, Form),
                     \show_solutions(Topic, T, Data),
                     \show_mistakes(Topic, T, Data),
-                    \pp_traps(Topic, T, Data)])))))),
+                    \show_traps(Topic, T)])))))),
         script(src('bootstrap.bundle.min.js'), '')
       ]).
