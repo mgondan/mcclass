@@ -1,4 +1,4 @@
-:- module(tpaired, [wrong/4]).
+:- module(tpaired, []).
 
 :- use_module(library(http/html_write)).
 :- use_module(session).
@@ -8,8 +8,6 @@
 :- use_module(interval).
 :- use_module(mathml).
 :- use_module(steps).
-
-:- dynamic wrong/4.
 
 :- use_module(navbar).
 navbar:page(tpaired, ["paired ", i(t), "-test"]).
@@ -50,7 +48,7 @@ r_hook(s_t0).
 r_hook(eot).
 r_hook(s_eot).
 r_hook(lo).
-
+r_hook(alpha).
 r_hook(var_pool/4). 
 mono((var_pool)/4, [+, /, +, /]).
 
