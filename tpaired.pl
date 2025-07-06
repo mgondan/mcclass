@@ -50,7 +50,7 @@ r_hook(s_eot).
 r_hook(lo).
 r_hook(alpha).
 r_hook(var_pool/4). 
-mono((var_pool)/4, [+, /, +, /]).
+mono(var_pool/4, [+, /, +, /]).
 
 % Task description
 render(Flags)

@@ -13,7 +13,7 @@ show_sol(Topic, Task, sol(_Expr, Result, _Flags, Colors, String))
     html(\[String-Res]).
 
 show_solutions(Topic, Task, Data)
---> { member(solutions(Solutions), Data) },
+--> { memberchk(solutions(Solutions), Data) },
     html(div(class(card),
       [ div(class('card-header text-white bg-success'), "Solution(s)"),
         div(class('card-body'),

@@ -20,13 +20,59 @@
 user:term_expansion(mono(A, B), rint:mono(A, B)).
 user:term_expansion(r_hook(A), rint:r_hook(r_session:r_topic, A)).
 
+% Solutions with numerical results
+solutions(Topic, Task, Solutions) :-
+    findall(s(Expr, Res-Codes, Flags, Colors, String),
+      ( Topic:sol(Task, Expr, Flags, Colors, String),
+        interval(Expr, Res, [topic(Topic)]),
+        sort(Flags, Sorted),
+        codes(Sorted, Codes)
+      ), List),
+    % avoid duplicates by permutations
+    sort(2, @<, List, Unique),
+    findall(sol(Expr, Res, Flags, Colors, String),
+      member(s(Expr, Res-_, Flags, Colors, String), Unique), Solutions).
+
+% Incorrect results
+mistakes(Topic, Task, Solutions) :-
+    findall(s(Expr, Res-Codes, Flags, Colors, String),
+      ( Topic:wrong(Task, Expr, Flags, Colors, String),
+        interval(Expr, Res, [topic(Topic)]),
+        sort(Flags, Sorted),
+        dependencies(Sorted),
+        exclusive(Sorted),
+        codes(Sorted, Codes)
+      ), List),
+    % avoid duplicates by permutations
+    sort(2, @<, List, Unique),
+    findall(wrong(Expr, Res, Flags, Colors, String),
+      member(s(Expr, Res-_, Flags, Colors, String), Unique), Solutions).
+
+init_variants(Topic) :-
+    Topic:task(Task),
+    between(1, 3, Variant),
+    format(atom(Atom), "var~w", [Variant]),
+    init_variant(Topic, Task, Atom).
+
+:- dynamic taskdata/4.
+
+init_variant(Topic, Task, Variant) :-
+    b_setval(topic, Topic),
+    b_setval(variant, Variant),
+    r_topic_source,
+    solutions(Topic, Task, S),
+    mistakes(Topic, Task, M),
+    assert(taskdata(Topic, Task, Variant, [solutions(S), mistakes(M)])).
+
 use_topic(Topic) :-
     use_module(Topic),
     dynamic(Topic:math_hook/2),
     init_solutions(Topic),
     init_hints(Topic),
     init_mistakes(Topic),
-    init_traps(Topic).
+    init_traps(Topic),
+    forall(init_variants(Topic), true),
+    format("~w initialized~n", [Topic]).
 
 :- use_topic(tpaired).
 :- use_topic(tpairedupper).
@@ -47,29 +93,19 @@ use_topic(Topic) :-
 mathml:math_hook(r(Expr), Res) :-
     r_topic(Expr, Res).
 
-% Gather useful information
-%
-% 1. Identify (correct) solution
-% 2. Steps in (1) = Hints
-% 3. Identify (incorrect) alternatives
-% 4. Subset of (3) with exactly one buggy rule
-% 5. Buggy steps in (4) = Traps
-%
+:- dynamic taskdata/4.
+
 % more to come
 task(Topic, Task, Data) :-
-    session_data(taskdata(Topic, Task, D)),
-    !, Data=D.
+    session_data(topic(Topic, Variant)),
+    !,
+    taskdata(Topic, Task, Variant, Data).
 
 task(Topic, Task, Data) :-
-    r_init_session,
-    r_session_source(Topic),
-    solutions(Topic, Task, Solutions),
-    mistakes(Topic, Task, Mistakes),
-    Data = task(Topic, Task, 
-      [ solutions(Solutions), 
-        mistakes(Mistakes)
-      ]),
-    session_assert(taskdata(Topic, Task, Data)).
+    random_between(1, 3, Variant),
+    format(atom(Atom), "var~w", [Variant]),
+    session_assert(topic(Topic, Atom)),
+    taskdata(Topic, Task, Atom, Data).
 
 % Correct response
 feedback(Topic, Task, Data, _Form)
@@ -188,32 +224,6 @@ feedback(_Topic, _Task, _Data, _Form) -->
           p(class('card-text'), "Waiting for response..."))
       ])).
 
-% Solutions with numerical results
-solutions(Topic, Task, List) :-
-    findall(s(Expr, Res-Codes, Flags, Colors, String),
-      ( Topic:sol(Task, Expr, Flags, Colors, String),
-        interval(Expr, Res, [topic(Topic)]),
-        sort(Flags, Sorted),
-        codes(Sorted, Codes)
-      ), List1),
-    % avoid duplicates by permutations
-    sort(2, @<, List1, List2),
-    findall(sol(Expr, Res, Flags, Colors, String), member(s(Expr, Res-_, Flags, Colors, String), List2), List).
-
-% Incorrect results
-mistakes(Topic, Task, List) :-
-    findall(s(Expr, Res-Codes, Flags, Colors, String),
-      ( Topic:wrong(Task, Expr, Flags, Colors, String),
-        interval(Expr, Res, [topic(Topic)]),
-        sort(Flags, Sorted),
-	dependencies(Sorted),
-	exclusive(Sorted),
-        codes(Sorted, Codes)
-      ), List1),
-    % avoid duplicates by permutations
-    sort(2, @<, List1, List2),
-    findall(wrong(Expr, Res, Flags, Colors, String), member(s(Expr, Res-_, Flags, Colors, String), List2), List).
-
 % Download task data
 download(File) :-
     session_tmpfile(File),
@@ -232,18 +242,9 @@ tasks :-
 
 tasks(Topic, Task) :-
     b_setval(http_session_id, default_session),
-    r_init_session,
-    r('set.seed'(4711)),
-    r_session_source(Topic),
     b_setval(topic, Topic),
-    writeln("All solutions"),
-    solutions(Topic, Task, AllSolutions),
-    writeln(AllSolutions),
-    writeln("All hints"),
-    findall(Task-Hints, Topic:hints(Task, Hints, _, _), AllHints),
-    writeln(AllHints),
-    task(Topic, Task, TaskData),
-    TaskData = task(Topic, Task, Data),
+    b_setval(variant, var1),
+    task(Topic, Task, Data),
     writeln("Task data"),
     writeln(Data),
     writeln("Task"),
@@ -253,12 +254,12 @@ tasks(Topic, Task) :-
     memberchk(solutions(S), Data), 
     writeln("Solutions"),
     writeln(S),
-    html(\show_solutions(Topic, Task, S), Sol, []),
+    html(\show_solutions(Topic, Task, Data), Sol, []),
     writeln(Sol),
     memberchk(mistakes(W), Data), 
     length(W, L), 
     format("Wrong alternatives: ~w~n", [L]),
-    html(\show_mistakes(Topic, Task, L), Wrong, []),
+    html(\show_mistakes(Topic, Task, Data), Wrong, []),
     writeln(Wrong),
     findall(Name, Topic:trap(Task, _, Name, _), T),
     format("Traps: ~w~n", [T]),

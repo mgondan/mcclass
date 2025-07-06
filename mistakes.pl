@@ -13,7 +13,7 @@ show_wrong(Topic, Task, wrong(_Expr, Result, _Flags, Colors, String))
     html(\[String-Res]).
 
 show_mistakes(Topic, Task, Data)
---> { member(mistakes(Mistakes), Data) },
+--> { memberchk(mistakes(Mistakes), Data) },
     html(div(class(card),
       [ div(class('card-header text-white bg-danger'), "Incorrect responses"),
         div(class('card-body'),

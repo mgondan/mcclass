@@ -74,8 +74,7 @@ handler(Topic, _) :-
 % Download csv data
 handle(Topic, Form),
     member(download=_, Form)
- => r_init_session,
-    b_setval(topic, Topic),
+ => b_setval(topic, Topic),
     download(Local),
     format(atom(File), "attachment; filename=~k.csv", [Topic]),
     http_current_request(Request),
@@ -90,9 +89,10 @@ handle(Topic, Form),
     option(resp(Resp), Form)
  => session_retractall(resp(Topic, Task, _)),
     session_assert(resp(Topic, Task, Resp)),
-    r_init_session,
-    r_session_source(Topic),
+    task(Topic, Task, _Data),
+    http_session_data(topic(Topic, Variant)),
     b_setval(topic, Topic),
+    b_setval(variant, Variant),
     findall(T, Topic:task(T), [T1 | Tasks]),
     reply_html_page(
       [ title('McClass'),
@@ -113,7 +113,7 @@ handle(Topic, Form),
         \(Topic:render([topic(Topic)])),
         \navtabs(Topic, [T1 | Tasks], Task),
         div([class('tab-content'), id('nav-tabContent')],
-          \foreach((member(T, [T1 | Tasks]), task(Topic, T, task(Topic, T, Data))),
+          \foreach((member(T, [T1 | Tasks]), task(Topic, T, Data)),
             ( {T = Task}
             ->  html(div([class('tab-pane fade show active'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)],
                   div([
@@ -138,9 +138,10 @@ handle(Topic, Form),
 handle(Topic, Form)
  => findall(T, Topic:task(T), [T1 | Tasks]),
     option(task(Task), Form, T1),
-    r_init_session,
-    r_session_source(Topic),
+    task(Topic, Task, _Data),
+    http_session_data(topic(Topic, Variant)),
     b_setval(topic, Topic),
+    b_setval(variant, Variant),
     reply_html_page(
       [ title('McClass'),
         link([rel(stylesheet), href('bootstrap.min.css')]),
@@ -162,7 +163,7 @@ handle(Topic, Form)
         \(Topic:render([topic(Topic)])),
 	\navtabs(Topic, [T1 | Tasks], Task),
         div([class('tab-content'), id('nav-tabContent')],
-	  \foreach((member(T, [T1 | Tasks]), task(Topic, T, task(Topic, T, Data))),
+	  \foreach((member(T, [T1 | Tasks]), task(Topic, T, Data)),
             ( {T = Task}
              -> html(div([class('tab-pane fade show active'), id('nav-~w'-[T]), role(tabpanel), 'aria-labelledby'('nav-~w-tab'-[T]), tabindex(0)], 
                   div([
