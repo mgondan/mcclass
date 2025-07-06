@@ -13,8 +13,8 @@
 navbar:page(subgroups, ["subgroups"]).
 
 task(fratio).
-%task(pvalue).
-%task(cibase).
+task(pvalue).
+task(cibase).
 
 label(fratio, [math(mi('F')), "-ratio"]).
 label(pvalue, [math(mi(p)), "-value"]).
