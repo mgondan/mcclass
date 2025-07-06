@@ -98,14 +98,17 @@ mathml:math_hook(r(Expr), Res) :-
 % more to come
 task(Topic, Task, Data) :-
     session_data(topic(Topic, Variant)),
-    !,
-    taskdata(Topic, Task, Variant, Data).
+    taskdata(Topic, Task, Variant, D),
+    !, Data = D.
 
 task(Topic, Task, Data) :-
     random_between(1, 3, Variant),
     format(atom(Atom), "var~w", [Variant]),
     session_assert(topic(Topic, Atom)),
-    taskdata(Topic, Task, Atom, Data).
+    !,
+    taskdata(Topic, Task, Atom, D),
+    !,
+    Data = D.
 
 % Correct response
 feedback(Topic, Task, Data, _Form)
@@ -238,7 +241,7 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(tpaired, tratio).
+    tasks(baseline, pvalue).
 
 tasks(Topic, Task) :-
     b_setval(http_session_id, default_session),
