@@ -41,8 +41,9 @@ init_sol(Topic) :-
           button([class('accordion-button'), type(button)], "~w")),
         div(class('accordion-collapse collapse show'),
           div(class('accordion-body'),
-           [ p(\mmlm([topic(Topic), task(Task) | Colors], Expr)), ul(Feedback)
-           ]))
+           [ p(\mmlm([topic(Topic), task(Task) | Colors], Expr)), ul(Feedback) ]
+          )
+        )
       ])),
     phrase(AccItem, HTML),
     with_output_to(string(S), print_html(HTML)),

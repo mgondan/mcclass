@@ -59,16 +59,17 @@ init_variant(Topic, Task) :-
     findall(V, taskdata(Topic, Task, V, _), Variants),
     length(Variants, N),
     format(atom(Variant), "var~w", N),
-    b_setval(topic, Topic),
     b_setval(variant, Variant),
     r_topic_source,
     solutions(Topic, Task, S),
     mistakes(Topic, Task, M),
-    assert(taskdata(Topic, Task, Variant, [solutions(S), mistakes(M)])).
+    assert(taskdata(Topic, Task, Variant, [solutions(S), mistakes(M)])),
+    http_log("Added taskdata ~w:~w:~w~n", [Topic, Task, Variant]).
 
 init_topic(Topic) :-
     use_module(Topic),
     dynamic(Topic:math_hook/2),
+    b_setval(topic, Topic),
     init_solutions(Topic),
     init_hints(Topic),
     init_mistakes(Topic),
@@ -91,8 +92,12 @@ init_topics :-
     init_topic(subgroups),
     init_topic(regression).
 
-:- init_topics.
-:- listen(http(post_server_start), (between(1, 3, _), init_topics)).
+done_topics :-
+    http_log("Done with initialization.~n").
+
+:-  init_topics.
+:-  listen(http(post_server_start), 
+    thread_create((init_topics, init_topics, init_topics), _, [at_exit(done_topics)])).
 
 % Render R result
 mathml:math_hook(r(Expr), Res) :-
@@ -103,8 +108,8 @@ mathml:math_hook(r(Expr), Res) :-
 % more to come
 task(Topic, Task, Data) :-
     session_data(topic(Topic, Variant)),
-    taskdata(Topic, Task, Variant, D),
-    !, Data = D.
+    !,
+    taskdata(Topic, Task, Variant, Data).
 
 task(Topic, Task, Data) :-
     findall(V, taskdata(Topic, Task, V, _), Variants),
@@ -246,12 +251,12 @@ download(File) :-
 % ?- tasks:tasks.
 %
 tasks :-
-    tasks(baseline, pvalue).
+    tasks(regression, bcoef).
 
 tasks(Topic, Task) :-
     b_setval(http_session_id, default_session),
     b_setval(topic, Topic),
-    b_setval(variant, var1),
+    b_setval(variant, var0),
     task(Topic, Task, Data),
     writeln("Task data"),
     writeln(Data),

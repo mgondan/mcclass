@@ -20,10 +20,10 @@ label(pvalue, [math(mi(p)), "-value"]).
 
 % Prettier symbols for mathematical rendering
 math_hook(n, 'N').
-math_hook(lm0(Y, X, "intercept"), ["Intercept: ", ~(r(Y), r(X))]).
-math_hook(lm0(Y, X, "coef"), ["Estimate: ", ~(r(Y), r(X))]).
-math_hook(lm0(Y, X, "pval:coef"), ["Estimate", p, "-value: ", ~(r(Y), r(X))]).
-math_hook(lm0(Y, X, "pval:intercept"), ["Intercept", p, "-value: ", ~(r(Y), r(X))]).
+math_hook(lm0(Y, X, "intercept"), ["Intercept: ", ~(Y, X)]).
+math_hook(lm0(Y, X, "coef"), ["Estimate: ", ~(Y, X)]).
+math_hook(lm0(Y, X, "pval:coef"), ["Estimate", p, "-value: ", ~(Y, X)]).
+math_hook(lm0(Y, X, "pval:intercept"), ["Intercept", p, "-value: ", ~(Y, X)]).
 
 % R definitions
 r_hook(n).
@@ -55,14 +55,18 @@ task(_Flags, bcoef)
 --> { start(item(_N, _Y, _X)),
       session_data(resp(regression, bcoef, Resp), resp(regression, bcoef, '#.##'))
     },
-	html(\htmlform(["How does the depression severity change (increase/decrease in HDRS score) for every hour of additional sleep?"], bcoef, Resp)).
+    html(\htmlform(
+      [ "How does the depression severity ",
+        "change (increase/decrease in HDRS score) for every hour of ",
+        "additional sleep?"
+      ], bcoef, Resp)).
 
 % Question for p-value 
 task(Flags, pvalue)
 --> { start(item(_N, _Y, _X)),
       session_data(resp(regression, pvalue, Resp), resp(regression, pvalue, '#.##'))
     },
-	html(\htmlform(["What is the ", \nowrap([\mmlm(Flags, p), "-value"]), " of the estimate?"], pvalue, Resp)).
+    html(\htmlform(["What is the ", \nowrap([\mmlm(Flags, p), "-value"]), " of the estimate?"], pvalue, Resp)).
 
 %
 % Expert rule for b-coefficient
@@ -93,7 +97,6 @@ feedback(linearmodel, [_,_], _Col, F)
 
 hint(linearmodel, _Col, F)
  => F = "Report the coefficient for the sleep duration.".
-
 
 %
 % Buggy-Rules for b-coefficient task

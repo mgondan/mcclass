@@ -359,13 +359,13 @@ hint(pbinom, _Col, H)
 
 % Second step: determine the upper tail of the binomial distribution
 intermediate(pval, pbinom0).
-expert(pval, stage(2), From, To, [step(expert, tail, [K, P0])]) :-
+expert(pval, stage(2), From, To, [step(expert, tail, [K])]) :-
   From = pbinom0(_Alpha, N, P0, _P1, K),
   To = { pbinom1(K, N, P0, tail("upper")) }.
 
-feedback(tail, [K, P0], Col, F)
- => F = [ "Correctly calculated the probability of having ", \mmlm(Col, k = r(K)),
-          " or more successes under the null hypothesis of ", \mmlm(Col, p0 = r(P0)), "."
+feedback(tail, [K], Col, F)
+ => F = [ "Correctly calculated the probability for ", \mmlm(Col, K),
+          " or more successes under the null hypothesis."
         ].
 
 hint(tail, _Col, H)
@@ -381,7 +381,7 @@ buggy(pval, stage(2), From, To, [step(buggy, lowertail, [K])]) :-
     To = { pbinom1(K, N, P0, instead(lowertail, tail("lower"), tail("upper"))) }.
 
 feedback(lowertail, [K], Col, F)
- => F = [ "The result matches the probability of having ", \mmlm(Col, k = r(K)),
+ => F = [ "The result matches the probability of having ", \mmlm(Col, K),
           " or less successes."
         ].
 
@@ -394,7 +394,7 @@ buggy(pval, stage(2), From, To, [step(buggy, density, [K])]) :-
     To = { pbinom1(K, N, P0, instead(lowertail, tail("densi"), tail("upper"))) }.
 
 feedback(density, [K], Col, F)
- => F = [ "The result matches the probability of having exactly ", \mmlm(Col, k = r(K)),
+ => F = [ "The result matches the probability of having exactly ", \mmlm(Col, K),
           " successes."
         ].
 
@@ -407,7 +407,7 @@ buggy(pval, stage(2), From, To, [step(buggy, alternative, [p1])]) :-
     To = { instead(alternative, p1, p0) }.
 
 feedback(alternative, [P1], Col, F)
- => F = [ "The result matches the probability under the alternative hypothesis of ", \mmlm(Col, p1 = r(P1)), "."
+ => F = [ "The result matches the probability under the alternative ", \mmlm(Col, P1), "."
         ].
 
 hint(alternative, _Col, H)
