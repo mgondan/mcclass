@@ -3,6 +3,7 @@
 :- use_module(library(http/html_write)).
 :- use_module(library(http/http_log)).
 :- use_module(library(dcg/high_order)).
+:- use_module(library(broadcast)).
 :- use_module(mathml).
 :- use_module(search).
 :- use_module(depends).
@@ -50,13 +51,14 @@ mistakes(Topic, Task, Solutions) :-
 
 init_variants(Topic) :-
     Topic:task(Task),
-    between(1, 3, Variant),
-    format(atom(Atom), "var~w", [Variant]),
-    init_variant(Topic, Task, Atom).
+    init_variant(Topic, Task).
 
 :- dynamic taskdata/4.
 
-init_variant(Topic, Task, Variant) :-
+init_variant(Topic, Task) :-
+    findall(V, taskdata(Topic, Task, V, _), Variants),
+    length(Variants, N),
+    format(atom(Variant), "var~w", N),
     b_setval(topic, Topic),
     b_setval(variant, Variant),
     r_topic_source,
@@ -64,30 +66,33 @@ init_variant(Topic, Task, Variant) :-
     mistakes(Topic, Task, M),
     assert(taskdata(Topic, Task, Variant, [solutions(S), mistakes(M)])).
 
-use_topic(Topic) :-
+init_topic(Topic) :-
     use_module(Topic),
     dynamic(Topic:math_hook/2),
     init_solutions(Topic),
     init_hints(Topic),
     init_mistakes(Topic),
     init_traps(Topic),
-    forall(init_variants(Topic), true),
-    format("~w initialized~n", [Topic]).
+    forall(init_variants(Topic), true).
 
-:- use_topic(tpaired).
-:- use_topic(tpairedupper).
-:- use_topic(tpairedlower).
-:- use_topic(baseline).
-:- use_topic(oddsratio).
-:- use_topic(oddsratio2).
-:- use_topic(easyodds).
-:- use_topic(tgroups).
-:- use_topic(ztrans).
-:- use_topic(dbinom).
-:- use_topic(testbinom).
-:- use_topic(chisq).
-:- use_topic(subgroups).
-:- use_topic(regression).
+init_topics :-
+    init_topic(tpaired),
+    init_topic(tpairedupper),
+    init_topic(tpairedlower),
+    init_topic(baseline),
+    init_topic(oddsratio),
+    init_topic(oddsratio2),
+    init_topic(easyodds),
+    init_topic(tgroups),
+    init_topic(ztrans),
+    init_topic(dbinom),
+    init_topic(testbinom),
+    init_topic(chisq),
+    init_topic(subgroups),
+    init_topic(regression).
+
+:- init_topics.
+:- listen(http(post_server_start), (between(1, 3, _), init_topics)).
 
 % Render R result
 mathml:math_hook(r(Expr), Res) :-
@@ -102,13 +107,13 @@ task(Topic, Task, Data) :-
     !, Data = D.
 
 task(Topic, Task, Data) :-
-    random_between(1, 3, Variant),
-    format(atom(Atom), "var~w", [Variant]),
-    session_assert(topic(Topic, Atom)),
+    findall(V, taskdata(Topic, Task, V, _), Variants),
+    length(Variants, N),
+    random_between(1, N, Index),
+    nth1(Index, Variants, Variant),
+    session_assert(topic(Topic, Variant)),
     !,
-    taskdata(Topic, Task, Atom, D),
-    !,
-    Data = D.
+    taskdata(Topic, Task, Variant, Data).
 
 % Correct response
 feedback(Topic, Task, Data, _Form)
