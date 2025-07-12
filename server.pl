@@ -119,7 +119,7 @@ handle(Topic, Form),
                   div([
                     \(Topic:task([topic(Topic)], T)),
 		    \show_hints(Topic, T),
-                    \feedback(Topic, T, Data, Form),
+                    \show_feedback(Topic, T, Data),
                     \show_solutions(Topic, T, Data),
                     \show_mistakes(Topic, T, Data),
                     \show_traps(Topic, T)])))
@@ -127,7 +127,7 @@ handle(Topic, Form),
                   div([
                     \(Topic:task([topic(Topic)], T)),
 		    \show_hints(Topic, T),
-                    \feedback(Topic, T, Data, Form),
+                    \show_feedback(Topic, T, Data),
                     \show_solutions(Topic, T, Data),
                     \show_mistakes(Topic, T, Data),
                     \show_traps(Topic, T)])))))),
@@ -169,7 +169,7 @@ handle(Topic, Form)
                   div([
                     \(Topic:task([topic(Topic)], T)),
 		    \show_hints(Topic, T),
-                    \feedback(Topic, T, Data, Form),
+                    \show_feedback(Topic, T, Data),
                     \show_solutions(Topic, T, Data),
                     \show_mistakes(Topic, T, Data),
                     \show_traps(Topic, T)])))
@@ -177,7 +177,7 @@ handle(Topic, Form)
                   div([
                     \(Topic:task([topic(Topic)], T)),
 		    \show_hints(Topic, T),
-                    \feedback(Topic, T, Data, Form),
+                    \show_feedback(Topic, T, Data),
                     \show_solutions(Topic, T, Data),
                     \show_mistakes(Topic, T, Data),
                     \show_traps(Topic, T)])))))),
