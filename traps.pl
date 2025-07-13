@@ -2,6 +2,7 @@
 
 :- use_module(library(http/html_write)).
 :- use_module(library(dcg/high_order)).
+:- use_module(library(http/http_log)).
 :- use_module(util).
 :- use_module(mathml).
 :- use_module(steps).
@@ -16,6 +17,7 @@
 init_traps(Topic) :-
     dynamic(Topic:traps/2),
     dynamic(Topic:trap/4),
+    dynamic(Topic:trap_codes/2),
     foreach(init_traps1(Topic), true),
     foreach(init_traps2(Topic), true).
 
@@ -26,6 +28,9 @@ init_traps1(Topic) :-
         findall(Name, member(step(buggy, Name, _), Steps), [Name])
       ), Traps),
     sort(1, @<, Traps, Unique),
+    findall(Name, member(trap(_-Name, _), Unique), TrapCodes),
+    assert(Topic:trap_codes(Task, TrapCodes)),
+    http_log("Trap codes ~w~n", [TrapCodes]),
     foreach(
       ( member(trap(Task-Name, Expr), Unique),
         colors(Expr, Colors),

@@ -4,6 +4,7 @@
 :- use_module(library(quantity)).
 :- use_module(interval).
 :- use_module(util).
+:- use_module(library(http/http_log)).
 
 % This may become more complex if we change the representation.
 praise(Task, Flags, Col, Praise) :-
@@ -39,11 +40,8 @@ show_feedback(Topic, Task, Data)
       memberchk(mistakes(Mistakes), Data),
       member(wrong(Expr, Res, Flags, Colors, _S), Mistakes),
       interval(Num =@= Res, true, [topic(Topic), task(Task) | Colors]),
-      % This can be prepared on module initialization
-      findall(H, Topic:hints(Task, _, H, _), Hints0),
-      append(Hints0, Hints1),
-      sort(Hints1, Hints),
       % Relevant feedback
+      Topic:hint_codes(Task, Hints),
       findall(li(F),
         ( member(step(expert, Name, Args), Flags),
           memberchk(Name, Hints),
@@ -52,17 +50,19 @@ show_feedback(Topic, Task, Data)
       ( Correct0 = []
         -> Correct = p(class('card-text'), "")
          ; Correct = p(class('card-text'),
-                       [ "Correct steps", ul(class('card-text'), ul(Correct0)) ])
+             [ "Correct steps", ul(class('card-text'), ul(Correct0)) ])
       ),
+      % Same for incorrect steps
+      Topic:trap_codes(Task, Traps),
       findall(li(F),
         ( member(step(buggy, Name, Args), Flags),
-          Topic:trap(Task, _, Name, _),
+	  memberchk(Name, Traps),
           Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Colors], F)
         ), Wrong0),
       ( Wrong0 = []
         -> Wrong = p(class('card-text'), "")
          ; Wrong = p(class('card-text'),
-                       [ "Wrong steps", ul(class('card-text'), ul(Wrong0)) ])
+             [ "Wrong steps", ul(class('card-text'), ul(Wrong0)) ])
       ),
       % Irrelevant feedback
       findall(li(F),
@@ -73,7 +73,7 @@ show_feedback(Topic, Task, Data)
       ( Praise0 = []
         -> Praise = p(class('card-text'), "")
          ; Praise = p(class('card-text'),
-                       [ "Other praise", ul(class('card-text'), ul(Praise0)) ])
+             [ "Other praise", ul(class('card-text'), ul(Praise0)) ])
       ),
       findall(li(F),
         ( member(step(buggy, Name, Args), Flags),
@@ -83,7 +83,7 @@ show_feedback(Topic, Task, Data)
       ( Blame0 = []
         -> Blame = p(class('card-text'), "")
          ; Blame = p(class('card-text'),
-                       [ "Other mistakes", ul(class('card-text'), ul(Blame0)) ])
+             [ "Other mistakes", ul(class('card-text'), ul(Blame0)) ])
       )
     },
     html(div(class(card),

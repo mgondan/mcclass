@@ -67,8 +67,9 @@ init_hint(Topic, Task, Expr, Steps, _Colors, Id, [_, _ | _]) :-
     assert(Topic:hints(Task, Expr, Hints, AccItem)).
 
 init_hints(Topic) :-
-    dynamic(Topic:hints/4),
     dynamic(Topic:hints/2),
+    dynamic(Topic:hints/4),
+    dynamic(Topic:hint_codes/2),
     forall(init_hints1(Topic), true).
 
 % pretty print the set of hints for one given result
@@ -77,7 +78,10 @@ init_hints1(Topic) :-
     findall(sol(Task, Expr, Steps, Colors), Topic:sol(Task, Expr, Steps, Colors, _S), Solutions),
     foreach(init_hints(Topic, Task, Solutions), true),
     findall(Hint-Item, Topic:hints(Task, _Expr, Hint, Item), Pairs),
-    pairs_keys_values(Pairs, _Hints, AccItems),
+    pairs_keys_values(Pairs, Keys, AccItems),
+    append(Keys, Codes),
+    sort(Codes, Sorted),
+    assert(Topic:hint_codes(Task, Sorted)),
     Accordion = div(class('card card-body'),
       [ p(button([class('btn btn-warning'), type(button),
             'data-bs-toggle'(collapse),
