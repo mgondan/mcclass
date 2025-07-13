@@ -67,7 +67,7 @@ show_feedback(Topic, Task, Data)
       % Irrelevant feedback
       findall(li(F),
         ( member(step(expert, Name, Args), Flags),
-          \+ memberchk(Name, Hints),
+          \+ member(Name, Hints),
           Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Colors], F)
         ), Praise0),
       ( Praise0 = []
@@ -75,9 +75,10 @@ show_feedback(Topic, Task, Data)
          ; Praise = p(class('card-text'),
              [ "Other praise", ul(class('card-text'), ul(Praise0)) ])
       ),
+      % Same for mistakes
       findall(li(F),
         ( member(step(buggy, Name, Args), Flags),
-          \+ Topic:trap(Task, _, Name, _),
+          \+ member(Name, Traps),
           Topic:feedback(Name, Args, [topic(Topic), task(Task), denote(false) | Colors], F)
         ), Blame0),
       ( Blame0 = []
