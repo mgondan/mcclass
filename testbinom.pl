@@ -29,9 +29,6 @@ math_hook(cbinom(Alpha, N, Pi, Tail, MinArg), M) :-
     M = (nodot(MinArg, fn(subscript('P', "Bi"), ([Tail] ; [N, Pi])) =< Alpha)).
 math_hook(pbinom1(_K, N, Pi, Tail), M) :-
     M = (fn(subscript('P', "Bi"), ([Tail] ; [N, Pi]))).
-math_hook(tail("upper"), 'X' >= k).
-math_hook(tail("lower"), 'X' =< k).
-math_hook(tail("densi"), 'X' = k).
 
 % R definitions
 r_hook(alpha).
@@ -115,16 +112,16 @@ hint(binom, _Col, H) =>
     H = "This problem is solved with a binomial test.".
 
 % Second step: upper tail of the binomial distribution
+intermediate(critical, tail0).
 expert(critical, stage(2), From, To, [step(expert, upper, [])]) :-
     From = binom(Alpha, N, P0),
-    To   = binom(Alpha, N, P0, tail("upper", k), arg("min", k > N*P0)).
+    To   = cbinom(Alpha, N, P0, tail0("upper", k), arg("min", k > N*P0)).
 
 feedback(upper, [], _Col, F)
- => F = [ "Correctly selected the upper tail of the binomial distribution." ].
+ => F = "Correctly selected the upper tail of the binomial distribution.".
 
 hint(upper, _Col, H)
  => H = "The upper tail of the binomial distribution is needed.".
-
 
 %
 % Buggy rules for the critical value task
@@ -132,13 +129,11 @@ hint(upper, _Col, H)
 % Buggy rule: lower tail of the binomial distribution
 buggy(critical, stage(2), From, To, [step(buggy, lower, [])]) :-
     From = binom(Alpha, N, P0),
-    To   = binom(Alpha, N, P0, instead(lower, tail("lower", k), tail("upper", k)),
+    To   = cbinom(Alpha, N, P0, instead(lower, tail0("lower", k), tail("upper", k)),
            instead(lower, arg("max", k < N*P0), arg("min", k > N*P0))).
 
 feedback(lower, [], _Col, F)
- => F = [ "The result matches the lower tail of the binomial ",
-          "distribution." 
-       ].
+ => F = "The result matches the lower tail of the binomial distribution.".
 
 hint(lower, _Col, H)
  => H = [ "Select the upper tail of the binomial distribution, ",
@@ -147,23 +142,18 @@ hint(lower, _Col, H)
 
 % Buggy rule: critical value based on distribution
 expert(critical, stage(2), From, To, [step(expert, dist, [])]) :-
-    From = binom(Alpha, N, P0, Tail, Arg),
-    To   = cbinom(Alpha, N, P0, Tail, Arg).
+    From = tail0(Tail, K),
+    To   = tail(Tail, K).
 
 feedback(dist, [], _Col, F)
- => F = [ "Correctly used the critical value of the cumulative ",
-          "distribution."
-        ].
+ => F = "Correctly used the critical value of the cumulative distribution.".
 
 hint(dist, _Col, H)
- => H = [ "The critical value is determined with help of the cumulative ",
-          "distribution."
-        ].
+ => H = "The critical value is determined from cumulative distribution.".
 
 % Buggy rule: critical value based on density
 buggy(critical, stage(2), From, To, [step(buggy, dens1, [Tail, K])]) :-
-    From = tail(Tail, K),
-    member(Tail, ["lower", "upper"]),
+    From = tail0(Tail, K),
     To = instead(dens1, tail("densi", K), tail(Tail, K)).
 
 feedback(dens1, [Tail, K], Col, F)
@@ -180,7 +170,6 @@ hint(dens1, _Col, H)
           "not the density."
         ].
 
-
 % 
 % Expert rules for the power task
 %
@@ -188,7 +177,7 @@ hint(dens1, _Col, H)
 % binomial probability.
 intermediate(powbinom, item).
 intermediate(powbinom, crit).
-
+intermediate(powbinom, power).
 expert(powbinom, stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(Alpha, N, P0, P1, _K),
     To = { '<-'(c, crit(Alpha, N, P0)) ;
@@ -205,9 +194,10 @@ hint(problem, _Col, H)
 %
 % Second step: determine the critical value based on the upper tail 
 %
+intermediate(powbinom, tail0).
 expert(powbinom, stage(2), From, To, [step(expert, upper1, [])]) :-
     From = crit(Alpha, N, P0),
-    To   = crit(Alpha, N, P0, tail("upper", k), arg("min", k > N*P0)).
+    To   = cbinom(Alpha, N, P0, tail0("upper", k), arg("min", k > N*P0)).
 
 feedback(upper1, [], _Col, F)
  => F = [ "Correctly determined the critical value from the upper tail of ",
@@ -221,8 +211,8 @@ hint(upper1, _Col, H)
 
 % Third step: determine the critical value based on the cumulative distribution
 expert(powbinom, stage(2), From, To, [step(expert, dist1, [])]) :-
-    From = crit(Alpha, N, P0, Tail, Arg),
-    To   = cbinom(Alpha, N, P0, Tail, Arg).
+    From = tail0(Tail, K),
+    To   = tail(Tail, K).
 
 feedback(dist1, [], _Col, F)
  => F = [ "Correctly calculated the critical value from the cumulative ",
@@ -235,10 +225,9 @@ hint(dist1, _Col, H)
         ].
 
 % Fourth step: determine the power based on the upper tail
-intermediate(powbinom, power).
 expert(powbinom, stage(3), From, To, [step(expert, upper2, [])]) :-
-    From = power(Crit, N, P1),
-    To   = power(Crit, N, P1, tail("upper", Crit)).
+    From = power(C, N, P1),
+    To   = pwbinom(C, N, P1, tail("upper", C)).
 
 feedback(upper2, [], _Col, F)
  => F = [ "Correctly determined the power from the upper tail of the ",
@@ -250,21 +239,6 @@ hint(upper2, _Col, H)
           "distribution."
         ].
 
-% Fifth step: determine the power based on the cumulative distribution
-expert(powbinom, stage(3), From, To, [step(expert, dist2, [])]) :-
-    From = power(Crit, N, P1, Tail),
-    To   = pwbinom(Crit, N, P1, Tail).
-
-feedback(dist2, [], _Col, F)
- => F = [ "Correctly calculated the power using the cumulative ",
-          "distribution."
-        ].
-
-hint(dist2, _Col, H)
- => H = [ "The power should be determined using the cumulative ",
-          "distribution."
-        ].
-
 %
 % Buggy rules for the power task
 %
@@ -272,7 +246,7 @@ hint(dist2, _Col, H)
 % binomial distribution.
 buggy(powbinom, stage(2), From, To, [step(buggy, lower1, [])]) :-
     From = crit(Alpha, N, P0),
-    To   = crit(Alpha, N, P0, instead(lower1, tail("lower", k), tail("upper", k)),
+    To   = cbinom(Alpha, N, P0, instead(lower1, tail0("lower", k), tail("upper", k)),
                 instead(lower1, arg("max", k < N*P0), arg("min", k > N*P0))).
 
 feedback(lower1, [], _Col, F)
@@ -288,8 +262,7 @@ hint(lower1, _Col, H)
 
 % Buggy rule: critical value based on density (not cumulated)
 buggy(powbinom, stage(2), From, To, [step(buggy, dens1, [K])]) :-
-    From = tail(Tail, K),
-    member(Tail, ["upper", "lower"]),
+    From = tail0(_Tail, K),
     To = instead(dens1, tail("densi", K), tail("upper", K)).
 
 feedback(dens1, [K], Col, F)
@@ -309,7 +282,7 @@ hint(dens1, _Col, H)
 % Buggy rule: power based on lower tail
 buggy(powbinom, stage(3), From, To, [step(buggy, lower2, [])]) :-
     From = power(Crit, N, P1),
-    To   = power(Crit, N, P1, instead(lower2, tail("lower", Crit), tail("upper", Crit))).
+    To   = pwbinom(Crit, N, P1, instead(lower2, tail("lower", Crit), tail("upper", Crit))).
 
 feedback(lower2, [], _Col, F)
  => F = [ "The result matches the power based on the lower tail of the ",
@@ -324,8 +297,8 @@ hint(lower2, _Col, H)
 
 % Buggy rule: power based on density
 buggy(powbinom, stage(3), From, To, [step(buggy, dens2, [C])]) :-
-    From = tail("upper", C),
-    To = instead(dens2, tail("densi", C), tail("upper", C)).
+    From = power(C, N, P1),
+    To   = pwbinom(C, N, P1, instead(dens2, tail("densi", C), tail("upper", C))).
 
 feedback(dens2, [C], Col, F)
  => F = [ "The result matches the power based on the binomial probability, ",
@@ -340,7 +313,6 @@ hint(dens2, _Col, H)
           "determine the power."
         ].
 
-
 %
 % Expert rules for the p-value task
 %
@@ -348,11 +320,10 @@ hint(dens2, _Col, H)
 intermediate(pval, item).
 expert(pval, stage(2), From, To, [step(expert, pbinom, [])]) :-
     From = item(Alpha, N, P0, P1, K),
-    To = { pbinom0(Alpha, N, P0, P1, K) }.
+    To = pbinom0(Alpha, N, P0, P1, K).
 
 feedback(pbinom, [], _Col, F)
- => F = [ "Correctly recognized the problem as involving a binomial distribution."
-        ].
+ => F = "Correctly recognized the problem as involving a binomial distribution.".
 
 hint(pbinom, _Col, H)
  => H = "The problem involves a binomial distribution.".
@@ -361,7 +332,7 @@ hint(pbinom, _Col, H)
 intermediate(pval, pbinom0).
 expert(pval, stage(2), From, To, [step(expert, tail, [K])]) :-
   From = pbinom0(_Alpha, N, P0, _P1, K),
-  To = { pbinom1(K, N, P0, tail("upper")) }.
+  To = pbinom1(K, N, P0, tail("upper")).
 
 feedback(tail, [K], Col, F)
  => F = [ "Correctly calculated the probability for ", \mmlm(Col, K),
@@ -378,7 +349,7 @@ hint(tail, _Col, H)
 % Buggy rule: use lower tail instead of upper tail
 buggy(pval, stage(2), From, To, [step(buggy, lowertail, [K])]) :-
     From = pbinom0(_Alpha, N, P0, _P1, K),
-    To = { pbinom1(K, N, P0, instead(lowertail, tail("lower"), tail("upper"))) }.
+    To = pbinom1(K, N, P0, instead(lowertail, tail("lower"), tail("upper"))).
 
 feedback(lowertail, [K], Col, F)
  => F = [ "The result matches the probability of having ", \mmlm(Col, K),
@@ -404,7 +375,7 @@ hint(density, _Col, H)
 % Buggy rule: use success probability of alternative instead of null hypothesis
 buggy(pval, stage(2), From, To, [step(buggy, alternative, [p1])]) :-
     From = p0,
-    To = { instead(alternative, p1, p0) }.
+    To = instead(alternative, p1, p0).
 
 feedback(alternative, [P1], Col, F)
  => F = [ "The result matches the probability under the alternative ", \mmlm(Col, P1), "."
