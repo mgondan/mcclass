@@ -27,7 +27,7 @@ solutions(Topic, Task, Solutions) :-
     findall(s(Expr, Res-Codes, Flags, Colors, String),
       ( Topic:sol(Task, Expr, Flags, Colors, String),
         interval(Expr, Res, [topic(Topic)]),
-        sort(Flags, Sorted),
+        list_to_set(Flags, Sorted),
         codes(Sorted, Codes)
       ), List),
     % avoid duplicates by permutations

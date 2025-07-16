@@ -126,7 +126,7 @@ start(item(t0, s_t0, eot, s_eot, d, s_d, n, mu, alpha)).
 % First step: Extract the correct information for a paired t-test from the task
 % description
 intermediate(tratio, paired).
-expert(tratio, stage(2), X, Y, [step(expert, paired, [])]) :-
+expert(tratio, stage(1), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu, _Alpha),
     Y = { '<-'(t, paired(D, Mu, S_D, N)) }.
 
@@ -143,7 +143,7 @@ hint(paired, Col, F)
 
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal)
-expert(tratio, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
+expert(tratio, stage(1), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
     X = paired(D, Mu, S_D, N),
     Y = tstat(dfrac(D - Mu, S_D / sqrt(N))).
 
@@ -159,7 +159,7 @@ hint(tratio, Col, F)
         ].
 
 % Another correct result
-expert(tratio, stage(2), X, Y, [step(expert, abs_tratio, [D, Mu, S_D, N])]) :-
+expert(tratio, stage(1), X, Y, [step(expert, abs_tratio, [D, Mu, S_D, N])]) :-
     X = paired(D, Mu, S_D, N),
     Y = tstat(abs(dfrac(D - Mu, S_D / sqrt(N)))).
 
@@ -187,7 +187,7 @@ hint(abs_tratio, Col, F)
 % even in the absence of any therapeutical effect. 
 % This misconception is even built into SPSS, because the paired samples t-test
 % in SPSS only allows for mu = 0.  
-buggy(tratio, stage(2), X, Y, [step(buggy, mu, [Mu])]) :-
+buggy(tratio, stage(1), X, Y, [step(buggy, mu, [Mu])]) :-
     X = paired(D, Mu, S_D, N),
     Y = tstat(dfrac(omit_right(mu, D - Mu), S_D / sqrt(N))).
 
@@ -211,7 +211,7 @@ hint(mu, Col, F)
 % gathering the important data needed to solve the t-test for independent samples
 % (both correct and incorrect solutions) from the task description
 intermediate(tratio, indep).
-buggy(tratio, stage(2), X, Y, [step(buggy, indep, [])]) :-
+buggy(tratio, stage(1), X, Y, [step(buggy, indep, [])]) :-
     X = item(T0, S_T0, EOT, S_EOT, D, S_D, N, Mu, _Alpha),
     Y = { '<-'(t, instead(indep, indep(T0, S_T0, N, EOT, S_EOT, N), 
             paired(D, Mu, S_D, N))) 
@@ -233,7 +233,7 @@ hint(indep, Col, F)
 % Determine the test statistic for the t-test for independent samples.
 % The step itself is correct, although it is only needed
 % if a wrong decision has been made before (bug indep).
-expert(tratio, stage(2), X, Y, 
+expert(tratio, stage(1), X, Y, 
         [step(expert, tratio_indep, [T0, S_T0, N, EOT, S_EOT])]) :-
     X = indep(T0, S_T0, N, EOT, S_EOT, N),
     P = denote(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
@@ -260,7 +260,7 @@ hint(tratio_indep, Col, F)
 % For mysterious reasons, everyone falls into this trap at least once,
 % including me and the student assistants. I have coined it "school",
 % since it is an example in which the person has forgotten school math.
-buggy(tratio, stage(2), X, Y, [step(buggy, school1, [N1, N2])]) :-
+buggy(tratio, stage(1), X, Y, [step(buggy, school1, [N1, N2])]) :-
     dif(N1, N2),
     X = 1/N1 + 1/N2,
     Y = frac(1, color(school1, N1 + N2)).
@@ -284,7 +284,7 @@ hint(school1, Col, F)
         ].
 
 % Buggy-Rule: Forgot school math (Same for N1 = N2)
-buggy(tratio, stage(2), X, Y, [step(buggy, school2, [N])]) :-
+buggy(tratio, stage(1), X, Y, [step(buggy, school2, [N])]) :-
     X = 1/N + 1/N,
     Y = frac(1, color(school2, 2*N)).
 
@@ -312,7 +312,7 @@ hint(school2, Col, F)
 % 
 % This is the first buggy rule that ever came to my attention, therefore the
 % name, bug1.
-buggy(tratio, stage(2), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
+buggy(tratio, stage(1), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
     X = dfrac(D - Mu, S / SQRT_N),
     M0 = drop_left(bug1, D - Mu),
     S0 = drop_right(bug1, S / SQRT_N),
@@ -342,7 +342,7 @@ hint(bug1, Col, F)
 % Buggy-Rule: Use the mean of TO instead of the mean of D
 % The depends means: This bug is limited to the paired t-test and co-occurs
 % with s_t0.
-buggy(tratio, stage(1), X, Y, 
+buggy(tratio, stage(2), X, Y, 
         [step(buggy, t0, [d, t0]), depends(s_t0), depends(paired)]) :-
     X = d,
     Y = instead(t0, t0, d).
@@ -365,7 +365,7 @@ hint(t0, Col, F)
 	].
 
 % Buggy-Rule: Use SD of T0 instead of SD of D
-buggy(tratio, stage(1), X, Y, Flags) :-
+buggy(tratio, stage(2), X, Y, Flags) :-
     Flags = [step(buggy, s_t0, [s_d, s_t0]), depends(paired)],
     X = s_d,
     Y = instead(s_t0, s_t0, s_d).
@@ -390,7 +390,7 @@ hint(s_t0, Col, F)
 	].
 
 % Buggy-Rule: Use mean EOT instead of mean D
-buggy(tratio, stage(1), X, Y, [step(buggy, eot, [d, eot]), 
+buggy(tratio, stage(2), X, Y, [step(buggy, eot, [d, eot]), 
         depends(s_eot), depends(paired)]) :-
     X = d,
     Y = instead(eot, eot, d).
@@ -414,7 +414,7 @@ hint(eot, Col, F)
 	].
 
 % Buggy-Rule: Use SD of EOT instead of SD of D
-buggy(tratio, stage(1), X, Y, Flags) :-
+buggy(tratio, stage(2), X, Y, Flags) :-
     Flags = [step(buggy, s_eot, [s_d, s_eot]), depends(paired)],
     X = s_d,
     Y = instead(s_eot, s_eot, s_d).
@@ -439,7 +439,7 @@ hint(s_eot, Col, F)
         ].
 
 % Buggy-Rule: Use of n instead of sqrt(n)
-buggy(tratio, stage(2), X, Y, [step(buggy, sqrt1, [n])]) :-
+buggy(tratio, stage(1), X, Y, [step(buggy, sqrt1, [n])]) :-
     X = sqrt(n),
     Y = omit_right(sqrt1, n^(1/2)).
 
@@ -458,7 +458,7 @@ hint(sqrt1, Col, F)
         ].
 
 % Buggy-Rule: Forget square root around pooled variance
-buggy(tratio, stage(2), X, Y, [step(buggy, sqrt2, [S_T0, S_EOT, N])]) :-
+buggy(tratio, stage(1), X, Y, [step(buggy, sqrt2, [S_T0, S_EOT, N])]) :-
     P = denote(s2p, var_pool(S_T0^2, N, S_EOT^2, N), "the pooled variance"),
     X = sqrt(P * (1/N + 1/N)),
     Y = omit_right(sqrt2, (P * (1/N + 1/N))^(1/2)).
@@ -487,7 +487,7 @@ intermediate(pvalue, item).
 % description
 intermediate(pvalue, paired).
 intermediate(pvalue, twotailed).
-expert(pvalue, stage(2), X, Y, [step(expert, paired, [])]) :-
+expert(pvalue, stage(1), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu, _Alpha),
     Y = { '<-'(t, paired(D, Mu, S_D, N)) ;
           pval('<-'(p, twotailed(t, N-1)))
@@ -506,7 +506,7 @@ hint(paired, Col, F)
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal)
 intermediate(pvalue, tratio).
-expert(pvalue, stage(2), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
+expert(pvalue, stage(1), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
     X = paired(D, Mu, S_D, N),
     Y = dfrac(D - Mu, S_D / sqrt(N)).
 
@@ -595,7 +595,7 @@ intermediate(cipaired, item).
 % First step: Extract the correct information for a paired t-test and 
 % the associated confidence interval from the task description
 intermediate(cipaired, paired).
-expert(cipaired, stage(2), X, Y, [step(expert, paired, [])]) :-
+expert(cipaired, stage(1), X, Y, [step(expert, paired, [])]) :-
     X = item(_, _, _, _, D, S_D, N, Mu, Alpha),
     Y = paired(D, Mu, S_D, N, Alpha).
 
@@ -612,7 +612,7 @@ hint(paired, Col, H)
 
 % Second step: Apply the formula for the confidence interval for a mean value.
 intermediate(cipaired, quant).
-expert(cipaired, stage(2), X, Y, [step(expert, ci_lower, [D, S_D, N, Alpha])]) :-
+expert(cipaired, stage(1), X, Y, [step(expert, ci_lower, [D, S_D, N, Alpha])]) :-
     X = paired(D, Mu, S_D, N, Alpha),
     Y = { hdrs(pm(D, dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))) }.
 
@@ -629,7 +629,7 @@ hint(ci_lower, Col, H)
         ].
 
 % Third step: Choose the correct quantile of the t-distribution
-expert(cipaired, stage(2), X, Y, [step(expert, tquant, [N, Alpha])]) :-
+expert(cipaired, stage(1), X, Y, [step(expert, tquant, [N, Alpha])]) :-
     X = quant(_D, _Mu, _S_D, N, Alpha),
     Y = qt(1 - Alpha/2, N - 1).
 
@@ -650,7 +650,7 @@ hint(tquant, Col, H)
 %% Buggy-Rules for the confidence interval task
 %
 % Buggy-Rule: Use t-statistic instead of t-quantile
-buggy(cipaired, stage(2), X, Y, [step(buggy, tstat, [D, S_D, N, Mu, Alpha])]) :-
+buggy(cipaired, stage(1), X, Y, [step(buggy, tstat, [D, S_D, N, Mu, Alpha])]) :-
     X = quant(D, Mu, S_D, N, Alpha),
     T = denote(t, abs(dfrac(D - Mu, S_D / sqrt(N))), mrow(["the observed ", math(mi(t)), "-statistic"])),
     Y = instead(tstat, T, qt(1 - Alpha/2, N - 1)).
@@ -671,7 +671,7 @@ hint(tstat, Col, H)
 
 % Buggy-Rule: Use z-quantile instead of t-quantile. 
 % This rule may be dropped because we might not be able to distinguish the results.
-buggy(cipaired, stage(2), X, Y, [step(buggy, qnorm, [])]) :-
+buggy(cipaired, stage(1), X, Y, [step(buggy, qnorm, [])]) :-
     X = quant(_D, _Mu, _S_D, N, Alpha),
     Y = instead(qnorm, qnorm(1 - Alpha/2), qt(1 - Alpha/2, N - 1)).
 
@@ -689,7 +689,7 @@ hint(qnorm, Col, H)
 
 % Buggy-Rule: Calculating the confidence interval with SPSS
 % and forgetting to add Mu to the results of the bounds in the end.
-buggy(cipaired, stage(2), X, Y, [step(buggy, spss, [Mu]), excludes(qnorm), excludes(tstat), excludes(sqrt1)]) :-
+buggy(cipaired, stage(1), X, Y, [step(buggy, spss, [Mu]), excludes(qnorm), excludes(tstat), excludes(sqrt1)]) :-
     X = paired(D, Mu, S_D, N, Alpha),
     Y = hdrs(pm(add_right(spss, D - Mu), dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
 
@@ -706,7 +706,7 @@ hint(spss, Col, H)
         ].
 
 % Buggy-Rule: Use of N instead of sqrt(N)
-buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt3, [N])]) :-
+buggy(cipaired, stage(1), X, Y, [step(buggy, sqrt3, [N])]) :-
     X = dfrac(Q, S_D / sqrt(N)),
     Y = dfrac(Q, S_D / omit_right(sqrt3, N^(1/2))).
 
@@ -722,7 +722,7 @@ hint(sqrt3, Col, F)
         ].
 
 % Buggy-Rule: Use of N instead of sqrt(N)
-buggy(cipaired, stage(2), X, Y, [step(buggy, sqrt4, [N])]) :-
+buggy(cipaired, stage(1), X, Y, [step(buggy, sqrt4, [N])]) :-
     X = dot(Q, S_D / sqrt(N)),
     Y = dot(Q, S_D / omit_right(sqrt4, N^(1/2))).
 
