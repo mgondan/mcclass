@@ -40,7 +40,7 @@ mistakes(Topic, Task, Solutions) :-
     findall(s(Expr, Res-Codes, Flags, Colors, String),
       ( Topic:wrong(Task, Expr, Flags, Colors, String),
         interval(Expr, Res, [topic(Topic)]),
-        sort(Flags, Sorted),
+        list_to_set(Flags, Sorted),
         dependencies(Sorted),
         exclusive(Sorted),
         codes(Sorted, Codes)
@@ -64,8 +64,7 @@ init_variant(Topic, Task) :-
     r_topic_source,
     solutions(Topic, Task, S),
     mistakes(Topic, Task, M),
-    assert(taskdata(Topic, Task, Variant, [solutions(S), mistakes(M)])),
-    http_log("Added taskdata ~w:~w:~w~n", [Topic, Task, Variant]).
+    assert(taskdata(Topic, Task, Variant, [solutions(S), mistakes(M)])).
 
 init_topic(Topic) :-
     use_module(Topic),
