@@ -35,20 +35,18 @@ math_hook(alpha, greek("alpha")).
 math_hook(t(DF), fn(t, [DF])).
 
 % R definitions
-r_hook(t).
-r_hook(d).
-r_hook(p).
-r_hook(mu).
-r_hook(s_d).
-r_hook(n).
-r_hook(t0).
-r_hook(s_t0).
-r_hook(eot).
-r_hook(s_eot).
-r_hook(lo).
-
-r_hook(var_pool/4).
-mono(var_pool/4, [+, /, +, /]).
+macro(t).
+macro(d).
+macro(p).
+macro(mu).
+macro(s_d).
+macro(n).
+macro(t0).
+macro(s_t0).
+macro(eot).
+macro(s_eot).
+macro(lo).
+macro(var_pool/4, all, [+, /, +, /], [pattern([_, number, _, number])]).
 
  
 % Task description

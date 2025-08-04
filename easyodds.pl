@@ -19,10 +19,10 @@ math_hook(pi_B, subscript(pi, "B")).
 math_hook(or, 'OR').
 
 % R constants
-r_hook(odds_A).
-r_hook(pi_A).
-r_hook(pi_B).
-r_hook(or).
+macro(odds_A).
+macro(pi_A).
+macro(pi_B).
+macro(or).
 
 render(Flags)
 --> {start(item(Odds_A, Pi_B, OR)) }, 

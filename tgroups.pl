@@ -32,19 +32,17 @@ math_hook(s2p, subscript(s, "pool")^2).
 math_hook(alpha, greek("alpha")).
 
 % Obtain information from R
-r_hook(n_vr).
-r_hook(n_box).
-r_hook(vr).
-r_hook(s_vr).
-r_hook(box).
-r_hook(s_box).
-r_hook(s2p).
-r_hook(t).
-r_hook(lo).
-r_hook(mu).
-
-r_hook(var_pool/4).
-mono((var_pool)/4, [+, /, +, /]).
+macro(n_vr).
+macro(n_box).
+macro(vr).
+macro(s_vr).
+macro(box).
+macro(s_box).
+macro(s2p).
+macro(t).
+macro(lo).
+macro(mu).
+macro(var_pool/4, all, [+, /, +, /], [pattern([_, number, _, number])]).
 
 % Task description
 render(Flags)

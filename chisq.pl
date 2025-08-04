@@ -25,17 +25,17 @@ math_hook(chi2, chi^2).
 math_hook(p_pool, subscript(p, "pool")).
 
 % R constants
-r_hook(p_VR).
-r_hook(p_VRx).
-r_hook(s_VR).
-r_hook(n_VR).
-r_hook(p_Box).
-r_hook(p_Boxx).
-r_hook(s_Box).
-r_hook(n_Box).
-r_hook(z).
-r_hook(chi2).
-r_hook(p_pool).
+macro(p_VR).
+macro(p_VRx).
+macro(s_VR).
+macro(n_VR).
+macro(p_Box).
+macro(p_Boxx).
+macro(s_Box).
+macro(n_Box).
+macro(z).
+macro(chi2).
+macro(p_pool).
 
 % Task description
 render(Flags)

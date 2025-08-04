@@ -37,20 +37,19 @@ math_hook(var_pool(V1, N1, V2, N2), X) :-
     X = dfrac((N1 - 1)*V1 + (N2 - 1)*V2, N1 + N2 - 2).
 
 % R definitions
-r_hook(t).
-r_hook(p).
-r_hook(d).
-r_hook(mu).
-r_hook(s_d).
-r_hook(n).
-r_hook(t0).
-r_hook(s_t0).
-r_hook(eot).
-r_hook(s_eot).
-r_hook(lo).
-r_hook(alpha).
-r_hook(var_pool/4). 
-mono(var_pool/4, [+, /, +, /]).
+macro(t).
+macro(p).
+macro(d).
+macro(mu).
+macro(s_d).
+macro(n).
+macro(t0).
+macro(s_t0).
+macro(eot).
+macro(s_eot).
+macro(lo).
+macro(alpha).
+macro(var_pool/4, all, [+, /, +, /], [pattern([_, number, _, number])]).
 
 % Task description
 render(Flags)

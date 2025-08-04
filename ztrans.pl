@@ -21,10 +21,10 @@ math_hook(x, 'X').
 math_hook(perc, p).
 
 % R definitions
-r_hook(x).
-r_hook(sigma).
-r_hook(z).
-r_hook(perc).
+macro(x).
+macro(sigma).
+macro(z).
+macro(perc).
 
 % Task description
 render(Flags)
