@@ -1,6 +1,6 @@
 :- module(interval_wrapper, []).
 
-:- reexport('/home/jeremyirilli/interval/prolog/rint.pl').
+:- reexport(library(rint)).
 :- use_module(util).
 
 :- discontiguous interval_/3.
