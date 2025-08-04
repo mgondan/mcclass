@@ -5,12 +5,7 @@
 :- use_module('../interval').
 
 test_interval :-
-    use_rs_rolog,
-    run_tests([fractions, number_digit, bugs, multiply, available, equality, plus, ci, pm, denote, color, semicolon, curly, cbinom, pwbinom]).
-
-use_rs_rolog :-
-    b_setval(http_session_id, default_session), 
-    rint:r_initialize(default_session). 
+    run_tests([fractions, number_digit, bugs, multiply, available, equality, ci, pm, denote, color, semicolon, curly, cbinom, pwbinom]).
 
 :- begin_tests(fractions).
 
@@ -242,39 +237,107 @@ test(available_ci_ninfpos) :-
 
 :- begin_tests(equality).
 
-test(equality_atomic1) :-
-    interval(5 =@= 5, true).
+test(equality1) :-
+    interval(5 =@= 5, Res),
+    Res = true.
 
-test(equality_atomic2) :-
-    interval(5 =@= 4, false).
+test(equality2) :-
+    interval(5 =@= 4, Res),
+    Res = false.
 
-test(equality_interval1) :-
-    A = 1...2,
-    B = 2...3,
-    interval(A =@= B, true).
+test(equality3) :-
+    interval(1...2 =@= 1, Res),
+    Res = true.
 
-test(equality_interval2) :-
-    A = 1...2,
-    B = 3...4,
-    interval(A =@= B, false).
+test(equality4) :-
+    interval(1...2 =@= 2, Res),
+    Res = true.
+
+test(equality5) :-
+    interval(1...2 =@= 1.5, Res),
+    Res = true.
+
+test(equality6) :-
+    interval(1...2 =@= 0.9, Res),
+    Res = false.
+
+test(equality7) :-
+    interval(1...2 =@= 2.1, Res),
+    Res = false.
+
+test(equality8) :-
+    interval(1 =@= 1...2, Res),
+    Res = true.
+
+test(equality9) :-
+    interval(2 =@= 1...2, Res),
+    Res = true.
+
+test(equality10) :-
+    interval(1.5 =@= 1...2, Res),
+    Res = true.
+
+test(equality11) :-
+    interval(0.9 =@= 1...2, Res),
+    Res = false.
+
+test(equality12) :-
+    interval(2.1 =@= 1...2, Res),
+    Res = false.
+
+test(equality13) :-
+    interval(1...2 =@= 3...4, Res),
+    Res = false.
+
+test(equality14) :-
+    interval(1...2 =@= 2...3, Res),
+    Res = true.
+
+test(equality15) :-
+    interval(1...2 =@= 1.5...4, Res),
+    Res = true.
+
+test(equality16) :-
+    interval(1...2 =@= 1...4, Res),
+    Res = true.
+
+test(equality17) :-
+    interval(1...2 =@= 0...4, Res),
+    Res = true.
+
+test(equality18) :-
+    interval(ci(1, 2) =@= ci(2, 4), Res),
+    Res = false.
+
+test(equality19) :-
+    interval(ci(1, 2) =@= ci(3, 4), Res),
+    Res = false.
+
+test(equality20) :-
+    interval(ci(1, 2) =@= ci(1, 4), Res),
+    Res = false.
+
+test(equality21) :-
+    interval(ci(1, 2) =@= ci(1, 2), Res),
+    Res = true.
+
+test(equality22) :-
+    interval(ci(1...2, 3...4) =@= ci(3...4, 5...6), Res),
+    Res = false.
+
+test(equality23) :-
+    interval(ci(1...2, 3...4) =@= ci(3...4, 4...6), Res),
+    Res = false.
+
+test(equality24) :-
+    interval(ci(1...2, 3...4) =@= ci(3...4, 3.5...6), Res),
+    Res = false.
+
+test(equality25) :-
+    interval(ci(1...2, 3...4) =@= ci(1.5...4, 3.5...6), Res),
+    Res = true.
 
 :- end_tests(equality).
-
-:- begin_tests(plus).
-
-test(plus1) :-
-    A = 1,
-    B = 2,
-    interval(plus(A, B), Res),
-    Res is 3.
-
-test(plus2) :-
-    A = 1...2,
-    B = 2...3,
-    interval(plus(A, B), Res),
-    Res = 3...5.
-
-:- end_tests(plus).
 
 :- begin_tests(ci).
 
@@ -313,12 +376,12 @@ test(onetailed_ninfpos) :-
 test(assign_ci1) :-
     A = ci(5.1, 5.6),
     interval(<-(ci,A), Res),
-    interval(r(substitute(ci)), Res).
+    interval(r(ci), Res).
 
 test(assign_ci2) :-
     A = ci(5.1...5.6, 5.9...6.5),
     interval(<-(ci,A), Res),
-    interval(r(substitute(ci)), Res).
+    interval(r(ci), Res).
 
 :- end_tests(ci).
 
@@ -426,6 +489,25 @@ test(pwbinom5) :-
 
 :- end_tests(pwbinom).
 
+:- begin_tests(input).
+
+test(input1) :-
+    interval(input(0.7), Res),
+    Res = 0.695...0.705.
+
+test(input2) :-
+    interval(input(0), Res),
+    Res = -0.005...0.005.
+
+test(input3) :-
+    interval(input(ci(1, 2)), Res),
+    Res = ci(0.995...1.005, 1.995...2.005).
+
+test(input4) :-
+    interval(input(ci(1...2, 3...4)), Res),
+    Res = ci(0.995...2.005, 2.995...4.005).
+
+:- end_tests(input).
 % Helper predicate to check equality
 equal(Res0, Res) :-
     interval(round(Res0, 4), Res).

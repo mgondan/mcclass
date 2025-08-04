@@ -51,18 +51,12 @@ test_(Name, Call, Opt) :-
 
 % Tests
 test_performance :-
-    use_rs_rolog,
     test_performance([test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13]).
 
 test_performance([H | T]) :-
-    use_rs_rolog,
     log_header,
     maplist(call, [H | T]),
     log_trailer.
-
-use_rs_rolog :-
-    b_setval(http_session_id, default_session), 
-    rint:r_initialize(default_session). 
 
 % Numbers
 test1 :-

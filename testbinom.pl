@@ -31,12 +31,12 @@ math_hook(pbinom1(_K, N, Pi, Tail), M) :-
     M = (fn(subscript('P', "Bi"), ([Tail] ; [N, Pi]))).
 
 % R definitions
-r_hook(alpha).
-r_hook(n).
-r_hook(p0).
-r_hook(p1).
-r_hook(c).
-r_hook(k).
+macro(alpha).
+macro(n).
+macro(p0).
+macro(p1).
+macro(c).
+macro(k).
 
 % Task description
 render(Flags)

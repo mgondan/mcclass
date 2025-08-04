@@ -9,7 +9,6 @@
 :- use_module(interval).
 :- use_module(mathml).
 
-
 :- use_module(navbar).
 navbar:page(dbinom, "Binomial probability").
 task(exactprob).
@@ -21,15 +20,12 @@ math_hook(p0, pi).
 math_hook(successes(K, P0), P0^K).
 math_hook(failures(K, P0), P0^K).
 
-r_hook(p).
-r_hook(n).
-r_hook(k).
-r_hook(p0).
-
-r_hook(factorial/1).
-r_hook(choose/2).
-mono((choose)/2, [+, +]).
-mono((factorial)/1, [+]).
+macro(p).
+macro(n).
+macro(k).
+macro(p0).
+macro(choose/2, all, [+, +]).
+macro(factorial/1, all, [+]).
 
 render(Flags)
 --> {start(item(_K, N, P0)) },

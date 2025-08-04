@@ -34,13 +34,9 @@ math_hook("age", "Age").
 math_hook("sex", "Sex").
 math_hook("therapy", "Therapy").
 
-r_hook(ancova_f/7).
-r_hook(ancova_p/7).
-r_hook(ancova_ci/7).
-
-mono(ancova_f/7, [/, /, /, /, /, /, /]).
-mono(ancova_p/7, [/, /, /, /, /, /, /]).
-mono(ancova_ci/7, [/, /, /, /, /, /, /]).
+/* macro(ancova_f/7, all, [/, /, /, /, /, /, /], [pattern([string, list, list, list, list, list, string])]).
+macro(ancova_p/7, all, [/, /, /, /, /, /, /], [pattern([string, list, list, list, list, list, string])]).
+macro(ancova_ci/7, all, [/, /, /, /, /, /, /], [pattern([string, list, list, list, list, list, string])]). */
 
 % Task description
 render(Flags)

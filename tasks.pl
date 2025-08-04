@@ -19,8 +19,6 @@
 :- use_module(util).
 :- use_module(feedback).
 
-user:term_expansion(mono(A, B), rint:mono(A, B)).
-user:term_expansion(r_hook(A), rint:r_hook(r_session:r_topic, A)).
 
 % Solutions with numerical results
 solutions(Topic, Task, Solutions) :-
@@ -68,6 +66,7 @@ init_variant(Topic, Task) :-
 
 init_topic(Topic) :-
     use_module(Topic),
+    assert_clauses(Topic),
     dynamic(Topic:math_hook/2),
     b_setval(topic, Topic),
     init_solutions(Topic),

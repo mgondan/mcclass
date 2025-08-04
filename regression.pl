@@ -26,12 +26,10 @@ math_hook(lm0(Y, X, "pval:coef"), ["Estimate", p, "-value: ", ~(Y, X)]).
 math_hook(lm0(Y, X, "pval:intercept"), ["Intercept", p, "-value: ", ~(Y, X)]).
 
 % R definitions
-r_hook(n).
-r_hook(y).
-r_hook(x).
-
-r_hook(lm0/3).
-mono(lm0/3, [/, /, /]).
+macro(n).
+macro(y).
+macro(x).
+macro(lm0/3, all, [/, /, /], [pattern([string, string, string])]).
 
 % Task description
 render(Flags)

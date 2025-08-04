@@ -1,323 +1,317 @@
 :- module(interval_wrapper, []).
 
 :- reexport(library(rint)).
+:- use_module(util).
 
-:- initialization(init).
+:- discontiguous interval_/3.
 
-init :-
-    asserta(rint:instantiate(ci, ci(_, _))).
+% Macros (have global scope)
+:- asserta((user:term_expansion(macro(Atomic), Clauses) :-
+    Options = [hook(r_session:r_topic), prefix(rint)],
+    rint:macro_clause(Atomic, Options, Clauses))).
 
-% Evaluate variables in R
-rint:interval_hook(atomic(A), Res, _Flags) :-
-    rint:r_hook(_R, A),
-    !,
-    rint:eval(A, Res1),
-    rint:clean(Res1, Res). 
+:- asserta((user:term_expansion(macro(Atomic, Options0), Clauses) :-
+    add_option(hook(r_session:r_topic), Options0, Options1),
+    add_option(prefix(rint), Options1, Options2), 
+    rint:macro_clause(Atomic, Options2, Clauses))).
+
+:- asserta((user:term_expansion(macro(Op/Arity, Fn, Dir), Clauses) :-
+    Options = [hook(r_session:r_topic), prefix(rint)],
+    rint:macro_clause(Op/Arity, Fn, Dir, Options, Clauses))).
+
+/* :- asserta((user:term_expansion(macro(Op/Arity, Dir), Clauses) :-
+    Options = [hook(r_session:r_topic), prefix(rint)],
+    rint:macro_clause(Op/Arity, all, Dir, Options, Clauses))). */
+
+:- asserta((user:term_expansion(macro(Op/Arity, Fn, Dir, Options0), Clauses) :-
+    add_option(hook(r_session:r_topic), Options0, Options1),
+    add_option(prefix(rint), Options1, Options2), 
+    rint:macro_clause(Op/Arity, Fn, Dir, Options2, Clauses))).
+
+% Assert clauses of interval_/3 at the beginning of module rint
+:- initialization(assert_clauses(interval_wrapper)).
 
 %
 % Confidence intervals
 %
-rint:r_hook(substitute/1).
-rint:interval_hook(ci(A, B), Res, Flags) :- 
+interval_(ci(A, B), Res, Flags) :- 
     rint:interval_(A, A1, Flags),
     rint:interval_(B, B1, Flags),
-    Res = ci(A1, B1).
+    !, Res = ci(A1, B1).
 
-rint:int_hook(assign, assign3(atomic, ci), ci, []).
-rint:assign3(atomic(Var), ci(atomic(A), atomic(B)), Res, _Flags) :-
-    rint:eval(substitute(Var <- call("ci", A, B)), Res1),
-    rint:clean(Res1, Res).
+interval_(atomic(Var) <- ci(number(A), number(B)), Res, _Flags) :-
+    rint:eval(r(Var <- call("ci", A, B)), Res0),
+    !, rint:clean(Res0, Res).
 
-rint:assign3(atomic(Var), ci(L1...U1, L2...U2), Res, _Flags) :-
-    rint:eval(substitute(Var <- call("ci", call("...", L1, U1), call("...", L2, U2))), Res1),
-    rint:clean(Res1, Res). 
+interval_(atomic(Var) <- ci(L1...U1, L2...U2), Res, _Flags) :-
+    rint:eval(r(Var <- call("ci", call("...", L1, U1), call("...", L2, U2))), Res0),
+    !, rint:clean(Res0, Res).
 
-%
-% Addition (for testing)
-%
-rint:int_hook(plus, plus1(atomic, atomic), atomic, []).
-rint:plus1(atomic(A), atomic(B), atomic(Res), _Flags) :-
-    !,
-    Res is A + B.
+interval_(atomic(Var) <- ci(A0, B0), Res, Flags) :-
+    rint:interval_(A0, A, Flags),
+    rint:interval_(B0, B, Flags),
+    !, rint:interval_(atomic(Var) <- ci(A, B), Res, Flags). 
 
-rint:int_hook(plus, plus2(..., ...), ..., []).
-rint:plus2(A, B, Res, Flags) :-
-    !,
-    rint:interval_(A + B, Res, Flags).
+interval_(round(ci(A, B), number(Dig)), Res, Flags) :- 
+    rint:interval_(round(A, number(Dig)), A1, Flags),
+    rint:interval_(round(B, number(Dig)), B1, Flags),
+    !, Res = ci(A1, B1).
 
 %
 % Fractions, i.e., numerator, line, and denominator
 %
-rint:int_hook(dfrac, frac0(_, _), _, []).
-rint:int_hook(frac, frac0(_, _), _, []).
-rint:frac0(A, B, Res, Flags) :-
+interval_(frac(A, B), Res, Flags) :-
     rint:option(digits(Dig), Flags, _),
-    rint:interval_(round(A, atomic(Dig)), A1, Flags),
-    rint:interval_(round(B, atomic(Dig)), B1, Flags),
-    !,
-    rint:interval_(A1 / B1, L...U, Flags),
-    rint:return(L, U, Res).
+    rint:interval_(round(A, number(Dig)), A1, Flags),
+    rint:interval_(round(B, number(Dig)), B1, Flags),
+    rint:interval_(A1 / B1, Res0, Flags),
+    !, Res = Res0.
+
+interval_(dfrac(A, B), Res, Flags) :-
+    !, rint:interval_(frac(A, B), Res, Flags).
 
 %
 % Reasonable number of digits
 %
-rint:int_hook(tstat, tstat(_), _, []).
-rint:tstat(A, Res, Flags) :-
-    rint:interval_(round(A, atomic(2)), Res, Flags).
+interval_(tstat(A), Res, Flags) :-
+    !, rint:interval_(round(A, number(2)), Res, Flags).
 
-rint:int_hook(hdrs, hdrs(_), _, []).
-rint:hdrs(A, Res, Flags) :-
-    rint:interval_(round(A, atomic(1)), Res, Flags).
+interval_(hdrs(A), Res, Flags) :-
+    !, rint:interval_(round(A, number(1)), Res, Flags).
 
-rint:int_hook(chi2ratio, chi2ratio(_), _, []).
-rint:chi2ratio(A, Res, Flags) :-
-    rint:interval_(round(A, atomic(2)), Res, Flags).
+interval_(chi2ratio(A), Res, Flags) :-
+    !, rint:interval_(round(A, number(2)), Res, Flags).
 
-rint:int_hook(pval, pval(_), _, []).
-rint:pval(A, pval(Res), Flags) :-
-    rint:interval_(A, Res, Flags).
+interval_(pval(A), pval(Res), Flags) :-
+    !, rint:interval_(A, Res, Flags).
 
 %
 % Bugs
 %
 % Forget parts of an expression
-rint:int_hook(omit_left, left(_, _), _, [evaluate(false)]).
-rint:left(_Bug, A, Res, Flags) :-
+interval_(omit_left(_Bug, A), Res, Flags) :-
     A =.. [_Op, _L, R],
-    rint:interval_(R, Res, Flags).
+    !, rint:interval_(R, Res, Flags).
 
-rint:int_hook(omit_right, right(_, _), _, [evaluate(false)]).
-rint:right(_Bug, A, Res, Flags) :-
+interval_(omit_right(_Bug, A), Res, Flags) :-
     A =.. [_Op, L, _R],
-    rint:interval_(L, Res, Flags).
+    !, rint:interval_(L, Res, Flags).
 
-rint:int_hook(omit, omit(_, _), _, [evaluate(false)]).
-rint:omit(_Bug, _Expr, na, _Flags).
+interval_(omit(_Bug, _A), Res, _Flags) :-
+    !, Res = atomic(na).
 
 % Instead
-rint:int_hook(instead, instead1(_, _, _), _, [evaluate(false)]).
-rint:instead1(_Bug, Wrong, _Correct, Res, Flags) :-
-    rint:interval_(Wrong, Res, Flags).
+interval_(instead(_Bug, Wrong, _Correct), Res, Flags) :-
+    !, rint:interval_(Wrong, Res, Flags).
 
-rint:int_hook(instead, instead2(_, _, _, _), _, [evaluate(false)]).
-rint:instead2(_Bug, Wrong, _Correct, _Correct0, Res, Flags) :-
-    rint:interval_(Wrong, Res, Flags).
+interval_(instead(_Bug, Wrong, _Correct, _Correct0), Res, Flags) :-
+    !, rint:interval_(Wrong, Res, Flags).
 
 % Drop
-rint:int_hook(drop_right, drop_right(_, _), _, [evaluate(false)]).
-rint:drop_right(Bug, A, Res, Flags) :-
-    rint:right(Bug, A, Res, Flags).
+interval_(drop_right(_Bug, A), Res, Flags) :-
+    A =.. [_Op, L, _R],
+    !, rint:interval_(L, Res, Flags).
 
-rint:int_hook(drop_left, drop_left(_, _), _, [evaluate(false)]).
-rint:drop_left(Bug, A, Res, Flags) :-
-    rint:left(Bug, A, Res, Flags).
+interval_(drop_left(_Bug, A), Res, Flags) :-
+    A =.. [_Op, _L, R],
+    !, rint:interval_(R, Res, Flags).
 
 % add_left, add_right, add
-rint:int_hook(add_right, add(_, _), _, [evaluate(false)]).
-rint:add(_Bug, A, Res, Flags) :-
-    rint:interval_(A, Res, Flags).
+interval_(add_right(_Bug, A), Res, Flags) :-
+    !, rint:interval_(A, Res, Flags).
 
-rint:int_hook(add_left, add(_, _), _, [evaluate(false)]).
+interval_(add_left(_Bug, A), Res, Flags) :-
+    !, rint:interval_(A, Res, Flags).
 
-rint:int_hook(add, add(_, _), _, [evaluate(false)]).
+interval_(add(_Bug, A), Res, Flags) :-
+    !, rint:interval_(A, Res, Flags).
+
 %
 % Multiply
 %
-rint:int_hook(dot, dot(_, _), _, []).
-rint:dot(A, B, Res, Flags) :-
-    rint:interval_(A * B, Res, Flags).
+interval_(dot(A, B), Res, Flags) :-
+    !, rint:interval_(A * B, Res, Flags).
 
 %
 % Available: not NA
 %
-rint:int_hook(available, avail0(_), _, []).
-rint:avail0(pval(A), Res, Flags) :-
-    !,
-    rint:interval_(available1(A), Res, Flags).
+interval_(available(pval(A)), Res, Flags) :-
+    !, rint:interval_(available(A), Res, Flags).
 
-rint:avail0(A, Res, Flags) :-
-    rint:interval_(available1(A), Res, Flags).
+interval_(available(number(A)), Res, _Flags) :-
+    rint:avail_(A, _),
+    !, Res = bool(true).
 
-rint:int_hook(available1, avail1(atomic), _, []).
-rint:avail1(atomic(A), Res, _Flags) :-
-    (  avail2(atomic(A), _Res1)
-    -> Res = true 
-    ;  Res = false
-    ).
+interval_(available(number(_)), Res, _Flags) :-
+    !, Res = bool(false).
 
-avail2(atomic(A), Res),
+rint:avail_(A, Res),
     integer(A)
  => rint:eval(A, Res).
 
-avail2(atomic(A), Res),
+rint:avail_(A, Res),
     number(A)
  => float_class(A, Class),
     dif(Class, nan),
     rint:eval(A, Res).
 
-avail2(atomic(A), Res)
- => rint:eval(A, A1),
-    rint:clean(A1, A2),
-    avail2(A2, Res).
-    
-rint:int_hook(available1, avail3(...), _, []).
-rint:avail3(A ... B, Res, _Flags)
- => avail2(atomic(A), A1),
-    avail2(atomic(B), B1),
-    (  rint:eval(A1, B1, _)
-    -> Res = true
-    ;  Res = false
-    ).
+rint:avail_(A0, Res)
+ => rint:eval(A0, A),
+    rint:avail_(A, Res).
 
-rint:int_hook(available1, avail4(ci), _, []).
-rint:avail4(ci(A, B), Res, Flags)
- => ( rint:interval_(available(A), true, Flags),
-      rint:interval_(available(B), true, Flags)
-    -> Res = true
-    ;  Res = false
-    ). 
+interval_(available(L0...U0), Res, _Flags) :-
+    rint:avail_(L0, L),
+    rint:avail_(U0, U),
+    rint:eval(L, U, _),
+    !, Res = bool(true).
 
-rint:int_hook(available1, avail5(_), _, []).
-rint:avail5([], true, _Flags).
+interval_(available(_..._), Res, _Flags) :-
+    !, Res = bool(false).
 
-rint:int_hook(=@=, equal0(_, _), _, []).
-rint:equal0(A, pval(B), Res, Flags) :-
-    !,
-    rint:interval_(equal1(A, B), Res, Flags).
+interval_(available(ci(A, B)), Res, Flags) :-
+    rint:interval_(available(A), bool(true), Flags),
+    rint:interval_(available(B), bool(true), Flags),
+    !, Res = bool(true).
 
-rint:equal0(ci(A, B), ci(C, D), Res, Flags) :-
-    !,
-    rint:interval_(A =@= C, Res0, Flags),
-    rint:interval_(B =@= D, Res1, Flags),
-    (   Res0 = true, 
-        Res1 = true
-    ->  Res = true
-    ;   Res = false
-    ).
+interval_(available(ci(_, _)), Res, _Flags) :-
+    !, Res = bool(false).
 
-rint:equal0(A, B, Res, Flags) :-
-    rint:interval_(equal1(A, B), Res, Flags).
+interval_(available([]), Res, _Flags) :-
+    !, Res = bool(true).
 
-rint:int_hook(equal1, equal1(_, _), _, []).
-rint:equal1(A, B, Res, Flags) :-
-    rint:interval_(A =:= B, Res, Flags).
+interval_(available(A), Res, Flags) :-
+    rint:interval_(A, A1, Flags),
+    rint:interval_(available(A1), Res0, Flags),
+    !, Res = Res0.
+
+%
+% Equality
+%
+interval_(A =@= pval(B), Res, Flags):-
+    !, rint:interval_(A =@= B, Res, Flags).
+
+interval_(number(A) =@= number(B), Res, Flags):-
+    rint:interval_(number(A) =:= number(B), bool(true), Flags),
+    !, Res = bool(true).
+
+interval_(A1...A2 =@= B1...B2, Res, Flags):-
+    rint:interval_(number(A1) =< number(B2), bool(true), Flags),
+    rint:interval_(number(A2) >= number(B1), bool(true), Flags),
+    !, Res = bool(true).
+
+interval_(number(A) =@= B1...B2, Res, Flags):-
+    rint:interval_(number(A) >= number(B1), bool(true), Flags),
+    rint:interval_(number(A) =< number(B2), bool(true), Flags),
+    !, Res = bool(true).
+
+interval_(A1...A2 =@= number(B), Res, Flags):-
+    rint:interval_(number(B) >= number(A1), bool(true), Flags),
+    rint:interval_(number(B) =< number(A2), bool(true), Flags),
+    !, Res = bool(true).
+
+interval_(ci(A, B) =@= ci(C, D), Res, Flags) :-
+    rint:interval_(A =@= C, bool(true), Flags),
+    rint:interval_(B =@= D, bool(true), Flags),
+    !, Res = bool(true).
+
+interval_(_ =@= _, Res, _Flags):-
+    !, Res = bool(false).
 
 % Addition CI
-rint:int_hook(+, ciplus1(ci, _), ci, []).
-rint:ciplus1(ci(A, B), C, Res, Flags) :-
+interval_(ci(A, B) + C, Res, Flags) :-
     rint:interval_(A + C, A1, Flags),
     rint:interval_(B + C, B1, Flags),
-    Res = ci(A1, B1).
+    !, Res = ci(A1, B1).
 
-rint:int_hook(+, ciplus2(_, ci), ci, []).
-rint:ciplus2(C, ci(A, B), Res, Flags) :-
-    rint:ciplus1(ci(A, B), C, Res, Flags).
+interval_(C + ci(A, B), Res, Flags) :-
+    !, rint:interval_(ci(A, B) + C, Res, Flags).
 
 % Subtraction CI
-rint:int_hook(-, ciminus(ci, _), ci, []).
-rint:ciminus(ci(A, B), C, Res, Flags) :-
+interval_(ci(A, B) - C, Res, Flags) :-
     rint:interval_(A - C, A1, Flags),
     rint:interval_(B - C, B1, Flags),
-    Res = ci(A1, B1).
+    !, Res = ci(A1, B1).
 
 % Multiplication CI
-rint:int_hook(*, cimult(ci, _), ci, []).
-rint:cimult(ci(A, B), C, Res, Flags) :-
+interval_(ci(A, B) * C, Res, Flags) :-
     rint:interval_(A * C, A1, Flags),
     rint:interval_(B * C, B1, Flags),
-    Res = ci(A1, B1).
+    !, Res = ci(A1, B1).
 
 % Division CI
-rint:int_hook(/, cidiv(ci, _), ci, []).
-rint:cidiv(ci(A, B), C, Res, Flags) :-
+interval_(ci(A, B) / C, Res, Flags) :-
     rint:interval_(A / C, A1, Flags),
     rint:interval_(B / C, B1, Flags),
-    Res = ci(A1, B1).
+    !, Res = ci(A1, B1).
 
 % Exponential CI
-rint:int_hook(exp, ciexp(ci), ci, []).
-rint:ciexp(ci(A, B), Res, Flags) :-
+interval_(exp(ci(A, B)), Res, Flags) :-
     rint:interval_(exp(A), A1, Flags),
     rint:interval_(exp(B), B1, Flags),
-    Res = ci(A1, B1).
+    !, Res = ci(A1, B1).
 
 % Plus/minus
-rint:int_hook(pm, pm(_, _), ci, []).
-rint:pm(A, B, Res, Flags) :-
+interval_(pm(A, B), Res, Flags) :-
     rint:interval_(A - B, A1, Flags),
     rint:interval_(A + B, B1, Flags),
-    Res = ci(A1, B1).
+    !, Res = ci(A1, B1).
 
 % Return a one-tailed confidence interval
-rint:int_hook(neginf, neginf0(_), ci, []).
-rint:neginf0(A, Res, _Flags) :-
-    Res = ci(A, atomic(1.0Inf)).
+interval_(neginf(A0), Res, Flags) :-
+    rint:interval_(A0, A, Flags),
+    !, Res = ci(A, atomic(1.0Inf)).
 
-rint:int_hook(ninfpos, ninfpos0(_), ci, []).
-rint:ninfpos0(A, Res, _Flags) :-
-    Res = ci(atomic(-1.0Inf), A).
-
-%
-% Equation sign: named arguments in R functions (leave name unchanged)
-%
-/* rint:int_hook(=, equ(_, _), _, []).
-rint:equ(Name, A, Res, Flags) :-
-    rint:interval_(A, A1, Flags),
-    Res = (Name = A1). */
+interval_(ninfpos(A0), Res, Flags) :-
+    rint:interval_(A0, A, Flags),
+    !, Res = ci(atomic(-1.0Inf), A).
 
 %
 % Denote
 %
-rint:int_hook(denote, den(_, _, _), _, [evaluate(false)]).
-rint:den(_Sym, A, _Text, Res, Flags) :-
-    rint:interval_(A, A1, Flags),
-    Res = A1.
+interval_(denote(_Sym, A, _Text), Res, Flags) :-
+    rint:interval_(A, Res0, Flags),
+    !, Res = Res0.
 
 %
 % Color
 %
-rint:int_hook(color, col(_, _), _, [evaluate(false)]).
-rint:col(_Col, A, Res, Flags) :-
-    rint:interval_(A, A1, Flags),
-    Res = A1.
+interval_(color(_Col, A), Res, Flags) :-
+    rint:interval_(A, Res0, Flags),
+    !, Res = Res0.
 
 %
 % Read intervals from input
 %
-rint:int_hook(input, input1(atomic), ..., []).
-rint:input1(A, Res, Flags) :-
+interval_(input(A), Res, Flags) :-
     option(digits(D), Flags, 2),
-    Eps is 10^(-D)/2,
-    MEps is -Eps,
-    rint:interval_(A + MEps...Eps, Res, Flags).
+    rint:eval(10^(-D)/2, Eps),
+    rint:eval(-Eps, MEps),
+    !, rint:interval_(A + MEps...Eps, Res, Flags).
 
-rint:int_hook(input, input2(ci), ci, []).
-rint:input2(ci(A, B), Res, Flags) :-
+interval_(input(ci(A, B)), Res, Flags) :-
     option(digits(D), Flags, 2),
-    Eps is 10^(-D)/2,
-    MEps is -Eps,
+    rint:eval(10^(-D)/2, Eps),
+    rint:eval(-Eps, MEps),
     rint:interval_(A + MEps...Eps, A1, Flags),
     rint:interval_(B + MEps...Eps, B1, Flags),
-    Res = ci(A1, B1).
+    !, Res = ci(A1, B1).
 
 %
 % Other
 %
-rint:int_hook(';', or(_, _), _, []).
-rint:or(A, B, Res, Flags) :-
+interval_(';'(A, B), Res, Flags) :-
     rint:interval_(A, _, Flags),
-    rint:interval_(B, Res, Flags).
+    rint:interval_(B, Res0, Flags),
+    !, Res = Res0.
 
-rint:int_hook(';', or(_, _, _), _, []).
-rint:or(A, B, C, Res, Flags) :-
+interval_(';'(A, B, C), Res, Flags) :-
     rint:interval_(A, _, Flags),
     rint:interval_(B, _, Flags),
-    rint:interval_(C, Res, Flags).
+    rint:interval_(C, Res0, Flags),
+    !, Res = Res0.
 
-
-rint:int_hook('{}', curly(_), _, []).
-rint:curly(A, Res, Flags) :-
-    rint:interval_(A, Res, Flags).
+interval_('{}'(A), Res, Flags) :-
+    !, rint:interval_(A, Res, Flags).
 
 %
 % Upper tail, lower tail, both tails
@@ -325,66 +319,125 @@ rint:curly(A, Res, Flags) :-
 % dist/3 just returns the second argument. It is needed for mathematical
 % rendering expressions like P_T(X >= x; df=n-1) via mathml.
 %
-rint:int_hook(dist, dist(atomic, _, atomic), _, []).
-rint:dist(_, X, _, Res, Flags) :-
-    rint:interval_(X, Res, Flags).
+interval_(dist(_, X, _), Res, Flags) :-
+    !, rint:interval_(X, Res, Flags).
 
 %
 % This forwards the tail argument to lower.tail of the R function, e.g. in
 % pt(T, DF, lower.tail=TRUE)
 %
-rint:int_hook(tail, tail(atomic), atomic, []).
-rint:tail(A, A, _).
-rint:int_hook(tail, tail(atomic, atomic), atomic, []).
-rint:tail(Tail, _, Tail, _Flags).
+interval_(tail(A), Res, _Flags) :-
+    !, Res = A.
 
-rint:int_hook(arg, arg(_, _), _, [evaluate(false)]).
-rint:arg(A, _K, Res, Flags) :-
-  rint:interval_(A, Res, Flags).
+interval_(tail(A, _), Res, _Flags) :-
+    !, Res = A.
 
-%
-% cbinom
-%
-rint:r_hook(r_session:r_topic, ldbinom/3).
-rint:r_hook(r_session:r_topic, udbinom/3).
-rint:mono(udbinom/3, [-, +, +]).
-rint:mono(ldbinom/3, [+, +, +]).
-
-rint:int_hook(cbinom, cbinom0(_, _, _, atomic, atomic), _, []).
-rint:cbinom0(Alpha, N, Pi, atomic("upper"), atomic("min"), Res, Flags) :-
-    rint:interval_(qbinom(Alpha, N, Pi, atomic(false)) + atomic(1), Res, Flags).
-
-rint:cbinom0(Alpha, N, Pi, atomic("lower"), atomic("max"), Res, Flags) :-
-    rint:interval_(qbinom(Alpha, N, Pi, atomic(true)) - atomic(1), Res, Flags).
-
-rint:cbinom0(Alpha, N, Pi, atomic("densi"), atomic("min"), Res, Flags) :-
-    rint:interval_(udbinom(Alpha, N, Pi), Res, Flags).
-
-rint:cbinom0(Alpha, N, Pi, atomic("densi"), atomic("max"), Res, Flags) :-
-    rint:interval_(ldbinom(Alpha, N, Pi), Res, Flags).
+interval_(arg(A, _K), Res, Flags) :-
+    !, rint:interval_(A, Res, Flags).
 
 %
-% pwbinom
+% cbinom/5: for testbinom topic
 %
-rint:int_hook(pwbinom, pwbinom0(_, _, _, atomic), _, []).
-rint:pwbinom0(Crit, N, Pi, atomic("lower"), Res, Flags) :-
-    rint:interval_(pbinom(Crit, N, Pi), Res, Flags).
+interval_(cbinom(Alpha, N, Pi, string("upper"), string("min")), Res, Flags) :-
+    !, rint:interval_(qbinom(Alpha, N, Pi, bool(false)) + number(1), Res, Flags).
 
-rint:pwbinom0(Crit, N, Pi, atomic("upper"), Res, Flags) :-
-    rint:interval_(pbinom(Crit - atomic(1), N, Pi, atomic(false)), Res, Flags).
+interval_(cbinom(Alpha, N, Pi, string("lower"), string("max")), Res, Flags) :-
+    !, rint:interval_(qbinom(Alpha, N, Pi, bool(true)) - number(1), Res, Flags).
 
-rint:pwbinom0(Crit, N, Pi, atomic("densi"), Res, Flags) :-
-    rint:interval_(dbinom(Crit, N, Pi), Res, Flags).
+interval_(cbinom(Alpha, N, Pi, string("densi"), string("min")), Res, Flags) :-
+    !, rint:interval_(udbinom(Alpha, N, Pi), Res, Flags).
+
+interval_(cbinom(Alpha, N, Pi, string("densi"), string("max")), Res, Flags) :-
+    !, rint:interval_(ldbinom(Alpha, N, Pi), Res, Flags).
+
+macro(ldbinom/3, all, [+, +, +]).
+
+macro(udbinom/3, all, [-, +, +]).
+
+%
+% pwbinom/4
+%
+interval_(pwbinom(Crit, N, Pi, string("lower")), Res, Flags) :-
+    !, rint:interval_(pbinom(Crit, N, Pi), Res, Flags).
+
+interval_(pwbinom(Crit, N, Pi, string("upper")), Res, Flags) :-
+    !, rint:interval_(pbinom(Crit - number(1), N, Pi, bool(false)), Res, Flags).
+
+interval_(pwbinom(Crit, N, Pi, string("densi")), Res, Flags) :-
+    !, rint:interval_(dbinom(Crit, N, Pi), Res, Flags).
 
 %
 % pbinom wrapper
 %
-rint:int_hook(pbinom1, pbinom1(_, _, _, atomic), _, []).
-rint:pbinom1(K, N, Pi, atomic("lower"), Res, Flags) :-
-    rint:interval_(pbinom(K, N, Pi, atomic(true)), Res, Flags).
+interval_(pbinom1(K, N, Pi, string("lower")), Res, Flags) :-
+    !, rint:interval_(pbinom(K, N, Pi, bool(true)), Res, Flags).
 
-rint:pbinom1(K, N, Pi, atomic("upper"), Res, Flags) :-
-	rint:interval_(pbinom(K - atomic(1), N, Pi, atomic(false)), Res, Flags).
+interval_(pbinom1(K, N, Pi, string("upper")), Res, Flags) :-
+	!, rint:interval_(pbinom(K - number(1), N, Pi, bool(false)), Res, Flags).
 
-rint:pbinom1(K, N, Pi, atomic("densi"), Res, Flags) :-
-    rint:interval_(dbinom(K, N, Pi), Res, Flags).
+interval_(pbinom1(K, N, Pi, string("densi")), Res, Flags) :-
+    !, rint:interval_(dbinom(K, N, Pi), Res, Flags).
+
+%
+% pt wrapper
+%
+interval_(pt(A, Df, string("lower")), Res, Flags) :-
+    !, rint:interval_(pt(A, Df, bool(true)), Res, Flags).
+
+interval_(pt(A, Df, string("upper")), Res, Flags) :-
+    !, rint:interval_(pt(A, Df, bool(false)), Res, Flags).
+
+interval_(pt(A, Df, string("two.sided")), Res, Flags) :-
+    !, rint:interval_(number(2) * pt(abs(A), Df, bool(false)), Res, Flags).
+
+interval_(pt(A, Df, string("density")), Res, Flags) :-
+    !, rint:interval_(dt(A, Df), Res, Flags).
+
+%
+% ancova functions for baseline and subgroups task
+% a better solution might be possible
+%
+interval_(ancova_f(string(Outcome), Cov0, Strata0, Other0, Interaction0, Exclude0, string(Therapy)), Res, Flags) :-
+    rint:interval_(Cov0, Cov1, Flags),
+    rint:clean(Cov, Cov1),
+    rint:interval_(Strata0, Strata1, Flags),
+    rint:clean(Strata, Strata1),
+    rint:interval_(Other0, Other1, Flags),
+    rint:clean(Other, Other1),
+    rint:interval_(Interaction0, Interaction1, Flags),
+    rint:clean(Interaction, Interaction1),
+    rint:interval_(Exclude0, Exclude1, Flags),
+    rint:clean(Exclude, Exclude1),
+    rint:eval(hook(r_session:r_topic, ancova_f(Outcome, Cov, Strata, Other, Interaction, Exclude, Therapy)), Res0),
+    !, Res = number(Res0).
+
+interval_(ancova_p(string(Outcome), Cov0, Strata0, Other0, Interaction0, Exclude0, string(Therapy)), Res, Flags) :-
+    rint:interval_(Cov0, Cov1, Flags),
+    rint:clean(Cov, Cov1),
+    rint:interval_(Strata0, Strata1, Flags),
+    rint:clean(Strata, Strata1),
+    rint:interval_(Other0, Other1, Flags),
+    rint:clean(Other, Other1),
+    rint:interval_(Interaction0, Interaction1, Flags),
+    rint:clean(Interaction, Interaction1),
+    rint:interval_(Exclude0, Exclude1, Flags),
+    rint:clean(Exclude, Exclude1),
+    rint:eval(hook(r_session:r_topic, ancova_p(Outcome, Cov, Strata, Other, Interaction, Exclude, Therapy)), Res0),
+    !, Res = number(Res0).
+
+interval_(ancova_ci(string(Outcome), Cov0, Strata0, Other0, Interaction0, Exclude0, string(Therapy)), Res, Flags) :-
+    rint:interval_(Cov0, Cov1, Flags),
+    rint:clean(Cov, Cov1),
+    rint:interval_(Strata0, Strata1, Flags),
+    rint:clean(Strata, Strata1),
+    rint:interval_(Other0, Other1, Flags),
+    rint:clean(Other, Other1),
+    rint:interval_(Interaction0, Interaction1, Flags),
+    rint:clean(Interaction, Interaction1),
+    rint:interval_(Exclude0, Exclude1, Flags),
+    rint:clean(Exclude, Exclude1),
+    rint:eval(hook(r_session:r_topic, ancova_ci(Outcome, Cov, Strata, Other, Interaction, Exclude, Therapy)), Res0),
+    !, Res = number(Res0).
+
+
+    

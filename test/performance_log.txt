@@ -11,3 +11,37 @@ test8 | Inferences: 915 | Levels=8
 test9 | Inferences: 1027 | Levels=9
 ---------
 
+---------
+2025-08-03 18:37:13 (before update of interval)
+test1 | Inferences: 1088
+test2 | Inferences: 1129
+test3 | Inferences: 729
+test4 | Inferences: 860
+test5 | Inferences: 195
+test6 | Inferences: 693 | Levels=6
+test7 | Inferences: 805 | Levels=7
+test8 | Inferences: 917 | Levels=8
+test9 | Inferences: 1029 | Levels=9
+test10 | Inferences: 13554 | easyodds:oratio
+test11 | Inferences: 71434 | testbinom:powbinom
+test12 | Inferences: 188913 | tpaired:tratio
+test13 | Inferences: 27148 | baseline:fratio
+---------
+
+---------
+2025-08-04 07:35:47 (after update of interval)
+test1 | Inferences: 438
+test2 | Inferences: 530
+test3 | Inferences: 380
+test4 | Inferences: 389
+test5 | Inferences: 131
+test6 | Inferences: 256 | Levels=6
+test7 | Inferences: 297 | Levels=7
+test8 | Inferences: 338 | Levels=8
+test9 | Inferences: 379 | Levels=9
+test10 | Inferences: 13554 | easyodds:oratio
+test11 | Inferences: 71076 | testbinom:powbinom
+test12 | Inferences: 197773 | tpaired:tratio
+test13 | Inferences: 27148 | baseline:fratio
+---------
+
