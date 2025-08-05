@@ -12,16 +12,14 @@ test_interval :-
 test(frac) :-
     A = 1...2,
     B = 2...4,
-    interval(frac(A, B), L...U),
-    L is 0.25,
-    U is 1.
+    interval(frac(A, B), Res),
+    equal(Res, 0.2468...1.0101).
 
 test(dfrac) :-
     A = 1...2,
     B = 2...4,
-    interval(dfrac(A, B), L...U),
-    L is 0.25,
-    U is 1.
+    interval(dfrac(A, B), Res),
+    equal(Res, 0.2468...1.0101).
 
 :- end_tests(fractions).
 
