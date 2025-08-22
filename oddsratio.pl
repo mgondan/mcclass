@@ -36,7 +36,7 @@ render(Flags)
             [ h1(class('card-title'), "Odds ratio"),
 		      p(class('card-text'),
                 [ "We consider two therapies A and B. The success probability of therapy A ",
-                  "is ", \mmlm(Flags, [r(Pi_A), "."]), " The odds ratio is ", \mmlm(Flags, r(OR)), "relative ",
+                  "is ", \mmlm(Flags, [r(Pi_A), "."]), " The odds ratio is ", \mmlm(Flags, r(OR)), " relative ",
                   "to therapy A."
                 ])]))]).
 
@@ -85,7 +85,7 @@ hint(odds, Col, F)
 intermediate(oratio, odds_ratio).
 expert(oratio, stage(2), From, To, [step(expert, odds_ratio, [Odds_A, odds_B])]) :-
     From = odds_ratio(Odds_A, OR),
-    To = Odds_A * OR.
+    To = dot(Odds_A, OR).
 
 feedback(odds_ratio, [_Odds_A, Odds_B], Col, FB)
  => FB = [ "Sucessfully ",
@@ -111,7 +111,7 @@ hint(inv_odds, Col, F)
           "probability, ", \mmlm(Col, [pi_B = dfrac(odds_B, 1 + odds_B), "."])
         ].
 
-%%Buggy rules
+% Buggy rules
 % Forgot conversion of pi_A to odds_A
 buggy(oratio, stage(1), From, To, [step(buggy, forget_odds, [Pi_A, odds_A])]) :-
     From = odds(Pi_A),
@@ -132,7 +132,7 @@ hint(forget_odds, Col, F)
 % Divided odds_A and OR rather then multiplying them.
 buggy(oratio, stage(2), From, To, [step(buggy, divide, [Odds_A, OR])]) :-
     From = odds_ratio(Odds_A, OR),
-    To = instead(divide, Odds_A / OR, Odds_A * OR).
+    To = instead(divide, Odds_A / OR, dot(Odds_A, OR)).
 
 feedback(divide, [Odds_A, OR], Col, FB)
  => FB = [ "The response matches the inverse result in ",
@@ -162,10 +162,10 @@ hint(forget_prob, Col, F)
           "the respective probability."
         ].
 
-% Used OR instead of Pi_A: Needs to be fixed, because causes stack overflow
-/* buggy(oratio, stage(1), From, To, [step(buggy, wrong_pi_A, [Pi_A, OR])]) :-
+% Used OR instead of Pi_A
+buggy(oratio, stage(1), From, To, [step(buggy, wrong_pi_A, [Pi_A, or, odds_A])]) :-
     From = odds(Pi_A),
-    To = instead(wrong_pi_A, Pi_A, OR).
+    To = dfrac(instead(wrong_pi_A, or, Pi_A), 1 - instead(wrong_pi_A, or, Pi_A)).
 
 feedback(wrong_pi_A, [Pi_A, OR, Odds_A], Col, FB)
  => FB = [ "Please use the success probability ",
@@ -175,9 +175,9 @@ feedback(wrong_pi_A, [Pi_A, OR, Odds_A], Col, FB)
          ].
 
 hint(wrong_pi_A, Col, F)
- => F = [ "Don't use the odds ratio ", \mmlm(Col, color(wrong_pi_A, or)),
-          "to calculate ", \mmlm(Col, [color(wrong_pi_A, odds_A), "."]),
+ => F = [ "Do not use the odds ratio ", \mmlm(Col, color(wrong_pi_A, or)),
+          " to calculate ", \mmlm(Col, [color(wrong_pi_A, odds_A), "."]),
           " Use the the success probability ", \mmlm(Col, color(wrong_pi_A, pi_A)),
           " instead."
         ].
-*/
+
