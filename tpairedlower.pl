@@ -46,6 +46,7 @@ macro(s_t0).
 macro(eot).
 macro(s_eot).
 macro(lo).
+macro(alpha).
 macro(var_pool/4, all, [+, /, +, /], [pattern([_, number, _, number])]).
 
  
@@ -57,12 +58,12 @@ render(Flags)
         [ h1(class('card-title'), "Evaluation of working memory training"),
           p(class('card-text'),
             [ "Consider the evaluation of the computerized Cogmed working memory training with ",
-              \mmlm(Flags, N = r(N)), " first-graders screened for low working memory", 
-              "(i.e., under the 15th percentile in the Automated Working Memory Assessment).",
-              "The primary outcome was the score on the Wide Range Achievement Test", 
+              \mmlm(Flags, N = r(N)), " first-graders screened for low working memory ", 
+              "(i.e., under the 15th percentile in the Automated Working Memory Assessment). ",
+              "The primary outcome was the score on the Wide Range Achievement Test ", 
               "(WRAT, standard mean score = 100, SD = 15), ", 
               "with higher scores indicating higher performance. The significance level is set to ",
-              \mmlm(Flags, [alpha = percent(0.05), "."]) 
+              \mmlm(Flags, alpha = percent(0.05)), " one-tailed."
               ]),     
           div(class(container),
             div(class("row justify-content-md-center"),
@@ -100,7 +101,7 @@ task(Flags, pvalue)
     html(\htmlform([ "Does the Cogmed training lead to a relevant improvement (i.e., more ",
         "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in mean WRAT ",
         "scores between pre- and posttest? ",
-        "Please report the one-tailed ", \nowrap([\mmlm(Flags, p), "-value"]) ], pvalue, Resp)).
+        "Please report the one-tailed ", \nowrap([\mmlm(Flags, p), "-value."]) ], pvalue, Resp)).
 
 % Question for the confidence interval
 task(_Flags, cipaired)

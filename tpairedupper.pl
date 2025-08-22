@@ -79,7 +79,7 @@ render(Flags)
                       \mmlm([digits(1) | Flags], r(s_eot)),
                       \mmlm([digits(1) | Flags], r(s1_d)) ]
                   ])))),
-          \download(tpaired)
+          \download(tpairedupper)
         ]))).
 
 % Question for the t-ratio
@@ -315,7 +315,7 @@ buggy(tratio, stage(1), X, Y,
 
 feedback(t0, [D, T0], Col, F)
  => F = [ "The result matches ",
-          "the ", \nowrap([\mmlm(Col, t), "-ratio"]), "with the T0 average ", 
+          "the ", \nowrap([\mmlm(Col, t), "-ratio"]), " with the T0 average ", 
           \mmlm(Col, color(t0, T0)), 
           " instead of the average change score ", 
           \nowrap([\mmlm(Col, color(t0, D)), "."]),
