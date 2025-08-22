@@ -75,6 +75,8 @@ handler(Topic, _) :-
 handle(Topic, Form),
     member(download=_, Form)
  => b_setval(topic, Topic),
+    session_data(topic(Topic, Variant)),
+    b_setval(variant, Variant),
     download(Local),
     format(atom(File), "attachment; filename=~k.csv", [Topic]),
     http_current_request(Request),
