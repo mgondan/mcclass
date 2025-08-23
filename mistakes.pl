@@ -36,6 +36,7 @@ init_mistakes1(Topic) :-
     colors(Expr, Colors),
     findall(li(F),
       ( member(step(_, Name, Args), Steps),
+        \+ memberchk(finalstep, Args),
         % memberchk(Name, Traps), % show only relevant feedback
         Topic:feedback(Name, Args, [topic(Topic), task(Task) | Colors], F)
       ), Feedback),

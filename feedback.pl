@@ -45,6 +45,7 @@ show_feedback(Topic, Task, Data)
       findall(li(F),
         ( member(step(expert, Name, Args), Flags),
           memberchk(Name, Hints),
+          \+ memberchk(finalstep, Args),
           Topic:feedback(Name, Args, [topic(Topic), task(Task) | Colors], F)
         ), Correct0),
       ( Correct0 = []

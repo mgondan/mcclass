@@ -142,11 +142,11 @@ hint(paired, Col, F)
 
 % Second step: Apply the formula for the t-ratio. dfrac/2 is a fraction in
 % "display" mode (a bit larger font than normal)
-expert(tratio, stage(1), X, Y, [step(expert, tratio, [D, Mu, S_D, N])]) :-
+expert(tratio, stage(1), X, Y, [step(expert, tratio, [D, Mu, S_D, N, finalstep])]) :-
     X = paired(D, Mu, S_D, N),
     Y = tstat(dfrac(D - Mu, S_D / sqrt(N))).
 
-feedback(tratio, [_D, _Mu, _S_D, _N], Col, F)
+feedback(tratio, [_D, _Mu, _S_D, _N, _], Col, F)
  => F = [ "Correctly identified ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
 	  "for paired samples." 
@@ -158,11 +158,11 @@ hint(tratio, Col, F)
         ].
 
 % Another correct result
-expert(tratio, stage(1), X, Y, [step(expert, abs_tratio, [D, Mu, S_D, N])]) :-
+expert(tratio, stage(1), X, Y, [step(expert, abs_tratio, [D, Mu, S_D, N, finalstep])]) :-
     X = paired(D, Mu, S_D, N),
     Y = tstat(abs(dfrac(D - Mu, S_D / sqrt(N)))).
 
-feedback(abs_tratio, [_D, _Mu, _S_D, _N], Col, F)
+feedback(abs_tratio, [_D, _Mu, _S_D, _N, _], Col, F)
  => F = [ "Correctly identified ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
 	  "for paired samples." 
