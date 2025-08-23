@@ -52,11 +52,11 @@ task(Flags, exactprob)
 intermediate(exactprob, item).
 start(item(k, n, p0)).
 
-% Recognise as a binomial density
+% First step: recognise as a binomial density
 intermediate(exactprob, dbinom).
-expert(exactprob, stage(2), From, To, [step(expert, dbinom, [])]) :-
+expert(exactprob, stage(1), From, To, [step(expert, dbinom, [])]) :-
     From = item(K, N, P0),
-    To   = { dbinom(K, N, P0) }.
+    To   = dbinom(K, N, P0).
 
 feedback(dbinom, [], _Col, F)
  => F = [ "Correctly recognised the problem as a binomial probability." ].
@@ -64,9 +64,9 @@ feedback(dbinom, [], _Col, F)
 hint(dbinom, _Col, H)
  => H = "This is a binomial probability.".
 
-% Convert to product
+% Second step: convert to product
 intermediate(exactprob, bernoulli).
-expert(exactprob, stage(2), From, To, [step(expert, prod, [K, N, P0])]) :-
+expert(exactprob, stage(1), From, To, [step(expert, prod, [K, N, P0])]) :-
     From = dbinom(K, N, P0),
     To   = choose(N, K) * bernoulli(K, N, P0).
 
@@ -78,7 +78,7 @@ hint(prod, Col, H)
           "is ", \mmlm(Col, choose(n, k) * p0^k * (1 - p0)^(n - k)), "."
         ].
 
-% Successes and failures
+% Third step: successes and failures
 intermediate(exactprob, successes).
 intermediate(exactprob, failures).
 expert(exactprob, stage(2), From, To, [step(expert, bern, [K, N, P0])]) :-
@@ -97,8 +97,8 @@ hint(bern, Col, H)
           "and ", \mmlm(Col, n - k), " failures."
         ].
 
-% Successes
-expert(exactprob, stage(2), From, To, [step(expert, success, [K, P0])]) :-
+% Fourth step: successes
+expert(exactprob, stage(3), From, To, [step(expert, success, [K, P0])]) :-
     From = successes(K, P0),
     To   = P0^K.
 
@@ -112,14 +112,14 @@ hint(success, Col, H)
           "successes."
         ].
 
-% Failures - same as successes (this may change)
-expert(exactprob, stage(2), From, To, [step(expert, failure, [K, P0])]) :-
+% Fifth step: failures - same as successes (this may change)
+expert(exactprob, stage(3), From, To, [step(expert, failure, [K, P0])]) :-
     From = failures(K, P0),
     To   = P0^K.
 
 feedback(failure, [K, _P0], Col, F)
- => F = [ "Correctly determined the probability for ", \mmlm(Col, K), " ",
-          "independent failures."
+ => F = [ "Correctly determined the probability for ", \mmlm(Col, K),
+          " independent failures."
         ].
 
 hint(failure, Col, H)
@@ -127,13 +127,16 @@ hint(failure, Col, H)
           "failures."
         ].
 
-% Forget binomial coefficient
-buggy(exactprob, stage(2), From, To, [step(buggy, nochoose, [K, N])]) :-
+%
+% Buggy rules for the exactprob task
+%
+% Buggy rule: forget binomial coefficient
+buggy(exactprob, stage(1), From, To, [step(buggy, nochoose, [K, N])]) :-
     From = dbinom(K, N, P0),
     To   = omit_left(nochoose, choose(N, K) * bernoulli(K, N, P0)).
 
 feedback(nochoose, [_K, _N], _Col, F)
- => F = [ "The binomial coefficient with the number of permutations was ",
+ => F = [ "The binomial coefficient for the number of permutations was ",
           "omitted."
         ].
 
@@ -142,43 +145,37 @@ hint(nochoose, Col, H)
           "permutations ", \mmlm(Col, choose(n, k)), "."
         ].
 
-% Treat binomial coefficient like a fraction
-buggy(exactprob, stage(2), From, To, [step(buggy, choosefrac, [K, N])]) :-
+
+% Buggy rule: treat binomial coefficient like a fraction
+buggy(exactprob, stage(1), From, To, [step(buggy, choosefrac, [K, N])]) :-
     From = choose(N, K),
     To   = instead(choosefrac, dfrac(N, K), choose(N, K)).
 
 feedback(choosefrac, [K, N], Col, F)
- => F = [ "Please determine the number of permutations using the ",
-          "binomial coefficient ", 
-          \mmlm(Col, choose(N, K) = 
-            dfrac(factorial(N), factorial(K)*factorial(N-K))), "." 
-	].
-
-hint(choosefrac, Col, H)
- => H = [ "The number of permutations is determined using the binomial ",
-          "coefficient ", \mmlm(Col, choose(n, k) =
-          dfrac(factorial(n), factorial(k) * factorial(n - k))), "."
+ => F = [ "The number of permutations was mistakenly calculated by dividing the number of trials ",
+          \mmlm(Col, N), " by the number of successes ", \mmlm(Col, [K, "."])
         ].
 
-% Omit (N-k)! in the denominator of the binomial coefficient
-buggy(exactprob, stage(2), From, To, [step(buggy, choosefail, [K, N])]) :-
+hint(choosefrac, _Col, H)
+ => H = [ "The binomial coefficient includes factorials." ].
+
+
+% Buggy rule: omit (N-k)! in the denominator of the binomial coefficient
+buggy(exactprob, stage(1), From, To, [step(buggy, choosefail, [K, N])]) :-
     From = choose(N, K),
     To   = instead(choosefail, dfrac(factorial(N), factorial(K)), choose(N, K)).
 
 feedback(choosefail, [K, N], Col, F)
- => F = [ "Please determine the number of permutations using the ",
-          "binomial coefficient ",
-          \mmlm(Col, choose(N, K) =
-            dfrac(factorial(N), factorial(K) * color(choosefail, factorial(N - K)))), "."
+ => F = [ \mmlm(Col, color(choosefail, factorial(N - K))), " is missing in the formula for the binomial coefficient." 
         ].
 
 hint(choosefail, Col, H)
- => H = [ "The number of permutations is determined using the binomial ",
-          "coefficient ", \mmlm(Col, choose(n, k) =
-          dfrac(factorial(n), factorial(k) * factorial(n - k))), "."
+ => H = [ "Do not forget ", \mmlm(Col, color(choosefail, factorial(n - k))), 
+          " in the formula for the binomial coefficient."
         ].
 
-% Confuse successes and failures
+
+% Buggy rule: confuse successes and failures
 buggy(exactprob, stage(2), From, To, [step(buggy, succfail, [K, N, P0])]) :-
     From = bernoulli(K, N, P0),
     To   = instead(succfail, successes(K, 1 - P0), successes(K, P0)) * 
@@ -191,11 +188,12 @@ feedback(succfail, [_K, _N, P0], Col, F)
         ].
 
 hint(succfail, Col, H)
- => H = [ "Make sure not to confuse the probabilities ", \mmlm(Col, p0), " ",
+ => H = [ "Do not confuse the probabilities ", \mmlm(Col, p0), " ",
           "for success and ", \mmlm(Col, 1 - p0), " for failure."
         ]. 
 
-% Forget failures
+
+% Buggy rule: forget failures
 buggy(exactprob, stage(2), From, To, [step(buggy, nofail, [K, N, P0])]) :-
     From = bernoulli(K, N, P0),
     To   = omit_right(nofail, successes(K, P0) * failures(N - K, 1 - P0)).
@@ -206,7 +204,6 @@ feedback(nofail, [K, N, _P0], Col, F)
         ].
 
 hint(nofail, Col, H)
- => H = [ "Make sure not to forget the ",
+ => H = [ "Do not forget the ",
           "probability for the ", \mmlm(Col, n - k), " failures."
         ].
-
