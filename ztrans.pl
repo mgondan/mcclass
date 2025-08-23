@@ -114,19 +114,6 @@ feedback(wrong_tail, [_Z], Col, F)
 hint(wrong_tail, _Col, H) 
  => H = "Do not use the upper tail of the normal distribution.".
 
-% Buggy rule: mu was added to x, not subtracted.
-buggy(prob, stage(1), From, To, [step(buggy, plus, [X, Mu])]) :-
-    From = zcalc(X, Mu, Sigma),
-    To = dfrac(instead(plus, X + Mu, X - Mu), Sigma).
-
-feedback(plus, [X, Mu], Col, F) 
- => F = [ "The expectation ", \mmlm(Col, Mu), " was added to the number of realizations ", \mmlm(Col, X),
-          " instead of being subtracted from it." 
-        ].
-
-hint(plus, Col, H) 
- => H = [ "Do not use addition in the conversion to the ", \nowrap([\mmlm(Col, z), "-value."]) ].
-
 % Buggy rule: mu and sigma were swapped.
 buggy(prob, stage(1), From, To, [step(buggy, swap1, [mu, sigma])]) :-
     From = zcalc(X, mu, sigma),
