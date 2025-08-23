@@ -73,8 +73,8 @@ render(Flags)
             div(class('card-body'),
               p(class('card-text'),
                 [ "“Laparoscopy-naïve medical students were randomized into ",
-                  "two groups. The Box ",
-                  "group ", \mmlm(Flags, ["(", N_BOX = r(n_box), ")"]), " used ",
+                  "two groups. The Box group ", 
+                  \mmlm(Flags, ["(", N_BOX = r(n_box), ")"]), " used ",
                   "e-learning for laparoscopic cholecystectomy and practiced ",
                   "basic skills with Box trainers. The VR ",
                   "group ", \mmlm(Flags, ["(", N_VR = r(n_vr), ")"]), " trained ",
@@ -85,13 +85,17 @@ render(Flags)
                   "Objective Structured Assessment of Technical Skills ",
                   "(OSATS). The VR group completed the operation significantly ",
                   "faster and more often within 80 min than the Box ",
-                  "group (VR: 28% vs. Box: 22%, p = 0.596). The Box group ",
+                  "group (VR: 28\u0025 vs. Box: 22\u0025, ",
+                  \nowrap([\mmlm(Flags, p), " = 0.596). "]),
+                  "The Box group ",
                   "scored higher than the VR group in the knowledge ",
-                  "test (Box: 13.4 ± 1.2 vs. VR: 10.8 ± 1.8, p < 0.001). Both ",
-                  "groups showed equal operative performance in the OSATS score ",
+                  "test (Box: 13.4 ± 1.2 vs. VR: 10.8 ± 1.8, ", 
+                  \nowrap([\mmlm(Flags, p), " < 0.001). "]),
+                  "Both groups showed equal operative performance in the OSATS score ",
                   "(VR: ", \mmlm([digits(1) | Flags], r(vr)), " ± ", \mmlm([digits(1) | Flags], r(s_vr1)), 
-                  " vs. BOX: ", \mmlm([digits(1) | Flags], r(box)), " ± ", \mmlm([digits(1) | Flags], r(s_box)), 
-                  ", p = 0.437). The significance level is set to ",
+                  " vs. BOX: ", \mmlm([digits(1) | Flags], r(box)), " ± ", \mmlm([digits(1) | Flags], r(s_box)), ", ",
+                  \nowrap([\mmlm(Flags, p), " = 0.437). "]),
+                  "The significance level is set to ",
                   \mmlm(Flags, alpha = percent(r(Alpha))), " two-tailed. ",
                   "The medical students generally appreciated the training and felt well prepared for ", 
                   "assisting in laparoscopic surgery. The efficiency of the training ",
@@ -116,7 +120,7 @@ task(Flags, tratio)
     },
     html(\htmlform(
       [ "Is VR training superior to traditional Box training? ",
-        "Please report the ", \nowrap([\mmlm(Flags, t), "-ratio"]), " using the Box training",
+        "Please report the ", \nowrap([\mmlm(Flags, t), "-ratio"]), " using the Box training ",
         "as the control intervention." 
       ], tratio, Resp)).
 
@@ -130,21 +134,21 @@ task(_Flags, cigroups)
 	cigroups, Resp)).
 
 %
-%% Expert-Rules for pooled variance Task
+% Expert-Rules for pooled variance task
 %
 % t-test for independent groups
 intermediate(s2p, item).
 start(item(vr, s_vr, n_vr, box, s_box, n_box, alpha)).
 
-% First step: Correctly calculate the pooled variance.
+% First step: Correctly identified the formula for the pooled variance.
 expert(s2p, stage(2), From, To, [step(expert, indep, [])]) :-
     From = item(_VR, S_VR, N_VR, _Box, S_Box, N_Box, _Alpha),
     To = { '<-'(s2p, dfrac((N_VR - 1) * S_VR ^ 2 + (N_Box - 1) * S_Box ^ 2, 
 			   N_VR + N_Box - 2))
-	 }.
+         }.
 
 feedback(indep, [], Col, FB) =>
-    FB = [ "Correctly determined the pooled variance ", \mmlm(Col, [s2p, "."]) ].
+    FB = [ "Correctly identified the formula for the pooled variance ", \mmlm(Col, [s2p, "."]) ].
 
 hint(indep, Col, F)
  => F = [ "The pooled variance ", \mmlm(Col, s2p), " needs to be ",
@@ -152,7 +156,7 @@ hint(indep, Col, F)
         ].
 
 %
-%% Buggy-Rules for pooled variance Task
+% Buggy-Rules for pooled variance task
 %
 % Buggy-Rule: Used standard deviation instead of variance.
 buggy(s2p, stage(2), From, To, [step(buggy, sd, [S_VR, S_Box])]) :-
@@ -190,11 +194,10 @@ hint(nswap, Col, F)
         ].
 
 %
-%% Expert Rules for independent t-test task
+% Expert Rules for independent t-test task
 %
 % t-test for independent samples
 intermediate(tratio, item).
-
 
 % First step: Extract the correct information for a t-test for independent 
 % samples from the task description.
@@ -215,8 +218,7 @@ hint(problem, Col, F)
           "samples." 
         ].
 
-% Second step: To calculate the t-ratio for independent samples, the pooled 
-% variance has to be calculated first. Apply the formula for the pooled variance.
+% Second step: Determine the pooled variance.
 intermediate(tratio, var_pool).
 expert(tratio, stage(1), From, To, [step(expert, pooled, [S2P])]) :-
     From = '<-'(S2P, var_pool(S_A^2, N_A, S_B^2, N_B)),
@@ -237,7 +239,7 @@ expert(tratio, stage(2), From, Fmt, [step(expert, tratio, [To])]) :-
     Fmt = tstat(To).
 
 feedback(tratio, [_T], Col, FB) =>
-    FB = [ "Correctly determined the ",  \nowrap([\mmlm(Col, t), "-statistic."]) ].
+    FB = [ "Correctly identified the ",  \nowrap([\mmlm(Col, t), "-statistic."]) ].
 
 hint(tratio, Col, F)
  => T = dfrac(vr - box, sqrt(s2p * (frac(1, n_vr) + frac(1, n_box)))),
@@ -246,7 +248,7 @@ hint(tratio, Col, F)
         ].
 
 %
-%% Buggy-Rules for independent t-test task
+% Buggy-Rules for independent t-test task
 %
 % Buggy-Rule: Using the wrong control group
 buggy(tratio, stage(1), From, To, [step(buggy, control, [vr, box])]) :-
@@ -279,7 +281,7 @@ feedback(square, [S_A, S_B], Col, FB)
 	   "the square of ", \mmlm(Col, color(square, S_A)), " and ", 
 	   \mmlm(Col, [color(square, S_B), "."]), " Please do not forget the square of ",
 	   \mmlm(Col, color(square, S_A)), " and ", \mmlm(Col, color(square, S_B)),
-	   "when calculating the pooled variance."
+	   " when calculating the pooled variance."
          ].
 
 hint(square, Col, F)
@@ -307,26 +309,19 @@ hint(school, Col, F)
             =\= frac(1, color(school, color("black", a) + color("black", b))), "."])
         ].
 
-%% Buggy-Rule: Forgot paranthesis around numerator in t-statistic.
-%buggy(tratio, stage(2), From, To, [step(buggy, bug1, [VR, BOX, S2P, N_VR, N_BOX])]) :-
-%    From = tcalc(VR, BOX, S2P, N_VR, N_BOX),
-%    To = add_left(bug1, VR - dfrac(BOX, sqrt(S2P * (1/N_VR + 1/N_BOX)))).
-%%VR - dfrac(BOX, sqrt(s2p * (1/N_VR + 1/N_BOX))).
-%
-%feedback(bug1, [_VR, _BOX, S2P, N_VR, N_BOX], Col, FB) =>
-%    FB = [ "The result matches the expression for the ", 
-%	    \nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples without the ",
-%	    "parentheses around the numerator of ", 
-%	    \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", overline("VR") - overline("BOX")))), sqrt(S2P * (1/N_VR + 1/N_BOX)))), 
-%	    ". Please do not forget the parenthesis",
-%	    " around the numerator."
-%	 ].
-%
-%hint(bug1, Col, F)
-% => F = [ "Remember to use parenthesis around the numerator. ",
-%	   "The correct formula for the ", \nowrap([\mmlm(Col, t), "-ratio"]), "is ", 
-%	   \mmlm([error(correct) | Col], dfrac(color(bug1, paren(color("#000000", vr - box))), sqrt(s2p * (1/n_vr + 1/n_box)))), "."
-%	 ].
+% Buggy-Rule: Forgot paranthesis around numerator in t-statistic.
+buggy(tratio, stage(2), From, To, [step(buggy, bug1, [])]) :-
+    From = dfrac(VR - BOX, sqrt(S2P * (frac(1, N_VR) + frac(1, N_BOX)))),
+    Num = drop_left(bug1, VR - BOX),
+    To = add_left(bug1, VR - add_right(bug1, Num / sqrt(S2P * (1/N_VR + 1/N_BOX)))).
+
+feedback(bug1, [], Col, FB) =>
+    FB = [ "The result matches the expression for the ", 
+	    \nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples without the ",
+	    "parentheses around the numerator."].
+
+hint(bug1, _Col, F)
+ => F = [ "Remember to use parenthesis around the numerator." ].
 
 % Buggy-Rule: Forget square root around the denominator	
 buggy(tratio, stage(2), From, To, [step(buggy, sqrt1, [S2P * Ns])]) :-
@@ -357,10 +352,6 @@ feedback(sqrt2, [Ns], Col, FB)
 	   \mmlm(Col, [paren(color(sqrt2, Ns)), "."]), " Please do not forget to take the ",
 	   "square root of the whole denominator."
          ].
-% Alternative Rückmeldung (hierfür müsste die Variable in der eckigen Klammer geändert werden): 
-% "The result matches the expression for the ", \nowrap([\mmlm(Col, t), "-ratio"]),
-% " with the square root only around ", \mmlm(Col, [paren(color(sqrt2, S2P)),
-% ". Please do not forget to take the square root of the whole denominator."
 
 hint(sqrt2, Col, F)
  => F = [ "You need to take the square root of the whole denomiator in the formula for the ",
@@ -368,9 +359,9 @@ hint(sqrt2, Col, F)
         ].
 
 %
-%% Expert Rules for the confidence intervall of an independent t-test task
+% Expert Rules for the confidence interval of an independent t-test task
 %
-% t-test and confidence intervall for independent samples 
+% t-test and confidence interval for independent samples 
 intermediate(cigroups, item).
 
 % First step: Extract the correct information for a t-test for independent 
@@ -394,10 +385,7 @@ hint(problem, Col, H)
         ].
 
 
-% Second step: To calculate the confidence interval for the difference of 
-% group means, the pooled variance has to be calculated first. Apply the formula
-% for the pooled variance.
-% dfrac/2 is a fraction in "display" mode (a bit larger font than normal)
+% Second step: Apply the formula for the pooled variance
 intermediate(cigroups, var_pool).
 expert(cigroups, stage(1), X, Y, [step(expert, pooled, [S2P])]) :-
     X = '<-'(S2P, var_pool(S_A^2, N_A, S_B^2, N_B)),
@@ -424,12 +412,8 @@ feedback(ci_bounds, [_VR, _Box, _S2P, _N_VR, _N_Box, _Alpha], _Col, F)
            "the confidence interval for the difference of group means." 
         ].
 
-hint(ci_bounds, Col, H)
- => H = [ "The formula to calculate the lower and upper bound of the ",
-          "confidence interval for the difference of group means is ",
-	  \mmlm(Col, [pm(vr - box, qt(1 - alpha/2, n_vr + n_box - 2)
-            * sqrt(dot(s2p, frac(1, n_vr) + frac(1, n_box)))), "."])
-        ].
+hint(ci_bounds, _Col, H)
+ => H = [ "The lower and upper bound of the confidence interval need to be calculated." ].
 
 % Fourth step: Choose the correct quantile of the t-distribution
 expert(cigroups, stage(2), X, Y, [step(expert, tquant, [Alpha])]) :-
@@ -438,16 +422,16 @@ expert(cigroups, stage(2), X, Y, [step(expert, tquant, [Alpha])]) :-
 
 feedback(tquant, [Alpha], Col, F)
  => F = [ "Correctly used the ", \nowrap([\mmlm(Col, 1 - Alpha/2), "-quantile"]),
-          "of the ", \nowrap([\mmlm(Col, t), "-distribution."])
+          " of the ", \nowrap([\mmlm(Col, t), "-distribution."])
         ].
 
 hint(tquant, Col, H)
  => H = [ "Make sure to use the ", \nowrap([\mmlm(Col, 1 - alpha/2), "-quantile"]),
-          "of the ", \nowrap([\mmlm(Col, t), "-distribution."])
+          " of the ", \nowrap([\mmlm(Col, t), "-distribution."])
         ].
 
 %
-%% Buggy-Rules for the confidence intervall of an independent t-test task
+% Buggy-Rules for the confidence interval of an independent t-test task
 %				
 % Buggy-Rule: Use t-statistic instead of t-quantile
 buggy(cigroups, stage(2), X, Y, [step(buggy, tstat, [N_VR, N_Box, Alpha])]) :-
@@ -483,7 +467,6 @@ feedback(control, [VR, Box], Col, FB)
 	   "intervention."
          ]. 
 
-
 hint(control, Col, F)
  => F = [ "The control intervention ", \mmlm(Col, [color(control, box)]),
           " must be subtracted from the tested intervention ",
@@ -501,7 +484,7 @@ feedback(square, [S_A, S_B], Col, FB)
 	   "the square of ", \mmlm(Col, color(square, S_A)), " and ", 
 	   \mmlm(Col, [color(square, S_B), "."]), " Please do not forget the square of ",
 	   \mmlm(Col, color(square, S_A)), " and ", \mmlm(Col, color(square, S_B)),
-	   "when calculating the pooled variance."
+	   " when calculating the pooled variance."
          ].
 
 hint(square, Col, F)
@@ -599,13 +582,10 @@ feedback(sqrt3, [Ns], Col, FB)
 	   "stopping before ", \mmlm(Col, [paren(color(sqrt3, Ns)), "."]), 
 	   " Please do not forget to take the square root of the whole denominator."
 	 ].
-% Alternative Rückmeldung (hierfür müsste die Variable in der eckigen Klammer geändert werden): 
-% "The result matches the confidence interval with the square root only around ",
-% \mmlm(Col, paren(color(sqrt3, S2P)), ". Please do not forget to take the "
-% "square root of the whole denominator."
 
 hint(sqrt3, _Col, F)
  => F = "The square root of the whole denomiator should be taken.".
+
 
 % Buggy-Rule: Forget square root around sample size when calculating the t-statistic
 buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt4, [Ns])]) :-
@@ -619,10 +599,6 @@ feedback(sqrt4, [Ns], Col, FB)
 	   \mmlm(Col, [paren(color(sqrt4, Ns)), "."]), " Please do not forget to take the ",
 	   "square root of the whole denominator."
 	 ].
-% Alternative Rückmeldung (hierfür müsste die Variable in der eckigen Klammer geändert werden): 
-% "The result matches the expression for the ", \nowrap([\mmlm(Col, t), "-ratio"]),
-% " with the square root only around ", \mmlm(Col, paren(color(sqrt4, S2P)),
-% ". Please do not forget to take the square root of the whole denominator."
 
 hint(sqrt4, _Col, F)
  => F = "The square root of the whole denomiator should be taken.".
