@@ -54,7 +54,7 @@ render(Flags)
                 "patients. Under the alternative hypothesis, we hope ",
                 "that the success probability is ",
                 \nowrap([\mmlm(Flags, p1 = r(P1)), "."]), 
-                " The binomial probabilities are given in the tables below."
+                " The binomial probabilities are given in the table below."
               ]),
             div(class(container),
               div(class("row justify-content-md-center"),
@@ -98,18 +98,17 @@ start(item(alpha, n, p0, p1, k)).
 % Expert rules for the critical value task 
 %
 intermediate(critical, item).
-
 % First step: identify as a binomial test  
 intermediate(critical, binom).
 expert(critical, stage(2), From, To, [step(expert, binom, [])]) :-
     From = item(Alpha, N, P0, _P1, _K),
-    To   = { round(binom(Alpha, N, P0)) }.
+    To   = round(binom(Alpha, N, P0)).
 
 feedback(binom, [], _Col, F) =>
     F = [ "Correctly identified the problem as a binomial test." ].
 
 hint(binom, _Col, H) =>
-    H = "This problem is solved with a binomial test.".
+    H = "This problem involves a binomial test.".
 
 % Second step: upper tail of the binomial distribution
 intermediate(critical, tail0).
@@ -122,6 +121,18 @@ feedback(upper, [], _Col, F)
 
 hint(upper, _Col, H)
  => H = "The upper tail of the binomial distribution is needed.".
+
+% Third step: critical value based on cumulative distribution
+expert(critical, stage(2), From, To, [step(expert, dist, [])]) :-
+    From = tail0(Tail, K),
+    To   = tail(Tail, K).
+
+feedback(dist, [], _Col, F)
+ => F = "Correctly used the critical value of the cumulative distribution.".
+
+hint(dist, _Col, H)
+ => H = "The critical value is determined from the cumulative distribution.".
+
 
 %
 % Buggy rules for the critical value task
@@ -139,17 +150,6 @@ hint(lower, _Col, H)
  => H = [ "Select the upper tail of the binomial distribution, ",
           "not the lower tail."
         ].
-
-% Buggy rule: critical value based on distribution
-expert(critical, stage(2), From, To, [step(expert, dist, [])]) :-
-    From = tail0(Tail, K),
-    To   = tail(Tail, K).
-
-feedback(dist, [], _Col, F)
- => F = "Correctly used the critical value of the cumulative distribution.".
-
-hint(dist, _Col, H)
- => H = "The critical value is determined from cumulative distribution.".
 
 % Buggy rule: critical value based on density
 buggy(critical, stage(2), From, To, [step(buggy, dens1, [Tail, K])]) :-
@@ -256,7 +256,7 @@ feedback(lower1, [], _Col, F)
         ].
 
 hint(lower1, _Col, H)
- => H = [ "Make sure to determine the critical value from the upper tail ",
+ => H = [ "Determine the critical value from the upper tail ",
           "of the binomial distribution."
         ].
 
@@ -275,7 +275,7 @@ feedback(dens1, [K], Col, F)
         ].
 
 hint(dens1, _Col, H)
- => H = [ "Make sure to use the cumulative binomial distribution to ",
+ => H = [ "Use the cumulative binomial distribution to ",
           "determine the critical value."
         ].
 
@@ -309,7 +309,7 @@ feedback(dens2, [C], Col, F)
         ].
 
 hint(dens2, _Col, H)
- => H = [ "Make sure to use the cumulative binomial distribution to ",
+ => H = [ "Use the cumulative binomial distribution to ",
           "determine the power."
         ].
 
@@ -362,7 +362,7 @@ hint(lowertail, _Col, H)
 % Buggy rule: use density instead of upper tail
 buggy(pval, stage(2), From, To, [step(buggy, density, [K])]) :-
     From = pbinom0(_Alpha, N, P0, _P1, K),
-    To = { pbinom1(K, N, P0, instead(lowertail, tail("densi"), tail("upper"))) }.
+    To = pbinom1(K, N, P0, instead(lowertail, tail("densi"), tail("upper"))).
 
 feedback(density, [K], Col, F)
  => F = [ "The result matches the probability of having exactly ", \mmlm(Col, K),
@@ -378,7 +378,7 @@ buggy(pval, stage(2), From, To, [step(buggy, alternative, [p1])]) :-
     To = instead(alternative, p1, p0).
 
 feedback(alternative, [P1], Col, F)
- => F = [ "The result matches the probability under the alternative ", \mmlm(Col, P1), "."
+ => F = [ "The result matches the probability under the alternative hypothesis ", \mmlm(Col, P1), "."
         ].
 
 hint(alternative, _Col, H)
