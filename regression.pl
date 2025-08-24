@@ -20,16 +20,18 @@ label(pvalue, [math(mi(p)), "-value"]).
 
 % Prettier symbols for mathematical rendering
 math_hook(n, 'N').
-math_hook(lm0(Y, X, "intercept"), ["Intercept: ", ~(Y, X)]).
-math_hook(lm0(Y, X, "coef"), ["Estimate: ", ~(Y, X)]).
-math_hook(lm0(Y, X, "pval:coef"), ["Estimate", p, "-value: ", ~(Y, X)]).
-math_hook(lm0(Y, X, "pval:intercept"), ["Intercept", p, "-value: ", ~(Y, X)]).
+math_hook(lm0(Y, X), fn(lm, [~(Y, X)])).
+math_hook(extract0(M, Coef), fn(coef,[M, Coef])).
+math_hook(extract1(M, Coef), fn(pval,[M, Coef])).
 
 % R definitions
 macro(n).
 macro(y).
 macro(x).
-macro(lm0/3, all, [/, /, /], [pattern([string, string, string])]).
+macro(m).
+macro(extract0/2, all, [/, /], [pattern([string, string])]).
+macro(extract1/2, all, [/, /], [pattern([string, string])]).
+macro(lm0/2, all, [/, /], [pattern([string, string])]).
 
 % Task description
 render(Flags)
@@ -48,7 +50,7 @@ render(Flags)
           \download(regression)
           ]))]).
 
-% Question for b-coefficient
+% Question for b-coefficient task
 task(_Flags, bcoef)
 --> { start(item(_N, _Y, _X)),
       session_data(resp(regression, bcoef, Resp), resp(regression, bcoef, '#.##'))
@@ -59,120 +61,148 @@ task(_Flags, bcoef)
         "additional sleep?"
       ], bcoef, Resp)).
 
-% Question for p-value 
+% Question for p-value task
 task(Flags, pvalue)
 --> { start(item(_N, _Y, _X)),
       session_data(resp(regression, pvalue, Resp), resp(regression, pvalue, '#.##'))
     },
     html(\htmlform(["What is the ", \nowrap([\mmlm(Flags, p), "-value"]), " of the estimate?"], pvalue, Resp)).
 
-%
-% Expert rule for b-coefficient
-%
 start(item(n, y, x)).
-intermediate(bcoef, item).
-
+%
+% Expert rule for bcoef task
+%
 % First step: recognize the problem
-intermediate(bcoef, problem).
+intermediate(bcoef, item).
 expert(bcoef, stage(1), From, To, [step(expert, problem, [])]) :-
     From = item(_N, Y, X),
-    To = { '<-'(b, linearmodel(Y, X)) }.
+    To = { '<-'(m, linearmodel(Y, X));
+           '<-'(b, extract_(m, "predictor"))
+         }.
 
 feedback(problem, [], _Col, F)
- => F = ["Correctly recognised the problem as a linear regression."].
+ => F = ["Correctly recognised the problem as involving a linear regression."].
 
-hint(problem, _Col, F)
- => F = "This is a linear regression.".
+hint(problem, _Col, H)
+ => H = "This is a linear regression.".
 
-% Second step: extract coefficient from linear model
+% Second step: define outcome and predictor in the regression equation
 intermediate(bcoef, linearmodel).
-expert(bcoef, stage(1), From, To, [step(expert, linearmodel, [Y, X])]) :-
+expert(bcoef, stage(2), From, To, [step(expert, equation, [])]) :-
     From = linearmodel(Y, X),
-    To = lm0(Y, X, "coef").
+    To = lm0(Y, X).
 
-feedback(linearmodel, [_,_], _Col, F)
- => F = ["Correctly extracted the ", \nowrap([\mmlm(b), "-coefficient for the sleep duration."])].
+feedback(equation, [], _Col, F)
+ => F = [ "Correctly defined the outcome and the predictor in the regression equation." ].
 
-hint(linearmodel, _Col, F)
- => F = "Report the coefficient for the sleep duration.".
+hint(equation, _Col, H)
+ => H = [ "Define the regression equation." ].
+
+% Third step: extract coefficient from resulting linear model
+intermediate(bcoef, extract_).
+expert(bcoef, stage(3), From, To, [step(expert, extract, [])]) :-
+    From = extract_(M, Coef),
+    To = extract0(M, Coef).
+
+feedback(extract, [], _Col, F)
+ => F = [ "Correctly extracted the ", \nowrap([\mmlm(b), "-coefficient"]),
+          " for the predictor."
+        ].
+
+hint(extract, _Col, H)
+ => H = "Report the coefficient for the predictor.".
 
 %
 % Buggy-Rules for b-coefficient task
 %
-
 % Buggy-Rule: switched outcome and predictor
-buggy(bcoef, stage(1), From, To, [step(buggy, switch, [Y, X])]) :-
+buggy(bcoef, stage(2), From, To, [step(buggy, switch, [])]) :-
     From = linearmodel(Y, X),
-    To = instead(switch, lm0(X, Y, "coef"), lm0(Y, X, "coef")).
+    To = instead(switch, lm0(X, Y), lm0(Y, X)).
 
-feedback(switch, [_, _], _, F)
+feedback(switch, [], _, F)
  => F = ["The predictor and outcome variable of the model were switched."].
 
 hint(switch, _, F)
- => F = "Make sure to define the correct outcome variable and predictor in the model.".
+ => F = "Define the correct outcome and predictor in the model.".
+
 
 % Buggy-Rule: reported intercept instead of predictor 
-buggy(bcoef, stage(1), From, To, [step(buggy, intercept, [Y, X])]) :-
-    From = lm0(X, Y, "coef"),
-    To = lm0(Y, X, "intercept").
+buggy(bcoef, stage(3), From, To, [step(buggy, intercept, [])]) :-
+    From = extract_(M, "predictor"),
+    To = extract0(M, instead(intercept, "intercept", "predictor")).
 
-feedback(intercept, [_, _], _, F)
- => F = ["The intercept was reported."].
+feedback(intercept, [], _, F)
+ => F = ["The intercept was mistakenly reported."].
 
-hint(intercept, _, F)
- => F = "Make sure to report the coefficient of the predictor and not of the intercept.".
+hint(intercept, _, H)
+ => H = "Report the coefficient of the predictor and not of the intercept.". 
 
 %
-% Expert rule for p-value
+% Expert rule for pvalue task
 %
-intermediate(pvalue, item).
-
 % First step: recognize the problem
-intermediate(pvalue, problem).
-expert(pvalue, stage(2), From, To, [step(expert, problem, [])]) :-
+intermediate(pvalue, item).
+expert(pvalue, stage(1), From, To, [step(expert, problem1, [])]) :-
     From = item(_N, Y, X),
-    To = { '<-'(p, linearmodel(Y, X)) }.
+    To = { '<-'(m, linearmodel(Y, X));
+           '<-'(p, extract_(m, "predictor"))
+         }.
 
-feedback(problem, [], _Col, F)
- => F = ["Correctly recognised the problem as a linear regression."].
+feedback(problem1, [], _Col, F)
+ => F = ["Correctly recognised the problem as involving a linear regression."].
 
-hint(problem, _Col, F)
- => F = "This is a linear regression.".
+hint(problem1, _Col, H)
+ => H = "This is a linear regression.".
 
-% Second step: extract p-value of coefficient from linear model
+% Second step: define outcome and predictor in the regression equation
 intermediate(pvalue, linearmodel).
-expert(pvalue, stage(2), From, To, [step(expert, getpvalue, [Y, X])]) :-
+expert(pvalue, stage(2), From, To, [step(expert, equation1, [])]) :-
     From = linearmodel(Y, X),
-    To = lm0(Y, X, "pval:coef").
+    To = lm0(Y, X).
 
-feedback(getpvalue, [_Y, _X], _Col, F)
- => F = ["Correctly extracted the ", \nowrap([\mmlm(p), "-value"]), " for the estimate of the sleep duration."].
+feedback(equation1, [], _Col, F)
+ => F = [ "Correctly defined the outcome and the predictor in the regression equation." ].
 
-hint(getpvalue, Col, F)
- => F = ["Report the ", \nowrap([\mmlm(Col, p), "-value"]), " for the estimate of the sleep duration."].
+hint(equation1, _Col, H)
+ => H = [ "Define the regression equation." ].
+
+% Third step: extract p-value of predictor from linear model
+intermediate(pvalue, extract_).
+expert(pvalue, stage(3), From, To, [step(expert, extract1, [])]) :-
+    From = extract_(M, Coef),
+    To = extract1(M, Coef).
+
+feedback(extract1, [], _Col, F)
+ => F = [ "Correctly extracted the ", \nowrap([\mmlm(p), "-value"]), 
+          " for the the predictor."
+        ].
+
+hint(extract1, Col, H)
+ => H = ["Report the ", \nowrap([\mmlm(Col, p), "-value"]), " for the predictor."].
 
 %
-% Buggy-Rules for p-value task
+% Buggy-Rules for pvalue task
 %
-
 % Buggy-Rule: switched outcome and predictor
-buggy(pvalue, stage(2), From, To, [step(buggy, switch1, [Y, X])]) :-
+buggy(pvalue, stage(2), From, To, [step(buggy, switch1, [])]) :-
     From = linearmodel(Y, X),
-    To = instead(switch1, lm0(X, Y, "pval:coef"), lm0(Y, X, "pval:coef")).
+    To = instead(switch, lm0(X, Y), lm0(Y, X)).
 
-feedback(switch1, [_, _], _, F)
+feedback(switch1, [], _, F)
  => F = ["The predictor and outcome variable of the model were switched."].
 
 hint(switch1, _, F)
- => F = "Make sure to define the correct outcome variable and predictor in the model.".
+ => F = "Define the correct outcome and predictor in the model.".
 
-% Buggy-Rule: reported intercept instead of predictor 
-buggy(pvalue, stage(2), From, To, [step(buggy, intercept1, [Y, X])]) :-
-    From = lm0(Y, X, "pval:coef"),
-    To = lm0(Y, X, "pval:intercept").
 
-feedback(intercept1, [_, _], _, F)
- => F = ["The ", \nowrap([\mmlm(p), "-value"]), " of the intercept was reported."].
+% Buggy-Rule: reported p-value of intercept instead of predictor 
+buggy(pvalue, stage(3), From, To, [step(buggy, intercept1, [])]) :-
+    From = extract_(M, "predictor"),
+    To = extract1(M, instead(intercept, "intercept", "predictor")).
+
+feedback(intercept1, [], _, F)
+ => F = ["The ", \nowrap([\mmlm(p), "-value"]), " of the intercept was mistakenly reported."].
 
 hint(intercept1, Col, F)
- => F = ["Make sure to report the ", \nowrap([\mmlm(Col, p), "-value"]), " for the predictor and not for the intercept."].
+ => F = ["Report the ", \nowrap([\mmlm(Col, p), "-value"]), " for the predictor and not for the intercept."].
