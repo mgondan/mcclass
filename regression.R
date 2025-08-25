@@ -14,11 +14,12 @@ generate.data = function(seed)
   return(d)
 }
 
+# Calculate models once and store them
 get.models <- function(d)
 {
   correct <- sprintf("%s ~ %s", y, x)
   switched <- sprintf("%s ~ %s", x, y)
-  setNames(list(lm(correct, data=d),lm(switched, d=data)),
+  setNames(list(lm(correct, data=d),lm(switched, data=d)),
   c(correct, switched))
 }
 
@@ -26,23 +27,31 @@ data <- generate.data(seed = sample(1:10000, 1))
 
 models <- get.models(data)
 
-# Extract value from model 
-lm0 <- function(y, x, index)
+lm0 <- function(y, x)
 {
-  formula <- sprintf("%s ~ %s", y, x)
+  sprintf("%s ~ %s", y, x)
+}
+
+# For coefficients
+extract0 <- function(formula, index)
+{ 
   m <- models[[formula]]
-  
   if (index == "intercept") {
-    return(coef(m)[1])
+    coef(m)[1]
+  } else if (index == "predictor") {
+    coef(m)[2]
   }
-  if (index == "coef") {
-    return(coef(m)[2])
-  }
-  if (index == "pval:coef") {
-    return( summary(m)$coefficients[x, "Pr(>|t|)"])
-  }
-  if (index == "pval:intercept") {
-    return( summary(m)$coefficients["(Intercept)", "Pr(>|t|)"])
+}
+
+# For p-values
+extract1 <- function(formula, index)
+{ 
+  x <- strsplit(formula, " ~ ", fixed = TRUE)[[1]][2]
+  m <- models[[formula]]
+  if (index == "predictor") {
+    summary(m)$coefficients[x, "Pr(>|t|)"]
+  } else if (index == "intercept") {
+    summary(m)$coefficients["(Intercept)", "Pr(>|t|)"]
   }
 }
 
