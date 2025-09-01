@@ -1,6 +1,5 @@
-subgroups_data = function(seed)
+data = function(seed)
 {
-  set.seed(seed)
   n <- sample(100:150, size=1)
   p_fem <- 0.3
   sex <- factor(rbinom(n, size=1, prob=p_fem), levels=c(0, 1), labels=c("M", "F"))
@@ -30,14 +29,14 @@ subgroups_data = function(seed)
   return(d)
 }
 
-data  <- subgroups_data(seed=4711)
-n     <- nrow(data)
-m_T0  <- by(data$T0, data$therapy, mean)
-s_T0  <- by(data$T0, data$therapy, sd)
-m_EOT <- by(data$EOT, data$therapy, mean)
-s_EOT <- by(data$EOT, data$therapy, sd)
-m_FU  <- by(data$FU, data$therapy, mean)
-s_FU  <- by(data$FU, data$therapy, sd)
+d     <- data()
+n     <- nrow(d)
+m_T0  <- by(d$T0, d$therapy, mean)
+s_T0  <- by(d$T0, d$therapy, sd)
+m_EOT <- by(d$EOT, d$therapy, mean)
+s_EOT <- by(d$EOT, d$therapy, sd)
+m_FU  <- by(d$FU, d$therapy, mean)
+s_FU  <- by(d$FU, d$therapy, sd)
 alpha <- 0.05
 tails <- "two-tailed"
 
@@ -56,37 +55,76 @@ TAU_EOT           <- sprintf("%.1f (%.1f)", TAU_EOT_Mean, TAU_EOT_SD)
 
 # Export data for download
 download <- function(fname)
-  write.csv2(data, fname, row.names=FALSE)
+  write.csv2(d, fname, row.names=FALSE)
 
 ancova_f <- function(outcome, cov, strata, other, interaction, exclude, therapy)
 {
-  predictors <- paste(c(cov, strata, interaction, list(therapy)), collapse="+")
-  formula <- sprintf("%s ~ %s", outcome, predictors)
-  m <- lm(formula, data=data)
-  terms = attr(terms(m), "term.labels")
-  index = which(terms == interaction)
-  anova(m)[index, "F value"]
+  formula <- .get_formula(outcome, cov, strata, other, interaction, exclude, therapy)
+  m <- .get_model(formula)
+  anv <- .get_anv(m, formula)
+  terms <- attr(terms(m), "term.labels")
+  index <- which(terms == interaction)
+  anv[index, "F value"]
 }
 
 ancova_p <- function(outcome, cov, strata, other, interaction, exclude, therapy)
 {
-  predictors <- paste(c(cov, strata, interaction, list(therapy)), collapse="+")
-  formula <- sprintf("%s ~ %s", outcome, predictors)
-  m <- lm(formula, data=data)
+  formula <- .get_formula(outcome, cov, strata, other, interaction, exclude, therapy)
+  m <- .get_model(formula)
+  anv <- .get_anv(m, formula)
   terms <- attr(terms(m), "term.labels")
   index <- which(terms == interaction)
-  anova(m)[index, "Pr(>F)"]
+  anv[index, "Pr(>F)"]
 }
 
 library(emmeans)
 ancova_ci <- function(outcome, cov, strata, other, interaction, exclude, therapy)
 {
-  predictors <- paste(c(cov, strata, interaction, list(therapy)), collapse="+")
-  formula <- sprintf("%s ~ %s", outcome, predictors)
-  m <- lm(formula, data=data)
-  emm <- emmeans(m, therapy, contr="trt.vs.ctrl1")
+  formula <- .get_formula(outcome, cov, strata, other, interaction, exclude, therapy)
+  m <- .get_model(formula)
+  emm <- .get_emm(m, formula, therapy)
   ci <- confint(emm)$contrasts
   lower <- ci[1, "lower.CL"]
   upper <- ci[1, "upper.CL"]
   call("ci", lower, upper)
+}
+
+models <- new.env(hash = TRUE)
+anvs <- new.env(hash = TRUE)
+emms <- new.env(hash = TRUE)
+
+.get_model <- function(formula)
+{
+  m <- models[[formula]]
+  if (is.null(m)) {
+    m <- lm(formula, data=d)
+    models[[formula]] <- m
+  }
+  return(m)
+}
+
+.get_anv <- function(m, formula)
+{
+  anv <- anvs[[formula]]
+  if (is.null(anv)) {
+    anv <- anova(m)
+    anvs[[formula]] <- anv
+  }
+  return(anv)
+}
+
+.get_emm <- function(m, formula, therapy)
+{
+  emm <- emms[[formula]]
+  if (is.null(emm)) {
+    emm <- emmeans(m, therapy, contr="trt.vs.ctrl1")
+    emms[[formula]] <- emm
+  }
+  return(emm)
+}
+
+.get_formula <- function(outcome, cov, strata, other, interaction, exclude, therapy)
+{
+  predictors <- paste(c(cov, strata, interaction, list(therapy)), collapse="+")
+  sprintf("%s ~ %s", outcome, predictors)
 }
