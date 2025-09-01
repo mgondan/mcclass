@@ -535,3 +535,10 @@ mathml:math_hook([], "").
 
 % Round
 mathml:math_hook(round(A), A).
+
+%
+% Table
+%
+mathml:mlx(table(Rows0), M, Flags) :-
+      maplist(mathml:ml_row(Flags), Rows0, Rows1),
+      M = mtable(columnalign(left), Rows1).
