@@ -9,7 +9,7 @@
 :- use_module(mathml).
 
 :- use_module(navbar).
-navbar:page(tgroups, ["Independent ", i(t), "-test"]).
+navbar:page(tgroups, ["independent ", i(t), "-test"]).
 
 task(s2p).
 task(tratio).

@@ -7,7 +7,7 @@
 :- use_module(mathml).
 :- use_module(navbar).
 
-navbar:page(testbinom, "Binomial test").
+navbar:page(testbinom, "binomial test").
 label(critical, "Critical value").
 label(powbinom, "Power").
 label(pval, [math(mi(p)), "-value"]).

@@ -10,7 +10,7 @@
 :- use_module(mathml).
 
 :- use_module(navbar).
-navbar:page(dbinom, "Binomial probability").
+navbar:page(dbinom, "binomial probability").
 task(exactprob).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/3.
