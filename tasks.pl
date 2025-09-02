@@ -79,15 +79,15 @@ init_topics :-
     init_topic(tpaired),
     init_topic(tpairedupper),
     init_topic(tpairedlower),
-    init_topic(baseline),
+    init_topic(tgroups),
     init_topic(oddsratio),
     init_topic(oddsratio2),
     init_topic(easyodds),
-    init_topic(tgroups),
     init_topic(ztrans),
     init_topic(dbinom),
     init_topic(testbinom),
     init_topic(chisq),
+    init_topic(baseline),
     init_topic(subgroups),
     init_topic(regression).
 
