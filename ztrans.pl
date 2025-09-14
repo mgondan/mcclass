@@ -18,10 +18,12 @@ task(quantile).
 
 % Prettier symbols for mathematical rendering
 math_hook(x, 'X').
+math_hook(x_1, x).
 math_hook(perc, p).
 
 % R definitions
 macro(x).
+macro(x_1).
 macro(sigma).
 macro(z).
 macro(perc).
@@ -174,7 +176,7 @@ intermediate(quantile, xcalc).
 expert(quantile, stage(1), From, To, [step(expert, steps, [])]) :-
     From = item(_X, Mu, Sigma, Perc),
     To = { '<-'(z, qnorm_(Perc / 100)) ;
-           '<-'(x, xcalc(z, Sigma, Mu))
+           '<-'(x_1, xcalc(z, Sigma, Mu))
          }.
 
 feedback(steps, [], _Col, F)
