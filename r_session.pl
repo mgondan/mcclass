@@ -1,5 +1,5 @@
 :-  module(r_session, 
-      [ r//1, r_topic_source/0, r_topic/1, r_topic/2, r_topic//1 ]).
+      [ r//1, r_topic_source/0, r_topic/1, r_topic/2, r_topic//1, r_topic_source_with_check/0]).
 
 :-  reexport(library(r)).
 :-  use_module(session).
@@ -47,3 +47,15 @@ r_topic :-
     ;   r(with(Topic, '<-'(Variant, 'new.env'()))),
         assert(variant(Topic, Variant))
     ),  !.
+
+% Load .R topic file only once per variant (not multiple times for each task) 
+r_topic_source_with_check :-
+    b_getval(topic, Topic),
+    topic(Topic),
+    b_getval(variant, Variant),
+    variant(Topic, Variant),
+    !.
+
+r_topic_source_with_check :-
+    r_topic_source.
+

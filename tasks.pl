@@ -59,7 +59,7 @@ init_variant(Topic, Task) :-
     length(Variants, N),
     format(atom(Variant), "var~w", N),
     b_setval(variant, Variant),
-    r_topic_source,
+    r_topic_source_with_check,
     solutions(Topic, Task, S),
     mistakes(Topic, Task, M),
     assert(taskdata(Topic, Task, Variant, [solutions(S), mistakes(M)])).
@@ -101,8 +101,6 @@ done_topics :-
 % Render R result
 mathml:math_hook(r(Expr), Res) :-
     r_topic(Expr, Res).
-
-:- dynamic taskdata/4.
 
 % more to come
 task(Topic, Task, Data) :-
