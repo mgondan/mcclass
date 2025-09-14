@@ -3,8 +3,12 @@
 :- use_module(library(plunit)).
 :- use_module(library(debug)).
 :- use_module('../interval').
+:- use_module('../r_session').
 
 test_interval :-
+    b_setval(topic, test),
+    b_setval(variant, var0),
+    r_session:r_topic, 
     run_tests([fractions, number_digit, bugs, multiply, available, equality, ci, pm, denote, color, semicolon, curly, cbinom, pwbinom]).
 
 :- begin_tests(fractions).

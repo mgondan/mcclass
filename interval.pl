@@ -31,6 +31,10 @@
 % Assert clauses of interval_/3 at the beginning of module rint
 :- initialization(assert_clauses(interval_wrapper)).
 
+% Evaluation of R expression through r_session 
+:- asserta((rint:eval(r(Expr), Res) :-
+    !,
+    r_session:r_topic(Expr, Res))).
 %
 % Confidence intervals
 %
