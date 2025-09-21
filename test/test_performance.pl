@@ -116,7 +116,7 @@ generate(Level, 2 + X) :-
 generate(0, 2).
 
 test10 :-
-    Topic = easyodds,
+    Topic = oddsratio,
     Task = oratio,
     Call = tasks:tasks(Topic, Task),
     open_null_stream(Null),
