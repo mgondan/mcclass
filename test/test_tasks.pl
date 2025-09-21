@@ -58,14 +58,11 @@ test(chisq_chisq) :-
 % Odds ratio
 :- begin_tests(odds).
 
-test(easyodds_oratio) :-
-    tasks:tasks(easyodds, oratio).
-
 test(oddsratio_oratio) :-
     tasks:tasks(oddsratio, oratio).
 
-test(oddsratio2_oratio) :-
-    tasks:tasks(oddsratio2, oratio).
+test(oddsratio_successprob) :-
+    tasks:tasks(oddsratio, successprob).
 
 :- end_tests(odds).
 

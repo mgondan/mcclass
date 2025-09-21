@@ -81,8 +81,6 @@ init_topics :-
     init_topic(tpairedlower),
     init_topic(tgroups),
     init_topic(oddsratio),
-    init_topic(oddsratio2),
-    init_topic(easyodds),
     init_topic(ztrans),
     init_topic(dbinom),
     init_topic(testbinom),
