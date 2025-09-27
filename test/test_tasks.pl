@@ -7,26 +7,46 @@
 test_tasks :-
     run_tests([anova, binomial, chisq, odds, regression, t, ztrans]).
 
+test_task_(Topic, Task, NumberSolutions, NumberMistakes) :-
+    open_null_stream(Null),
+    with_output_to(Null, call(tasks:tasks(Topic, Task))),
+    tasks:taskdata(Topic, Task, _, [solutions(Sol), mistakes(Mist)]),
+    length(Sol, NumberSolutions),
+    length(Mist, NumberMistakes).
+
+% Message in case of fail
+test_task_(Topic, Task, NumberSolutions, NumberMistakes) :-
+    tasks:taskdata(Topic, Task, _, [solutions(S), mistakes(M)]),
+    length(S, ActualNumberSolutions),
+    length(M, ActualNumberMistakes),
+    atomics_to_string([Topic, " ", Task, " - Solutions: actual=", ActualNumberSolutions, ", exptected=", NumberSolutions,
+                       " - Mistakes: actual=", ActualNumberMistakes, ", exptected=", NumberMistakes], Message),
+    writeln(Message),
+    fail.
+
 % Anova
 :- begin_tests(anova).
 
 test(baseline_fratio) :-
-    tasks:tasks(baseline, fratio).
+    test_task_(baseline, fratio, 1, 29).
 
 test(baseline_pvalue) :-
-    tasks:tasks(baseline, pvalue).
+    test_task_(baseline, pvalue, 1, 29).
 
 test(baseline_cibase) :-
-    tasks:tasks(baseline, cibase).
+    test_task_(baseline, cibase, 1, 29).
 
 test(subgroups_fratio) :-
-    tasks:tasks(subgroups, fratio).
+    test_task_(subgroups, fratio, 1, 49).
 
 test(subgroups_pvalue) :-
-    tasks:tasks(subgroups, pvalue).
+    test_task_(subgroups, pvalue, 1, Mistakes),
+    (Mistakes = 85
+    ;
+    Mistakes = 87).
 
 test(subgroups_cibase) :-
-    tasks:tasks(subgroups, cibase).
+    test_task_(subgroups, cibase, 1, 179).
 
 :- end_tests(anova).
 
@@ -34,16 +54,16 @@ test(subgroups_cibase) :-
 :- begin_tests(binomial).
 
 test(dbinom_exactprob) :-
-    tasks:tasks(dbinom, exactprob).
+    test_task_(dbinom, exactprob, 2, 18).
 
 test(testbinom_powbinom) :-
-    tasks:tasks(testbinom, powbinom).
+    test_task_(testbinom, powbinom, 1, 11).
     
 test(testbinom_critical) :-
-    tasks:tasks(testbinom, critical).
+    test_task_(testbinom, critical, 1, 3).
 
 test(testbinom_pvalue) :-
-    tasks:tasks(testbinom, pval).
+    test_task_(testbinom, pval, 1, 11).
 
 :- end_tests(binomial).
 
@@ -51,7 +71,7 @@ test(testbinom_pvalue) :-
 :- begin_tests(chisq).
 
 test(chisq_chisq) :-
-    tasks:tasks(chisq, chisq).
+    test_task_(chisq, chisq, 1, 35).
 
 :- end_tests(chisq).
 
@@ -59,10 +79,10 @@ test(chisq_chisq) :-
 :- begin_tests(odds).
 
 test(oddsratio_oratio) :-
-    tasks:tasks(oddsratio, oratio).
+    test_task_(oddsratio, oratio, 1, 17).
 
 test(oddsratio_successprob) :-
-    tasks:tasks(oddsratio, successprob).
+    test_task_(oddsratio, successprob, 1, 11).
 
 :- end_tests(odds).
 
@@ -70,10 +90,10 @@ test(oddsratio_successprob) :-
 :- begin_tests(regression).
 
 test(regression_bcoef) :-
-    tasks:tasks(regression, bcoef).
+    test_task_(regression, bcoef, 1, 3).
 
 test(regression_pvalue) :-
-    tasks:tasks(regression, pvalue).
+    test_task_(regression, pvalue, 1, 3).
 
 :- end_tests(regression).
 
@@ -81,40 +101,40 @@ test(regression_pvalue) :-
 :- begin_tests(t).
 
 test(tgroups_s2p) :-
-    tasks:tasks(tgroups, s2p).
+    test_task_(tgroups, s2p, 1, 3).
 
 test(tgroups_tratio) :-
-    tasks:tasks(tgroups, tratio).
+    test_task_(tgroups, tratio, 1, 35).
 
 test(tgroups_cigroups) :-
-    tasks:tasks(tgroups, cigroups).
+    test_task_(tgroups, cigroups, 1, 79).
 
 test(tpaired_tratio) :-
-    tasks:tasks(tpaired, tratio).
+    test_task_(tpaired, tratio, 2, 86).
 
 test(tpaired_pvalue) :-
-    tasks:tasks(tpaired, pvalue).
+    test_task_(tpaired, pvalue, 1, 3).
 
 test(tpaired_cipaired) :-
-    tasks:tasks(tpaired, cipaired).
+    test_task_(tpaired, cipaired, 1, 15).
 
 test(tpairedupper_tratio) :-
-    tasks:tasks(tpairedupper, tratio).
+    test_task_(tpairedupper, tratio, 1, 50).
 
 test(tpairedupper_pvalue) :-
-    tasks:tasks(tpairedupper, pvalue).
+    test_task_(tpairedupper, pvalue, 2, 6).
 
 test(tpairedupper_cipaired) :-
-    tasks:tasks(tpairedupper, cipaired).
+    test_task_(tpairedupper, cipaired, 1, 15).
 
-test(tpaired1tlow_tratio) :-
-    tasks:tasks(tpaired, tratio).
+test(tpairedlower_tratio) :-
+    test_task_(tpairedlower, tratio, 1, 50).
 
-test(tpaired1tlow_pvalue) :-
-    tasks:tasks(tpaired, pvalue).
+test(tpairedlower_pvalue) :-
+    test_task_(tpairedlower, pvalue, 2, 6).
 
-test(tpaired1tlow_cipaired) :-
-    tasks:tasks(tpaired, cipaired).
+test(tpairedlower_cipaired) :-
+    test_task_(tpairedlower, cipaired, 1, 9).
 
 :- end_tests(t).
 
@@ -122,9 +142,9 @@ test(tpaired1tlow_cipaired) :-
 :- begin_tests(ztrans).
 
 test(ztrans_prob) :-
-    tasks:tasks(ztrans, prob).
+    test_task_(ztrans, prob, 1, 6).
 
 test(ztrans_quantile) :-
-    tasks:tasks(ztrans, quantile).
+    test_task_(ztrans, quantile, 1, 23).
 
 :- end_tests(ztrans).
