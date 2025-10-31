@@ -27,12 +27,32 @@ jobs:
           echo "R_LIBS=$HOME/Rlibs" >> ~/.Renviron
           echo "R_LIBS_USER=$HOME/Rlibs" >> $GITHUB_ENV
 
-      - name: Install SWI-Prolog on Linux
+      - name: Include deb-src repositories in sources.list
+        run: |
+          sudo tee -a /etc/apt/sources.list <<EOF
+          deb-src http://archive.ubuntu.com/ubuntu/ $(lsb_release -sc) main restricted universe multiverse
+          deb-src http://archive.ubuntu.com/ubuntu/ $(lsb_release -sc)-updates main restricted universe multiverse
+          deb-src http://archive.ubuntu.com/ubuntu/ $(lsb_release -sc)-security main restricted universe multiverse
+          EOF
+    
+      - name: Install SWI-Prolog from source
         if: runner.os == 'Linux'
         run: |
-          sudo apt-add-repository ppa:swi-prolog/devel
           sudo apt-get update
-          sudo apt-get install swi-prolog
+        
+          git clone https://github.com/SWI-Prolog/swipl-devel.git
+          cd swipl-devel
+          git submodule update --init
+          sudo apt-get build-dep -y swi-prolog
+
+          mkdir build
+          cd build
+          cmake -DCMAKE_INSTALL_PREFIX=$HOME -DCMAKE_BUILD_TYPE=PGO -DSWIPL_PACKAGES_JAVA=OFF -G Ninja ..
+          ninja
+          ctest -j $(nproc) --output-on-failure
+          ninja install
+
+          echo "$HOME/bin" >> $GITHUB_PATH
         shell: bash
 
       - name: Check installation
