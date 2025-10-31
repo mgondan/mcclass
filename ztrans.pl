@@ -46,7 +46,7 @@ task(Flags, prob)
 --> { start(item(X, _Mu, _Sigma, _Perc)),
       session_data(resp(ztrans, prob, Resp), resp(ztrans, prob, '.##'))
 	},
-	html(\htmlform([ "What is the probability of having realizations below ", 
+	html(\htmlform([ "What is the probability of realizations being below ", 
          \mmlm([digits(0) | Flags], [r(X), "?"])], prob, Resp)).
 
 % Question for the quantile task
@@ -99,7 +99,7 @@ feedback(correct_tail, [_Z], _Col, F)
  => F = [ "Correctly determined the probability from the lower tail of the normal distribution." ].
 
 hint(correct_tail, Col, H) 
- => H = [ "The result matches the ", \mmlm(Col, color(wrong_tail, "wrong tail" )), " of the normal distribution." ].
+ => H = [ "The result corresponds to the ", \mmlm(Col, color(wrong_tail, "wrong tail" )), " of the normal distribution." ].
 
 
 %

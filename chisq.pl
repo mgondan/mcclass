@@ -44,8 +44,8 @@ render(Flags)
         div(class(card), div(class("card-body"),
           [ h1(class("card-title"), "Training of surgical skills"),
             p(class("card-text"),
-              [ "Surgeons need special motor skills, especially for ",
-                "endoscopic surgery through the belly. Nickel et al. (2015) ",
+              [ "Surgeons require specialized motor skills, especially for ",
+                "endoscopic surgery through the abdomen. Nickel et al. (2015) ",
                 "report the results of a study with two learning methods for ",
                 "motor skill training. The VR group underwent a virtual ",
                 "reality training (VR group), the Box group participated in ",
@@ -55,7 +55,7 @@ render(Flags)
             p(class("card-text"),
               [ "The primary dependent variable was the result on the OSATS ",
                 "test (interval scaled, normally distributed, high scores = ",
-                "good performance). A few more dependent variables were ",
+                "good performance). Several additional dependent variables were ",
                 "assessed, including a knowledge test (interval scaled), ",
                 "operation time (dichotomized, above or below 80 min), and ",
                 "efficiency ratings (ordinal scale, 1=bad ... 5=good)."
@@ -172,7 +172,7 @@ buggy(chisq, stage(1), From, To, [step(buggy, pdiff, [])]) :-
                 instead(pdiff, N_VR - N_Box, N_VR + N_Box)).
 
 feedback(pdiff, [], Col, F)
-  => F = [ "The result matches the pooled proportion of successes with the ",
+  => F = [ "The result corresponds to the pooled proportion of successes with the ",
            "difference in both the numerator and the denominator of ",
            \mmlm(Col, [color(pdiff, p_pool), "."]) 
          ].
@@ -190,7 +190,7 @@ buggy(chisq, stage(3), From, To, [step(buggy, square, [Z])]) :-
     To = chi2ratio(omit_right(square, Z^2)).
 
 feedback(square, [Z], Col, F)
- => F = [ "The result matches the ",
+ => F = [ "The result corresponds to the ",
           \nowrap([\mmlm(Col, color(square, Z)), "-statistic"]),
           " instead of the ", \nowrap([\mmlm(Col, [color(square, chi2)]), "-statistic."])
         ].
@@ -208,7 +208,7 @@ buggy(chisq, stage(3), From, To, [step(buggy, square2, [Z])]) :-
     To = chi2ratio(omit_right(square2, abs(Z)^2)).
 
 feedback(square2, [Z], Col, F)
- => F = [ "The result matches the ",
+ => F = [ "The result corresponds to the ",
           \nowrap([\mmlm(Col, color(square, Z)), "-statistic"]),
           " instead of the ", \nowrap([\mmlm(Col, [color(square, chi2)]), "-statistic."])
         ].
@@ -227,7 +227,7 @@ buggy(chisq, stage(2), From, To, [step(buggy, zadd, [P_VR, P_Box])]) :-
            sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box)))).
 
 feedback(zadd, [P_VR, P_Box], Col, F)
- => F = [ "The results matches the ", \nowrap([\mmlm(Col, z), "-statistic"]), " where ",
+ => F = [ "The results corresponds to the ", \nowrap([\mmlm(Col, z), "-statistic"]), " where ",
           \mmlm(Col, color(zadd, P_Box)), " was added to ", 
           \mmlm(Col, color(zadd, P_VR)), ", rather than subtracted from it."
         ].
@@ -246,7 +246,7 @@ buggy(chisq, stage(2), From, To, [step(buggy, paren2, [N_VR, N_Box])]) :-
     To = A * B * color(paren2, 1) / color(paren2, N_VR) + color(paren2, 1) / color(paren2, N_Box).
 
 feedback(paren2, [N_VR, N_Box], Col, F) 
- => F = [ "The results matches the ", \nowrap([\mmlm(Col, z), "-statistic"]), " without ",
+ => F = [ "The results corresponds to the ", \nowrap([\mmlm(Col, z), "-statistic"]), " without ",
 	        "the parentheses around ", 
 	        \mmlm(Col, color(paren2, paren(color("#000000", frac(1, N_VR) + frac(1, N_Box))))), "."
         ].
@@ -287,7 +287,7 @@ buggy(chisq, stage(2), From, To, [step(buggy, paren3, [From])]) :-
     To = instead(paren3, P_Pool * 1 - P_Pool * 1 / N_VR + 1 / N_Box, From).
 
 feedback(paren3, [From], Col, F) 
- => F = [ "The results matches the ", \nowrap([\mmlm(Col, z), "-statistic"]), " without ",
+ => F = [ "The results corresponds to the ", \nowrap([\mmlm(Col, z), "-statistic"]), " without ",
 	        "the parentheses around the different elements in ", 
 	        \mmlm(Col, color(paren3, From)), "."
 	      ].
@@ -305,7 +305,7 @@ buggy(chisq, stage(2), From, To, [step(buggy, flip, [])]) :-
     To = add_left(flip, 1 / dfrac(P_VR - P_Box, sqrt(P_Pool * (1 - P_Pool) * (frac(1, N_VR) + frac(1, N_Box))))).
 
 feedback(flip, [], Col, F) 
- => F = [ "The result matches the reciprocal of the test statistic ", 
+ => F = [ "The result corresponds to the reciprocal of the test statistic ", 
 	        \mmlm(Col, ["(", color(flip, 1 / (color("#000000", z))), ")"]),
 	      ". Please double check the nominator and denominator of the test statistic." 
 	      ].

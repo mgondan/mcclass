@@ -52,22 +52,22 @@ render(Flags)
         [ h1(class('card-title'), "Training of surgical skills"),
           p(class('card-text'),
             [ "Surgeons need special motor skills, especially for ",
-              "endoscopic surgery through the belly. Nickel et al. (2015) ",
+              "endoscopic surgery through the abdomen. Nickel et al. (2015) ",
               "report the results of a study with two learning methods for ",
               "motor skill training. One group underwent a virtual reality ",
-              "training (VR group), the other group participated in a ",
-              "mixture of online courses and classical training of motor ",
+              "training programme (VR group), the other group participated in a ",
+              "mixture of online courses and conventional training programme of motor ",
               "skill with the so-called Box-trainer (Box group). ",
-              "The primary dependent variable is the result on the OSATS ",
+              "The primary dependent variable is the score on the OSATS ",
               "test (interval scale, normally distributed, high scores = ",
-              "good performance). A few more dependent variables were ",
+              "good performance). Several additional dependent variables were ",
               "assessed, including a knowledge test (interval scale), ",
-              "operation time (dichotomized, above or below 80 min), and ",
+              "operation time (dichotomised, above or below 80 min), and ",
               "efficiency ratings (ordinal scale, 1=bad ... 5=good)."
             ]),
 	  p(class('card-text'),
-            [ "Please check the following text from the publication ",
-              "(40 ± 10 means “average 40, standard deviation 10”):"
+            [ "Please check the following excerpt from the publication ",
+              "(40 ± 10 means “mean 40, standard deviation 10”):"
 	    ]),
           div(class(card), 
             div(class('card-body'),
@@ -84,7 +84,7 @@ render(Flags)
                   "raters assessed the operative performance using the ",
                   "Objective Structured Assessment of Technical Skills ",
                   "(OSATS). The VR group completed the operation significantly ",
-                  "faster and more often within 80 min than the Box ",
+                  "faster and more frequently within 80 min than the Box ",
                   "group (VR: 28\u0025 vs. Box: 22\u0025, ",
                   \nowrap([\mmlm(Flags, p), " = 0.596). "]),
                   "The Box group ",
@@ -97,8 +97,8 @@ render(Flags)
                   \nowrap([\mmlm(Flags, p), " = 0.437). "]),
                   "The significance level is set to ",
                   \mmlm(Flags, alpha = percent(r(Alpha))), " two-tailed. ",
-                  "The medical students generally appreciated the training and felt well prepared for ", 
-                  "assisting in laparoscopic surgery. The efficiency of the training ",
+                  "The medical students generally appreciated the training programme and felt well prepared ", 
+                  "to assist in laparoscopic surgery. The efficiency of the training programme ",
                   "was judged higher by the VR group than by the Box group."
                 ]))),
             \download(tgroups)]))).
@@ -164,9 +164,9 @@ buggy(s2p, stage(2), From, To, [step(buggy, sd, [S_VR, S_Box])]) :-
     To = dfrac(A * instead(sd, S_VR, S_VR ^ 2) + B * instead(sd, S_Box, S_Box ^ 2), C).
 
 feedback(sd, [S_VR, S_Box], Col, FB) =>
-    FB = [ "The result matches the expression for the pooled variance with the",
-	   " standard deviation instead of the standard variations.",
-	   " Please remember to use the squares of the standard deviations ", \mmlm(Col, color(sd, S_VR)),
+    FB = [ "The result corresponds to the expression for the pooled variance with the",
+	   " standard deviation instead of the variance.",
+	   " Please remember to use the squared standard deviations ", \mmlm(Col, color(sd, S_VR)),
 	   " and ", \mmlm(Col, color(sd, S_Box)), " to calculate the pooled variance."
 	 ].
 
@@ -182,8 +182,8 @@ buggy(s2p, stage(2), From, To, [step(buggy, nswap, [N_VR, N_Box])]) :-
 
 
 feedback(nswap, [N_VR, N_Box], Col, FB) =>
-    FB = [ "The result matches the expression for the pooled variance with ",
-	   "swaped sample sizes. Please double check the sample sizes ", 
+    FB = [ "The result corresponds to the expression for the pooled variance with ",
+	   "swapped sample sizes. Please double check the sample sizes ", 
 	   \mmlm(Col, color(nswap, N_VR)), " and ", \mmlm(Col, color(nswap, N_Box)),
 	   " of both groups."
 	 ].
@@ -256,7 +256,7 @@ buggy(tratio, stage(1), From, To, [step(buggy, control, [vr, box])]) :-
     To = item(instead(control, box, vr), s_vr, n_vr, instead(control, vr, box), s_box, n_box, alpha).
 
 feedback(control, [VR, Box], Col, FB)
- => FB = [ "The sign of the result matches the ",
+ => FB = [ "The sign of the result corresponds to the ",
            "negative ", \nowrap([\mmlm(Col, t), "-ratio,"]), " ",
            "with ", \mmlm(Col, color(control, VR)), " subtracted ",
            "from ", \mmlm(Col, [color(control, Box), "."]), " Please keep in mind ",
@@ -277,7 +277,7 @@ buggy(tratio, stage(1), From, To, [step(buggy, square, [S_A, S_B])]) :-
     To = dfrac((N_A-1) * omit_right(square, S_A^2) + (N_B-1) * omit_right(square, S_B^2), N_A + N_B - 2).
 
 feedback(square, [S_A, S_B], Col, FB)
- => FB = [ "The result matches the expression for the pooled variance without ",
+ => FB = [ "The result corresponds to the expression for the pooled variance without ",
 	   "the square of ", \mmlm(Col, color(square, S_A)), " and ", 
 	   \mmlm(Col, [color(square, S_B), "."]), " Please do not forget the square of ",
 	   \mmlm(Col, color(square, S_A)), " and ", \mmlm(Col, color(square, S_B)),
@@ -295,7 +295,7 @@ buggy(tratio, stage(2), From, To, [step(buggy, school, [N_A, N_B])]) :-
     To = color(school, frac(1, N_A + N_B)).
 
 feedback(school, [A, B], Col, FB)
- => FB = [ "The result matches the expression for the ", 
+ => FB = [ "The result corresponds to the expression for the ", 
 	   \nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples with ",
 	   \mmlm(Col, [frac(1, color(school, color("black", A) + color("black", B))), "."]),
 	   " Please keep in mind that ", \mmlm(Col, [color(school, 
@@ -316,7 +316,7 @@ buggy(tratio, stage(2), From, To, [step(buggy, bug1, [])]) :-
     To = add_left(bug1, VR - add_right(bug1, Num / sqrt(S2P * (1/N_VR + 1/N_BOX)))).
 
 feedback(bug1, [], Col, FB) =>
-    FB = [ "The result matches the expression for the ", 
+    FB = [ "The result corresponds to the expression for the ", 
 	    \nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples without the ",
 	    "parentheses around the numerator."].
 
@@ -329,7 +329,7 @@ buggy(tratio, stage(2), From, To, [step(buggy, sqrt1, [S2P * Ns])]) :-
     To = instead(sqrt1, S2P * Ns, sqrt(S2P * Ns)).
 
 feedback(sqrt1, [S2P_Ns], Col, FB)
- => FB = [ "The result matches the expression for the ", 
+ => FB = [ "The result corresponds to the expression for the ", 
 	   \nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples without the square",
 	   " root around ", \mmlm(Col, [color(sqrt1, S2P_Ns), "."]), " Please do not forget",
 	   " the square root around the denominator."
@@ -347,7 +347,7 @@ buggy(tratio, stage(2), From, To, [step(buggy, sqrt2, [Ns])]) :-
     To = add_right(sqrt2, sqrt(omit_right(sqrt2, S2P * Ns)) * Ns).
 
 feedback(sqrt2, [Ns], Col, FB)
- => FB = [ "The result matches the expression for the ", 
+ => FB = [ "The result corresponds to the expression for the ", 
 	   \nowrap([\mmlm(Col, t), "-ratio"]), " with the square root stopping before ",
 	   \mmlm(Col, [paren(color(sqrt2, Ns)), "."]), " Please do not forget to take the ",
 	   "square root of the whole denominator."
@@ -440,7 +440,7 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, tstat, [N_VR, N_Box, Alpha])]) :-
     Y = P. 
 
 feedback(tstat, [N_VR, N_Box, Alpha], Col, F)
- => F = [ "The result matches the confidence interval based on the observed ",
+ => F = [ "The result corresponds to the confidence interval based on the observed ",
           \nowrap([\mmlm(Col, t), "-statistic."]), " Please use the quantile ",
            "of the ", \nowrap([\mmlm(Col, t), "-distribution "]), 
 	   \mmlm(Col, color(qt, qt(1 - Alpha/2, N_VR + N_Box - 2))), " instead."
@@ -459,7 +459,7 @@ buggy(cigroups, stage(1), X, Y, [step(buggy, control, [vr, box])]) :-
     Y = item(instead(control, box, vr), s_vr, n_vr, instead(control, vr, boc), s_box, n_box, alpha).
 
 feedback(control, [VR, Box], Col, FB)
- => FB = [ "The sign of the result matches the ",
+ => FB = [ "The sign of the result corresponds to the ",
            "negative ", \nowrap([\mmlm(Col, t), "-ratio,"]), " ",
            "with ", \mmlm(Col, color(control, VR)), " subtracted ",
            "from ", \mmlm(Col, [color(control, Box), "."]), " Please keep in mind ",
@@ -480,7 +480,7 @@ buggy(cigroups, stage(1), From, To, [step(buggy, square, [S_A, S_B])]) :-
     To = dfrac((N_A-1) * omit_right(square, S_A^2) + (N_B-1) * omit_right(square, S_B^2), N_A + N_B - 2).
 
 feedback(square, [S_A, S_B], Col, FB)
- => FB = [ "The result matches the expression for the pooled variance without ",
+ => FB = [ "The result corresponds to the expression for the pooled variance without ",
 	   "the square of ", \mmlm(Col, color(square, S_A)), " and ", 
 	   \mmlm(Col, [color(square, S_B), "."]), " Please do not forget the square of ",
 	   \mmlm(Col, color(square, S_A)), " and ", \mmlm(Col, color(square, S_B)),
@@ -499,7 +499,7 @@ buggy(cigroups, stage(2), From, To, [step(buggy, school_1, [N_A, N_B])]) :-
     To = dot(quant(VR, Box, S2P, N_A, N_B, Alpha), sqrt(dot(S2P, color(school_1, frac(1, N_A + N_B))))).
 
 feedback(school_1, [A, B], Col, FB)
- => FB = [ "The result matches the the confidence interval for independent samples with ",
+ => FB = [ "The result corresponds to the the confidence interval for independent samples with ",
 	   \mmlm(Col, [frac(1, color(school_1, color("black", A) + color("black", B))), "."]),
 	   " Please keep in mind that ", \mmlm(Col, [color(school_1, 
 		color("black", frac(1, A)) + color("black", frac(1, B)))
@@ -519,7 +519,7 @@ buggy(cigroups, stage(2), From, To, [step(buggy, school_2, [N_A, N_B])]) :-
     To = dfrac(VR - Box, sqrt(S2P * color(school_2, frac(1, N_A + N_B)))).
 
 feedback(school_2, [A, B], Col, FB)
- => FB = [ "The result matches the expression for the ", 
+ => FB = [ "The result corresponds to the expression for the ", 
 	   \nowrap([\mmlm(Col, t), "-ratio"]), " for independent samples with ",
 	   \mmlm(Col, [frac(1, color(school_2, color("black", A) + color("black", B))), "."]),
 	   " Please keep in mind that ", \mmlm(Col, [color(school_2, 
@@ -541,7 +541,7 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt1, [S2P, N_VR, N_Box])]) :-
 
 
 feedback(sqrt1, [S2P, N_VR, N_Box], Col, FB)
- => FB = [ "The result matches the confidence interval without square root around ", 
+ => FB = [ "The result corresponds to the confidence interval without square root around ", 
            \mmlm(Col, [color(sqrt1, dot(S2P, frac(1, N_VR) + frac(1, N_Box))), "."]), " Please do not forget the square root",
            " around the denominator."
          ].
@@ -559,7 +559,7 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt2, [S2P, N_VR, N_Box])]) :-
 
 
 feedback(sqrt2, [S2P, N_VR, N_Box], Col, FB)
- => FB = [ "The result matches the ", \nowrap([\mmlm(Col, t), "-ratio"]), " without ",
+ => FB = [ "The result corresponds to the ", \nowrap([\mmlm(Col, t), "-ratio"]), " without ",
 	   "square root around ", 
            \mmlm(Col, [color(sqrt2, dot(S2P, frac(1, N_VR) + frac(1, N_Box))), "."]), " Please do not forget the square root",
            " around the denominator."
@@ -578,7 +578,7 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt3, [Ns])]) :-
     Y = dot(quant(VR, Box, S2P, N_VR, N_Box, Alpha), add_right(sqrt3, sqrt(omit_right(sqrt3, dot(S2P, Ns))) * Ns)).
 
 feedback(sqrt3, [Ns], Col, FB)
- => FB = [ "The result matches the confidence interval with the square root ",
+ => FB = [ "The result corresponds to the confidence interval with the square root ",
 	   "stopping before ", \mmlm(Col, [paren(color(sqrt3, Ns)), "."]), 
 	   " Please do not forget to take the square root of the whole denominator."
 	 ].
@@ -594,7 +594,7 @@ buggy(cigroups, stage(2), X, Y, [step(buggy, sqrt4, [Ns])]) :-
     Y = dfrac(VR - Box, add_right(sqrt4, sqrt(omit_right(sqrt4, dot(S2P, Ns))) * Ns)).
 
 feedback(sqrt4, [Ns], Col, FB)
- => FB = [ "The result matches the expression for the ", 
+ => FB = [ "The result corresponds to the expression for the ", 
 	   \nowrap([\mmlm(Col, t), "-ratio"]), " with the square root stopping before ",
 	   \mmlm(Col, [paren(color(sqrt4, Ns)), "."]), " Please do not forget to take the ",
 	   "square root of the whole denominator."

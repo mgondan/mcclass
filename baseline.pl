@@ -80,7 +80,7 @@ render(Flags)
                       [ \mmlm(Flags, r('Lidcombe_EOT')), \mmlm(Flags, r('TAU_EOT')) ]
                     ])))),
           p(class('card-text'),
-             "Ficticious data can be downloaded below."),
+             "Fictitious data can be downloaded below."),
 	  ul(
             [ li("ID: patient number"),
               li("Sex: F, M (stratification factor)"),

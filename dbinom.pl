@@ -34,7 +34,7 @@ render(Flags)
           [ h1(class("card-title"), "Binary outcomes"),
             p(class("card-text"),
               [ "Consider a clinical study with ", \mmlm(Flags, r(N)), " patients. ",
-                "We assume that the success probability ",
+                "Assume that the success probability ",
                 "is ", \mmlm(Flags, r(P0)), " in all patients, and that the ",
                 "successes occur independently."
               ])
@@ -46,7 +46,7 @@ task(Flags, exactprob)
 --> { start(item(K, _N, _P0)), 
       session_data(resp(dbinom, exactprob, Resp), resp(dbinom, exactprob, '#.##'))
     },
-    html(\htmlform([ "What is the probability for exactly ", \mmlm(Flags, r(K)), " ",
+    html(\htmlform([ "What is the probability of exactly ", \mmlm(Flags, r(K)), " ",
         "successes?" ], exactprob, Resp)).
 
 intermediate(exactprob, item).
@@ -141,7 +141,7 @@ feedback(nochoose, [_K, _N], _Col, F)
         ].
 
 hint(nochoose, Col, H)
- => H = [ "Do not forget to multiply everything with the number of ",
+ => H = [ "Do not forget to multiply by the number of ",
           "permutations ", \mmlm(Col, choose(n, k)), "."
         ].
 
@@ -188,9 +188,8 @@ feedback(succfail, [_K, _N, P0], Col, F)
         ].
 
 hint(succfail, Col, H)
- => H = [ "Do not confuse the probabilities ", \mmlm(Col, p0), " ",
-          "for success and ", \mmlm(Col, 1 - p0), " for failure."
-        ]. 
+ => H = [ "Do not confuse the probability of success ", \mmlm(Col, p0), " ",
+          "with the probability of failure ", \mmlm(Col, 1 - p0)]. 
 
 
 % Buggy rule: forget failures
@@ -204,6 +203,6 @@ feedback(nofail, [K, N, _P0], Col, F)
         ].
 
 hint(nofail, Col, H)
- => H = [ "Do not forget the ",
+ => H = [ "Do not forget to include the ",
           "probability for the ", \mmlm(Col, n - k), " failures."
         ].

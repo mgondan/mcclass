@@ -48,11 +48,11 @@ render(Flags)
           [ h1(class('card-title'), "Binary outcomes"),
             p(class('card-text'),
               [ "Consider a clinical study with ", \mmlm(Flags, n = r(N)), " patients ",
-                "testing a new treatment. We assume that the success ",
+                "testing a new treatment. Assume that the success ",
                 "probability is ", \mmlm(Flags, p0 = r(P0)), " under the null ",
                 "hypothesis, and that successes occur independently in all ",
-                "patients. Under the alternative hypothesis, we hope ",
-                "that the success probability is ",
+                "patients. Under the alternative hypothesis, the success probability ",
+                "is assumed to be ",
                 \nowrap([\mmlm(Flags, p1 = r(P1)), "."]), 
                 " The binomial probabilities are given in the table below."
               ]),
@@ -66,7 +66,7 @@ task(Flags, critical)
 --> { start(item(Alpha, _N, _P0, _P1, _K)),
       session_data(resp(testbinom, critical, Resp), resp(testbinom, critical, '#'))
     },
-    html(\htmlform([ "How many successes are needed to rule out the null ",
+    html(\htmlform([ "How many successes are required to reject the null ",
       "hypothesis at the one-tailed significance level ",
       "of ", \mmlm(Flags, alpha = r(Alpha)), "?"], critical, Resp)).
 
@@ -120,7 +120,7 @@ feedback(upper, [], _Col, F)
  => F = "Correctly selected the upper tail of the binomial distribution.".
 
 hint(upper, _Col, H)
- => H = "The upper tail of the binomial distribution is needed.".
+ => H = "The upper tail of the binomial distribution is required.".
 
 % Third step: critical value based on cumulative distribution
 expert(critical, stage(2), From, To, [step(expert, dist, [])]) :-
@@ -144,11 +144,11 @@ buggy(critical, stage(2), From, To, [step(buggy, lower, [])]) :-
            instead(lower, arg("max", k < N*P0), arg("min", k > N*P0))).
 
 feedback(lower, [], _Col, F)
- => F = "The result matches the lower tail of the binomial distribution.".
+ => F = "The result corresponds to the lower tail of the binomial distribution.".
 
 hint(lower, _Col, H)
  => H = [ "Select the upper tail of the binomial distribution, ",
-          "not the lower tail."
+          "rather than lower tail."
         ].
 
 % Buggy rule: critical value based on density
@@ -157,7 +157,7 @@ buggy(critical, stage(2), From, To, [step(buggy, dens1, [Tail, K])]) :-
     To = instead(dens1, tail("densi", K), tail(Tail, K)).
 
 feedback(dens1, [Tail, K], Col, F)
- => F = [ "The result matches the critical value based on the binomial ",
+ => F = [ "The result corresponds to the critical value based on the binomial ",
           "probability, ", 
 	  \nowrap([\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail("densi", K))])), "."]), " ",
           "Please report the critical value based on the cumulative ",
@@ -167,7 +167,7 @@ feedback(dens1, [Tail, K], Col, F)
 
 hint(dens1, _Col, H)
  => H = [ "Use the cumulative distribution to determine the critical value, ",
-          "not the density."
+          "rather than density."
         ].
 
 % 
@@ -250,7 +250,7 @@ buggy(powbinom, stage(2), From, To, [step(buggy, lower1, [])]) :-
                 instead(lower1, arg("max", k < N*P0), arg("min", k > N*P0))).
 
 feedback(lower1, [], _Col, F)
- => F = [ "The result matches the lower critical value of the binomial ",
+ => F = [ "The result corresponds to the lower critical value of the binomial ",
           "distribution. Please use the upper tail to determine the ",
           "critical value."
         ].
@@ -266,7 +266,7 @@ buggy(powbinom, stage(2), From, To, [step(buggy, dens1, [K])]) :-
     To = instead(dens1, tail("densi", K), tail("upper", K)).
 
 feedback(dens1, [K], Col, F)
- => F = [ "The result matches the critical value based on the binomial ",
+ => F = [ "The result corresponds to the critical value based on the binomial ",
           "probability, ", 
 	  \nowrap([\mmlm(Col, fn(subscript('P', "Bi"), [color(dens1, tail("densi", K))])), "."]),
           " Please calculate the critical value based on the cumulative ",
@@ -285,7 +285,7 @@ buggy(powbinom, stage(3), From, To, [step(buggy, lower2, [])]) :-
     To   = pwbinom(Crit, N, P1, instead(lower2, tail("lower", Crit), tail("upper", Crit))).
 
 feedback(lower2, [], _Col, F)
- => F = [ "The result matches the power based on the lower tail of the ",
+ => F = [ "The result corresponds to the power based on the lower tail of the ",
           "binomial distribution. Please use the upper tail to calculate ",
           "the power."
         ].
@@ -301,7 +301,7 @@ buggy(powbinom, stage(3), From, To, [step(buggy, dens2, [C])]) :-
     To   = pwbinom(C, N, P1, instead(dens2, tail("densi", C), tail("upper", C))).
 
 feedback(dens2, [C], Col, F)
- => F = [ "The result matches the power based on the binomial probability, ",
+ => F = [ "The result corresponds to the power based on the binomial probability, ",
           \nowrap([\mmlm(Col, fn(subscript('P', "Bi"), [color(dens2, tail("densi", C))])), "."]),
           " Please determine the power based on the cumulative ",
           "distribution, ", 
@@ -340,7 +340,7 @@ feedback(tail, [K], Col, F)
         ].
 
 hint(tail, _Col, H)
- => H = "The upper tail of the binomial distribution is needed.". 
+ => H = "The upper tail of the binomial distribution is required.". 
 
 
 %
@@ -352,7 +352,7 @@ buggy(pval, stage(2), From, To, [step(buggy, lowertail, [K])]) :-
     To = pbinom1(K, N, P0, instead(lowertail, tail("lower"), tail("upper"))).
 
 feedback(lowertail, [K], Col, F)
- => F = [ "The result matches the probability of having ", \mmlm(Col, K),
+ => F = [ "The result corresponds to the probability of having ", \mmlm(Col, K),
           " or less successes."
         ].
 
@@ -365,7 +365,7 @@ buggy(pval, stage(2), From, To, [step(buggy, density, [K])]) :-
     To = pbinom1(K, N, P0, instead(lowertail, tail("densi"), tail("upper"))).
 
 feedback(density, [K], Col, F)
- => F = [ "The result matches the probability of having exactly ", \mmlm(Col, K),
+ => F = [ "The result corresponds to the probability of having exactly ", \mmlm(Col, K),
           " successes."
         ].
 
@@ -378,7 +378,7 @@ buggy(pval, stage(2), From, To, [step(buggy, alternative, [p1])]) :-
     To = instead(alternative, p1, p0).
 
 feedback(alternative, [P1], Col, F)
- => F = [ "The result matches the probability under the alternative hypothesis ", \mmlm(Col, P1), "."
+ => F = [ "The result corresponds to the probability under the alternative hypothesis ", \mmlm(Col, P1), "."
         ].
 
 hint(alternative, _Col, H)

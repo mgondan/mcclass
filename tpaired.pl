@@ -71,7 +71,7 @@ render(Flags)
                 \htmltable(
                   [ em("Table 1. "), "Observed HDRS scores at T0, EOT, ",
                     "and ", \mmlm('D' = "T0" - "EOT") ],
-                  [ "Average", "SD" ],
+                  [ "Mean", "SD" ],
                   [ "HDRS", "T0", "EOT", \mmlm(Flags, 'D') ],
                   [ [ \mmlm([digits(1) | Flags], r(t0x)),
                       \mmlm([digits(1) | Flags], r(eotx)),
@@ -112,7 +112,7 @@ task(_Flags, cipaired)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, _Mu, _Alpha)),
       session_data(resp(tpaired, cipaired, Resp), resp(tpaired, cipaired, '#.# to #.#'))
     },
-    html(\htmlform([ "Determine the confidence interval for the average ",
+    html(\htmlform([ "Determine the confidence interval for the mean ",
         "change in the patients’ HDRS scores." ], cipaired, Resp)).
 
 %
@@ -191,11 +191,11 @@ buggy(tratio, stage(1), X, Y, [step(buggy, mu, [Mu])]) :-
     Y = tstat(dfrac(omit_right(mu, D - Mu), S_D / sqrt(N))).
 
 feedback(mu, [Mu], Col, F)
- => F = [ "The result matches ",
+ => F = [ "The result corresponds to ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
           "with the null hypothesis ", \mmlm(Col, color(mu, Mu)), " omitted. ",
           "Please do not forget ", \mmlm(Col, color(mu, Mu)), " in the ",
-          "the ", \nowrap([\mmlm(Col, t), "-ratio."])
+          \nowrap([\mmlm(Col, t), "-ratio."])
         ].
 
 hint(mu, Col, F)
@@ -265,7 +265,7 @@ buggy(tratio, stage(1), X, Y, [step(buggy, school1, [N1, N2])]) :-
     Y = frac(1, color(school1, N1 + N2)).
 
 feedback(school1, [A, B], Col, F)
- => F = [ "The result matches the expression for ",
+ => F = [ "The result corresponds to the expression for ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
 	  "for independent samples with ", 
 	  \mmlm(Col, frac(1, color(school, color("black", A) + color("black", B)))), 
@@ -288,7 +288,7 @@ buggy(tratio, stage(1), X, Y, [step(buggy, school2, [N])]) :-
     Y = frac(1, color(school2, 2*N)).
 
 feedback(school2, [N], Col, F)
- => F = [ "The result matches the expression for ",
+ => F = [ "The result corresponds to the expression for ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
 	  "for independent samples ",
           "with ", \mmlm(Col, frac(1, color(school2, 2*N))), " under the ",
@@ -319,7 +319,7 @@ buggy(tratio, stage(1), X, Y, [step(buggy, bug1, [D, Mu, S, SQRT_N])]) :-
         D - add_right(bug1, dfrac(M0, S0) / SQRT_N)).
 
 feedback(bug1, [D, Mu, S, SQRT_N], Col, F)
- => F = [ "The result matches the fraction without parentheses around the ", 
+ => F = [ "The result corresponds to the fraction without parentheses around the ", 
 	   "numerator and the denominator, ", \mmlm([error(correct) | Col], 
 	       [dfrac(color(bug1, paren(color("#000000", D - Mu))), 
 	           color(bug1, paren(color("#000000", S / SQRT_N)))), "."]),
@@ -347,18 +347,18 @@ buggy(tratio, stage(2), X, Y,
     Y = instead(t0, t0, d).
 
 feedback(t0, [D, T0], Col, F)
- => F = [ "The result matches ",
+ => F = [ "The result corresponds to ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
-          "with the T0 average ", \mmlm(Col, color(t0, T0)), " instead of ",
-          "the average change score ", 
+          "with the T0 mean ", \mmlm(Col, color(t0, T0)), " instead of ",
+          "the mean change score ", 
           \nowrap([\mmlm(Col, color(t0, D)), "."]), " ",
-          "Please insert the average change ",
+          "Please insert the mean change ",
           "score ", \mmlm(Col, color(t0, D)), " into ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio."])
 	].
 
 hint(t0, Col, F)
- => F = [ "Do not insert the T0 average ", \mmlm(Col, color(t0, t0)), " ",
+ => F = [ "Do not insert the T0 mean ", \mmlm(Col, color(t0, t0)), " ",
           "into the ", \nowrap([\mmlm(Col, t), "-ratio."]), " ",
           "Use the change scores instead." 
 	].
@@ -370,7 +370,7 @@ buggy(tratio, stage(2), X, Y, Flags) :-
     Y = instead(s_t0, s_t0, s_d).
 
 feedback(s_t0, [S, S_T0], Col, F)
- => F = [ "The result matches ",
+ => F = [ "The result corresponds to ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
           "with the standard deviation for ",
           "T0 ", \mmlm(Col, color(s_t0, S_T0)), " instead of the standard ",
@@ -395,18 +395,18 @@ buggy(tratio, stage(2), X, Y, [step(buggy, eot, [d, eot]),
     Y = instead(eot, eot, d).
 
 feedback(eot, [D, EOT], Col, F)
- => F = [ "The result matches ",
+ => F = [ "The result corresponds to ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
-          "with the EOT average ", \mmlm(Col, color(eot, EOT)), " ",
-	  "instead of the average change score ",
+          "with the EOT mean ", \mmlm(Col, color(eot, EOT)), " ",
+	  "instead of the mean change score ",
           \nowrap([\mmlm(Col, color(eot, D)), "."]), " ",
-          "Please insert the average change ",
+          "Please insert the mean change ",
           "score ", \mmlm(Col, color(eot, D)), " into ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio."])
 	].
 
 hint(eot, Col, F)
- => F = [ "Do not insert the EOT average ", \mmlm(Col, color(eot, eot)), " ",
+ => F = [ "Do not insert the EOT mean ", \mmlm(Col, color(eot, eot)), " ",
           "into ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio."]), " ",
 	  "Use the change scores instead." 
@@ -419,7 +419,7 @@ buggy(tratio, stage(2), X, Y, Flags) :-
     Y = instead(s_eot, s_eot, s_d).
 
 feedback(s_eot, [S, S_EOT], Col, F)
- => F = [ "The result matches ",
+ => F = [ "The result corresponds to ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
           "with the standard deviation for ",
           "EOT ", \mmlm(Col, color(s_eot, S_EOT)), " instead of the standard ",
@@ -443,7 +443,7 @@ buggy(tratio, stage(1), X, Y, [step(buggy, sqrt1, [n])]) :-
     Y = omit_right(sqrt1, n^(1/2)).
 
 feedback(sqrt1, [N], Col, F)
- => F = [ "The result matches ",
+ => F = [ "The result corresponds to ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
           "without the square root around ", 
           \nowrap([\mmlm(Col, color(sqrt1, N)), "."]), " ",
@@ -463,7 +463,7 @@ buggy(tratio, stage(1), X, Y, [step(buggy, sqrt2, [S_T0, S_EOT, N])]) :-
     Y = omit_right(sqrt2, (P * (1/N + 1/N))^(1/2)).
 
 feedback(sqrt2, [_S_T0, _S_EOT, N], Col, F)
- => F = [ "The result matches ",
+ => F = [ "The result corresponds to ",
           "the ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
           "without the square root in the denominator. Please do not forget ",
 	  "to take the square root of the error variance ",
@@ -545,7 +545,7 @@ buggy(pvalue, stage(3), X, Y, [step(buggy, lower, [])]) :-
           DF, instead(lower, tail("lower"), tail("two.sided"))).
 
 feedback(lower, [], Col, F)
- => F = [ "The result matches the lower ",
+ => F = [ "The result corresponds to the lower ",
           "one-tailed ", \nowrap([\mmlm(Col, p), "-value."])
         ].
 
@@ -561,7 +561,7 @@ buggy(pvalue, stage(3), X, Y, [step(buggy, upper, [])]) :-
           DF, instead(upper, tail("upper"), tail("two.sided"))).
 
 feedback(upper, [], Col, F)
- => F = [ "The result matches the upper ",
+ => F = [ "The result corresponds to the upper ",
           "one-tailed ", \nowrap([\mmlm(Col, p), "-value."])
         ].
 
@@ -577,7 +577,7 @@ buggy(pvalue, stage(3), X, Y, [step(buggy, density, [])]) :-
           DF, instead(density, tail("density"), tail("two.sided"))).
 
 feedback(density, [], Col, F)
- => F = [ "The result matches the density of ",
+ => F = [ "The result corresponds to the density of ",
           "the ", \nowrap([\mmlm(Col, t), "-distribution."])
         ].
 
@@ -655,7 +655,7 @@ buggy(cipaired, stage(1), X, Y, [step(buggy, tstat, [D, S_D, N, Mu, Alpha])]) :-
     Y = instead(tstat, T, qt(1 - Alpha/2, N - 1)).
 
 feedback(tstat, [_D, _S_D, _N, _Mu, _Alpha], Col, F)
- => F = [ "The result matches the confidence interval based on the observed ",
+ => F = [ "The result corresponds to the confidence interval based on the observed ",
           \nowrap([\mmlm(Col, t), "-statistic."]), " ",
           "Please use the quantile of the ", 
           \nowrap([\mmlm(Col, t), "-distribution"]), " instead."
@@ -675,7 +675,7 @@ buggy(cipaired, stage(1), X, Y, [step(buggy, qnorm, [])]) :-
     Y = instead(qnorm, qnorm(1 - Alpha/2), qt(1 - Alpha/2, N - 1)).
 
 feedback(qnorm, [], Col, F)
- => F = [ "The result matches the confidence interval based on the standard ",
+ => F = [ "The result corresponds to the confidence interval based on the standard ",
           "Normal distribution. Please insert the quantile of ",
 	  "the ", \nowrap([\mmlm(Col, t), "-distribution"]), " ",
           "into the formula for the confidence interval."
@@ -693,13 +693,13 @@ buggy(cipaired, stage(1), X, Y, [step(buggy, spss, [Mu]), excludes(qnorm), exclu
     Y = hdrs(pm(add_right(spss, D - Mu), dot(quant(D, Mu, S_D, N, Alpha), S_D / sqrt(N)))).
 
 feedback(spss, [Mu], Col, F)
- => F = [ "The result matches the upper and lower bound calculated by SPSS. ",
+ => F = [ "The result corresponds to the upper and lower bound calculated by SPSS. ",
 	  "Please do not forget to add ", \mmlm(Col, Mu), " to the upper and lower ",
 	  "bound of the confidence interval, if you calculate it with SPSS."
         ].
 
 hint(spss, Col, H)
- => H = [ "If you calculate the confindence interval with SPSS, keep in mind",
+ => H = [ "If you calculate the confidence interval with SPSS, keep in mind",
 	  " that SPSS subtracts ", \mmlm(Col, mu), " from the two bounds of",
           " the CI (which must be undone)."
         ].
@@ -710,7 +710,7 @@ buggy(cipaired, stage(1), X, Y, [step(buggy, sqrt3, [N])]) :-
     Y = dfrac(Q, S_D / omit_right(sqrt3, N^(1/2))).
 
 feedback(sqrt3, [N], Col, F)
- => F = [ "The result matches the ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
+ => F = [ "The result corresponds to the ", \nowrap([\mmlm(Col, t), "-ratio"]), " ",
           "without the square root ",
           "around ", \nowrap([\mmlm(Col, color(sqrt3, N)), "."])
         ].
@@ -726,7 +726,7 @@ buggy(cipaired, stage(1), X, Y, [step(buggy, sqrt4, [N])]) :-
     Y = dot(Q, S_D / omit_right(sqrt4, N^(1/2))).
 
 feedback(sqrt4, [N], Col, F)
- => F = [ "The result matches the confidence interval without square root around ", 
+ => F = [ "The result corresponds to the confidence interval without square root around ", 
           \nowrap([\mmlm(Col, color(sqrt4, N)), "."]), " Please ",
 	  "do not forget the square root",
           " around ", \nowrap([\mmlm(Col, color(sqrt4, N)), "."])
