@@ -67,7 +67,7 @@ render(Flags)
             [ "Jones et al. (2005) investigated the efficacy of the ",
               "so-called Lidcombe therapy for the treatment of stuttering ",
               "in early childhood. The study is a randomized trial ",
-              "on ", \mmlm(Flags, r('n')), " children, comparing Lidcombe ",
+              "involving ", \mmlm(Flags, r('n')), " children, comparing Lidcombe ",
               "with treatment as usual (TAU). The significance level ",
               "is set at ", \mmlm(Flags, alpha = percent(0.05)), " two-tailed. ",
 	            "Analyze the impact of the biological sex of the children on the therapy effect."
@@ -83,7 +83,7 @@ render(Flags)
                       [ \mmlm(Flags, r('Lidcombe_EOT')), \mmlm(Flags, r('TAU_EOT')) ]
                     ])))),
           p(class('card-text'),
-             "Ficticious data can be downloaded below."),
+             "Fictitious data can be downloaded below."),
 	  ul(
             [ li("ID: patient number"),
               li("Sex: F, M (stratification factor)"),
