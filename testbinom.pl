@@ -404,8 +404,7 @@ hint(alternative, _Col, H)
 intermediate(permprob, item).
 expert(permprob, stage(1), From, To, [step(expert, permprob, [])]) :-
     From = item(_Alpha, N, _P0, P1, K),
-    To = r(PermProb),
-    PermProb is P1^K * (1 - P1)^(N - K).
+    To = P1^K * (1 - P1)^(N - K).
 
 feedback(permprob, [], _Col, F)
  => F = [ "Correctly applied the formula to calculate the probability of a specific permutation." ].
