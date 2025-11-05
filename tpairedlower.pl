@@ -63,7 +63,9 @@ render(Flags)
               "The primary outcome was the score on the Wide Range Achievement Test ", 
               "(WRAT, standard mean score = 100, SD = 15), ", 
               "with higher scores indicating higher performance. The significance level is set to ",
-              \mmlm(Flags, alpha = percent(0.05)), " one-tailed."
+              \mmlm(Flags, alpha = percent(0.05)), " one-tailed.",
+              " An increase of the values (i.e., higher performance) should ",
+              "result in a negative ", \nowrap([\mmlm(Flags, t), "-value."])
               ]),     
           div(class(container),
             div(class("row justify-content-md-center"),
@@ -88,9 +90,9 @@ task(Flags, tratio)
 --> { start(item(_T0, _S_T0, _EOT, _S_EOT, _D, _S_D, _N, Mu, _Alpha)),
       session_data(resp(tpaired, tratio, Resp), resp(tpaired, tratio, '#.##'))
     },
-    html(\htmlform([ "Does the Cogmed training programme lead to a meaningful improvement (i.e., more ",
-        "than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units) in mean WRAT ",
-        "scores between pre- and posttest? ",
+    html(\htmlform([ "Does the Cogmed training programme lead to a meaningful improvement ", 
+        "so that the difference in mean WRAT scores between pre- and posttest ", 
+        "is more than ", \mmlm([digits(1) | Flags], Mu = r(Mu)), " units? ",
         "Please report the ", \nowrap([\mmlm(Flags, t), "-ratio."]) ], tratio, Resp)).
 
 % Question for the p-value
