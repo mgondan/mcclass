@@ -7,7 +7,7 @@ EOT   <-ifelse(EOT < 0, 1, EOT)
 data  <- data.frame(Id, T0, EOT)
 
 # Summary statistics
-mu    <- round(runif(1, min=2, max=3), 1)
+mu    <- -round(runif(1, min=2, max=3), 1)
 t0    <- mean(data$T0)
 s_t0  <- sd(data$T0)
 eot   <- mean(data$EOT)
