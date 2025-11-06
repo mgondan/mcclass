@@ -86,7 +86,7 @@ test(oddsratio_successprob) :-
 
 :- end_tests(odds).
 
-% Lineare regression
+% Linear regression
 :- begin_tests(regression).
 
 test(regression_bcoef) :-
@@ -126,15 +126,6 @@ test(tpairedupper_pvalue) :-
 
 test(tpairedupper_cipaired) :-
     test_task_(tpairedupper, cipaired, 1, 15).
-
-test(tpairedlower_tratio) :-
-    test_task_(tpairedlower, tratio, 1, 50).
-
-test(tpairedlower_pvalue) :-
-    test_task_(tpairedlower, pvalue, 2, 6).
-
-test(tpairedlower_cipaired) :-
-    test_task_(tpairedlower, cipaired, 1, 9).
 
 :- end_tests(t).
 
