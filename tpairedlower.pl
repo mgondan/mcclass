@@ -63,14 +63,16 @@ render(Flags)
               "The primary outcome was the score on the Wide Range Achievement Test ", 
               "(WRAT, standard mean score = 100, SD = 15), ", 
               "with higher scores indicating higher performance. The significance level is set to ",
-              \mmlm(Flags, alpha = percent(0.05)), " one-tailed."
+              \mmlm(Flags, alpha = percent(0.05)), " one-tailed.",  
+              " An increase of the values (i.e., higher performance) should ",
+              "result in a positive ", \nowrap([\mmlm(Flags, t), "-value."])
               ]),     
           div(class(container),
             div(class("row justify-content-md-center"),
               div(class("col-6"),
                 \htmltable(
                    [ em("Table 1. "), "Observed WRAT scores at Pretest, Posttest, ",
-                    "and ", \mmlm(Flags, 'D' = "Pre" - "Post") ],
+                    "and ", \mmlm(Flags, 'D' = "Post" - "Pre") ],
                   [ "Mean", "SD" ],
                   [ "WRAT", "Pretest", "Posttest", \mmlm(Flags, d) ],
                   [ [ \mmlm([digits(1) | Flags], r(t0)),
