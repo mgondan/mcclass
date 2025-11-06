@@ -78,6 +78,7 @@ init_topic(Topic) :-
 init_topics :-
     init_topic(tpaired),
     init_topic(tpairedupper),
+    init_topic(tpairedlower),
     init_topic(tgroups),
     init_topic(oddsratio),
     init_topic(ztrans),
