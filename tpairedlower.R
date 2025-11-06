@@ -13,7 +13,7 @@ s_t0  <- sd(data$T0)
 eot   <- mean(data$EOT)
 s_eot <- sd(data$EOT)
 
-d1    <- mean(data$T0 - data$EOT)
+d1    <- mean(data$EOT - data$T0)
 # d is a range of possible values
 d     <- call('...', floor(d1*10)/10, ceiling(d1*10)/10)
 

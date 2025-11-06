@@ -96,7 +96,7 @@ task(Flags, pval)
 
 % Question for the Permutation probability
 task(Flags, permprob)
---> { start(item(_Alpha, N, _P0, P1, K)),
+--> { start(item(_Alpha, N, _P0, _P1, K)),
       session_data(resp(testbinom, permprob, Resp), resp(testbinom, permprob, '#.###'))
     },
     html(\htmlform([ "Assuming the alternative hypothesis, what is the probability ",
