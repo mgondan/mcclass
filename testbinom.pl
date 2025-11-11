@@ -11,12 +11,10 @@ navbar:page(testbinom, "binomial test").
 label(critical, "Critical value").
 label(powbinom, "Power").
 label(pval, [math(mi(p)), "-value"]).
-label(permprob, "Permutation probability").
 
 task(critical).
 task(powbinom).
 task(pval).
-task(permprob).
 
 :- discontiguous intermediate/2, expert/5, buggy/5, feedback/4, hint/3.
 
@@ -93,17 +91,6 @@ task(Flags, pval)
         "the test at the one-tailed significance level ",
         "of ", \nowrap([\mmlm(Flags, alpha = r(Alpha)), "?"])],
       pval, Resp)).
-
-% Question for the Permutation probability
-task(Flags, permprob)
---> { start(item(_Alpha, N, _P0, P1, K)),
-      session_data(resp(testbinom, permprob, Resp), resp(testbinom, permprob, '#.###'))
-    },
-    html(\htmlform([ "Assuming the alternative hypothesis, what is the probability ",
-         "of the specific permutation in which the first ", \mmlm(Flags, r(K)),
-         " trials are successful and the following ", \mmlm(Flags, r(N - K)),
-         " are failures?"], 
-        permprob, Resp)).
 
 start(item(alpha, n, p0, p1, k)).
 
@@ -397,20 +384,6 @@ feedback(alternative, [P1], Col, F)
 hint(alternative, _Col, H)
  => H = "Do not use the success probability under the alternative hypothesis.".
 
-
-%
-% Expert rules for the Permutation probability task
-%
-intermediate(permprob, item).
-expert(permprob, stage(1), From, To, [step(expert, permprob, [])]) :-
-    From = item(_Alpha, N, _P0, P1, K),
-    To = P1^K * (1 - P1)^(N - K).
-
-feedback(permprob, [], _Col, F)
- => F = [ "Correctly applied the formula to calculate the probability of a specific permutation." ].
-
-hint(permprob, _Col, H)
- => H = [ "Use the formula P = p1^K * (1 - p1)^(N - K) to calculate the probability of a specific permutation." ].
 
 % Helper function(s)
 binomtable(Flags, Alpha, N, P0, P1, Caption, Rows, Cols, Cells) :-
