@@ -63,14 +63,16 @@ render(Flags)
               "The primary outcome was the score on the Wide Range Achievement Test ", 
               "(WRAT, standard mean score = 100, SD = 15), ", 
               "with higher scores indicating higher performance. The significance level is set to ",
-              \mmlm(Flags, alpha = percent(0.05)), " one-tailed."
+              \mmlm(Flags, alpha = percent(0.05)), " one-tailed.",  
+              " An increase of the values (i.e., higher performance) should ",
+              "result in a positive ", \nowrap([\mmlm(Flags, t), "-value."])
               ]),     
           div(class(container),
             div(class("row justify-content-md-center"),
               div(class("col-6"),
                 \htmltable(
                    [ em("Table 1. "), "Observed WRAT scores at Pretest, Posttest, ",
-                    "and ", \mmlm(Flags, 'D' = "Pre" - "Post") ],
+                    "and ", \mmlm(Flags, 'D' = "Post" - "Pre") ],
                   [ "Mean", "SD" ],
                   [ "WRAT", "Pretest", "Posttest", \mmlm(Flags, d) ],
                   [ [ \mmlm([digits(1) | Flags], r(t0)),
@@ -468,41 +470,41 @@ hint(pvalue, Col, F)
 %
 % Buggy-Rules for the p-value task
 %
-% Buggy-Rule: report the upper tail instead of the lower tail. 
+% Buggy-Rule: report the lower tail instead of the upper tail. 
 buggy(pvalue, stage(2), X, Y, [step(buggy, wrongtail1, [])]) :-
      X = onetailed(T, DF),
-     Y = pt(instead(lower, dist('T', T, "upper"), dist('T', T, "lower")),
-          DF, instead(lower, tail("upper"), tail("lower"))).
+     Y = pt(instead(lower, dist('T', T, "lower"), dist('T', T, "upper")),
+          DF, instead(lower, tail("lower"), tail("upper"))).
 
 feedback(wrongtail1, [], Col, F)
- => F = [ "The result corresponds to the right-sided ", \nowrap([\mmlm(Col, p), "-value"]), "." ].
+ => F = [ "The result corresponds to the left-sided ", \nowrap([\mmlm(Col, p), "-value"]), "." ].
 
 hint(wrongtail1, Col, F)
- => F = [ "Do not report the upper ", \nowrap([\mmlm(Col, p), "-value"]), "." ].
+ => F = [ "Do not report the lower ", \nowrap([\mmlm(Col, p), "-value."]) ].
 
 % Buggy-Rule: report the two-sided p-value (i.e., p(T > t) * 2). 
 buggy(pvalue, stage(2), X, Y, [step(buggy, wrongtail2, [])]) :-
      X = onetailed(T, DF),
-     Y = pt(instead(lower, dist('T', T, "two.sided"), dist('T', T, "lower")),
-          DF, instead(lower, tail("two.sided"), tail("lower"))).
+     Y = pt(instead(lower, dist('T', T, "two.sided"), dist('T', T, "upper")),
+          DF, instead(lower, tail("two.sided"), tail("upper"))).
 
 feedback(wrongtail2, [], Col, F)
  => F = [ "The result corresponds to the two-sided ", \nowrap([\mmlm(Col, p), "-value"]), "." ].
 
 hint(wrongtail2, Col, F)
- => F = [ "Do not report the two-sided ", \nowrap([\mmlm(Col, p), "-value"]), "." ].
+ => F = [ "Do not report the two-sided ", \nowrap([\mmlm(Col, p), "-value."]) ].
 
 % Buggy-Rule: report the density instead of distribution
 buggy(pvalue, stage(2), X, Y, [step(buggy, wrongtail3, [])]) :-
      X = onetailed(T, DF),
-     Y = pt(instead(lower, dist('T', T, "density"), dist('T', T, "lower")),
-          DF, instead(lower, tail("density"), tail("lower"))).
+     Y = pt(instead(lower, dist('T', T, "density"), dist('T', T, "upper")),
+          DF, instead(lower, tail("density"), tail("upper"))).
 
 feedback(wrongtail3, [], Col, F)
  => F = [ "The result corresponds to the density of the ", \nowrap([\mmlm(Col, t), "-distribution"]), "." ].
 
 hint(wrongtail3, Col, F)
- => F = [ "Do not report the density of the ", \nowrap([\mmlm(Col, t), "-distribution"]), "."].
+ => F = [ "Do not report the density of the ", \nowrap([\mmlm(Col, t), "-distribution."]) ].
 
 %
 % Expert Rules for the confidence interval task
