@@ -1,4 +1,4 @@
-:- module(dbinom, []).
+:- module(sequence, []).
 
 % Binomial density
 :- use_module(library(http/html_write)).
@@ -10,7 +10,7 @@
 :- use_module(mathml).
 
 :- use_module(navbar).
-navbar:page(dbinom, "binomial probability").
+navbar:page(sequence, "binomial probability").
 label(exactprob, "Exact Probability").
 label(exactseq, "Exact sequence").
 label(succrun, "Success run").
@@ -41,14 +41,14 @@ macro(factorial/1, all, [+]).
 
 
 render(Flags)
---> {start(item(_K, N, P0, _KS, _NS, _PS0)) },
+--> {start(item(_K, _N, _P0, _KS, NS, PS0)) },
     html(
       [ div(class(card), div(class("card-body"),
           [ h1(class("card-title"), "Binary outcomes"),
             p(class("card-text"),
-              [ "Consider a clinical study with ", \mmlm(Flags, r(N)), " patients. ",
+              [ "Consider a clinical study with ", \mmlm(Flags, r(NS)), " patients. ",
                 "Assume that the success probability ",
-                "is ", \mmlm(Flags, r(P0)), " in all patients, and that the ",
+                "is ", \mmlm(Flags, r(PS0)), " in all patients, and that the ",
                 "successes occur independently."
               ])
           ]))
@@ -58,7 +58,7 @@ render(Flags)
 % Question for the Exact probability
 task(Flags, exactprob)
 --> { start(item(K, _N, _P0, _KS, _NS, _PS0)), 
-      session_data(resp(dbinom, exactprob, Resp), resp(dbinom, exactprob, '#.##'))
+      session_data(resp(sequence, exactprob, Resp), resp(sequence, exactprob, '#.##'))
     },
     html(\htmlform([ "What is the probability of exactly ", \mmlm(Flags, r(K)), " ",
         "successes?" ], exactprob, Resp)).
@@ -67,7 +67,7 @@ task(Flags, exactprob)
 % Question for the Exact sequence
 task(Flags, exactseq)
 --> { start(item(_K, _N, _P0, KS, NS, _PS0)),
-      session_data(resp(dbinom, exactseq, Resp), resp(dbinom, exactseq, '#.##'))
+      session_data(resp(sequence, exactseq, Resp), resp(sequence, exactseq, '#.##'))
     },
     html(\htmlform([ "What is the probability ",
          "for the specific sequence with ", \mmlm(Flags, r(KS)),
@@ -78,7 +78,7 @@ task(Flags, exactseq)
 % Question for the Success run
 task(Flags, succrun)
 --> { start(item(_K, _N, _P0, KS, NS, _PS0)),
-      session_data(resp(dbinom, succrun, Resp), resp(dbinom, succrun, '#.##'))
+      session_data(resp(sequence, succrun, Resp), resp(sequence, succrun, '#.##'))
     },
     html(\htmlform([ "What is the probability ",
          "for the specific sequence with ", \mmlm(Flags, r(KS)),
@@ -94,14 +94,14 @@ start(item(k, n, p0, ks, ns, ps0)).
 %
 % First step: recognise as a binomial density
 intermediate(exactprob, dbinom).
-expert(exactprob, stage(1), From, To, [step(expert, dbinom, [])]) :-
+expert(exactprob, stage(1), From, To, [step(expert, sequence, [])]) :-
     From = item(K, N, P0, _KS, _NS, _PS0),
     To   = dbinom(K, N, P0).
 
-feedback(dbinom, [], _Col, F)
+feedback(sequence, [], _Col, F)
  => F = [ "Correctly recognised the problem as a binomial probability." ].
 
-hint(dbinom, _Col, H)
+hint(sequence, _Col, H)
  => H = "This is a binomial probability.".
 
 % Second step: convert to product

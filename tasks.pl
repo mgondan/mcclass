@@ -83,6 +83,7 @@ init_topics :-
     init_topic(oddsratio),
     init_topic(ztrans),
     init_topic(dbinom),
+    init_topic(sequence),
     init_topic(testbinom),
     init_topic(chisq),
     init_topic(baseline),
