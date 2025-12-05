@@ -56,20 +56,17 @@ test(subgroups_cibase) :-
 test(dbinom_exactprob) :-
     test_task_(dbinom, exactprob, 2, 18).
 
-test(dbinom_exactseq) :-
-    test_task_(dbinom, exactseq, 1, 0).
-
-test(dbinom_succrun) :-
-    test_task_(dbinom, succrun, 1, 0).
-
-test(sequence_exactprob) :-
-    test_task_(sequence, exactprob, 2, 18).
-
 test(sequence_exactseq) :-
-    test_task_(sequence, exactseq, 1, 0).
+    test_task_(sequence, exactseq, 1, 3).
+
+test(sequence_partseq) :-
+    test_task_(sequence, partseq, 1, 4).
 
 test(sequence_succrun) :-
-    test_task_(sequence, succrun, 1, 0).
+    test_task_(sequence, succrun, 1, 3).
+
+test(sequence_failrun) :-
+    test_task_(sequence, failrun, 1, 3).
 
 test(testbinom_powbinom) :-
     test_task_(testbinom, powbinom, 1, 11).
