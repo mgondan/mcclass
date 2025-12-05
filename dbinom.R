@@ -18,15 +18,3 @@ failures <- function(nk, q0)
 {
     q0^nk
 }
-
-
-# exactseq loop
-repeat {
-  ns <- sample(4:5, 1)
-  ks <- sample(2:(ns-1), 1)
-  ps0 <- round(runif(1, 0.4, 0.6), 2)
-  
-  exactseq <- ps0^ks * (1 - ps0)^(ns - ks)
-  if (exactseq >= 0.05) break
-}
-

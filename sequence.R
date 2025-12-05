@@ -1,34 +1,24 @@
-k  <- sample(6L:14L, size=1)
-n  <- sample(8L:14L, size=1)
-p0 <- round(runif(1, min=0.2, max=0.8), 2)
-k  <- as.integer(pmax(2, pmin(n - 2, n*p0 + sample(-3:3, size=1))))
 
-bernoulli <- function(k, n, p0)
-{
-    successes(k, p0) * failures(n - k, 1 - p0)
-}
-
-successes <- function(k, p0)
-{
-    p0^k
-}
-
-# this may change
-failures <- function(nk, q0)
-{
-    q0^nk
-}
-
-
-# exactseq loop
+# exactseq/succrun/failrun loop
 repeat {
-  ns <- sample(4:5, 1)
-  ks <- sample(2:(ns-1), 1)
-  ps0 <- round(runif(1, 0.4, 0.6), 2)
+  n <- sample(4:6, 1)
+  k <- sample(2:(n-1), 1)
+  p0 <- sample(c(seq(0.40, 0.49, 0.01), seq(0.51, 0.80, 0.01)), 1)
   
-  exactseq <- ps0^ks * (1 - ps0)^(ns - ks)
-  if (exactseq >= 0.05) break
+  exactseq <- p0^k * (1 - p0)^(n - k)
+  if (exactseq >= 0.05) 
+    break
 }
 
-
+# partseq loop
+repeat {
+  ks <- sample(1:(n-1), 1)
+  kf <- sample(1:(n-1), 1)
+  
+  if (ks + kf < n && (ks + kf) > 1 && ks != kf) {
+    partseq <- p0^ks * (1 - p0)^kf
+    if (partseq >= 0.05)
+      break
+  }
+}
 
