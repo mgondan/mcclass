@@ -42,7 +42,7 @@ jobs:
         
           git clone https://github.com/SWI-Prolog/swipl-devel.git
           cd swipl-devel
-          git submodule update --init
+          git submodule update --init --remote --recursive
           sudo apt-get build-dep -y swi-prolog
 
           mkdir build
