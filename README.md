@@ -39,7 +39,6 @@ Invoke swipl, and then
 
 * `pack_install(quantity).`
 * `pack_install(mathml).`
-* `pack_install(rolog).`
 * `pack_install(interval).`
 * `halt.`
 
