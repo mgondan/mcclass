@@ -47,7 +47,7 @@ jobs:
 
           mkdir build
           cd build
-          cmake -DCMAKE_INSTALL_PREFIX=$HOME -DCMAKE_BUILD_TYPE=PGO -DSWIPL_PACKAGES_JAVA=OFF -G Ninja ..
+          cmake -DCMAKE_INSTALL_PREFIX=$HOME -DCMAKE_BUILD_TYPE=PGO -DSWIPL_PACKAGES_JAVA=OFF -DINSTALL_DOCUMENTATION=OFF -G Ninja ..
           ninja
           ctest -j $(nproc) --output-on-failure
           ninja install
