@@ -33,7 +33,7 @@ Later, you just invoke `sudo service postgresql restart` to start the database.
 
 Install a current version of SWI-Prolog from www.swi-prolog.org.
 
-`sudo apt install swi-prolog-odbc`
+`sudo apt install swi-prolog-odbc cmake`
 
 Invoke swipl, and then
 
