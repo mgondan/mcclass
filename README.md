@@ -6,7 +6,7 @@ If you wish, try it at https://mcclass.vps.webdock.cloud/mcclass
 
 ## Steo 1: Linux prerequisites
 
-`sudo apt install libfontconfig1-dev libharfbuzz-dev cmake`
+`sudo apt install libfontconfig1-dev libharfbuzz-dev libfribidi-dev cmake`
 
 ## Step 2: install R
 
