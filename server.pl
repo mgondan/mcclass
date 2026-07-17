@@ -108,8 +108,8 @@ handle(Topic, Form),
             ".accordion-button.hint { --bs-accordion-active-bg: var(--bs-warning-bg-subtle);
                --bs-accordion-active-color: var(--bs-warning-text-emphasis); }"
           ]),
-		script([src('roaches.js')]),
-		script("window.onload = () => { roachesAreGo(2); };")
+        script([src('js/roaches.js')]),
+        script("window.onload = () => { roachesAreGo(2); };")
       ],
       [ \navbar,
         \(Topic:render([topic(Topic)])),
