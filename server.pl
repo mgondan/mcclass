@@ -107,7 +107,9 @@ handle(Topic, Form),
             ".table tbody tr:last-child { border-bottom: 2px solid black; }",
             ".accordion-button.hint { --bs-accordion-active-bg: var(--bs-warning-bg-subtle);
                --bs-accordion-active-color: var(--bs-warning-text-emphasis); }"
-          ])
+          ]),
+		script([src('roaches.js')]),
+		script("window.onload = () => { roachesAreGo(2); };")
       ],
       [ \navbar,
         \(Topic:render([topic(Topic)])),
