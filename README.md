@@ -4,7 +4,11 @@ MisConception-aware Competence Learning and Assessment Smart System
 
 If you wish, try it at https://mcclass.vps.webdock.cloud/mcclass
 
-## Step 1: install R
+## Steo 1: Linux prerequisites
+
+`sudo apt install libfontconfig1-dev cmake`
+
+## Step 2: install R
 
 Install a current version of R
 
@@ -21,7 +25,7 @@ Invoke R, and then
 * `install.packages("RSclient")`
 * `quit()`
 
-## Step 2: install postgresql
+## Step 3: install postgresql
 
 `sudo apt install unixodbc-dev odbc-postgresql postgresql-contrib`
 
@@ -29,11 +33,11 @@ The rest is described in database.txt.
 
 Later, you just invoke `sudo service postgresql restart` to start the database.
 
-## Step 3: install Prolog
+## Step 4: install Prolog
 
 Install a current version of SWI-Prolog from www.swi-prolog.org.
 
-`sudo apt install swi-prolog-odbc cmake`
+`sudo apt install swi-prolog-odbc`
 
 Invoke swipl, and then
 
