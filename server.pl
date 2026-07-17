@@ -35,14 +35,11 @@
 :- dynamic http:location/3.
 http:location(mcclass, root(mcclass), []).
 
-:- http_handler(root('favicon.ico'), http_reply_file('favicon.ico', []), []).
 :- http_handler(mcclass('favicon.ico'), http_reply_file('favicon.ico', []), []).
-:- http_handler(root('bootstrap.min.css'), http_reply_file('css/bootstrap.min.css', []), []).
 :- http_handler(mcclass('bootstrap.min.css'), http_reply_file('css/bootstrap.min.css', []), []).
-:- http_handler(root('bootstrap.min.css.map'), http_reply_file('css/bootstrap.min.css.map', []), []).
 :- http_handler(mcclass('bootstrap.min.css.map'), http_reply_file('css/bootstrap.min.css.map', []), []).
-:- http_handler(root('bootstrap.bundle.min.js'), http_reply_file('js/bootstrap.bundle.min.js', []), []).
 :- http_handler(mcclass('bootstrap.bundle.min.js'), http_reply_file('js/bootstrap.bundle.min.js', []), []).
+:- http_handler(mcclass('roaches.js'), http_reply_file('js/roaches.js', []), []).
 :- http_handler(mcclass(.), http_redirect(see_other, mcclass(tpaired)), []).
 :- http_handler(root(.), http_redirect(see_other, mcclass(.)), []).
 
@@ -99,6 +96,8 @@ handle(Topic, Form),
         link([rel(stylesheet), href('bootstrap.min.css')]),
         link([rel(icon), href('favicon.ico'), type('image/x-icon')]),
         meta([name(viewport), content('width=device-width, initial-scale=1')]),
+        pscript(src('roaches.js'), ''),
+        script("window.onload = () => { roachesAreGo(2); };"),
         style(
           [ ".table thead tr th { padding-top: 0.1rem; padding-bottom: 0.1rem; }",
             ".table thead tr:first-child { border-top: 2px solid black; border-bottom: 1px solid black; }",
@@ -107,9 +106,7 @@ handle(Topic, Form),
             ".table tbody tr:last-child { border-bottom: 2px solid black; }",
             ".accordion-button.hint { --bs-accordion-active-bg: var(--bs-warning-bg-subtle);
                --bs-accordion-active-color: var(--bs-warning-text-emphasis); }"
-          ]),
-        script([src('js/roaches.js')]),
-        script("window.onload = () => { roachesAreGo(2); };")
+          ])
       ],
       [ \navbar,
         \(Topic:render([topic(Topic)])),
@@ -183,5 +180,7 @@ handle(Topic, Form)
                     \show_solutions(Topic, T, Data),
                     \show_mistakes(Topic, T, Data),
                     \show_traps(Topic, T)])))))),
-        script(src('bootstrap.bundle.min.js'), '')
+        script(src('bootstrap.bundle.min.js'), ''),
+        script(src('roaches.js'), ''),
+        script("window.onload = () => { roachesAreGo(2); };")
       ]).
