@@ -96,8 +96,6 @@ handle(Topic, Form),
         link([rel(stylesheet), href('bootstrap.min.css')]),
         link([rel(icon), href('favicon.ico'), type('image/x-icon')]),
         meta([name(viewport), content('width=device-width, initial-scale=1')]),
-        pscript(src('roaches.js'), ''),
-        script("window.onload = () => { roachesAreGo(2); };"),
         style(
           [ ".table thead tr th { padding-top: 0.1rem; padding-bottom: 0.1rem; }",
             ".table thead tr:first-child { border-top: 2px solid black; border-bottom: 1px solid black; }",
@@ -180,7 +178,5 @@ handle(Topic, Form)
                     \show_solutions(Topic, T, Data),
                     \show_mistakes(Topic, T, Data),
                     \show_traps(Topic, T)])))))),
-        script(src('bootstrap.bundle.min.js'), ''),
-        script(src('roaches.js'), ''),
-        script("window.onload = () => { roachesAreGo(2); };")
+        script(src('bootstrap.bundle.min.js'), '')
       ]).

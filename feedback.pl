@@ -5,6 +5,7 @@
 :- use_module(interval).
 :- use_module(util).
 :- use_module(library(http/http_log)).
+:- use_module(library(http/js_write)).
 
 % This may become more complex if we change the representation.
 praise(Task, Flags, Col, Praise) :-
@@ -64,6 +65,7 @@ show_feedback(Topic, Task, Data)
          ; Wrong = p(class('card-text'),
              [ "Wrong steps", ul(class('card-text'), ul(Wrong0)) ])
       ),
+      length(Wrong0, Nroaches),
       % Irrelevant feedback
       findall(li(F),
         ( member(step(expert, Name, Args), Flags),
@@ -87,16 +89,20 @@ show_feedback(Topic, Task, Data)
              [ "Other mistakes", ul(class('card-text'), ul(Blame0)) ])
       )
     },
-    html(div(class(card),
-      [ div(class('card-header text-white bg-warning'), "Careful"),
-        div(class('card-body'),
-          [ p(class('card-text'), "This is the correct expression:"),
-            p(class('card-text'), \mmlm([topic(Topic), task(Task), error(fix) | Colors], Expr)),
-            p(class('card-text'), "Your response matches the following expression:"),
-            p(class('card-text'), \mmlm([topic(Topic), task(Task), error(highlight) | Colors], Expr)),
-            Correct, Wrong, Praise, Blame
-          ])
-      ])).
+    html(
+    [ div(class('card bg-transparent'),
+        [ div(class('card-header text-white bg-warning'), "Careful"),
+          div(class('card-body'),
+            [ p(class('card-text'), "This is the correct expression:"),
+              p(class('card-text'), \mmlm([topic(Topic), task(Task), error(fix) | Colors], Expr)),
+              p(class('card-text'), "Your response matches the following expression:"),
+              p(class('card-text'), \mmlm([topic(Topic), task(Task), error(highlight) | Colors], Expr)),
+              Correct, Wrong, Praise, Blame
+            ])
+        ]),
+        script(src('roaches.js'), ''),
+        script({|javascript(Nroaches)|| window.onload = () => { roachesAreGo(Nroaches); }; |})
+      ]).
 
 show_feedback(Topic, Task, _Data)
 --> { session_data(resp(Topic, Task, R)),
